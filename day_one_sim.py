@@ -8,6 +8,7 @@
 
 #libraries
 import numpy as np
+import matplotlib.pyplot as plt
 
 #Variables
 n = 10000
@@ -16,10 +17,14 @@ z_var = 1
 eta_var = 1
 gamma = 1
 phi = 1.5
+w = 3
+x_bar = 0
+x_var = 1
+theta = 1
 
 
 # Functions
-def simQ(n, z_bar, z_var, eta_var, gamma):
+def sim_q(n, z_bar, z_var, eta_var, gamma):
     "function that creates a dataset of Q to use in the model"
     z = np.random.normal(z_bar, z_var, n)
     i_1 = np.ones(n)
@@ -35,9 +40,23 @@ def binary(q, phi):
             oneVector.append(1)
         else:
             oneVector.append(0)
-    return oneVector
+    return np.asarray(oneVector)
 
-q = simQ(n, z_bar, z_var, eta_var, gamma)
-print(q)
-print(binary(q, phi))
-print(np.nanmean(binary(q, phi)))
+def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, demographics):
+    "Meant to simulate Y as a dataset"
+    x = np.random.normal(x_bar, x_var, n)
+    nu = np.random.normal(0, 1, n)
+    q = sim_q(n, z_bar, z_var, eta_var, gamma)
+    if demographics == True:
+        y = w*binary(q, phi) + theta*q + nu
+    if demographics == False:
+        y = w*binary(q, phi) - theta*x + nu
+    return {"y": y, "q": q}
+
+
+# q = simQ(n, z_bar, z_var, eta_var, gamma)
+# binary(q, phi)
+results = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, True)
+print(results["y"])
+
+# plt.scatter(results["q"], results["y"])
