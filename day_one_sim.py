@@ -30,13 +30,13 @@ def sim_q(n, z_bar, z_var, eta_var, gamma):
     i_1 = np.ones(n)
     eta = np.random.normal(0, eta_var, n)
     q = i_1 + gamma * z + eta
-    return q
+    return z, q
 
 def binary(q, phi):
     "The 1 value that checks if phi is crossed"
     oneVector = []
     for i in range(len(q)):
-        if q[i] >= phi:
+        if q[i] > phi:
             oneVector.append(1)
         else:
             oneVector.append(0)
@@ -48,15 +48,21 @@ def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, demographic
     nu = np.random.normal(0, 1, n)
     q = sim_q(n, z_bar, z_var, eta_var, gamma)
     if demographics == True:
-        y = w*binary(q, phi) + theta*q + nu
+        y = w*binary(q[1], phi) + theta*q[0]+ nu
     if demographics == False:
-        y = w*binary(q, phi) - theta*x + nu
-    return {"y": y, "q": q}
+        y = w*binary(q[1], phi) - theta*x + nu
+    return y, q[0], q[1]
 
 
-# q = simQ(n, z_bar, z_var, eta_var, gamma)
-# binary(q, phi)
 results = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, True)
-print(results["y"])
+print(results[0])
 
-# plt.scatter(results["q"], results["y"])
+plt.scatter(results[1], results[0])
+plt.xlabel("Z value")
+plt.ylabel("Y value")
+plt.show()
+
+plt.scatter(results[2], results[0])
+plt.xlabel("Q value")
+plt.ylabel("Y value")
+plt.show()
