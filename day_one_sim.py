@@ -16,8 +16,23 @@ z_var = 1
 eta_var = 1
 gamma = 1
 
-z = np.random.normal(z_bar, z_var, n)
-i_1 = np.ones(n)
-eta = np.random.normal(0, eta_var, n)
-q = i_1 + gamma * z + eta
-print(q)
+# z = np.random.normal(z_bar, z_var, n)
+# i_1 = np.ones(n)
+# eta = np.random.normal(0, eta_var, n)
+# q = i_1 + gamma * z + eta
+# print(q)
+
+
+
+
+
+# Function for q dataset
+def simQ(n, z_bar, z_var, eta_var, gamma):
+    "function that creates a dataset of Q to use in the model"
+    z = np.random.normal(z_bar, z_var, n)
+    i_1 = np.ones(n)
+    eta = np.random.normal(0, eta_var, n)
+    q = i_1 + gamma * z + eta
+    return q
+
+print(simQ(n, z_bar, z_var, eta_var, gamma))
