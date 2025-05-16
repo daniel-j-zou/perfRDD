@@ -15,18 +15,10 @@ z_bar = 0
 z_var = 1
 eta_var = 1
 gamma = 1
-
-# z = np.random.normal(z_bar, z_var, n)
-# i_1 = np.ones(n)
-# eta = np.random.normal(0, eta_var, n)
-# q = i_1 + gamma * z + eta
-# print(q)
+phi = 1.5
 
 
-
-
-
-# Function for q dataset
+# Functions
 def simQ(n, z_bar, z_var, eta_var, gamma):
     "function that creates a dataset of Q to use in the model"
     z = np.random.normal(z_bar, z_var, n)
@@ -35,4 +27,17 @@ def simQ(n, z_bar, z_var, eta_var, gamma):
     q = i_1 + gamma * z + eta
     return q
 
-print(simQ(n, z_bar, z_var, eta_var, gamma))
+def binary(q, phi):
+    "The 1 value that checks if phi is crossed"
+    oneVector = []
+    for i in range(len(q)):
+        if q[i] >= phi:
+            oneVector.append(1)
+        else:
+            oneVector.append(0)
+    return oneVector
+
+q = simQ(n, z_bar, z_var, eta_var, gamma)
+print(q)
+print(binary(q, phi))
+print(np.nanmean(binary(q, phi)))
