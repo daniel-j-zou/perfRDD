@@ -51,12 +51,14 @@ def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, dem
     treatment_lsrl = np.poly1d(treatment_coeff)
     treatment_fit = np.linspace(phi, np.max(treatment_subset), len(treatment_subset))
 
-
-
-
     plt.scatter(results[1], results[0], c='royalblue')
     plt.xlabel("Z value")
     plt.ylabel("Y value")
+    plt.show()
+
+    plt.scatter(results[1], results[2], c='royalblue')
+    plt.xlabel("Z value")
+    plt.ylabel("Q value")
     plt.show()
 
     plt.scatter(results[2], results[0], c='royalblue')
