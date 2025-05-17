@@ -10,19 +10,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-#Variables
-n = 10000
-z_bar = 0
-z_var = 1
-eta_var = 1
-gamma = 1
-phi = 1.5
-w = 3
-x_bar = 0
-x_var = 1
-theta = 1
-
-
 # Functions
 def sim_q(n, z_bar, z_var, eta_var, gamma):
     "function that creates a dataset of Q to use in the model"
@@ -53,7 +40,6 @@ def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, demographic
         y = w*binary(q[1], phi) - theta*x + nu
     return y, q[0], q[1]
 
-
 def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, demographics):
     results = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, demographics)
     print(results[0])
@@ -68,5 +54,18 @@ def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, dem
     plt.ylabel("Y value")
     plt.show()
 
+#Variables
+n = 10000
+z_bar = 0
+z_var = 1
+eta_var = 1
+gamma = 1
+phi = 1.5
+w = 3
+x_bar = 0
+x_var = 1
+theta = 1
+
+# testing
 non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, False) # Z != Q
 non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, True) # Z = Q
