@@ -54,15 +54,19 @@ def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, demographic
     return y, q[0], q[1]
 
 
-results = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, True)
-print(results[0])
+def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, demographics):
+    results = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, demographics)
+    print(results[0])
 
-plt.scatter(results[1], results[0])
-plt.xlabel("Z value")
-plt.ylabel("Y value")
-plt.show()
+    plt.scatter(results[1], results[0])
+    plt.xlabel("Z value")
+    plt.ylabel("Y value")
+    plt.show()
 
-plt.scatter(results[2], results[0])
-plt.xlabel("Q value")
-plt.ylabel("Y value")
-plt.show()
+    plt.scatter(results[2], results[0])
+    plt.xlabel("Q value")
+    plt.ylabel("Y value")
+    plt.show()
+
+non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, False) # Z != Q
+non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, True) # Z = Q
