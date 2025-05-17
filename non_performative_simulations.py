@@ -34,14 +34,35 @@ def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, demographic
 
 def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, demographics):
     results = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, demographics)
-    print(results[0])
 
-    plt.scatter(results[1], results[0])
+    non_treatment_mask = (results[2] < phi)
+    non_treatment_subset = results[2][non_treatment_mask]
+    non_treatment_results = results[0][non_treatment_mask]
+
+    treatment_mask = (results[2] >= phi)
+    treatment_subset = results[2][treatment_mask]
+    treatment_results = results[0][treatment_mask]
+
+    non_treatment_coeff = np.polyfit(non_treatment_subset, non_treatment_results, deg=1)
+    non_treatment_lsrl = np.poly1d(non_treatment_coeff)
+    non_treatment_fit = np.linspace(np.min(non_treatment_subset), phi, len(non_treatment_subset))
+
+    treatment_coeff = np.polyfit(treatment_subset, treatment_results, deg=1)
+    treatment_lsrl = np.poly1d(treatment_coeff)
+    treatment_fit = np.linspace(phi, np.max(treatment_subset), len(treatment_subset))
+
+
+
+
+    plt.scatter(results[1], results[0], c='royalblue')
     plt.xlabel("Z value")
     plt.ylabel("Y value")
     plt.show()
 
-    plt.scatter(results[2], results[0])
+    plt.scatter(results[2], results[0], c='royalblue')
+    plt.axvline(x=phi, color='black', linestyle='--', label=f'phi = {phi}')
+    plt.plot(non_treatment_fit, non_treatment_lsrl(non_treatment_fit), color='red')
+    plt.plot(treatment_fit, treatment_lsrl(treatment_fit), color='red')
     plt.xlabel("Q value")
     plt.ylabel("Y value")
     plt.show()
@@ -58,6 +79,12 @@ x_bar = 0
 x_var = 1
 theta = 1
 
-# testing
+# Example
 non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, False) # Z != Q
 non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, True) # Z = Q
+
+
+
+
+
+# Different data simulations
