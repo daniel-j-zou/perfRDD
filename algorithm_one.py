@@ -1,3 +1,5 @@
+# Objective: Using the functions I made in non_performative_simulations.py, implement Algorithm 1
+
 #libraries
 import numpy as np
 import matplotlib.pyplot as plt
@@ -33,7 +35,7 @@ def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, demograp
     return y, q[0], q[1]
 
 def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, demographics):
-    results = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, demographics)
+    results = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, demographics)
 
     non_treatment_mask = (results[2] < phi)
     non_treatment_subset = results[2][non_treatment_mask]
@@ -68,25 +70,3 @@ def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     plt.xlabel("Q value")
     plt.ylabel("Y value")
     plt.show()
-
-#Variables
-n = 10000
-z_bar = 0
-z_var = 1
-eta_var = 1
-gamma = 1
-phi = 1.5
-w = 3
-x_bar = 0
-x_var = 1
-theta = 1
-
-# Example
-non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, False) # Z != Q
-non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, True) # Z = Q
-
-
-
-
-
-# Different data simulations
