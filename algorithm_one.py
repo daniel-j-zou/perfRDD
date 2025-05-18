@@ -35,7 +35,7 @@ def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, dem
         y = w*binary(q[1], phi) - theta*x + nu
     return y, q[0], q[1]
 
-def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics):
+def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot):
     results = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics)
 
     non_treatment_mask = (results[2] < phi)
@@ -53,24 +53,26 @@ def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     treatment_coeff = np.polyfit(treatment_subset, treatment_results, deg=1)
     treatment_lsrl = np.poly1d(treatment_coeff)
     treatment_fit = np.linspace(phi, np.max(treatment_subset), len(treatment_subset))
+    if plot == True:
+        plt.scatter(results[1], results[0], c='royalblue')
+        plt.xlabel("Z value")
+        plt.ylabel("Y value")
+        plt.show()
 
-    plt.scatter(results[1], results[0], c='royalblue')
-    plt.xlabel("Z value")
-    plt.ylabel("Y value")
-    plt.show()
+        plt.scatter(results[1], results[2], c='royalblue')
+        plt.xlabel("Z value")
+        plt.ylabel("Q value")
+        plt.show()
 
-    plt.scatter(results[1], results[2], c='royalblue')
-    plt.xlabel("Z value")
-    plt.ylabel("Q value")
-    plt.show()
+        plt.scatter(results[2], results[0], c='royalblue')
+        plt.axvline(x=phi, color='black', linestyle='--', label=f'phi = {phi}')
+        plt.plot(non_treatment_fit, non_treatment_lsrl(non_treatment_fit), color='red')
+        plt.plot(treatment_fit, treatment_lsrl(treatment_fit), color='red')
+        plt.xlabel("Q value")
+        plt.ylabel("Y value")
+        plt.show()
 
-    plt.scatter(results[2], results[0], c='royalblue')
-    plt.axvline(x=phi, color='black', linestyle='--', label=f'phi = {phi}')
-    plt.plot(non_treatment_fit, non_treatment_lsrl(non_treatment_fit), color='red')
-    plt.plot(treatment_fit, treatment_lsrl(treatment_fit), color='red')
-    plt.xlabel("Q value")
-    plt.ylabel("Y value")
-    plt.show()
+    return results, non_treatment_subset, non_treatment_results, treatment_subset, treatment_results
 
 n = 10000
 z_bar = 0
@@ -85,4 +87,31 @@ theta = 1
 rho = 8
 demographics = True
 
-non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics)
+non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot=False)
+
+
+
+
+
+def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot):
+    # Step 1
+    step_one = non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot)
+    t_set = step_one[0][2]
+    s_a = []
+    s_d = []
+    for i in range(len(t_set)):
+        if t_set[i] <= phi:
+            s_d.append(i)
+        else:
+            s_a.append(i)
+
+    # Step 2
+    z_t = step_one[0][1]
+    q_t = step_one[0][2]
+    gamma_hat = np.polyfit(z_t, q_t, deg=1)[0]
+    eta_t = q_t - gamma_hat*z_t
+
+    # Step 3
+    return s_a, s_d, z_t, q_t, gamma_hat, eta_t
+
+print(algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False)[4])
