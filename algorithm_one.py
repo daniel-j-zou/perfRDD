@@ -11,7 +11,7 @@ def sim_q(n, z_bar, z_var, eta_var, gamma):
     i_1 = np.ones(n)
     eta = np.random.normal(0, eta_var, n)
     q = i_1 + gamma * z + eta
-    return z, q
+    return z, q, eta
 
 def binary(q, phi):
     "The 1 value that checks if phi is crossed"
@@ -23,19 +23,20 @@ def binary(q, phi):
             oneVector.append(0)
     return np.asarray(oneVector)
 
-def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, demographics):
+def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics):
     "Meant to simulate Y as a dataset"
     x = np.random.normal(x_bar, x_var, n)
-    nu = np.random.normal(0, 1, n)
+    epsilon = np.random.normal(0, 1, n)
     q = sim_q(n, z_bar, z_var, eta_var, gamma)
+    nu = rho*q[2] + epsilon
     if demographics == True:
         y = w*binary(q[1], phi) + theta*q[0]+ nu
     if demographics == False:
         y = w*binary(q[1], phi) - theta*x + nu
     return y, q[0], q[1]
 
-def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, demographics):
-    results = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, demographics)
+def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics):
+    results = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics)
 
     non_treatment_mask = (results[2] < phi)
     non_treatment_subset = results[2][non_treatment_mask]
@@ -70,3 +71,18 @@ def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     plt.xlabel("Q value")
     plt.ylabel("Y value")
     plt.show()
+
+n = 10000
+z_bar = 0
+z_var = 1
+eta_var = 1
+gamma = 1
+phi = 1.5
+w = 130
+x_bar = 0
+x_var = 1
+theta = 1
+rho = 8
+demographics = True
+
+non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics)
