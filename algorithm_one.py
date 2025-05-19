@@ -156,11 +156,9 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     for i in range(len(s_a)):
         if np.abs(eta_t[s_a[i]] - eta_t[s_t_set[i]]) < n**(-1*zeta):
             s_a_tilde.append(s_a[i])
-    print(len(s_a_tilde))
     for i in range(len(s_d)):
         if np.abs(eta_t[s_d[i]] - eta_t[t_s_set[i]]) < n**(-1*zeta):
             s_d_tilde.append(s_d[i])
-    print(len(s_d_tilde))
 
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t,
 
