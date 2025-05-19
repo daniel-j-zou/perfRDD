@@ -3,6 +3,9 @@
 #libraries
 import numpy as np
 import matplotlib.pyplot as plt
+from scipy.stats import norm
+from statsmodels.distributions.empirical_distribution import ECDF
+from statsmodels.nonparametric.kde import KDEUnivariate
 
 # Functions
 def sim_q(n, z_bar, z_var, eta_var, gamma):
@@ -89,10 +92,6 @@ demographics = True
 
 non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot=False)
 
-
-
-
-
 def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot):
     # Step 1
     step_one = non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot)
@@ -111,7 +110,34 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     gamma_hat = np.polyfit(z_t, q_t, deg=1)[0]
     eta_t = q_t - gamma_hat*z_t
 
-    # Step 3
-    return s_a, s_d, z_t, q_t, gamma_hat, eta_t
+    # Step 3 (assume Z is Gaussian, for now)
+        # big_g_hat = ECDF(gamma_hat*z_t)
+        # big_g_hat_bar = 1 - big_g_hat
+        # little_g_hat = KDEUnivariate(gamma_hat*z_t)
+        # little_g_hat.fit(bw='scott')
+    z_t_mean = np.mean(z_t)
+    z_t_std = np.std(z_t)
 
-print(algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False)[4])
+    def big_g_hat(x, gamma_hat, z_t):
+        mu = np.mean(gamma_hat*z_t)
+        sigma = np.std(gamma_hat*z_t)
+        return norm.cdf(x, mu, sigma)
+
+    def little_g_hat(x, gamma_hat, z_t):
+        mu = np.mean(gamma_hat*z_t)
+        sigma = np.std(gamma_hat*z_t)
+        return norm.cdf(x, mu, sigma)
+
+    def big_g_hat_bar(x, gamma_hat, z_t):
+        mu = np.mean(gamma_hat*z_t)
+        sigma = np.std(gamma_hat*z_t)
+        return 1 - norm.cdf(x, mu, sigma)
+
+    # Step 4
+    s_t_set = []
+    for i in range(len(s_a)):
+        print(i)
+
+    return s_a, s_d, z_t, q_t, gamma_hat, eta_t,
+
+print(algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False)[3])
