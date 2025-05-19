@@ -4,8 +4,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
-from statsmodels.distributions.empirical_distribution import ECDF
-from statsmodels.nonparametric.kde import KDEUnivariate
+# from statsmodels.distributions.empirical_distribution import ECDF
+# from statsmodels.nonparametric.kde import KDEUnivariate
 
 # Functions
 def sim_q(n, z_bar, z_var, eta_var, gamma):
@@ -39,6 +39,7 @@ def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, dem
     return y, q[0], q[1]
 
 def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot):
+    "Runs a dataset and makes plots if wanted"
     results = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics)
 
     non_treatment_mask = (results[2] < phi)
@@ -134,10 +135,33 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
         return 1 - norm.cdf(x, mu, sigma)
 
     # Step 4
+    eta_s_d = []
+    eta_s_a = []
+    for i in s_a:
+        eta_s_a.append(eta_t[i])
+    for i in s_d:
+        eta_s_d.append(eta_t[i])
     s_t_set = []
+    t_s_set = []
+    for i in range(n):
+        if i in s_a:
+            s_t = np.argmin(np.abs(eta_s_d - eta_t[i]))
+            s_t_set.append(s_d[s_t])
+        if i in s_d:
+            t_s = np.argmin(np.abs(eta_s_a - eta_t[i]))
+            t_s_set.append(s_a[t_s])
+    zeta = 1
+    s_a_tilde = []
+    s_d_tilde = []
     for i in range(len(s_a)):
-        print(i)
+        if np.abs(eta_t[s_a[i]] - eta_t[s_t_set[i]]) < n**(-1*zeta):
+            s_a_tilde.append(s_a[i])
+    print(len(s_a_tilde))
+    for i in range(len(s_d)):
+        if np.abs(eta_t[s_d[i]] - eta_t[t_s_set[i]]) < n**(-1*zeta):
+            s_d_tilde.append(s_d[i])
+    print(len(s_d_tilde))
 
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t,
 
-print(algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False)[3])
+algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, True)
