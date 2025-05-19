@@ -28,15 +28,16 @@ def binary(q, phi):
 
 def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics):
     "Meant to simulate Y as a dataset"
-    x = np.random.normal(x_bar, x_var, n)
     epsilon = np.random.normal(0, 1, n)
     q = sim_q(n, z_bar, z_var, eta_var, gamma)
     nu = rho*q[2] + epsilon
     if demographics == True:
-        y = w*binary(q[1], phi) + theta*q[0]+ nu
+        x = q[0]
+        y = w*binary(q[1], phi) + theta*x+ nu
     if demographics == False:
+        x = np.random.normal(x_bar, x_var, n)
         y = w*binary(q[1], phi) - theta*x + nu
-    return y, q[0], q[1]
+    return y, q[0], q[1], x
 
 def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot):
     "Runs a dataset and makes plots if wanted"
@@ -77,21 +78,6 @@ def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
         plt.show()
 
     return results, non_treatment_subset, non_treatment_results, treatment_subset, treatment_results
-
-n = 10000
-z_bar = 0
-z_var = 1
-eta_var = 1
-gamma = 1
-phi = 1.5
-w = 130
-x_bar = 0
-x_var = 1
-theta = 1
-rho = 8
-demographics = True
-
-non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot=False)
 
 def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot):
     # Step 1
@@ -143,13 +129,16 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
         eta_s_d.append(eta_t[i])
     s_t_set = []
     t_s_set = []
+    s_t_and_t_s = []
     for i in range(n):
         if i in s_a:
             s_t = np.argmin(np.abs(eta_s_d - eta_t[i]))
             s_t_set.append(s_d[s_t])
+            s_t_and_t_s.append(s_d[s_t])
         if i in s_d:
             t_s = np.argmin(np.abs(eta_s_a - eta_t[i]))
             t_s_set.append(s_a[t_s])
+            s_t_and_t_s.append(s_a[t_s])
     zeta = 1
     s_a_tilde = []
     s_d_tilde = []
@@ -160,6 +149,32 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
         if np.abs(eta_t[s_d[i]] - eta_t[t_s_set[i]]) < n**(-1*zeta):
             s_d_tilde.append(s_d[i])
 
+    # Step 5 (I assume the PLM is for all 10000 points, hence s_t_and_t_s)
+
+    # Compute alpha(eta) normally, but because W is constant in this case, it is just W
+
+    y_t_minus_y_s_t = []
+    x_t_minus_x_s_t = []
+    y_set = step_one[0][0]
+    x_set = step_one[0][3]
+    for i in range(n):
+        y_t_minus_y_s_t.append(y_set[i] - y_set[s_t_and_t_s[i]])
+        x_t_minus_x_s_t.append(x_set[i] - x_set[s_t_and_t_s[i]])
+
+
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t,
+
+n = 10000
+z_bar = 0
+z_var = 1
+eta_var = 1
+gamma = 1
+phi = 1.5
+w = 130
+x_bar = 0
+x_var = 1
+theta = 1
+rho = 8
+demographics = True
 
 algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, True)
