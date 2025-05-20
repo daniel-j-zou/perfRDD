@@ -151,8 +151,6 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     for i in range(len(s_d)):
         if np.abs(eta_t[s_d[i]] - eta_t[t_s_set[i]]) < n**(-1*zeta):
             s_d_tilde.append(s_d[i])
-    print("s_tilde_a", len(s_a_tilde))
-    print("s_tilde_d", len(s_d_tilde))
 
     # Step 5
 
@@ -168,29 +166,37 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
         if i in s_d:
             continue
     theta_transpose = np.polyfit(x_t_minus_x_s_t, y_t_minus_y_s_t, deg=1)[0]
-    print("theta estimate:", theta_transpose)
 
     # Step 6
-    y_tilde_a = []
-    x_tilde_a = []
-    y_tilde_d = []
-    x_tilde_d = []
-    for i in s_a_tilde:
-        x_tilde_a.append(x_set[i])
-        y_tilde_a.append(y_set[i])
-    for i in s_d_tilde:
-        x_tilde_d.append(x_set[i])
-        y_tilde_d.append(y_set[i])
+    # y_tilde_a = []
+    # x_tilde_a = []
+    # y_tilde_d = []
+    # x_tilde_d = []
+    # for i in s_a_tilde:
+    #     x_tilde_a.append(x_set[i])
+    #     y_tilde_a.append(y_set[i])
+    # for i in s_d_tilde:
+    #     x_tilde_d.append(x_set[i])
+    #     y_tilde_d.append(y_set[i])
+    # r_t = np.asarray(y_tilde_a) - theta_transpose*np.asarray(x_tilde_a)
+    # r_s = np.asarray(y_tilde_d) - theta_transpose*np.asarray(x_tilde_d)
 
-    r_t = np.asarray(y_tilde_a) - theta_transpose*np.asarray(x_tilde_a)
-    r_s = np.asarray(y_tilde_d) - theta_transpose*np.asarray(x_tilde_d)
+    r = y_set - theta_transpose*x_set
     def u_evo(phi_prime):
         sum_one = 0
-        for i in s_a_tilde:
-            sum_one = sum_one + ((r_t[i] - r_t[s_t_and_t_s[i]] - c))*big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
+        j = 0
+        for i in s_a:
+            if i in s_a_tilde:
+                k = s_t_set[j]
+                sum_one = sum_one + (r[i] - r[k] - c)*big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
+            j = j + 1
         sum_two = 0
-        for i in s_d_tilde:
-            sum_two = sum_two + ((r_t[s_t_and_t_s[i]] - r_t[i] - c)) * big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
+        j = 0
+        for i in s_d:
+            if i in s_d_tilde:
+                k = t_s_set[j]
+                sum_two = sum_two + (r[k] - r[i] - c) * big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
+            j = j + 1
         return (sum_one + sum_two/n)
     def u_mbs(phi_prime):
         numerator = n*u_evo(phi_prime)
@@ -213,11 +219,19 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     # Step 7
     def little_u_evo(phi_prime):
         sum_one = 0
-        for i in s_a_tilde:
-            sum_one = sum_one + ((r_t[i] - r_t[s_t_and_t_s[i]] - c)) * little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
+        j = 0
+        for i in s_a:
+            if i in s_a_tilde:
+                k = s_t[j]
+                sum_one = sum_one + (r[i] - r[k] - c) * little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
+            j = j + 1
         sum_two = 0
-        for i in s_d_tilde:
-            sum_two = sum_two + ((r_t[s_t_and_t_s[i]] - r_t[i] - c)) * little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
+        j = 0
+        for i in s_d:
+            if i in s_d_tilde:
+                k = t_s[j]
+                sum_two = sum_two + (r[k] - r[i] - c) * little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
+            j = j + 1
         return ((sum_one + sum_two / n)*(-1))
 
     def optimal_function(phi_prime):
