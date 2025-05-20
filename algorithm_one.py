@@ -157,9 +157,16 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     x_t_minus_x_s_t = []
     y_set = step_one[0][0]
     x_set = step_one[0][3]
+    # Check this
     for i in range(n):
-        y_t_minus_y_s_t.append(y_set[i] - y_set[s_t_and_t_s[i]])
-        x_t_minus_x_s_t.append(x_set[i] - x_set[s_t_and_t_s[i]])
+        if i in s_a:
+            y_t_minus_y_s_t.append(y_set[i] - y_set[s_t_and_t_s[i]])
+            x_t_minus_x_s_t.append(x_set[i] - x_set[s_t_and_t_s[i]])
+    theta_transpose = np.polyfit(y_t_minus_y_s_t, x_t_minus_x_s_t, deg=1) - w
+    theta_transpose = theta_transpose[0]
+    print(theta_transpose)
+
+    # Step 6
 
 
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t,
