@@ -97,6 +97,8 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     q_t = step_one[0][2]
     gamma_hat = np.polyfit(z_t, q_t, deg=1)[0]
     eta_t = q_t - gamma_hat*z_t
+    # Plot eta_t against eta for diagnostics
+
 
     # Step 3 (assume Z is Gaussian, for now)
         # big_g_hat = ECDF(gamma_hat*z_t)
@@ -114,7 +116,7 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     def little_g_hat(x, gamma_hat, z_t):
         mu = np.mean(gamma_hat*z_t)
         sigma = np.std(gamma_hat*z_t)
-        return norm.cdf(x, mu, sigma)
+        return norm.pdf(x, mu, sigma)
 
     def big_g_hat_bar(x, gamma_hat, z_t):
         mu = np.mean(gamma_hat*z_t)
@@ -140,7 +142,7 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
             t_s = np.argmin(np.abs(eta_s_a - eta_t[i]))
             t_s_set.append(s_a[t_s])
             s_t_and_t_s.append(s_a[t_s])
-    zeta = 1
+    zeta = 0.5
     s_a_tilde = []
     s_d_tilde = []
     for i in range(len(s_a)):
@@ -149,29 +151,39 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     for i in range(len(s_d)):
         if np.abs(eta_t[s_d[i]] - eta_t[t_s_set[i]]) < n**(-1*zeta):
             s_d_tilde.append(s_d[i])
+    print("s_tilde_a", len(s_a_tilde))
+    print("s_tilde_d", len(s_d_tilde))
 
-    # Step 5 (I assume the PLM is for all 10000 points, hence s_t_and_t_s)
+    # Step 5
 
     # Compute alpha(eta) normally, but because W is constant in this case, it is just W
-
     y_t_minus_y_s_t = []
     x_t_minus_x_s_t = []
     y_set = step_one[0][0]
     x_set = step_one[0][3]
-    # Check this, I have no idea if I did this correctly. This is a Daniel question
     for i in range(n):
-        if i in s_a:
+        if i in s_a_tilde:
             y_t_minus_y_s_t.append(y_set[i] - y_set[s_t_and_t_s[i]])
             x_t_minus_x_s_t.append(x_set[i] - x_set[s_t_and_t_s[i]])
         if i in s_d:
-            y_t_minus_y_s_t.append(y_set[i])
-            x_t_minus_x_s_t.append(x_set[i])
-    theta_transpose = np.polyfit(y_t_minus_y_s_t, x_t_minus_x_s_t, deg=1) - w
-    theta_transpose = theta_transpose[0]
+            continue
+    theta_transpose = np.polyfit(x_t_minus_x_s_t, y_t_minus_y_s_t, deg=1)[0]
     print("theta estimate:", theta_transpose)
 
     # Step 6
-    r_t = y_set - theta_transpose*x_set
+    y_tilde_a = []
+    x_tilde_a = []
+    y_tilde_d = []
+    x_tilde_d = []
+    for i in s_a_tilde:
+        x_tilde_a.append(x_set[i])
+        y_tilde_a.append(y_set[i])
+    for i in s_d_tilde:
+        x_tilde_d.append(x_set[i])
+        y_tilde_d.append(y_set[i])
+
+    r_t = np.asarray(y_tilde_a) - theta_transpose*np.asarray(x_tilde_a)
+    r_s = np.asarray(y_tilde_d) - theta_transpose*np.asarray(x_tilde_d)
     def u_evo(phi_prime):
         sum_one = 0
         for i in s_a_tilde:
@@ -190,9 +202,13 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
             sum_four = sum_four + big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
         denominator = sum_three + sum_four
         return numerator/denominator
-    # These values are absurdly high, something is up. Suspicious of theta_transpose
-    print(u_evo(5))
-    print(u_mbs(5))
+    data_x = []
+    data_y = []
+    for i in range(-10, 11):
+        data_x.append(i)
+        data_y.append(u_evo(i))
+    plt.scatter(data_x, data_y)
+    plt.show()
 
     # Step 7
     def little_u_evo(phi_prime):
@@ -223,18 +239,18 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
 
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t
 
-n = 10000
+n = 1000
 z_bar = 0
 z_var = 1
 eta_var = 1
 gamma = 1
 phi = 1.5
-w = 130
+w = 10
 x_bar = 0
 x_var = 1
 theta = 1
 rho = 8
 demographics = True
-c = 10
+c = 5
 
-algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, True, c)
+algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False, c)
