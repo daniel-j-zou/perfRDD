@@ -79,7 +79,7 @@ def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
 
     return results, non_treatment_subset, non_treatment_results, treatment_subset, treatment_results
 
-def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot):
+def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot, c):
     # Step 1
     step_one = non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot)
     t_set = step_one[0][2]
@@ -157,17 +157,41 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     x_t_minus_x_s_t = []
     y_set = step_one[0][0]
     x_set = step_one[0][3]
-    # Check this
+    # Check this, I have no idea if I did this correctly. This is a Daniel question
     for i in range(n):
         if i in s_a:
             y_t_minus_y_s_t.append(y_set[i] - y_set[s_t_and_t_s[i]])
             x_t_minus_x_s_t.append(x_set[i] - x_set[s_t_and_t_s[i]])
+        if i in s_d:
+            y_t_minus_y_s_t.append(y_set[i])
+            x_t_minus_x_s_t.append(x_set[i])
     theta_transpose = np.polyfit(y_t_minus_y_s_t, x_t_minus_x_s_t, deg=1) - w
     theta_transpose = theta_transpose[0]
     print(theta_transpose)
 
     # Step 6
-
+    r_t = y_set - theta_transpose*x_set
+    def u_evo(phi_prime):
+        sum_one = 0
+        for i in s_a_tilde:
+            sum_one = sum_one + ((r_t[i] - r_t[s_t_and_t_s[i]] - c))*big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
+        sum_two = 0
+        for i in s_d_tilde:
+            sum_two = sum_two + ((r_t[s_t_and_t_s[i]] - r_t[i] - c)) * big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
+        return (sum_one + sum_two/n)
+    def u_mbs(phi_prime):
+        numerator = n*u_evo(phi_prime)
+        sum_three = 0
+        for i in s_a_tilde:
+            sum_one = sum_three + big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
+        sum_four = 0
+        for i in s_d_tilde:
+            sum_four = sum_four + big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
+        denominator = sum_three + sum_four
+        return numerator/denominator
+    # These values are absurdly high, something is up
+    print(u_evo(5))
+    print(u_mbs(5))
 
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t,
 
@@ -183,5 +207,6 @@ x_var = 1
 theta = 1
 rho = 8
 demographics = True
+c = 10
 
-algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, True)
+algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, True, c)
