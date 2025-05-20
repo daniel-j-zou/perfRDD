@@ -226,15 +226,6 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
                 sum_two = sum_two + (r[k] - r[i] - c) * little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
             j = j + 1
         return (((sum_one + sum_two)/ n)*(-1))
-    data_x = []
-    data_y = []
-    for i in range(-10, 11):
-        data_x.append(i)
-        data_y.append(u_evo(i))
-    m = np.mean(data_y)
-    plt.scatter(data_x, data_y)
-    plt.title("u_evo W = 10; c = 5; avg = " + str(m))
-    plt.show()
 
     def optimal_function(phi_prime):
         numerator = n * little_u_evo(phi_prime)
@@ -289,7 +280,7 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     for i in range(-10, 11):
         data_x.append(i)
         data_y.append(optimal_function(i))
-    m = np.mean(data_y)
+    m = np.nanmean(data_y)
     plt.scatter(data_x, data_y)
     plt.title("phi_mbs W = 10; c = 5; avg = " + str(m))
     plt.show()
