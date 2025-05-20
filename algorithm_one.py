@@ -168,7 +168,7 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
             x_t_minus_x_s_t.append(x_set[i])
     theta_transpose = np.polyfit(y_t_minus_y_s_t, x_t_minus_x_s_t, deg=1) - w
     theta_transpose = theta_transpose[0]
-    print(theta_transpose)
+    print("theta estimate:", theta_transpose)
 
     # Step 6
     r_t = y_set - theta_transpose*x_set
