@@ -250,7 +250,7 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     for i in range(-10, 11):
         data_x.append(i)
         data_y.append(u_evo(i))
-    m = np.mean(data_y)
+    m = np.nanmean(data_y)
     plt.scatter(data_x, data_y)
     plt.title("u_evo W = 10; c = 5; avg = " + str(m))
     plt.show()
@@ -260,7 +260,7 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     for i in range(-10, 11):
         data_x.append(i)
         data_y.append(u_mbs(i))
-    m = np.mean(data_y)
+    m = np.nanmean(data_y)
     plt.scatter(data_x, data_y)
     plt.title("u_mbs W = 10; c = 5; avg = " + str(m))
     plt.show()
@@ -270,7 +270,7 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     for i in range(-10, 11):
         data_x.append(i)
         data_y.append(little_u_evo(i))
-    m = np.mean(data_y)
+    m = np.nanmean(data_y)
     plt.scatter(data_x, data_y)
     plt.title("little_u_evo W = 10; c = 5; avg = " + str(m))
     plt.show()
