@@ -210,11 +210,12 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
         return numerator/denominator
     data_x = []
     data_y = []
-    for i in range(-100, 101):
+    for i in range(-10, 11):
         data_x.append(i)
         data_y.append(u_evo(i))
-    print(np.mean(data_y))
+    m = np.mean(data_y)
     plt.scatter(data_x, data_y)
+    plt.title("W = 10; c = 5; avg = " + str(m))
     plt.show()
 
     # Step 7
@@ -266,6 +267,6 @@ x_var = 1
 theta = 1
 rho = 8
 demographics = True
-c = 2
+c = 5
 
 algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False, c)
