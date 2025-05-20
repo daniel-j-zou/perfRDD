@@ -197,7 +197,7 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
                 k = t_s_set[j]
                 sum_two = sum_two + (r[k] - r[i] - c) * big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
             j = j + 1
-        return (sum_one + sum_two/n)
+        return ((sum_one + sum_two)/n)
     def u_mbs(phi_prime):
         numerator = n*u_evo(phi_prime)
         sum_three = 0
@@ -210,9 +210,10 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
         return numerator/denominator
     data_x = []
     data_y = []
-    for i in range(-10, 11):
+    for i in range(-100, 101):
         data_x.append(i)
         data_y.append(u_evo(i))
+    print(np.mean(data_y))
     plt.scatter(data_x, data_y)
     plt.show()
 
@@ -232,7 +233,7 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
                 k = t_s[j]
                 sum_two = sum_two + (r[k] - r[i] - c) * little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
             j = j + 1
-        return ((sum_one + sum_two / n)*(-1))
+        return (((sum_one + sum_two)/ n)*(-1))
 
     def optimal_function(phi_prime):
         numerator = n * little_u_evo(phi_prime)
@@ -265,6 +266,6 @@ x_var = 1
 theta = 1
 rho = 8
 demographics = True
-c = 5
+c = 2
 
 algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False, c)
