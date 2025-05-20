@@ -217,11 +217,11 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
         return ((numerator/denominator) - u_mbs(phi_prime))
 
     try:
-        brentq(optimal_function, -100000, 100000)
+        brentq(optimal_function, -10000, 10000)
     except:
         print("Optimization failed: no root")
 
-    return s_a, s_d, z_t, q_t, gamma_hat, eta_t,
+    return s_a, s_d, z_t, q_t, gamma_hat, eta_t
 
 n = 10000
 z_bar = 0
