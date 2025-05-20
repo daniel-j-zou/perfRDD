@@ -4,6 +4,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
+from scipy.optimize import brentq
 # from statsmodels.distributions.empirical_distribution import ECDF
 # from statsmodels.nonparametric.kde import KDEUnivariate
 
@@ -189,9 +190,36 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
             sum_four = sum_four + big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
         denominator = sum_three + sum_four
         return numerator/denominator
-    # These values are absurdly high, something is up
+    # These values are absurdly high, something is up. Suspicious of theta_transpose
     print(u_evo(5))
     print(u_mbs(5))
+
+    # Step 7
+    def little_u_evo(phi_prime):
+        sum_one = 0
+        for i in s_a_tilde:
+            sum_one = sum_one + ((r_t[i] - r_t[s_t_and_t_s[i]] - c)) * little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
+        sum_two = 0
+        for i in s_d_tilde:
+            sum_two = sum_two + ((r_t[s_t_and_t_s[i]] - r_t[i] - c)) * little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
+        return ((sum_one + sum_two / n)*(-1))
+
+    def optimal_function(phi_prime):
+        numerator = n * little_u_evo(phi_prime)
+        sum_three = 0
+        for i in s_a_tilde:
+            sum_one = sum_three + little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
+        sum_four = 0
+        for i in s_d_tilde:
+            sum_four = sum_four + little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
+        denominator = sum_three + sum_four
+        print(denominator)
+        return ((numerator/denominator) - u_mbs(phi_prime))
+
+    try:
+        brentq(optimal_function, -100000, 100000)
+    except:
+        print("Optimization failed: no root")
 
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t,
 
