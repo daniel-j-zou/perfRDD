@@ -208,15 +208,6 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
             sum_four = sum_four + big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
         denominator = sum_three + sum_four
         return numerator/denominator
-    data_x = []
-    data_y = []
-    for i in range(-10, 11):
-        data_x.append(i)
-        data_y.append(u_evo(i))
-    m = np.mean(data_y)
-    plt.scatter(data_x, data_y)
-    plt.title("W = 10; c = 5; avg = " + str(m))
-    plt.show()
 
     # Step 7
     def little_u_evo(phi_prime):
@@ -224,17 +215,26 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
         j = 0
         for i in s_a:
             if i in s_a_tilde:
-                k = s_t[j]
+                k = s_t_set[j]
                 sum_one = sum_one + (r[i] - r[k] - c) * little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
             j = j + 1
         sum_two = 0
         j = 0
         for i in s_d:
             if i in s_d_tilde:
-                k = t_s[j]
+                k = t_s_set[j]
                 sum_two = sum_two + (r[k] - r[i] - c) * little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
             j = j + 1
         return (((sum_one + sum_two)/ n)*(-1))
+    data_x = []
+    data_y = []
+    for i in range(-10, 11):
+        data_x.append(i)
+        data_y.append(u_evo(i))
+    m = np.mean(data_y)
+    plt.scatter(data_x, data_y)
+    plt.title("u_evo W = 10; c = 5; avg = " + str(m))
+    plt.show()
 
     def optimal_function(phi_prime):
         numerator = n * little_u_evo(phi_prime)
@@ -252,6 +252,47 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
         brentq(optimal_function, -10000, 10000)
     except:
         print("Optimization failed: no root")
+
+    # Graphs of interest
+    data_x = []
+    data_y = []
+    for i in range(-10, 11):
+        data_x.append(i)
+        data_y.append(u_evo(i))
+    m = np.mean(data_y)
+    plt.scatter(data_x, data_y)
+    plt.title("u_evo W = 10; c = 5; avg = " + str(m))
+    plt.show()
+
+    data_x = []
+    data_y = []
+    for i in range(-10, 11):
+        data_x.append(i)
+        data_y.append(u_mbs(i))
+    m = np.mean(data_y)
+    plt.scatter(data_x, data_y)
+    plt.title("u_mbs W = 10; c = 5; avg = " + str(m))
+    plt.show()
+
+    data_x = []
+    data_y = []
+    for i in range(-10, 11):
+        data_x.append(i)
+        data_y.append(little_u_evo(i))
+    m = np.mean(data_y)
+    plt.scatter(data_x, data_y)
+    plt.title("little_u_evo W = 10; c = 5; avg = " + str(m))
+    plt.show()
+
+    data_x = []
+    data_y = []
+    for i in range(-10, 11):
+        data_x.append(i)
+        data_y.append(optimal_function(i))
+    m = np.mean(data_y)
+    plt.scatter(data_x, data_y)
+    plt.title("phi_mbs W = 10; c = 5; avg = " + str(m))
+    plt.show()
 
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t
 
