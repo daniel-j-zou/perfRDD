@@ -202,7 +202,7 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
         numerator = n*u_evo(phi_prime)
         sum_three = 0
         for i in s_a_tilde:
-            sum_one = sum_three + big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
+            sum_three = sum_three + big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
         sum_four = 0
         for i in s_d_tilde:
             sum_four = sum_four + big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
