@@ -240,7 +240,7 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
         return ((numerator/denominator) - u_mbs(phi_prime))
 
     try:
-        brentq(optimal_function, -10000, 10000)
+        brentq(u_evo, -10, 11)
     except:
         print("Optimization failed: no root")
 
@@ -257,7 +257,7 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
 
     data_x = []
     data_y = []
-    for i in range(-10, 11):
+    for i in range(-25, 26):
         data_x.append(i)
         data_y.append(u_mbs(i))
     m = np.nanmean(data_y)
