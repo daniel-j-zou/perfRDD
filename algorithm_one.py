@@ -331,7 +331,7 @@ for j, n in enumerate(n_vec):
     print(n)
     variances_theta.append([n, np.var(theta_data)])
     data_list_theta.extend(temp_data_theta)
-    variances_eta.extend([n, np.var(eta_data)])
+    variances_eta.append([n, np.var(eta_data)])
     data_list_eta.extend(temp_data_eta)
 
 
@@ -344,17 +344,17 @@ sns.violinplot(x='n_val', y='theta_residual', data=df_theta)
 plt.title("Theta Residuals with different Data points")
 plt.show()
 
-sns.barplot(x='n_val', y='theta_res_var', data=df_var_theta, ci=None)
+sns.barplot(x='n_val', y='theta_res_var', data=df_var_theta, errorbar=None)
 plt.title('Bar Plot of Theta Residual Variances by n_val')
 plt.xlabel('n_val')
 plt.ylabel('Variance of Theta Residual')
 plt.show()
 
 sns.violinplot(x='n_val', y='eta_residual', data=df_eta)
-plt.title('Bar Plot of Eta Mean Residual by n_val')
+plt.title('Eta Mean Residual by n_val')
 plt.show()
 
-sns.barplot(x='n_val', y='eta_res_var', data=df_eta)
+sns.barplot(x='n_val', y='eta_res_var', data=df_var_eta, errorbar=None)
 plt.title('Bar Plot of Eta Mean Residual Variance by n_val')
 plt.xlabel('n_val')
 plt.ylabel('Variance of Eta Mean Residual Variance')
