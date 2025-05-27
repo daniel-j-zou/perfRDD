@@ -4,7 +4,9 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
+import pandas as pd
 from scipy.optimize import brentq
+import seaborn as sns
 # from statsmodels.distributions.empirical_distribution import ECDF
 # from statsmodels.nonparametric.kde import KDEUnivariate
 
@@ -239,53 +241,55 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
         print(denominator)
         return ((numerator/denominator) - u_mbs(phi_prime))
 
-    try:
-        brentq(u_evo, -10, 11)
-    except:
-        print("Optimization failed: no root")
+    # try:
+    #     brentq(u_evo, -10, 11)
+    # except:
+    #     print("Optimization failed: no root")
 
     # Graphs of interest
-    data_x = []
-    data_y = []
-    for i in range(-10, 11):
-        data_x.append(i)
-        data_y.append(u_evo(i))
-    m = np.nanmean(data_y)
-    plt.scatter(data_x, data_y)
-    plt.title("u_evo W = 10; c = 5; avg = " + str(m))
-    plt.show()
+    # data_x = []
+    # data_y = []
+    # for i in range(-10, 11):
+    #     data_x.append(i)
+    #     data_y.append(u_evo(i))
+    # m = np.nanmean(data_y)
+    # plt.scatter(data_x, data_y)
+    # plt.title("u_evo W = 10; c = 5; avg = " + str(m))
+    # plt.show()
+    #
+    # data_x = []
+    # data_y = []
+    # for i in range(-25, 26):
+    #     data_x.append(i)
+    #     data_y.append(u_mbs(i))
+    # m = np.nanmean(data_y)
+    # plt.scatter(data_x, data_y)
+    # plt.title("u_mbs W = 10; c = 5; avg = " + str(m))
+    # plt.show()
+    #
+    # data_x = []
+    # data_y = []
+    # for i in range(-10, 11):
+    #     data_x.append(i)
+    #     data_y.append(little_u_evo(i))
+    # m = np.nanmean(data_y)
+    # plt.scatter(data_x, data_y)
+    # plt.title("little_u_evo W = 10; c = 5; avg = " + str(m))
+    # plt.show()
+    #
+    # data_x = []
+    # data_y = []
+    # for i in range(-10, 11):
+    #     data_x.append(i)
+    #     data_y.append(optimal_function(i))
+    # m = np.nanmean(data_y)
+    # plt.scatter(data_x, data_y)
+    # plt.title("phi_mbs W = 10; c = 5; avg = " + str(m))
+    # plt.show()
 
-    data_x = []
-    data_y = []
-    for i in range(-25, 26):
-        data_x.append(i)
-        data_y.append(u_mbs(i))
-    m = np.nanmean(data_y)
-    plt.scatter(data_x, data_y)
-    plt.title("u_mbs W = 10; c = 5; avg = " + str(m))
-    plt.show()
+    return s_a, s_d, z_t, q_t, gamma_hat, eta_t, theta_transpose
 
-    data_x = []
-    data_y = []
-    for i in range(-10, 11):
-        data_x.append(i)
-        data_y.append(little_u_evo(i))
-    m = np.nanmean(data_y)
-    plt.scatter(data_x, data_y)
-    plt.title("little_u_evo W = 10; c = 5; avg = " + str(m))
-    plt.show()
-
-    data_x = []
-    data_y = []
-    for i in range(-10, 11):
-        data_x.append(i)
-        data_y.append(optimal_function(i))
-    m = np.nanmean(data_y)
-    plt.scatter(data_x, data_y)
-    plt.title("phi_mbs W = 10; c = 5; avg = " + str(m))
-    plt.show()
-
-    return s_a, s_d, z_t, q_t, gamma_hat, eta_t
+# For purposes of efficiency with accuracy parameters, I stopped part of step 7 for now
 
 n = 1000
 z_bar = 0
@@ -301,4 +305,34 @@ rho = 8
 demographics = True
 c = 5
 
-algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False, c)
+print(algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False, c)[6])
+
+n_vec = [100,500,1000,5000,10000]
+data_list = []
+variances = []
+
+for j, n in enumerate(n_vec):
+    temp_data = []
+    theta_data = []
+
+    for _ in range(100):
+        theta_residual = (theta - algorithm_one(n_vec[j], z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False, c)[6])
+        temp_data.append([n, theta_residual])
+        theta_data.append(theta_residual)
+        print(theta_residual)
+    print(n)
+    variances.append([n, np.var(theta_data)])
+    data_list.extend(temp_data)
+
+df = pd.DataFrame(data_list, columns=['n_val', 'theta_residual'])
+df_var = pd.DataFrame(variances, columns=['n_val', 'theta_res_var'])
+
+sns.violinplot(x='n_val', y='theta_residual', data=df)
+plt.title("Theta Residuals with different Data points")
+plt.show()
+
+sns.barplot(x='n_val', y='theta_res_var', data=df_var, ci=None)
+plt.title('Bar Plot of Theta Residual Variances by n_val')
+plt.xlabel('n_val')
+plt.ylabel('Variance of Theta Residual')
+plt.show()
