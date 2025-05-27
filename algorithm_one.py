@@ -98,8 +98,11 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     z_t = step_one[0][1]
     q_t = step_one[0][2]
     gamma_hat = np.polyfit(z_t, q_t, deg=1)[0]
-    eta_t = q_t - gamma_hat*z_t
+    eta_t = q_t - gamma_hat*z_t - np.polyfit(z_t, q_t, deg = 1)[1]
     # Plot eta_t against eta for diagnostics
+    # eta = step_one[0][4]
+    # plt.scatter(eta_t, eta, c='red')
+    # plt.show()
 
 
     # Step 3 (assume Z is Gaussian, for now)
@@ -322,12 +325,12 @@ for j, n in enumerate(n_vec):
     for _ in range(100):
         alg_one = algorithm_one(n_vec[j], z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False, c)
         theta_residual = (theta - alg_one[6])
-        eta_residual = np.mean(alg_one[5] - alg_one[7])
+        eta_residual = np.mean(alg_one[7] - alg_one[5])
         temp_data_theta.append([n, theta_residual])
         temp_data_eta.append([n, eta_residual])
         theta_data.append(theta_residual)
         eta_data.append(eta_residual)
-        print(theta_residual)
+        print(eta_residual)
     print(n)
     variances_theta.append([n, np.var(theta_data)])
     data_list_theta.extend(temp_data_theta)
