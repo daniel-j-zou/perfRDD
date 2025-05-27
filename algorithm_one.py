@@ -40,7 +40,7 @@ def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, dem
     if demographics == False:
         x = np.random.normal(x_bar, x_var, n)
         y = w*binary(q[1], phi) - theta*x + nu
-    return y, q[0], q[1], x
+    return y, q[0], q[1], x, q[2]
 
 def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, plot):
     "Runs a dataset and makes plots if wanted"
@@ -287,7 +287,7 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
     # plt.title("phi_mbs W = 10; c = 5; avg = " + str(m))
     # plt.show()
 
-    return s_a, s_d, z_t, q_t, gamma_hat, eta_t, theta_transpose
+    return s_a, s_d, z_t, q_t, gamma_hat, eta_t, theta_transpose, step_one[0][4]
 
 # For purposes of efficiency with accuracy parameters, I stopped part of step 7 for now
 
@@ -308,31 +308,54 @@ c = 5
 print(algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False, c)[6])
 
 n_vec = [100,500,1000,5000,10000]
-data_list = []
-variances = []
+data_list_theta = []
+variances_theta = []
+data_list_eta = []
+variances_eta = []
 
 for j, n in enumerate(n_vec):
-    temp_data = []
+    temp_data_theta = []
     theta_data = []
+    temp_data_eta = []
+    eta_data = []
 
     for _ in range(100):
-        theta_residual = (theta - algorithm_one(n_vec[j], z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False, c)[6])
-        temp_data.append([n, theta_residual])
+        alg_one = algorithm_one(n_vec[j], z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False, c)
+        theta_residual = (theta - alg_one[6])
+        eta_residual = np.mean(alg_one[5] - alg_one[7])
+        temp_data_theta.append([n, theta_residual])
+        temp_data_eta.append([n, eta_residual])
         theta_data.append(theta_residual)
+        eta_data.append(eta_residual)
         print(theta_residual)
     print(n)
-    variances.append([n, np.var(theta_data)])
-    data_list.extend(temp_data)
+    variances_theta.append([n, np.var(theta_data)])
+    data_list_theta.extend(temp_data_theta)
+    variances_eta.extend([n, np.var(eta_data)])
+    data_list_eta.extend(temp_data_eta)
 
-df = pd.DataFrame(data_list, columns=['n_val', 'theta_residual'])
-df_var = pd.DataFrame(variances, columns=['n_val', 'theta_res_var'])
 
-sns.violinplot(x='n_val', y='theta_residual', data=df)
+df_theta = pd.DataFrame(data_list_theta, columns=['n_val', 'theta_residual'])
+df_var_theta = pd.DataFrame(variances_theta, columns=['n_val', 'theta_res_var'])
+df_eta = pd.DataFrame(data_list_eta, columns=['n_val', 'eta_residual'])
+df_var_eta = pd.DataFrame(variances_eta, columns=['n_val', 'eta_res_var'])
+
+sns.violinplot(x='n_val', y='theta_residual', data=df_theta)
 plt.title("Theta Residuals with different Data points")
 plt.show()
 
-sns.barplot(x='n_val', y='theta_res_var', data=df_var, ci=None)
+sns.barplot(x='n_val', y='theta_res_var', data=df_var_theta, ci=None)
 plt.title('Bar Plot of Theta Residual Variances by n_val')
 plt.xlabel('n_val')
 plt.ylabel('Variance of Theta Residual')
+plt.show()
+
+sns.violinplot(x='n_val', y='eta_residual', data=df_eta)
+plt.title('Bar Plot of Eta Mean Residual by n_val')
+plt.show()
+
+sns.barplot(x='n_val', y='eta_res_var', data=df_eta)
+plt.title('Bar Plot of Eta Mean Residual Variance by n_val')
+plt.xlabel('n_val')
+plt.ylabel('Variance of Eta Mean Residual Variance')
 plt.show()
