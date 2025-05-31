@@ -310,7 +310,7 @@ c = 5
 
 print(algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False, c)[6])
 
-n_vec = [100,500,1000,5000,10000]
+n_vec = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
 data_list_theta = []
 variances_theta = []
 data_list_eta = []
