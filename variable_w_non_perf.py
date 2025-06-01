@@ -251,7 +251,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         data_y.append(u_evo(i))
     m = np.nanmean(data_y)
     plt.scatter(data_x, data_y)
-    plt.title("u_evo W = 10; c = 5; avg = " + str(m))
+    plt.title("u_evo c = 5; avg = " + str(m))
     plt.show()
 
     data_x = []
@@ -261,7 +261,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         data_y.append(u_mbs(i))
     m = np.nanmean(data_y)
     plt.scatter(data_x, data_y)
-    plt.title("u_mbs W = 10; c = 5; avg = " + str(m))
+    plt.title("u_mbs c = 5; avg = " + str(m))
     plt.show()
 
     data_x = []
@@ -271,7 +271,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         data_y.append(little_u_evo(i))
     m = np.nanmean(data_y)
     plt.scatter(data_x, data_y)
-    plt.title("little_u_evo W = 10; c = 5; avg = " + str(m))
+    plt.title("little_u_evo c = 5; avg = " + str(m))
     plt.show()
 
     data_x = []
@@ -281,7 +281,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         data_y.append(optimal_function(i))
     m = np.nanmean(data_y)
     plt.scatter(data_x, data_y)
-    plt.title("phi_mbs W = 10; c = 5; avg = " + str(m))
+    plt.title("phi_mbs c = 5; avg = " + str(m))
     plt.show()
 
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t
