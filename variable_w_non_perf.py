@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import norm
 from scipy.optimize import brentq
+from sklearn.linear_model import LinearRegression
 # from statsmodels.distributions.empirical_distribution import ECDF
 # from statsmodels.nonparametric.kde import KDEUnivariate
 
@@ -11,7 +12,7 @@ def sim_q(n, z_bar, z_var, eta_var, gamma):
     "function that creates a dataset of Q to use in the model"
     z = np.random.normal(z_bar, z_var, n)
     i_1 = np.ones(n)
-    eta = np.random.normal(0, eta_var, n)
+    eta = np.random.normal(5, eta_var, n)
     q = i_1 + gamma * z + eta
     return z, q, eta
 
@@ -30,17 +31,22 @@ def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho
     epsilon = np.random.normal(0, 1, n)
     q = sim_q(n, z_bar, z_var, eta_var, gamma)
     nu = rho*q[2] + epsilon
+    w = []
     if w_func == True:
-        w = np.random.normal(np.mean(q[2]), 1)
+        for i in range(n):
+            reward = np.random.normal(q[2][i], 1)
+            w.append(reward)
     if w_func == False:
-        w = np.random.normal(-1 * np.mean(q[2]), 1)
+        for i in range(n):
+            reward = np.random.normal(-1 * q[2][i], 1)
+            w.append(reward)
     if demographics == True:
         x = q[0]
         y = w*binary(q[1], phi) + theta*x+ nu
     if demographics == False:
         x = np.random.normal(x_bar, x_var, n)
         y = w*binary(q[1], phi) - theta*x + nu
-    return y, q[0], q[1], x
+    return y, q[0], q[1], x, w
 
 def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, plot):
     "Runs a dataset and makes plots if wanted"
@@ -155,8 +161,8 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
             s_d_tilde.append(s_d[i])
 
     # Step 5
-
-    # Compute alpha(eta) normally, but because W is constant in this case, it is just W
+    w = step_one[0][4]
+    alpha_w_set = []
     y_t_minus_y_s_t = []
     x_t_minus_x_s_t = []
     y_set = step_one[0][0]
@@ -165,24 +171,15 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         if i in s_a_tilde:
             y_t_minus_y_s_t.append(y_set[i] - y_set[s_t_and_t_s[i]])
             x_t_minus_x_s_t.append(x_set[i] - x_set[s_t_and_t_s[i]])
+            alpha_w_set.append(w[i])
         if i in s_d:
             continue
-    theta_transpose = np.polyfit(x_t_minus_x_s_t, y_t_minus_y_s_t, deg=1)[0]
+    predictors = np.array([alpha_w_set, x_t_minus_x_s_t]).T
+    model = LinearRegression()
+    model.fit(predictors, y_t_minus_y_s_t)
+    theta_transpose = model.coef_[1]
 
     # Step 6
-    # y_tilde_a = []
-    # x_tilde_a = []
-    # y_tilde_d = []
-    # x_tilde_d = []
-    # for i in s_a_tilde:
-    #     x_tilde_a.append(x_set[i])
-    #     y_tilde_a.append(y_set[i])
-    # for i in s_d_tilde:
-    #     x_tilde_d.append(x_set[i])
-    #     y_tilde_d.append(y_set[i])
-    # r_t = np.asarray(y_tilde_a) - theta_transpose*np.asarray(x_tilde_a)
-    # r_s = np.asarray(y_tilde_d) - theta_transpose*np.asarray(x_tilde_d)
-
     r = y_set - theta_transpose*x_set
     def u_evo(phi_prime):
         sum_one = 0
@@ -294,13 +291,13 @@ z_bar = 0
 z_var = 1
 eta_var = 1
 gamma = 1
-phi = 1.5
+phi = 6
 x_bar = 0
 x_var = 1
 theta = 1
 w_func = False
 rho = 8
-demographics = True
+demographics = False
 c = 5
 
-algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)
+algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
