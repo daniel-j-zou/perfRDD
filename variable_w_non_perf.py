@@ -12,7 +12,7 @@ def sim_q(n, z_bar, z_var, eta_var, gamma):
     "function that creates a dataset of Q to use in the model"
     z = np.random.normal(z_bar, z_var, n)
     i_1 = np.ones(n)
-    eta = np.random.normal(5, eta_var, n)
+    eta = np.random.normal(0, eta_var, n)
     q = i_1 + gamma * z + eta
     return z, q, eta
 
@@ -162,7 +162,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
 
     # Step 5
     w = step_one[0][4]
-    alpha_w_set = []
+    alpha_eta_set = []
     y_t_minus_y_s_t = []
     x_t_minus_x_s_t = []
     y_set = step_one[0][0]
@@ -171,10 +171,10 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         if i in s_a_tilde:
             y_t_minus_y_s_t.append(y_set[i] - y_set[s_t_and_t_s[i]])
             x_t_minus_x_s_t.append(x_set[i] - x_set[s_t_and_t_s[i]])
-            alpha_w_set.append(w[i])
+            alpha_eta_set.append(eta_t[i])
         if i in s_d:
             continue
-    predictors = np.array([alpha_w_set, x_t_minus_x_s_t]).T
+    predictors = np.array([alpha_eta_set, x_t_minus_x_s_t]).T
     model = LinearRegression()
     model.fit(predictors, y_t_minus_y_s_t)
     theta_transpose = model.coef_[1]
@@ -291,13 +291,13 @@ z_bar = 0
 z_var = 1
 eta_var = 1
 gamma = 1
-phi = 6
+phi = 1.5
 x_bar = 0
 x_var = 1
 theta = 1
-w_func = False
+w_func = True
 rho = 8
 demographics = False
-c = 5
+c = 0
 
 algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
