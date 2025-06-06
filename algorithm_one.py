@@ -308,7 +308,7 @@ rho = 8
 demographics = True
 c = 5
 
-print(algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False, c)[6])
+# algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, True, c)
 
 n_vec = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
 data_list_theta = []
@@ -344,11 +344,11 @@ df_eta = pd.DataFrame(data_list_eta, columns=['n_val', 'eta_residual'])
 df_var_eta = pd.DataFrame(variances_eta, columns=['n_val', 'eta_res_var'])
 
 sns.violinplot(x='n_val', y='theta_residual', data=df_theta)
-plt.title("Theta Residuals with different Data points")
+plt.title("Theta Residuals by n_val")
 plt.show()
 
 sns.barplot(x='n_val', y='theta_res_var', data=df_var_theta, errorbar=None)
-plt.title('Bar Plot of Theta Residual Variances by n_val')
+plt.title('Theta Residual Variances by n_val')
 plt.xlabel('n_val')
 plt.ylabel('Variance of Theta Residual')
 plt.show()
@@ -358,7 +358,7 @@ plt.title('Eta Mean Residual by n_val')
 plt.show()
 
 sns.barplot(x='n_val', y='eta_res_var', data=df_var_eta, errorbar=None)
-plt.title('Bar Plot of Eta Mean Residual Variance by n_val')
+plt.title('Eta Mean Residual Variance by n_val')
 plt.xlabel('n_val')
 plt.ylabel('Variance of Eta Mean Residual Variance')
 plt.show()
