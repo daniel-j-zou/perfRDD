@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from scipy.stats import norm
 from scipy.optimize import brentq
 from sklearn.linear_model import LinearRegression
+import pandas as pd
+import seaborn as sns
 # from statsmodels.distributions.empirical_distribution import ECDF
 # from statsmodels.nonparametric.kde import KDEUnivariate
 
@@ -244,45 +246,45 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         print("Optimization failed: no root")
 
     # Graphs of interest
-    data_x = []
-    data_y = []
-    for i in range(-10, 11):
-        data_x.append(i)
-        data_y.append(u_evo(i))
-    m = np.nanmean(data_y)
-    plt.scatter(data_x, data_y)
-    plt.title("u_evo c = 5; avg = " + str(m))
-    plt.show()
-
-    data_x = []
-    data_y = []
-    for i in range(-25, 26):
-        data_x.append(i)
-        data_y.append(u_mbs(i))
-    m = np.nanmean(data_y)
-    plt.scatter(data_x, data_y)
-    plt.title("u_mbs c = 5; avg = " + str(m))
-    plt.show()
-
-    data_x = []
-    data_y = []
-    for i in range(-10, 11):
-        data_x.append(i)
-        data_y.append(little_u_evo(i))
-    m = np.nanmean(data_y)
-    plt.scatter(data_x, data_y)
-    plt.title("little_u_evo c = 5; avg = " + str(m))
-    plt.show()
-
-    data_x = []
-    data_y = []
-    for i in range(-10, 11):
-        data_x.append(i)
-        data_y.append(optimal_function(i))
-    m = np.nanmean(data_y)
-    plt.scatter(data_x, data_y)
-    plt.title("phi_mbs c = 5; avg = " + str(m))
-    plt.show()
+    # data_x = []
+    # data_y = []
+    # for i in range(-10, 11):
+    #     data_x.append(i)
+    #     data_y.append(u_evo(i))
+    # m = np.nanmean(data_y)
+    # plt.scatter(data_x, data_y)
+    # plt.title("u_evo c = 5; avg = " + str(m))
+    # plt.show()
+    #
+    # data_x = []
+    # data_y = []
+    # for i in range(-25, 26):
+    #     data_x.append(i)
+    #     data_y.append(u_mbs(i))
+    # m = np.nanmean(data_y)
+    # plt.scatter(data_x, data_y)
+    # plt.title("u_mbs c = 5; avg = " + str(m))
+    # plt.show()
+    #
+    # data_x = []
+    # data_y = []
+    # for i in range(-10, 11):
+    #     data_x.append(i)
+    #     data_y.append(little_u_evo(i))
+    # m = np.nanmean(data_y)
+    # plt.scatter(data_x, data_y)
+    # plt.title("little_u_evo c = 5; avg = " + str(m))
+    # plt.show()
+    #
+    # data_x = []
+    # data_y = []
+    # for i in range(-10, 11):
+    #     data_x.append(i)
+    #     data_y.append(optimal_function(i))
+    # m = np.nanmean(data_y)
+    # plt.scatter(data_x, data_y)
+    # plt.title("phi_mbs c = 5; avg = " + str(m))
+    # plt.show()
 
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t
 
@@ -300,4 +302,57 @@ rho = 8
 demographics = False
 c = 0
 
-algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
+# algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
+
+n_vec = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
+data_list_theta = []
+variances_theta = []
+data_list_eta = []
+variances_eta = []
+
+for j, n in enumerate(n_vec):
+    temp_data_theta = []
+    theta_data = []
+    temp_data_eta = []
+    eta_data = []
+
+    for _ in range(100):
+        alg_one = algorithm_two(n_vec[j], z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, rho, demographics, False, c)
+        theta_residual = (theta - alg_one[6])
+        eta_residual = np.mean(alg_one[7] - alg_one[5])
+        temp_data_theta.append([n, theta_residual])
+        temp_data_eta.append([n, eta_residual])
+        theta_data.append(theta_residual)
+        eta_data.append(eta_residual)
+        print(eta_residual)
+    print(n)
+    variances_theta.append([n, np.var(theta_data)])
+    data_list_theta.extend(temp_data_theta)
+    variances_eta.append([n, np.var(eta_data)])
+    data_list_eta.extend(temp_data_eta)
+
+
+df_theta = pd.DataFrame(data_list_theta, columns=['n_val', 'theta_residual'])
+df_var_theta = pd.DataFrame(variances_theta, columns=['n_val', 'theta_res_var'])
+df_eta = pd.DataFrame(data_list_eta, columns=['n_val', 'eta_residual'])
+df_var_eta = pd.DataFrame(variances_eta, columns=['n_val', 'eta_res_var'])
+
+sns.violinplot(x='n_val', y='theta_residual', data=df_theta)
+plt.title("Theta Residuals by n_val")
+plt.show()
+
+sns.barplot(x='n_val', y='theta_res_var', data=df_var_theta, errorbar=None)
+plt.title('Theta Residual Variances by n_val')
+plt.xlabel('n_val')
+plt.ylabel('Variance of Theta Residual')
+plt.show()
+
+sns.violinplot(x='n_val', y='eta_residual', data=df_eta)
+plt.title('Eta Mean Residual by n_val')
+plt.show()
+
+sns.barplot(x='n_val', y='eta_res_var', data=df_var_eta, errorbar=None)
+plt.title('Eta Mean Residual Variance by n_val')
+plt.xlabel('n_val')
+plt.ylabel('Variance of Eta Mean Residual Variance')
+plt.show()
