@@ -106,7 +106,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
     z_t = step_one[0][1]
     q_t = step_one[0][2]
     gamma_hat = np.polyfit(z_t, q_t, deg=1)[0]
-    eta_t = q_t - gamma_hat*z_t
+    eta_t = q_t - gamma_hat*z_t - np.polyfit(z_t, q_t, deg = 1)[1]
     # Plot eta_t against eta for diagnostics
 
 
