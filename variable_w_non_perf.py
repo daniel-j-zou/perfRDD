@@ -322,9 +322,9 @@ for m in n_vec:
     print(f"Variance of Phi Hat Evo for{simulations} simulations and n = {m}:", np.nanvar(values))
     print(f"Bias of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values) - true_mean, "\n")
 
-    means.append([n, np.nanmean(values)])
-    variances.append([n, np.nanvar(values)])
-    biases.append([n, np.abs(np.nanmean(values) - true_mean)])
+    means.append([m, np.nanmean(values)])
+    variances.append([m, np.nanvar(values)])
+    biases.append([m, np.abs(np.nanmean(values) - true_mean)])
 
 df_means = pd.DataFrame(means, columns=["n", "mean"])
 df_variances = pd.DataFrame(variances, columns=["n", "var"])
