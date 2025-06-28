@@ -228,7 +228,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
             j = j + 1
         return (((sum_one + sum_two)/ n)*(-1))
 
-    def optimal_function(phi_prime):
+    def optimal_mbs(phi_prime):
         numerator = n * little_u_evo(phi_prime)
         sum_three = 0
         for i in s_a_tilde:
@@ -240,53 +240,55 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         print(denominator)
         return ((numerator/denominator) - u_mbs(phi_prime))
 
-    try:
-        brentq(u_evo, -10, 11)
-    except:
-        print("Optimization failed: no root")
+    def optimal_evo():
+        try:
+            phi_hat_evo = brentq(little_u_evo, -10, 10)
+        except:
+            phi_hat_evo = np.nan
+        return phi_hat_evo
 
     # Graphs of interest
-    data_x = []
-    data_y = []
-    for i in range(-3, 4):
-        data_x.append(i)
-        data_y.append(u_evo(i))
-    m = np.nanmean(data_y)
-    plt.scatter(data_x, data_y)
-    plt.title("u_evo c = 5; avg = " + str(m))
-    plt.show()
+    # data_x = []
+    # data_y = []
+    # for i in range(-3, 4):
+    #     data_x.append(i)
+    #     data_y.append(u_evo(i))
+    # m = np.nanmean(data_y)
+    # plt.scatter(data_x, data_y)
+    # plt.title("u_evo c = 5; avg = " + str(m))
+    # plt.show()
+    #
+    # data_x = []
+    # data_y = []
+    # for i in range(-5, 6):
+    #     data_x.append(i)
+    #     data_y.append(u_mbs(i))
+    # m = np.nanmean(data_y)
+    # plt.scatter(data_x, data_y)
+    # plt.title("u_mbs c = 5; avg = " + str(m))
+    # plt.show()
+    #
+    # data_x = []
+    # data_y = []
+    # for i in range(-3, 4):
+    #     data_x.append(i)
+    #     data_y.append(little_u_evo(i))
+    # m = np.nanmean(data_y)
+    # plt.scatter(data_x, data_y)
+    # plt.title("little_u_evo c = 5; avg = " + str(m))
+    # plt.show()
+    #
+    # data_x = []
+    # data_y = []
+    # for i in range(-3, 4):
+    #     data_x.append(i)
+    #     data_y.append(optimal_mbs(i))
+    # m = np.nanmean(data_y)
+    # plt.scatter(data_x, data_y)
+    # plt.title("phi_mbs c = 5; avg = " + str(m))
+    # plt.show()
 
-    data_x = []
-    data_y = []
-    for i in range(-5, 6):
-        data_x.append(i)
-        data_y.append(u_mbs(i))
-    m = np.nanmean(data_y)
-    plt.scatter(data_x, data_y)
-    plt.title("u_mbs c = 5; avg = " + str(m))
-    plt.show()
-
-    data_x = []
-    data_y = []
-    for i in range(-3, 4):
-        data_x.append(i)
-        data_y.append(little_u_evo(i))
-    m = np.nanmean(data_y)
-    plt.scatter(data_x, data_y)
-    plt.title("little_u_evo c = 5; avg = " + str(m))
-    plt.show()
-
-    data_x = []
-    data_y = []
-    for i in range(-3, 4):
-        data_x.append(i)
-        data_y.append(optimal_function(i))
-    m = np.nanmean(data_y)
-    plt.scatter(data_x, data_y)
-    plt.title("phi_mbs c = 5; avg = " + str(m))
-    plt.show()
-
-    return s_a, s_d, z_t, q_t, gamma_hat, eta_t, theta_transpose, step_one[0][4]
+    return s_a, s_d, z_t, q_t, gamma_hat, eta_t, theta_transpose, step_one[0][4], optimal_evo()
 
 n = 1000
 z_bar = 0
@@ -302,7 +304,49 @@ rho = 8
 demographics = False
 c = 1
 
-algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
+# print(algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)[8])
+
+values = []
+variances = []
+biases = []
+means = []
+n_vec = [100, 200, 500, 1000, 1250, 1500, 2000]
+true_mean = 3
+for m in n_vec:
+    simulations = str(100)
+    for i in range(1, 100):
+        x = algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)[8]
+        values.append(x)
+
+    print(f"Optimal Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values))
+    print(f"Variance of Phi Hat Evo for{simulations} simulations and n = {m}:", np.nanvar(values))
+    print(f"Bias of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values) - true_mean, "\n")
+
+    means.append([n, np.nanmean(values)])
+    variances.append([n, np.nanvar(values)])
+    biases.append([n, np.abs(np.nanmean(values) - true_mean)])
+
+df_means = pd.DataFrame(means, columns=["n", "mean"])
+df_variances = pd.DataFrame(variances, columns=["n", "var"])
+df_biases = pd.DataFrame(biases, columns=["n", "bias"])
+
+sns.barplot(x='n', y='mean', data=df_means)
+plt.title("Mean over 100 Simulations")
+plt.xlabel("Number of Simulations")
+plt.ylabel("Mean")
+plt.show()
+
+sns.barplot(x='n', y='var', data=df_variances)
+plt.title("Var over 100 Simulations")
+plt.xlabel("Number of Simulations")
+plt.ylabel("Mean")
+plt.show()
+
+sns.barplot(x='n', y='bias', data=df_biases)
+plt.title("Absolute Value of Bias over 100 Simulations")
+plt.xlabel("Number of Simulations")
+plt.ylabel("Mean")
+plt.show()
 
 # n_vec = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
 # data_list_theta = []
