@@ -107,6 +107,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
     q_t = step_one[0][2]
     gamma_hat = np.polyfit(z_t, q_t, deg=1)[0]
     eta_t = q_t - gamma_hat*z_t - np.polyfit(z_t, q_t, deg = 1)[1]
+    intercept_1_hat = np.polyfit(z_t, q_t, deg = 1)[1]
     # Plot eta_t against eta for diagnostics
 
 
@@ -199,6 +200,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
                 sum_two = sum_two + (r[k] - r[i] - c) * big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
             j = j + 1
         return ((sum_one + sum_two)/n)
+
     def u_mbs(phi_prime):
         numerator = n*u_evo(phi_prime)
         sum_three = 0
@@ -253,6 +255,12 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
     y_cdf = norm.cdf((x_curve - mu) / sigma, loc=0, scale=1)
     y_curve = y_pdf - c * (1 - y_cdf)
 
+    sigma_hat = np.sqrt(1 + gamma_hat**2)
+    x_curve_hat = np.linspace(-5, 5, 100)
+    y_pdf_hat = norm.pdf(x_curve, loc=intercept_1_hat, scale=sigma)
+    y_cdf_hat = norm.cdf((x_curve - intercept_1_hat) / sigma, loc=0, scale=1)
+    y_curve_hat = y_pdf_hat - c * (1 - y_cdf_hat)
+
     # Graphs of interest
     if plot == True:
         data_x = []
@@ -264,6 +272,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         plt.scatter(data_x, data_y)
         plt.title(f"u_evo c = {c}; avg = {m}; n = {n}")
         plt.plot(x_curve, y_curve, color='r')
+        plt.plot(x_curve_hat, y_curve_hat, color='green')
         plt.show()
 
         # data_x = []
@@ -318,26 +327,37 @@ values = []
 variances = []
 biases = []
 means = []
-n_vec = [500, 1000, 5000, 10000, 50000, 100000]
+sims = []
+n_vec = [500, 1000, 2000, 5000, 10000]
 true_mean = 3
 for m in n_vec:
+# for i in range(1):
     simulations = str(100)
     algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
-#     for i in range(1, 100):
-#         x = algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)[8]
-#         values.append(x)
-#
-#     print(f"Optimal Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values))
-#     print(f"Variance of Phi Hat Evo for{simulations} simulations and n = {m}:", np.nanvar(values))
-#     print(f"Bias of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values) - true_mean, "\n")
-#
-#     means.append([m, np.nanmean(values)])
-#     variances.append([m, np.nanvar(values)])
-#     biases.append([m, np.abs(np.nanmean(values) - true_mean)])
-#
-# df_means = pd.DataFrame(means, columns=["n", "mean"])
-# df_variances = pd.DataFrame(variances, columns=["n", "var"])
-# df_biases = pd.DataFrame(biases, columns=["n", "bias"])
+    # algorithm_two(1000, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
+    for i in range(1, 100):
+        x = algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)[8]
+        values.append(x)
+        sims.append([n, x])
+
+    print(f"Optimal Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values))
+    print(f"Variance of Phi Hat Evo for{simulations} simulations and n = {m}:", np.nanvar(values))
+    print(f"Bias of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values) - true_mean, "\n")
+
+    means.append([m, np.nanmean(values)])
+    variances.append([m, np.nanvar(values)])
+    biases.append([m, np.abs(np.nanmean(values) - true_mean)])
+
+df_means = pd.DataFrame(means, columns=["n", "mean"])
+df_variances = pd.DataFrame(variances, columns=["n", "var"])
+df_biases = pd.DataFrame(biases, columns=["n", "bias"])
+df_sims = pd.DataFrame(sims, columns=["n", "simulations"])
+
+sns.violinplot(x = 'n', y = 'simulations', data = df_sims)
+plt.title("Phi Hat Evos for different n")
+plt.xlabel("n")
+plt.ylabel("simulations")
+plt.show()
 #
 # sns.barplot(x='n', y='mean', data=df_means)
 # plt.title("Mean over 100 Simulations")
