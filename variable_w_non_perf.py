@@ -341,7 +341,7 @@ for m in n_vec:
         sims.append([n, x])
 
     print(f"Optimal Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values))
-    print(f"Variance of Phi Hat Evo for{simulations} simulations and n = {m}:", np.nanvar(values))
+    print(f"Variance of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanvar(values))
     print(f"Bias of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values) - true_mean, "\n")
 
     means.append([m, np.nanmean(values)])
