@@ -322,8 +322,6 @@ rho = 8
 demographics = False
 c = 1
 
-# print(algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)[8])
-
 # Monte Carlo for Expectation
 # monte_carlo_values = []
 # z = sim_q(n, z_bar, z_var, eta_var, gamma)[0]
@@ -342,7 +340,6 @@ c = 1
 # plt.show()
 
 # Theory Checking
-values = []
 variances = []
 biases = []
 means = []
@@ -351,14 +348,19 @@ n_vec = [100, 200, 500, 1000, 2000, 5000, 10000]
 true_mean = 3
 for m in n_vec:
 # for i in range(1):
-    simulations = str(100)
+    simulations = str(500)
+    values = []
     print(f"processing: {m}")
-    algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
+    algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)
     # algorithm_two(1000, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
-    for i in range(1, 30):
+    for i in range(1, int(simulations)):
         x = algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)[8]
         values.append(x)
         sims.append([m, x])
+
+    sns.histplot(values, bins=30)
+    plt.title(f"Phi Hat Evo for n = {m}; simulations = {simulations}")
+    plt.show()
 
     print(f"Optimal Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values))
     print(f"Variance of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanvar(values))
@@ -371,7 +373,6 @@ for m in n_vec:
 df_means = pd.DataFrame(means, columns=["n", "mean"])
 df_variances = pd.DataFrame(variances, columns=["n", "var"])
 df_biases = pd.DataFrame(biases, columns=["n", "bias"])
-df_sims = pd.DataFrame(sims, columns=["n", "simulations"])
 
 plt.scatter(np.log(df_variances['n']), np.log(df_variances['var']), label="Log-Log Variance", color = 'Navy')
 log_x = np.log(df_variances['n'])
@@ -389,26 +390,20 @@ best_fit_line = slope * log_x + intercept
 plt.plot(log_x, best_fit_line, color='red')
 plt.show()
 
-sns.violinplot(x = 'n', y = 'simulations', data = df_sims)
-plt.title("Phi Hat Evos for different n")
-plt.xlabel("n")
-plt.ylabel("simulations")
-plt.show()
-
 sns.barplot(x='n', y='mean', data=df_means)
-plt.title("Mean over 100 Simulations")
+plt.title(f"Mean over {simulations} Simulations")
 plt.xlabel("Number of Simulations")
 plt.ylabel("Mean")
 plt.show()
 
 sns.barplot(x='n', y='var', data=df_variances)
-plt.title("Var over 100 Simulations")
+plt.title(f"Var over {simulations} Simulations")
 plt.xlabel("Number of Simulations")
 plt.ylabel("Variance")
 plt.show()
 
 sns.barplot(x='n', y='bias', data=df_biases)
-plt.title("Absolute Value of Bias over 100 Simulations")
+plt.title(f"Absolute Value of Bias over {simulations} Simulations")
 plt.xlabel("Number of Simulations")
 plt.ylabel("Absolute Value of Bias")
 plt.show()
