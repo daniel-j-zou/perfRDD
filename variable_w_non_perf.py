@@ -392,19 +392,19 @@ plt.show()
 
 sns.barplot(x='n', y='mean', data=df_means)
 plt.title(f"Mean over {simulations} Simulations")
-plt.xlabel("Number of Simulations")
+plt.xlabel("n_val")
 plt.ylabel("Mean")
 plt.show()
 
 sns.barplot(x='n', y='var', data=df_variances)
 plt.title(f"Var over {simulations} Simulations")
-plt.xlabel("Number of Simulations")
+plt.xlabel("n_val")
 plt.ylabel("Variance")
 plt.show()
 
 sns.barplot(x='n', y='bias', data=df_biases)
 plt.title(f"Absolute Value of Bias over {simulations} Simulations")
-plt.xlabel("Number of Simulations")
+plt.xlabel("n_val")
 plt.ylabel("Absolute Value of Bias")
 plt.show()
 
