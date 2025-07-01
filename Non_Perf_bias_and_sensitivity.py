@@ -269,9 +269,10 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         for i in range(-10, 11):
             data_x.append(i/2)
             data_y.append(u_evo(i/2))
-        m = np.nanmean(data_y)
+        m_a = len(s_a_tilde)
+        m_d = len(s_d_tilde)
         plt.scatter(data_x, data_y)
-        plt.title(f"u_evo c = {c}; avg = {m}; n = {n}")
+        plt.title(f"u_evo; s_a_tilde = {m_a}, s_d_tilde = {m_d}; n = {n}")
         plt.plot(x_curve, y_curve, color='r')
         plt.plot(x_curve_hat, y_curve_hat, color='green')
         plt.show()
@@ -307,7 +308,6 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         # plt.show()
 
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t, theta_transpose, step_one[0][4], optimal_evo()
-
 n = 1000
 z_bar = 0
 z_var = 1
@@ -321,7 +321,7 @@ w_func = True
 rho = 8
 demographics = False
 c = 1
-k_vec = [1, 1.1, 1.25, 1.5, 2, 2.5, 3, 4, 5]
+k_vec = [1, 1.5, 2, 5, 10]
 
 for k in k_vec:
     # Theory Checking
@@ -333,19 +333,17 @@ for k in k_vec:
     true_mean = 3
     for m in n_vec:
         # for i in range(1):
-        simulations = str(500)
+        simulations = str(2500)
         values = []
         print(f"processing: {m}")
-        algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)
+        algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c, k)
         # algorithm_two(1000, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
         for i in range(1, int(simulations)):
-            x = \
-            algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False,
-                          c)[8]
+            x = algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c, k)[8]
             values.append(x)
             sims.append([m, x])
 
-        sns.histplot(values, bins=30)
+        sns.histplot(values, bins = 30)
         plt.title(f"Phi Hat Evo for n = {m}; simulations = {simulations}")
         plt.show()
 
