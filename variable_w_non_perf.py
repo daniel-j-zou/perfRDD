@@ -339,74 +339,96 @@ c = 1
 # plt.legend(loc='upper right')
 # plt.show()
 
-# Theory Checking
-variances = []
-biases = []
-means = []
-sims = []
-n_vec = [100, 200, 500, 1000, 2000, 5000, 10000]
-true_mean = 3
-for m in n_vec:
-# for i in range(1):
-    simulations = str(500)
+def monte_carlo_function(q, w, c, domain):
     values = []
-    print(f"processing: {m}")
-    algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)
-    # algorithm_two(1000, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
-    for i in range(1, int(simulations)):
-        x = algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)[8]
-        values.append(x)
-        sims.append([m, x])
+    vector = []
+    for j in range(len(w)):
+        vector.append(w[j] - c)
+    for i in range(len(domain)):
+        values.append(np.mean((vector) * binary(q, domain[i])))
+    return values
+domain = np.linspace(-10, 10, 1000)
+monte_carlo_values = []
+for i in range (25000):
+    data = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics)
+    q = data[2]
+    w = data[4]
+    monte_carlo_values.append(monte_carlo_function(q, w, c, domain))
+true_expectation_curve = norm.pdf(domain, 1, (1+ gamma**2)) - c * (1 - norm.cdf((domain - 1) / np.sqrt(1 + gamma**2), 0, 1))
 
-    sns.histplot(values, bins=30)
-    plt.title(f"Phi Hat Evo for n = {m}; simulations = {simulations}")
-    plt.show()
-
-    print(f"Optimal Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values))
-    print(f"Variance of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanvar(values))
-    print(f"Bias of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values) - true_mean, "\n")
-
-    means.append([m, np.nanmean(values)])
-    variances.append([m, np.nanvar(values)])
-    biases.append([m, np.abs(np.nanmean(values) - true_mean)])
-
-df_means = pd.DataFrame(means, columns=["n", "mean"])
-df_variances = pd.DataFrame(variances, columns=["n", "var"])
-df_biases = pd.DataFrame(biases, columns=["n", "bias"])
-
-plt.scatter(np.log(df_variances['n']), np.log(df_variances['var']), label="Log-Log Variance", color = 'Navy')
-log_x = np.log(df_variances['n'])
-log_y = np.log(df_variances['var'])
-slope, intercept, r_value, p_value, std_err = stats.linregress(log_x, log_y)
-textstr = '\n'.join((
-    f'Slope: {slope:.2f}',
-    f'Intercept: {intercept:.2f}',
-    f'R-value: {r_value:.2f}',
-    f'P-value: {p_value:.2e}',
-    f'Std Err: {std_err:.2f}'
-))
-plt.gcf().text(0.15, 0.75, textstr, fontsize=10, bbox=dict(facecolor='white', alpha=0.5))
-best_fit_line = slope * log_x + intercept
-plt.plot(log_x, best_fit_line, color='red')
+plt.plot(domain, np.nanmean(monte_carlo_values, axis = 0), label="Monte Carlo", color='red')
+plt.plot(domain, true_expectation_curve, label="True Expectation", color='blue')
+plt.legend(loc='upper right')
 plt.show()
 
-sns.barplot(x='n', y='mean', data=df_means)
-plt.title(f"Mean over {simulations} Simulations")
-plt.xlabel("n_val")
-plt.ylabel("Mean")
-plt.show()
-
-sns.barplot(x='n', y='var', data=df_variances)
-plt.title(f"Var over {simulations} Simulations")
-plt.xlabel("n_val")
-plt.ylabel("Variance")
-plt.show()
-
-sns.barplot(x='n', y='bias', data=df_biases)
-plt.title(f"Absolute Value of Bias over {simulations} Simulations")
-plt.xlabel("n_val")
-plt.ylabel("Absolute Value of Bias")
-plt.show()
+# Theory Checking
+# variances = []
+# biases = []
+# means = []
+# sims = []
+# n_vec = [100, 200, 500, 1000, 2000, 5000, 10000]
+# true_mean = 3
+# for m in n_vec:
+# # for i in range(1):
+#     simulations = str(500)
+#     values = []
+#     print(f"processing: {m}")
+#     algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)
+#     # algorithm_two(1000, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
+#     for i in range(1, int(simulations)):
+#         x = algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)[8]
+#         values.append(x)
+#         sims.append([m, x])
+#
+#     sns.histplot(values, bins=30)
+#     plt.title(f"Phi Hat Evo for n = {m}; simulations = {simulations}")
+#     plt.show()
+#
+#     print(f"Optimal Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values))
+#     print(f"Variance of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanvar(values))
+#     print(f"Bias of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values) - true_mean, "\n")
+#
+#     means.append([m, np.nanmean(values)])
+#     variances.append([m, np.nanvar(values)])
+#     biases.append([m, np.abs(np.nanmean(values) - true_mean)])
+#
+# df_means = pd.DataFrame(means, columns=["n", "mean"])
+# df_variances = pd.DataFrame(variances, columns=["n", "var"])
+# df_biases = pd.DataFrame(biases, columns=["n", "bias"])
+#
+# plt.scatter(np.log(df_variances['n']), np.log(df_variances['var']), label="Log-Log Variance", color = 'Navy')
+# log_x = np.log(df_variances['n'])
+# log_y = np.log(df_variances['var'])
+# slope, intercept, r_value, p_value, std_err = stats.linregress(log_x, log_y)
+# textstr = '\n'.join((
+#     f'Slope: {slope:.2f}',
+#     f'Intercept: {intercept:.2f}',
+#     f'R-value: {r_value:.2f}',
+#     f'P-value: {p_value:.2e}',
+#     f'Std Err: {std_err:.2f}'
+# ))
+# plt.gcf().text(0.15, 0.75, textstr, fontsize=10, bbox=dict(facecolor='white', alpha=0.5))
+# best_fit_line = slope * log_x + intercept
+# plt.plot(log_x, best_fit_line, color='red')
+# plt.show()
+#
+# sns.barplot(x='n', y='mean', data=df_means)
+# plt.title(f"Mean over {simulations} Simulations")
+# plt.xlabel("n_val")
+# plt.ylabel("Mean")
+# plt.show()
+#
+# sns.barplot(x='n', y='var', data=df_variances)
+# plt.title(f"Var over {simulations} Simulations")
+# plt.xlabel("n_val")
+# plt.ylabel("Variance")
+# plt.show()
+#
+# sns.barplot(x='n', y='bias', data=df_biases)
+# plt.title(f"Absolute Value of Bias over {simulations} Simulations")
+# plt.xlabel("n_val")
+# plt.ylabel("Absolute Value of Bias")
+# plt.show()
 
 # Convergence Checking
 # n_vec = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
