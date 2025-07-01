@@ -396,6 +396,7 @@ true_mean = 3
 # plt.ylabel("Absolute Value of Bias")
 # plt.show()
 
+# Convergence Checking
 # n_vec = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
 # data_list_theta = []
 # variances_theta = []
