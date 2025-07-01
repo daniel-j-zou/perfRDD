@@ -323,41 +323,60 @@ c = 1
 
 # print(algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)[8])
 
+# Monte Carlo for Expectation
+monte_carlo_values = []
+z = sim_q(n, z_bar, z_var, eta_var, gamma)[0]
+domain = np.linspace(-10, 10, 1000)
+for i in range(n):
+    standard_cdf = norm.cdf(domain - 1 - gamma*z[i], 0, 1)
+    value = 1 - standard_cdf
+    monte_carlo_values.append(value)
+
+true_expectation_curve = 1 - norm.cdf((domain - 1) / np.sqrt(1 + gamma**2), 0, 1)
+monte_carlo_function = np.mean(monte_carlo_values, axis = 0)
+
+plt.plot(domain, monte_carlo_function, label="Monte Carlo", color='red')
+plt.plot(domain, true_expectation_curve, label="True Expectation", color='blue')
+plt.legend(loc='upper right')
+plt.show()
+
+# Theory Checking
 values = []
 variances = []
 biases = []
 means = []
 sims = []
-n_vec = [500, 1000, 2000, 5000, 10000]
+n_vec = [100, 200, 500, 1000, 1250, 1500, 2000, 5000, 10000]
 true_mean = 3
-for m in n_vec:
+# for m in n_vec:
 # for i in range(1):
-    simulations = str(100)
-    algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
+#     simulations = str(100)
+#     print(f"processing: {m}")
+    # algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
     # algorithm_two(1000, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
-    for i in range(1, 100):
-        x = algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)[8]
-        values.append(x)
-        sims.append([n, x])
-
-    print(f"Optimal Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values))
-    print(f"Variance of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanvar(values))
-    print(f"Bias of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values) - true_mean, "\n")
-
-    means.append([m, np.nanmean(values)])
-    variances.append([m, np.nanvar(values)])
-    biases.append([m, np.abs(np.nanmean(values) - true_mean)])
-
-df_means = pd.DataFrame(means, columns=["n", "mean"])
-df_variances = pd.DataFrame(variances, columns=["n", "var"])
-df_biases = pd.DataFrame(biases, columns=["n", "bias"])
-df_sims = pd.DataFrame(sims, columns=["n", "simulations"])
-
-sns.violinplot(x = 'n', y = 'simulations', data = df_sims)
-plt.title("Phi Hat Evos for different n")
-plt.xlabel("n")
-plt.ylabel("simulations")
-plt.show()
+#     for i in range(1, 100):
+#         x = algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)[8]
+#         values.append(x)
+#         sims.append([m, x])
+#
+#     print(f"Optimal Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values))
+#     print(f"Variance of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanvar(values))
+#     print(f"Bias of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values) - true_mean, "\n")
+#
+#     means.append([m, np.nanmean(values)])
+#     variances.append([m, np.nanvar(values)])
+#     biases.append([m, np.abs(np.nanmean(values) - true_mean)])
+#
+# df_means = pd.DataFrame(means, columns=["n", "mean"])
+# df_variances = pd.DataFrame(variances, columns=["n", "var"])
+# df_biases = pd.DataFrame(biases, columns=["n", "bias"])
+# df_sims = pd.DataFrame(sims, columns=["n", "simulations"])
+#
+# sns.violinplot(x = 'n', y = 'simulations', data = df_sims)
+# plt.title("Phi Hat Evos for different n")
+# plt.xlabel("n")
+# plt.ylabel("simulations")
+# plt.show()
 #
 # sns.barplot(x='n', y='mean', data=df_means)
 # plt.title("Mean over 100 Simulations")
