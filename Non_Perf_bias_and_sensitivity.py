@@ -1,5 +1,6 @@
 #libraries
 import numpy as np
+import os
 import matplotlib.pyplot as plt
 from scipy.stats import norm, stats
 from scipy.stats import linregress
@@ -7,6 +8,7 @@ from scipy.optimize import brentq
 from sklearn.linear_model import LinearRegression
 import pandas as pd
 import seaborn as sns
+from multiprocessing import Pool
 # from statsmodels.distributions.empirical_distribution import ECDF
 # from statsmodels.nonparametric.kde import KDEUnivariate
 
@@ -308,6 +310,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         # plt.show()
 
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t, theta_transpose, step_one[0][4], optimal_evo()
+
 n = 1000
 z_bar = 0
 z_var = 1
@@ -323,7 +326,7 @@ demographics = False
 c = 1
 k_vec = [1, 1.5, 2, 5, 10]
 
-for k in k_vec:
+def big_sim(k):
     # Theory Checking
     variances = []
     biases = []
@@ -392,3 +395,8 @@ for k in k_vec:
     plt.xlabel("n_val")
     plt.ylabel("Absolute Value of Bias")
     plt.show()
+
+if __name__ == "__main__":
+    with Pool(processes=5) as pool:
+        results = pool.map(big_sim, k_vec)
+#     print(results)
