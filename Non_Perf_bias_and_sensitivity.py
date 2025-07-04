@@ -272,7 +272,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         m_a = len(s_a_tilde)
         m_d = len(s_d_tilde)
         plt.scatter(data_x, data_y)
-        plt.title(f"u_evo; s_a_tilde = {m_a}, s_d_tilde = {m_d}; n = {n}; k = {k_vec[m]}")
+        plt.title(f"u_evo; s_a_tilde = {m_a}, s_d_tilde = {m_d}; n = {n}; k = {k}")
         plt.plot(x_curve, y_curve, color='r')
         plt.plot(x_curve_hat, y_curve_hat, color='green')
         plt.show()
@@ -344,12 +344,12 @@ for k in k_vec:
             sims.append([m, x])
 
         sns.histplot(values, bins = 30)
-        plt.title(f"Phi Hat Evo for n = {m}; simulations = {simulations}; k = {k_vec[m]}")
+        plt.title(f"Phi Hat Evo for n = {m}; simulations = {simulations}; k = {k}")
         plt.show()
 
-        print(f"Optimal Phi Hat Evo for {simulations} simulations and n = {m}; k = {k_vec[m]}:", np.nanmean(values))
-        print(f"Variance of Phi Hat Evo for {simulations} simulations and n = {m}; k = {k_vec[m]}:", np.nanvar(values))
-        print(f"Bias of Phi Hat Evo for {simulations} simulations and n = {m}; k = {k_vec[m]}:", np.nanmean(values) - true_mean, "\n")
+        print(f"Optimal Phi Hat Evo for {simulations} simulations and n = {m}; k = {k}:", np.nanmean(values))
+        print(f"Variance of Phi Hat Evo for {simulations} simulations and n = {m}; k = {k}:", np.nanvar(values))
+        print(f"Bias of Phi Hat Evo for {simulations} simulations and n = {m}; k = {k}:", np.nanmean(values) - true_mean, "\n")
 
         means.append([m, np.nanmean(values)])
         variances.append([m, np.nanvar(values)])
@@ -359,7 +359,7 @@ for k in k_vec:
     df_variances = pd.DataFrame(variances, columns=["n", "var"])
     df_biases = pd.DataFrame(biases, columns=["n", "bias"])
 
-    plt.scatter(np.log(df_variances['n']), np.log(df_variances['var']), label="Log-Log Variance", color='Navy')
+    plt.scatter(np.log(df_variances['n']), np.log(df_variances['var']), label=f"Log-Log Variance; k = {k}", color='Navy')
     log_x = np.log(df_variances['n'])
     log_y = np.log(df_variances['var'])
     slope, intercept, r_value, p_value, std_err = stats.linregress(log_x, log_y)
@@ -376,19 +376,19 @@ for k in k_vec:
     plt.show()
 
     sns.barplot(x='n', y='mean', data=df_means)
-    plt.title(f"Mean over {simulations} Simulations")
+    plt.title(f"Mean over {simulations} Simulations; k = {k}")
     plt.xlabel("n_val")
     plt.ylabel("Mean")
     plt.show()
 
     sns.barplot(x='n', y='var', data=df_variances)
-    plt.title(f"Var over {simulations} Simulations")
+    plt.title(f"Var over {simulations} Simulations; k = {k}")
     plt.xlabel("n_val")
     plt.ylabel("Variance")
     plt.show()
 
     sns.barplot(x='n', y='bias', data=df_biases)
-    plt.title(f"Absolute Value of Bias over {simulations} Simulations")
+    plt.title(f"Absolute Value of Bias over {simulations} Simulations; k = {k}")
     plt.xlabel("n_val")
     plt.ylabel("Absolute Value of Bias")
     plt.show()
