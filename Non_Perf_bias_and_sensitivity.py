@@ -272,7 +272,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         m_a = len(s_a_tilde)
         m_d = len(s_d_tilde)
         plt.scatter(data_x, data_y)
-        plt.title(f"u_evo; s_a_tilde = {m_a}, s_d_tilde = {m_d}; n = {n}")
+        plt.title(f"u_evo; s_a_tilde = {m_a}, s_d_tilde = {m_d}; n = {n}; k = {k_vec[m]}")
         plt.plot(x_curve, y_curve, color='r')
         plt.plot(x_curve_hat, y_curve_hat, color='green')
         plt.show()
@@ -333,7 +333,7 @@ for k in k_vec:
     true_mean = 3
     for m in n_vec:
         # for i in range(1):
-        simulations = str(2500)
+        simulations = str(100)
         values = []
         print(f"processing: {m}")
         algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c, k)
@@ -344,12 +344,12 @@ for k in k_vec:
             sims.append([m, x])
 
         sns.histplot(values, bins = 30)
-        plt.title(f"Phi Hat Evo for n = {m}; simulations = {simulations}")
+        plt.title(f"Phi Hat Evo for n = {m}; simulations = {simulations}; k = {k_vec[m]}")
         plt.show()
 
-        print(f"Optimal Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values))
-        print(f"Variance of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanvar(values))
-        print(f"Bias of Phi Hat Evo for {simulations} simulations and n = {m}:", np.nanmean(values) - true_mean, "\n")
+        print(f"Optimal Phi Hat Evo for {simulations} simulations and n = {m}; k = {k_vec[m]}:", np.nanmean(values))
+        print(f"Variance of Phi Hat Evo for {simulations} simulations and n = {m}; k = {k_vec[m]}:", np.nanvar(values))
+        print(f"Bias of Phi Hat Evo for {simulations} simulations and n = {m}; k = {k_vec[m]}:", np.nanmean(values) - true_mean, "\n")
 
         means.append([m, np.nanmean(values)])
         variances.append([m, np.nanvar(values)])
