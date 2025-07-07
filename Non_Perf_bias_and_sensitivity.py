@@ -336,7 +336,7 @@ def big_sim(k):
     true_mean = 3
     for m in n_vec:
         # for i in range(1):
-        simulations = str(100)
+        simulations = str(1000)
         values = []
         print(f"processing: {m}")
         algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c, k)
