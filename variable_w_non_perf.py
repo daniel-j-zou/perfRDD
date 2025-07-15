@@ -34,11 +34,11 @@ def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho
     epsilon = np.random.normal(0, 1, n)
     q = sim_q(n, z_bar, z_var, eta_var, gamma)
     nu = rho*q[2] + epsilon
-    w = []
+    w = np.zeros(n)
     if w_func == True:
         for i in range(n):
             reward = np.random.normal(q[2][i], 1)
-            w.append(reward)
+            w[i] = reward
     if w_func == False:
         for i in range(n):
             reward = np.random.normal(-1 * q[2][i], 1)
@@ -308,7 +308,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
 
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t, theta_transpose, step_one[0][4], optimal_evo()
 
-n = 1000
+n = 100000
 z_bar = 0
 z_var = 1
 eta_var = 1
@@ -319,7 +319,7 @@ x_var = 1
 theta = 1
 w_func = True
 rho = 8
-demographics = False
+demographics = True
 c = 1
 
 # Monte Carlo for Expectation
@@ -341,23 +341,26 @@ c = 1
 
 def monte_carlo_function(q, w, c, domain):
     values = []
-    vector = []
-    for j in range(len(w)):
-        vector.append(w[j] - c)
-    for i in range(len(domain)):
-        values.append(np.mean((vector) * binary(q, domain[i])))
+    # vector = []
+    # for j in range(len(w)):
+    #     vector.append(w[j] - c)
+    for phi in domain:
+        values.append(np.mean((w-c) * (q > phi)))
     return values
+
+
 domain = np.linspace(-10, 10, 1000)
-monte_carlo_values = []
-for i in range (25000):
+# monte_carlo_values = []
+for i in range (1):
     data = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics)
     q = data[2]
     w = data[4]
-    monte_carlo_values.append(monte_carlo_function(q, w, c, domain))
-true_expectation_curve = norm.pdf(domain, 1, (1+ gamma**2)) - c * (1 - norm.cdf((domain - 1) / np.sqrt(1 + gamma**2), 0, 1))
+    # monte_carlo_values.append(monte_carlo_function(q, w, c, domain))
+    monte_carlo_values = monte_carlo_function(q, w, c, domain)
+true_expectation_curve = norm.pdf(domain, 1, np.sqrt(1+ gamma**2)) - c * (1 - norm.cdf((domain - 1) / np.sqrt(1 + gamma**2), 0, 1))
 
-plt.plot(domain, np.nanmean(monte_carlo_values, axis = 0), label="Monte Carlo", color='red')
-plt.plot(domain, true_expectation_curve, label="True Expectation", color='blue')
+plt.plot(domain, monte_carlo_values, label=f"Monte Carlo, Maximized at {domain[np.argmax(monte_carlo_values)]}", color='red')
+plt.plot(domain, true_expectation_curve, label=f"True Expectation, Maximized at {domain[np.argmax(true_expectation_curve)]}" , color='blue')
 plt.legend(loc='upper right')
 plt.show()
 
