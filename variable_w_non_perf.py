@@ -48,7 +48,7 @@ def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho
         y = w*binary(q[1], phi) + theta*x+ nu
     if demographics == False:
         x = np.random.normal(x_bar, x_var, n)
-        y = w*binary(q[1], phi) - theta*x + nu
+        y = w*binary(q[1], phi) + theta*x + nu
     return y, q[0], q[1], x, w
 
 def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, plot):
@@ -319,7 +319,7 @@ x_var = 1
 theta = 1
 w_func = True
 rho = 8
-demographics = False
+demographics = True
 c = 1
 
 # Monte Carlo for Expectation
@@ -339,27 +339,27 @@ c = 1
 # plt.legend(loc='upper right')
 # plt.show()
 
-def monte_carlo_function(q, w, c, domain):
-    values = []
-    vector = []
-    for j in range(len(w)):
-        vector.append(w[j] - c)
-    for i in range(len(domain)):
-        values.append(np.mean((vector) * binary(q, domain[i])))
-    return values
-domain = np.linspace(-10, 10, 1000)
-monte_carlo_values = []
-for i in range (25000):
-    data = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics)
-    q = data[2]
-    w = data[4]
-    monte_carlo_values.append(monte_carlo_function(q, w, c, domain))
-true_expectation_curve = norm.pdf(domain, 1, (1+ gamma**2)) - c * (1 - norm.cdf((domain - 1) / np.sqrt(1 + gamma**2), 0, 1))
-
-plt.plot(domain, np.nanmean(monte_carlo_values, axis = 0), label="Monte Carlo", color='red')
-plt.plot(domain, true_expectation_curve, label="True Expectation", color='blue')
-plt.legend(loc='upper right')
-plt.show()
+# def monte_carlo_function(q, w, c, domain):
+#     values = []
+#     vector = []
+#     for j in range(len(w)):
+#         vector.append(w[j] - c)
+#     for i in range(len(domain)):
+#         values.append(np.mean((vector) * binary(q, domain[i])))
+#     return values
+# domain = np.linspace(-10, 10, 1000)
+# monte_carlo_values = []
+# for i in range (250):
+#     data = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics)
+#     q = data[2]
+#     w = data[4]
+#     monte_carlo_values.append(monte_carlo_function(q, w, c, domain))
+# true_expectation_curve = norm.pdf(domain, 1, np.sqrt((1+ gamma**2))) - c * (1 - norm.cdf((domain - 1) / np.sqrt(1 + gamma**2), 0, 1))
+#
+# plt.plot(domain, np.nanmean(monte_carlo_values, axis = 0), label="Monte Carlo", color='red')
+# plt.plot(domain, true_expectation_curve, label="True Expectation", color='blue')
+# plt.legend(loc='upper right')
+# plt.show()
 
 # Theory Checking
 # variances = []
@@ -431,55 +431,55 @@ plt.show()
 # plt.show()
 
 # Convergence Checking
-# n_vec = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
-# data_list_theta = []
-# variances_theta = []
-# data_list_eta = []
-# variances_eta = []
-#
-# for j, n in enumerate(n_vec):
-#     temp_data_theta = []
-#     theta_data = []
-#     temp_data_eta = []
-#     eta_data = []
-#
-#     for _ in range(100):
-#         alg_one = algorithm_two(n_vec[j], z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)
-#         theta_residual = (theta - alg_one[6])
-#         eta_residual = np.mean(alg_one[7] - alg_one[5])
-#         temp_data_theta.append([n, theta_residual])
-#         temp_data_eta.append([n, eta_residual])
-#         theta_data.append(theta_residual)
-#         eta_data.append(eta_residual)
-#         print(eta_residual)
-#     print(n)
-#     variances_theta.append([n, np.var(theta_data)])
-#     data_list_theta.extend(temp_data_theta)
-#     variances_eta.append([n, np.var(eta_data)])
-#     data_list_eta.extend(temp_data_eta)
-#
-#
-# df_theta = pd.DataFrame(data_list_theta, columns=['n_val', 'theta_residual'])
-# df_var_theta = pd.DataFrame(variances_theta, columns=['n_val', 'theta_res_var'])
-# df_eta = pd.DataFrame(data_list_eta, columns=['n_val', 'eta_residual'])
-# df_var_eta = pd.DataFrame(variances_eta, columns=['n_val', 'eta_res_var'])
-#
-# sns.violinplot(x='n_val', y='theta_residual', data=df_theta)
-# plt.title("Theta Residuals by n_val")
-# plt.show()
-#
-# sns.barplot(x='n_val', y='theta_res_var', data=df_var_theta, errorbar=None)
-# plt.title('Theta Residual Variances by n_val')
-# plt.xlabel('n_val')
-# plt.ylabel('Variance of Theta Residual')
-# plt.show()
-#
-# sns.violinplot(x='n_val', y='eta_residual', data=df_eta)
-# plt.title('Eta Mean Residual by n_val')
-# plt.show()
-#
-# sns.barplot(x='n_val', y='eta_res_var', data=df_var_eta, errorbar=None)
-# plt.title('Eta Mean Residual Variance by n_val')
-# plt.xlabel('n_val')
-# plt.ylabel('Variance of Eta Mean Residual Variance')
-# plt.show()
+n_vec = [200, 400]
+data_list_theta = []
+variances_theta = []
+data_list_eta = []
+variances_eta = []
+
+for j, n in enumerate(n_vec):
+    temp_data_theta = []
+    theta_data = []
+    temp_data_eta = []
+    eta_data = []
+
+    for _ in range(100):
+        alg_one = algorithm_two(n_vec[j], z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)
+        theta_residual = (theta - alg_one[6])
+        eta_residual = np.mean(alg_one[7] - alg_one[5])
+        temp_data_theta.append([n, theta_residual])
+        temp_data_eta.append([n, eta_residual])
+        theta_data.append(theta_residual)
+        eta_data.append(eta_residual)
+        print(eta_residual)
+    print(n)
+    variances_theta.append([n, np.var(theta_data)])
+    data_list_theta.extend(temp_data_theta)
+    variances_eta.append([n, np.var(eta_data)])
+    data_list_eta.extend(temp_data_eta)
+
+
+df_theta = pd.DataFrame(data_list_theta, columns=['n_val', 'theta_residual'])
+df_var_theta = pd.DataFrame(variances_theta, columns=['n_val', 'theta_res_var'])
+df_eta = pd.DataFrame(data_list_eta, columns=['n_val', 'eta_residual'])
+df_var_eta = pd.DataFrame(variances_eta, columns=['n_val', 'eta_res_var'])
+
+sns.violinplot(x='n_val', y='theta_residual', data=df_theta)
+plt.title("Theta Residuals by n_val")
+plt.show()
+
+sns.barplot(x='n_val', y='theta_res_var', data=df_var_theta, errorbar=None)
+plt.title('Theta Residual Variances by n_val')
+plt.xlabel('n_val')
+plt.ylabel('Variance of Theta Residual')
+plt.show()
+
+sns.violinplot(x='n_val', y='eta_residual', data=df_eta)
+plt.title('Eta Mean Residual by n_val')
+plt.show()
+
+sns.barplot(x='n_val', y='eta_res_var', data=df_var_eta, errorbar=None)
+plt.title('Eta Mean Residual Variance by n_val')
+plt.xlabel('n_val')
+plt.ylabel('Variance of Eta Mean Residual Variance')
+plt.show()

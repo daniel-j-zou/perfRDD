@@ -16,7 +16,7 @@ from multiprocessing import Pool
 def sim_q(n, z_bar, z_var, eta_var, gamma):
     "function that creates a dataset of Q to use in the model"
     z = np.random.normal(z_bar, z_var, n)
-    i_1 = np.ones(n)
+    i_1 = np.zeros(n)
     eta = np.random.normal(0, eta_var, n)
     q = i_1 + gamma * z + eta
     return z, q, eta
@@ -50,7 +50,7 @@ def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho
         y = w*binary(q[1], phi) + theta*x+ nu
     if demographics == False:
         x = np.random.normal(x_bar, x_var, n)
-        y = w*binary(q[1], phi) - theta*x + nu
+        y = w*binary(q[1], phi) + theta*x + nu
     return y, q[0], q[1], x, w
 
 def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, plot):
@@ -186,7 +186,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
     theta_transpose = model.coef_[1]
 
     # Step 6
-    r = y_set - theta_transpose*x_set
+    r = y_set - theta*x_set
     def u_evo(phi_prime):
         sum_one = 0
         j = 0
@@ -245,6 +245,11 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         return ((numerator/denominator) - u_mbs(phi_prime))
 
     def optimal_evo():
+        # net = np.linspace(-2, 2, 80)
+        # U_evos = np.zeros(len(net))
+        # for i in range(len(net)):
+        #     U_evos[i] = u_evo(net[i])
+        # return net[np.argmax(U_evos)]
         try:
             phi_hat_evo = brentq(little_u_evo, -10, 10)
         except:
@@ -322,9 +327,23 @@ x_var = 1
 theta = 1
 w_func = True
 rho = 8
-demographics = False
-c = 1
-k_vec = [1, 1.5, 2, 5, 10]
+demographics = True
+c = 0
+k_vec = [2]
+
+# domain = algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c, k_vec[0])[9]
+# y_values = []
+# for i in range(100):
+#     y_data = algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c, k_vec[0])[10]
+#     y_values.append(y_data)
+# print("y list:", np.nanmean(y_values))
+#
+# true_expectation_curve = norm.pdf(domain, 1, np.sqrt((1+ gamma**2))) - c * (1 - norm.cdf((domain - 1) / np.sqrt(1 + gamma**2), 0, 1))
+#
+# # plt.plot(domain, np.nanmean(monte_carlo_values, axis = 0), label="Monte Carlo", color='red')
+# plt.plot(domain, true_expectation_curve, label="True Expectation", color='blue')
+# plt.legend(loc='upper right')
+# plt.show()
 
 def big_sim(k):
     # Theory Checking
@@ -332,8 +351,8 @@ def big_sim(k):
     biases = []
     means = []
     sims = []
-    n_vec = [100, 200, 500, 1000, 2000, 5000, 10000]
-    true_mean = 3
+    n_vec = [100, 200, 500, 1000]
+    true_mean = 0
     for m in n_vec:
         # for i in range(1):
         simulations = str(1000)
@@ -396,7 +415,10 @@ def big_sim(k):
     plt.ylabel("Absolute Value of Bias")
     plt.show()
 
-if __name__ == "__main__":
-    with Pool(processes=5) as pool:
-        results = pool.map(big_sim, k_vec)
+big_sim(1)
+
+# if __name__ == "__main__":
+#     with Pool(processes=5) as pool:
+#         results = pool.map(big_sim, k_vec)
 #     print(results)
+
