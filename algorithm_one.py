@@ -241,7 +241,7 @@ def algorithm_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w, 
         for i in s_d_tilde:
             sum_four = sum_four + little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
         denominator = sum_three + sum_four
-        print(denominator)
+        #print(denominator)
         return ((numerator/denominator) - u_mbs(phi_prime))
 
     # try:
@@ -330,8 +330,8 @@ for j, n in enumerate(n_vec):
         temp_data_eta.append([n, eta_residual])
         theta_data.append(theta_residual)
         eta_data.append(eta_residual)
-        print(eta_residual)
-    print(n)
+        #print(eta_residual)
+    #print(n)
     variances_theta.append([n, np.var(theta_data)])
     data_list_theta.extend(temp_data_theta)
     variances_eta.append([n, np.var(eta_data)])
