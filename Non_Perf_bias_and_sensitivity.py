@@ -96,18 +96,17 @@ def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
 def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, plot, c, k):
     # Step 1
     step_one = non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, plot)
-    t_set = step_one[0][2]
+    q_t = step_one[0][2]
     s_a = []
     s_d = []
-    for i in range(len(t_set)):
-        if t_set[i] <= phi:
+    for i in range(len(q_t)):
+        if q_t[i] <= phi:
             s_d.append(i)
         else:
             s_a.append(i)
 
     # Step 2
     z_t = step_one[0][1]
-    q_t = step_one[0][2]
     gamma_hat = np.polyfit(z_t, q_t, deg=1)[0]
     eta_t = q_t - gamma_hat*z_t - np.polyfit(z_t, q_t, deg = 1)[1]
     intercept_1_hat = np.polyfit(z_t, q_t, deg = 1)[1]
@@ -133,9 +132,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         return norm.pdf(x, mu, sigma)
 
     def big_g_hat_bar(x, gamma_hat, z_t):
-        mu = np.mean(gamma_hat*z_t)
-        sigma = np.std(gamma_hat*z_t)
-        return 1 - norm.cdf(x, mu, sigma)
+        return 1 - big_g_hat(x, gamma_hat, z_t)
 
     # Step 4
     eta_s_d = []
