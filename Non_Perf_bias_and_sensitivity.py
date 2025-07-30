@@ -328,22 +328,22 @@ theta = 1
 w_func = True
 rho = 8
 demographics = True
-c = 0
-k_vec = [2]
+c = 1
+k_vec = [1]
 
-# domain = algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c, k_vec[0])[9]
-# y_values = []
-# for i in range(100):
-#     y_data = algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c, k_vec[0])[10]
-#     y_values.append(y_data)
-# print("y list:", np.nanmean(y_values))
-#
-# true_expectation_curve = norm.pdf(domain, 1, np.sqrt((1+ gamma**2))) - c * (1 - norm.cdf((domain - 1) / np.sqrt(1 + gamma**2), 0, 1))
-#
-# # plt.plot(domain, np.nanmean(monte_carlo_values, axis = 0), label="Monte Carlo", color='red')
-# plt.plot(domain, true_expectation_curve, label="True Expectation", color='blue')
-# plt.legend(loc='upper right')
-# plt.show()
+domain = algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c, k_vec[0])[9]
+y_values = []
+for i in range(100):
+    y_data = algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c, k_vec[0])[10]
+    y_values.append(y_data)
+print("y list:", np.nanmean(y_values))
+
+true_expectation_curve = norm.pdf(domain, 1, np.sqrt((1+ gamma**2))) - c * (1 - norm.cdf((domain - 1) / np.sqrt(1 + gamma**2), 0, 1))
+
+# plt.plot(domain, np.nanmean(monte_carlo_values, axis = 0), label="Monte Carlo", color='red')
+plt.plot(domain, true_expectation_curve, label="True Expectation", color='blue')
+plt.legend(loc='upper right')
+plt.show()
 
 def big_sim(k):
     # Theory Checking
@@ -414,8 +414,6 @@ def big_sim(k):
     plt.xlabel("n_val")
     plt.ylabel("Absolute Value of Bias")
     plt.show()
-
-big_sim(1)
 
 # if __name__ == "__main__":
 #     with Pool(processes=5) as pool:

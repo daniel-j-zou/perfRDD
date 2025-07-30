@@ -308,7 +308,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
 
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t, theta_transpose, step_one[0][4], optimal_evo()
 
-n = 100000
+n = 1000
 z_bar = 0
 z_var = 1
 eta_var = 1
@@ -349,19 +349,27 @@ def monte_carlo_function(q, w, c, domain):
     return values
 
 
-domain = np.linspace(-10, 10, 1000)
-# monte_carlo_values = []
-for i in range (1):
+domain = np.linspace(-10, 10, 10000)
+monte_carlo_values = []
+for i in range (100):
     data = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics)
     q = data[2]
     w = data[4]
-    # monte_carlo_values.append(monte_carlo_function(q, w, c, domain))
-    monte_carlo_values = monte_carlo_function(q, w, c, domain)
+    monte_carlo_values.append(monte_carlo_function(q, w, c, domain))
 true_expectation_curve = norm.pdf(domain, 1, np.sqrt(1+ gamma**2)) - c * (1 - norm.cdf((domain - 1) / np.sqrt(1 + gamma**2), 0, 1))
+idx_mc = np.argmax(np.nanmean(monte_carlo_values, axis = 0))
+idx_te = np.argmax(true_expectation_curve)
 
-plt.plot(domain, monte_carlo_values, label=f"Monte Carlo, Maximized at {domain[np.argmax(monte_carlo_values)]}", color='red')
-plt.plot(domain, true_expectation_curve, label=f"True Expectation, Maximized at {domain[np.argmax(true_expectation_curve)]}" , color='blue')
-plt.legend(loc='upper right')
+plt.plot(domain, np.nanmean(monte_carlo_values, axis = 0), label=f"Monte Carlo", color='#FBEC5D', alpha = 0.8)
+plt.plot(domain, true_expectation_curve, label=f"True Expectation" , color='#00274C', alpha = 0.8)
+# plt.legend(loc='lower right')
+plt.title("Optimizing the Threshold", fontsize=20, fontname="Cambria")
+plt.xlabel(r"Threshold ($\varphi$)", fontsize=16, fontname="Times New Roman")
+plt.ylabel("Utility", fontsize=16, fontname="Times New Roman")
+plt.scatter(domain[idx_mc], np.nanmean(monte_carlo_values, axis = 0)[idx_mc], s = 150, color='gold', marker = '*', alpha = 0.8)
+plt.scatter(domain[idx_te], true_expectation_curve[idx_te], s = 150, color='gold', marker = '*', alpha = 0.8)
+plt.xticks([])
+plt.yticks([])
 plt.show()
 
 # Theory Checking
@@ -433,56 +441,56 @@ plt.show()
 # plt.ylabel("Absolute Value of Bias")
 # plt.show()
 
-# Convergence Checking
-n_vec = [200, 400]
-data_list_theta = []
-variances_theta = []
-data_list_eta = []
-variances_eta = []
-
-for j, n in enumerate(n_vec):
-    temp_data_theta = []
-    theta_data = []
-    temp_data_eta = []
-    eta_data = []
-
-    for _ in range(100):
-        alg_one = algorithm_two(n_vec[j], z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)
-        theta_residual = (theta - alg_one[6])
-        eta_residual = np.mean(alg_one[7] - alg_one[5])
-        temp_data_theta.append([n, theta_residual])
-        temp_data_eta.append([n, eta_residual])
-        theta_data.append(theta_residual)
-        eta_data.append(eta_residual)
-        print(eta_residual)
-    print(n)
-    variances_theta.append([n, np.var(theta_data)])
-    data_list_theta.extend(temp_data_theta)
-    variances_eta.append([n, np.var(eta_data)])
-    data_list_eta.extend(temp_data_eta)
-
-
-df_theta = pd.DataFrame(data_list_theta, columns=['n_val', 'theta_residual'])
-df_var_theta = pd.DataFrame(variances_theta, columns=['n_val', 'theta_res_var'])
-df_eta = pd.DataFrame(data_list_eta, columns=['n_val', 'eta_residual'])
-df_var_eta = pd.DataFrame(variances_eta, columns=['n_val', 'eta_res_var'])
-
-sns.violinplot(x='n_val', y='theta_residual', data=df_theta)
-plt.title("Theta Residuals by n_val")
-plt.show()
-
-sns.barplot(x='n_val', y='theta_res_var', data=df_var_theta, errorbar=None)
-plt.title('Theta Residual Variances by n_val')
-plt.xlabel('n_val')
-plt.ylabel('Variance of Theta Residual')
-plt.show()
-
-sns.violinplot(x='n_val', y='eta_residual', data=df_eta)
-plt.title('Eta Mean Residual by n_val')
-plt.show()
-
-sns.barplot(x='n_val', y='eta_res_var', data=df_var_eta, errorbar=None)
-plt.title('Eta Mean Residual Variance by n_val')
-plt.xlabel('n_val')
-plt.ylabel('Variance of Eta Mean Residual Variance')
-plt.show()
+# # Convergence Checking
+# n_vec = [200, 400]
+# data_list_theta = []
+# variances_theta = []
+# data_list_eta = []
+# variances_eta = []
+#
+# for j, n in enumerate(n_vec):
+#     temp_data_theta = []
+#     theta_data = []
+#     temp_data_eta = []
+#     eta_data = []
+#
+#     for _ in range(100):
+#         alg_one = algorithm_two(n_vec[j], z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c)
+#         theta_residual = (theta - alg_one[6])
+#         eta_residual = np.mean(alg_one[7] - alg_one[5])
+#         temp_data_theta.append([n, theta_residual])
+#         temp_data_eta.append([n, eta_residual])
+#         theta_data.append(theta_residual)
+#         eta_data.append(eta_residual)
+#         print(eta_residual)
+#     print(n)
+#     variances_theta.append([n, np.var(theta_data)])
+#     data_list_theta.extend(temp_data_theta)
+#     variances_eta.append([n, np.var(eta_data)])
+#     data_list_eta.extend(temp_data_eta)
+#
+#
+# df_theta = pd.DataFrame(data_list_theta, columns=['n_val', 'theta_residual'])
+# df_var_theta = pd.DataFrame(variances_theta, columns=['n_val', 'theta_res_var'])
+# df_eta = pd.DataFrame(data_list_eta, columns=['n_val', 'eta_residual'])
+# df_var_eta = pd.DataFrame(variances_eta, columns=['n_val', 'eta_res_var'])
+#
+# sns.violinplot(x='n_val', y='theta_residual', data=df_theta)
+# plt.title("Theta Residuals by n_val")
+# plt.show()
+#
+# sns.barplot(x='n_val', y='theta_res_var', data=df_var_theta, errorbar=None)
+# plt.title('Theta Residual Variances by n_val')
+# plt.xlabel('n_val')
+# plt.ylabel('Variance of Theta Residual')
+# plt.show()
+#
+# sns.violinplot(x='n_val', y='eta_residual', data=df_eta)
+# plt.title('Eta Mean Residual by n_val')
+# plt.show()
+#
+# sns.barplot(x='n_val', y='eta_res_var', data=df_var_eta, errorbar=None)
+# plt.title('Eta Mean Residual Variance by n_val')
+# plt.xlabel('n_val')
+# plt.ylabel('Variance of Eta Mean Residual Variance')
+# plt.show()
