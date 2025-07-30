@@ -135,33 +135,64 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         return 1 - big_g_hat(x, gamma_hat, z_t)
 
     # Step 4
-    eta_s_d = []
-    eta_s_a = []
-    for i in s_a:
-        eta_s_a.append(eta_t[i])
-    for i in s_d:
-        eta_s_d.append(eta_t[i])
+    # eta_s_d = []
+    # eta_s_a = []
+    # for i in s_a:
+    #     eta_s_a.append(eta_t[i])
+    # for i in s_d:
+    #     eta_s_d.append(eta_t[i])
+    # s_t_set = []
+    # t_s_set = []
+    # s_t_and_t_s = []
+    # for i in range(n):
+    #     if i in s_a:
+    #         s_t = np.argmin(np.abs(eta_s_d - eta_t[i]))
+    #         s_t_set.append(s_d[s_t])
+    #         s_t_and_t_s.append(s_d[s_t])
+    #     if i in s_d:
+    #         t_s = np.argmin(np.abs(eta_s_a - eta_t[i]))
+    #         t_s_set.append(s_a[t_s])
+    #         s_t_and_t_s.append(s_a[t_s])
+    # zeta = 0.5
+    # s_a_tilde = []
+    # s_d_tilde = []
+    # for i in range(len(s_a)):
+    #     if np.abs(eta_t[s_a[i]] - eta_t[s_t_set[i]]) < k * (n**(-1*zeta)):
+    #         s_a_tilde.append(s_a[i])
+    # for i in range(len(s_d)):
+    #     if np.abs(eta_t[s_d[i]] - eta_t[t_s_set[i]]) < k * (n**(-1*zeta)):
+    #         s_d_tilde.append(s_d[i])
+
+    # Finding Indices
     s_t_set = []
     t_s_set = []
-    s_t_and_t_s = []
-    for i in range(n):
-        if i in s_a:
-            s_t = np.argmin(np.abs(eta_s_d - eta_t[i]))
-            s_t_set.append(s_d[s_t])
-            s_t_and_t_s.append(s_d[s_t])
-        if i in s_d:
-            t_s = np.argmin(np.abs(eta_s_a - eta_t[i]))
-            t_s_set.append(s_a[t_s])
-            s_t_and_t_s.append(s_a[t_s])
+    rejected_eta = []
+    accepted_eta = []
+    for i in s_d:
+        rejected_eta.append(eta_t[i])
+    for j in s_a:
+        accepted_eta.append(eta_t[j])
+    for t in s_a:
+        s_t = np.argmin(np.abs(rejected_eta - eta_t[t]))
+        s_t_set.append(s_t)
+    for s in s_d:
+        t_s = np.argmin(np.abs(accepted_eta - eta_t[s]))
+        t_s_set.append(t_s)
+
+    # Bounding pairs
     zeta = 0.5
     s_a_tilde = []
     s_d_tilde = []
-    for i in range(len(s_a)):
-        if np.abs(eta_t[s_a[i]] - eta_t[s_t_set[i]]) < k * (n**(-1*zeta)):
-            s_a_tilde.append(s_a[i])
-    for i in range(len(s_d)):
-        if np.abs(eta_t[s_d[i]] - eta_t[t_s_set[i]]) < k * (n**(-1*zeta)):
-            s_d_tilde.append(s_d[i])
+    for m in range(len(s_a)):
+        t = s_a[m]
+        s_t = s_t_set[m]
+        if np.abs(rejected_eta[s_t] - eta_t[t]) < k * (n**(-1*zeta)):
+            s_a_tilde.append(t)
+    for p in range(len(s_d)):
+        s = s_d[p]
+        t_s = t_s_set[p]
+        if np.abs(accepted_eta[t_s] - eta_t[s]) < k * (n**(-1*zeta)):
+            s_d_tilde.append(s)
 
     # Step 5
     w = step_one[0][4]
@@ -170,13 +201,19 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
     x_t_minus_x_s_t = []
     y_set = step_one[0][0]
     x_set = step_one[0][3]
-    for i in range(n):
-        if i in s_a_tilde:
-            y_t_minus_y_s_t.append(y_set[i] - y_set[s_t_and_t_s[i]])
-            x_t_minus_x_s_t.append(x_set[i] - x_set[s_t_and_t_s[i]])
-            alpha_eta_set.append(eta_t[i])
-        if i in s_d:
-            continue
+    # for i in range(n):
+    #     if i in s_a_tilde:
+    #         y_t_minus_y_s_t.append(y_set[i] - y_set[s_t_and_t_s[i]])
+    #         x_t_minus_x_s_t.append(x_set[i] - x_set[s_t_and_t_s[i]])
+    #         alpha_eta_set.append(eta_t[i])
+    #     if i in s_d:
+    #         continue
+    for i in range(len(s_a)):
+        t = s_a[i]
+        s_t = s_t_set[i]
+        y_t_minus_y_s_t.append(y_set[t] - y_set[s_t])
+        x_t_minus_x_s_t.append(x_set[s_t] - x_set[s_t])
+        alpha_eta_set.append(eta_t[t])
     predictors = np.array([alpha_eta_set, x_t_minus_x_s_t]).T
     model = LinearRegression()
     model.fit(predictors, y_t_minus_y_s_t)
@@ -328,19 +365,21 @@ demographics = True
 c = 1
 k_vec = [1]
 
-domain = algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c, k_vec[0])[9]
-y_values = []
-for i in range(100):
-    y_data = algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c, k_vec[0])[10]
-    y_values.append(y_data)
-print("y list:", np.nanmean(y_values))
+# domain = algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c, k_vec[0])[9]
+# y_values = []
+# for i in range(100):
+#     y_data = algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c, k_vec[0])[10]
+#     y_values.append(y_data)
+# print("y list:", np.nanmean(y_values))
+#
+# true_expectation_curve = norm.pdf(domain, 1, np.sqrt((1+ gamma**2))) - c * (1 - norm.cdf((domain - 1) / np.sqrt(1 + gamma**2), 0, 1))
+#
+# # plt.plot(domain, np.nanmean(monte_carlo_values, axis = 0), label="Monte Carlo", color='red')
+# plt.plot(domain, true_expectation_curve, label="True Expectation", color='blue')
+# plt.legend(loc='upper right')
+# plt.show()
 
-true_expectation_curve = norm.pdf(domain, 1, np.sqrt((1+ gamma**2))) - c * (1 - norm.cdf((domain - 1) / np.sqrt(1 + gamma**2), 0, 1))
-
-# plt.plot(domain, np.nanmean(monte_carlo_values, axis = 0), label="Monte Carlo", color='red')
-plt.plot(domain, true_expectation_curve, label="True Expectation", color='blue')
-plt.legend(loc='upper right')
-plt.show()
+algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c, k_vec[0])
 
 def big_sim(k):
     # Theory Checking
