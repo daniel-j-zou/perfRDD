@@ -222,21 +222,33 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
     # Step 6
     r = y_set - theta*x_set
     def u_evo(phi_prime):
+        # sum_one = 0
+        # j = 0
+        # for i in s_a:
+        #     if i in s_a_tilde:
+        #         k = s_t_set[j]
+        #         sum_one = sum_one + (r[i] - r[k] - c)*big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
+        #     j = j + 1
+        # sum_two = 0
+        # j = 0
+        # for i in s_d:
+        #     if i in s_d_tilde:
+        #         k = t_s_set[j]
+        #         sum_two = sum_two + (r[k] - r[i] - c) * big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
+        #     j = j + 1
         sum_one = 0
-        j = 0
-        for i in s_a:
-            if i in s_a_tilde:
-                k = s_t_set[j]
-                sum_one = sum_one + (r[i] - r[k] - c)*big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
-            j = j + 1
         sum_two = 0
-        j = 0
-        for i in s_d:
-            if i in s_d_tilde:
-                k = t_s_set[j]
-                sum_two = sum_two + (r[k] - r[i] - c) * big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
-            j = j + 1
-        return ((sum_one + sum_two)/n)
+        for i in range(len(s_a)):
+            t = s_a[i]
+            s_t = s_t_set[i]
+            if t in s_a_tilde:
+                sum_one = sum_one + ((r[t] - r[s_t] -c) * big_g_hat_bar(phi_prime - eta_t[t], gamma_hat, z_t))
+        for j in range(len(s_d)):
+            s = s_d[j]
+            t_s = s_t_set[j]
+            if s in s_d_tilde:
+                sum_two = sum_two + ((r[s] - r[t_s] - c) * big_g_hat_bar(phi_prime - eta_t[s], gamma_hat, z_t))
+        return ((sum_one + sum_two)/(len(s_a_tilde) + len(s_d_tilde)))
 
     def u_mbs(phi_prime):
         numerator = n*u_evo(phi_prime)
@@ -379,7 +391,7 @@ k_vec = [1]
 # plt.legend(loc='upper right')
 # plt.show()
 
-algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c, k_vec[0])
+# algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c, k_vec[0])
 
 def big_sim(k):
     # Theory Checking
@@ -388,7 +400,7 @@ def big_sim(k):
     means = []
     sims = []
     n_vec = [100, 200, 500, 1000]
-    true_mean = 0
+    true_mean = 3
     for m in n_vec:
         # for i in range(1):
         simulations = str(1000)
@@ -450,6 +462,8 @@ def big_sim(k):
     plt.xlabel("n_val")
     plt.ylabel("Absolute Value of Bias")
     plt.show()
+
+big_sim(1)
 
 # if __name__ == "__main__":
 #     with Pool(processes=5) as pool:
