@@ -162,7 +162,6 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
     # for i in range(len(s_d)):
     #     if np.abs(eta_t[s_d[i]] - eta_t[t_s_set[i]]) < k * (n**(-1*zeta)):
     #         s_d_tilde.append(s_d[i])
-
     # Finding Indices
     s_t_set = []
     t_s_set = []
@@ -173,10 +172,12 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
     for j in s_a:
         accepted_eta.append(eta_t[j])
     for t in s_a:
-        s_t = np.argmin(np.abs(rejected_eta - eta_t[t]))
+        r = np.argmin(np.abs(rejected_eta - eta_t[t]))
+        s_t = s_d[r]
         s_t_set.append(s_t)
     for s in s_d:
-        t_s = np.argmin(np.abs(accepted_eta - eta_t[s]))
+        r = np.argmin(np.abs(accepted_eta - eta_t[s]))
+        t_s = s_a[r]
         t_s_set.append(t_s)
 
     # Bounding pairs
@@ -186,12 +187,12 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
     for m in range(len(s_a)):
         t = s_a[m]
         s_t = s_t_set[m]
-        if np.abs(rejected_eta[s_t] - eta_t[t]) < k * (n**(-1*zeta)):
+        if np.abs(eta_t[s_t] - eta_t[t]) < k * (n**(-1*zeta)):
             s_a_tilde.append(t)
     for p in range(len(s_d)):
         s = s_d[p]
         t_s = t_s_set[p]
-        if np.abs(accepted_eta[t_s] - eta_t[s]) < k * (n**(-1*zeta)):
+        if np.abs(eta_t[t_s] - eta_t[s]) < k * (n**(-1*zeta)):
             s_d_tilde.append(s)
 
     # Step 5
@@ -212,12 +213,19 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         t = s_a[i]
         s_t = s_t_set[i]
         y_t_minus_y_s_t.append(y_set[t] - y_set[s_t])
-        x_t_minus_x_s_t.append(x_set[s_t] - x_set[s_t])
+        x_t_minus_x_s_t.append(x_set[t] - x_set[s_t])
         alpha_eta_set.append(eta_t[t])
+    for j in range(len(s_d)):
+        s = s_d[j]
+        t_s = t_s_set[j]
+        y_t_minus_y_s_t.append(y_set[t_s] - y_set[s])
+        x_t_minus_x_s_t.append(x_set[t_s] - x_set[s])
+        alpha_eta_set.append(eta_t[t_s])
     predictors = np.array([alpha_eta_set, x_t_minus_x_s_t]).T
     model = LinearRegression()
     model.fit(predictors, y_t_minus_y_s_t)
     theta_transpose = model.coef_[1]
+    # print(model.coef_)
 
     # Step 6
     r = y_set - theta*x_set
@@ -245,13 +253,13 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
                 sum_one = sum_one + ((r[t] - r[s_t] -c) * big_g_hat_bar(phi_prime - eta_t[t], gamma_hat, z_t))
         for j in range(len(s_d)):
             s = s_d[j]
-            t_s = s_t_set[j]
+            t_s = t_s_set[j]
             if s in s_d_tilde:
                 sum_two = sum_two + ((r[s] - r[t_s] - c) * big_g_hat_bar(phi_prime - eta_t[s], gamma_hat, z_t))
         return ((sum_one + sum_two)/(len(s_a_tilde) + len(s_d_tilde)))
 
     def u_mbs(phi_prime):
-        numerator = n*u_evo(phi_prime)
+        numerator = (len(s_a_tilde) + len(s_d_tilde))*u_evo(phi_prime)
         sum_three = 0
         for i in s_a_tilde:
             sum_three = sum_three + big_g_hat_bar(phi_prime - eta_t[i], gamma_hat, z_t)
@@ -263,27 +271,40 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
 
     # Step 7
     def little_u_evo(phi_prime):
+        # sum_one = 0
+        # j = 0
+        # for i in s_a:
+        #     if i in s_a_tilde:
+        #         k = s_t_set[j]
+        #         sum_one = sum_one + (r[i] - r[k] - c) * little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
+        #     j = j + 1
+        # sum_two = 0
+        # j = 0
+        # for i in s_d:
+        #     if i in s_d_tilde:
+        #         k = t_s_set[j]
+        #         sum_two = sum_two + (r[k] - r[i] - c) * little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
+        #     j = j + 1
+        # return (((sum_one + sum_two)/ n)*(-1))
         sum_one = 0
-        j = 0
-        for i in s_a:
-            if i in s_a_tilde:
-                k = s_t_set[j]
-                sum_one = sum_one + (r[i] - r[k] - c) * little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
-            j = j + 1
         sum_two = 0
-        j = 0
-        for i in s_d:
-            if i in s_d_tilde:
-                k = t_s_set[j]
-                sum_two = sum_two + (r[k] - r[i] - c) * little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
-            j = j + 1
-        return (((sum_one + sum_two)/ n)*(-1))
+        for i in range(len(s_a)):
+            t = s_a[i]
+            s_t = s_t_set[i]
+            if t in s_a_tilde:
+                sum_one = sum_one + ((r[t] - r[s_t] -c) * little_g_hat(phi_prime - eta_t[t], gamma_hat, z_t))
+        for j in range(len(s_d)):
+            s = s_d[j]
+            t_s = t_s_set[j]
+            if s in s_d_tilde:
+                sum_two = sum_two + ((r[s] - r[t_s] - c) * little_g_hat(phi_prime - eta_t[s], gamma_hat, z_t))
+        return ((-1)*(sum_one + sum_two)/(len(s_a_tilde) + len(s_d_tilde)))
 
     def optimal_mbs(phi_prime):
         numerator = n * little_u_evo(phi_prime)
         sum_three = 0
         for i in s_a_tilde:
-            sum_one = sum_three + little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
+            sum_three = sum_three + little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
         sum_four = 0
         for i in s_d_tilde:
             sum_four = sum_four + little_g_hat(phi_prime - eta_t[i], gamma_hat, z_t)
@@ -291,11 +312,6 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         return ((numerator/denominator) - u_mbs(phi_prime))
 
     def optimal_evo():
-        # net = np.linspace(-2, 2, 80)
-        # U_evos = np.zeros(len(net))
-        # for i in range(len(net)):
-        #     U_evos[i] = u_evo(net[i])
-        # return net[np.argmax(U_evos)]
         try:
             phi_hat_evo = brentq(little_u_evo, -10, 10)
         except:
@@ -319,9 +335,9 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
     if plot == True:
         data_x = []
         data_y = []
-        for i in range(-10, 11):
-            data_x.append(i/2)
-            data_y.append(u_evo(i/2))
+        for phi_prime in range(-10, 11):
+            data_x.append(phi_prime/2)
+            data_y.append(u_evo(phi_prime/2))
         m_a = len(s_a_tilde)
         m_d = len(s_d_tilde)
         plt.scatter(data_x, data_y)
@@ -391,7 +407,59 @@ k_vec = [1]
 # plt.legend(loc='upper right')
 # plt.show()
 
-# algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c, k_vec[0])
+# # Convergence Checking
+# n_vec = [200, 400, 600, 800, 1000, 2000, 5000]
+# data_list_theta = []
+# variances_theta = []
+# data_list_eta = []
+# variances_eta = []
+#
+# for j, n in enumerate(n_vec):
+#     temp_data_theta = []
+#     theta_data = []
+#     temp_data_eta = []
+#     eta_data = []
+#
+#     for _ in range(100):
+#         alg_one = algorithm_two(n_vec[j], z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c, k_vec[0])
+#         theta_residual = (theta - alg_one[6])
+#         eta_residual = np.mean(alg_one[7] - alg_one[5])
+#         temp_data_theta.append([n, theta_residual])
+#         temp_data_eta.append([n, eta_residual])
+#         theta_data.append(theta_residual)
+#         eta_data.append(eta_residual)
+#         # print(eta_residual)
+#     print(n, np.nanmean(theta_data))
+#     variances_theta.append([n, np.var(theta_data)])
+#     data_list_theta.extend(temp_data_theta)
+#     variances_eta.append([n, np.var(eta_data)])
+#     data_list_eta.extend(temp_data_eta)
+#
+#
+# df_theta = pd.DataFrame(data_list_theta, columns=['n_val', 'theta_residual'])
+# df_var_theta = pd.DataFrame(variances_theta, columns=['n_val', 'theta_res_var'])
+# df_eta = pd.DataFrame(data_list_eta, columns=['n_val', 'eta_residual'])
+# df_var_eta = pd.DataFrame(variances_eta, columns=['n_val', 'eta_res_var'])
+#
+# sns.violinplot(x='n_val', y='theta_residual', data=df_theta)
+# plt.title("Theta Residuals by n_val")
+# plt.show()
+#
+# sns.barplot(x='n_val', y='theta_res_var', data=df_var_theta, errorbar=None)
+# plt.title('Theta Residual Variances by n_val')
+# plt.xlabel('n_val')
+# plt.ylabel('Variance of Theta Residual')
+# plt.show()
+#
+# sns.violinplot(x='n_val', y='eta_residual', data=df_eta)
+# plt.title('Eta Mean Residual by n_val')
+# plt.show()
+#
+# sns.barplot(x='n_val', y='eta_res_var', data=df_var_eta, errorbar=None)
+# plt.title('Eta Mean Residual Variance by n_val')
+# plt.xlabel('n_val')
+# plt.ylabel('Variance of Eta Mean Residual Variance')
+# plt.show()
 
 def big_sim(k):
     # Theory Checking
@@ -406,7 +474,7 @@ def big_sim(k):
         simulations = str(1000)
         values = []
         print(f"processing: {m}")
-        algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c, k)
+        # algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c, k)
         # algorithm_two(1000, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, True, c)
         for i in range(1, int(simulations)):
             x = algorithm_two(m, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, False, c, k)[8]
