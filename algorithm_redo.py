@@ -115,14 +115,17 @@ def algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, thet
     eta_hat_data = q_data - gamma_hat * z_data - intercept_hat
 
     # step 3
-    gamma_times_z_mean = np.mean(z_data)
-    gamma_times_z_var = np.var(z_data)
+    gamma_times_z_mean = np.mean(gamma*z_data)
+    gamma_times_z_var = np.var(gamma*z_data)
 
     def big_g_hat(x, gamma_times_z_mean, gamma_times_z_var):
         return norm(x, gamma_times_z_mean, gamma_times_z_var)
 
-    def big_g_hat_bar(x, gamma_times_z_mean, gamma_times_z_vart):
-        return 1 - big_g_hat
+    def big_g_hat_bar(x, gamma_times_z_mean, gamma_times_z_var):
+        return 1 - big_g_hat(x, gamma_times_z_mean, gamma_times_z_var)
+
+    def little_g_hat(x, gamma_times_z_mean, gamma_times_z_var):
+        return norm.pdf(x, gamma_times_z_mean, gamma_times_z_var)
 
     return s_a, s_d, gamma_hat, gamma_times_z_mean, gamma_times_z_var
 
@@ -145,5 +148,5 @@ k_vec = [1]
 z_residuals = []
 for j in range(10000):
     test_data = algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, c, k_vec[0])
-    z_residuals.append(test_data[4] - z_var)
+    z_residuals.append(test_data[3] - gamma*z_bar)
 print(np.mean(z_residuals))
