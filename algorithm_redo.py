@@ -110,10 +110,21 @@ def algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, thet
             s_a.append(i)
 
     # step 2
-    gamma_hat = np.polyfit(x_data, q_data, 1)[0]
-    eta_hat_data = q_data - gamma_hat * z_data
+    gamma_hat = np.polyfit(z_data, q_data, 1)[0]
+    intercept_hat = np.polyfit(z_data, q_data, 1)[1]
+    eta_hat_data = q_data - gamma_hat * z_data - intercept_hat
 
-    return s_a, s_d, gamma_hat
+    # step 3
+    gamma_times_z_mean = np.mean(z_data)
+    gamma_times_z_var = np.var(z_data)
+
+    def big_g_hat(x, gamma_times_z_mean, gamma_times_z_var):
+        return norm(x, gamma_times_z_mean, gamma_times_z_var)
+
+    def big_g_hat_bar(x, gamma_times_z_mean, gamma_times_z_vart):
+        return 1 - big_g_hat
+
+    return s_a, s_d, gamma_hat, gamma_times_z_mean, gamma_times_z_var
 
 # parameters:
 n = 1000
@@ -131,8 +142,8 @@ demographics = True
 c = 1
 k_vec = [1]
 
-gamma_residuals = []
+z_residuals = []
 for j in range(10000):
     test_data = algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, c, k_vec[0])
-    gamma_residuals.append(test_data[2] - gamma)
-print(np.mean(gamma_residuals))
+    z_residuals.append(test_data[4] - z_var)
+print(np.mean(z_residuals))
