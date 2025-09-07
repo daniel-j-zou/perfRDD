@@ -89,6 +89,36 @@ def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
 
     return results, non_treatment_subset, non_treatment_results, treatment_subset, treatment_results
 
-def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, plot, c, k):
+def algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, c, k):
+    data = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics)
+    y_data = data[0]
+    x_data = data[3]
+    q_data = data[2]
+    w_data = data[4]
+    s_a = []
+    s_d = []
+    for i in range(n):
+        if q_data[i] < phi:
+            s_d.append(i)
+        else:
+            s_a.append(i)
+    return s_a, s_d
 
-    return
+# parameters:
+n = 1000
+z_bar = 0
+z_var = 1
+eta_var = 1
+gamma = 1
+phi = 1.5
+x_bar = 0
+x_var = 1
+theta = 1
+w_func = True
+rho = 8
+demographics = True
+c = 1
+k_vec = [1]
+
+test_data = algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, c, k_vec[0])
+print(test_data[0], "\n", test_data[1])
