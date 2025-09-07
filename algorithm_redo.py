@@ -1,4 +1,6 @@
 #libraries
+from symbol import continue_stmt
+
 import numpy as np
 import os
 import matplotlib.pyplot as plt
@@ -130,16 +132,20 @@ def algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, thet
     # step 4
     s_a_tilde = []
     s_d_tilde = []
-    zeta = 0.5
+    s_t_set = []
+    t_s_set = []
+    zeta = 0.05
     for t in s_a:
         s_t = np.argmin(np.abs(eta_hat_data[s_d] - eta_hat_data[t]))
         if np.abs(eta_hat_data[s_t] - eta_hat_data[t]) < n**(-1*zeta):
             s_a_tilde.append(t)
+            s_t_set.append(s_t)
 
     for s in s_d:
         t_s = np.argmin(np.abs(eta_hat_data[s_a] - eta_hat_data[s]))
         if np.abs(eta_hat_data[t_s] - eta_hat_data[s]) < n**(-1*zeta):
             s_d_tilde.append(s)
+            t_s_set.append(t_s)
 
 
     return s_a, s_d, gamma_hat, gamma_times_z_mean, gamma_times_z_var, s_a_tilde, s_d_tilde
@@ -161,5 +167,6 @@ c = 1
 k_vec = [1]
 
 data = algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, c, k_vec[0])
-print(data[6])
-print(data[5])
+print((len(data[0]) - len(data[5]))/len(data[0]))
+print((len(data[1]) - len(data[6]))/len(data[1]))
+
