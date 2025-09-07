@@ -127,7 +127,22 @@ def algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, thet
     def little_g_hat(x, gamma_times_z_mean, gamma_times_z_var):
         return norm.pdf(x, gamma_times_z_mean, gamma_times_z_var)
 
-    return s_a, s_d, gamma_hat, gamma_times_z_mean, gamma_times_z_var
+    # step 4
+    s_a_tilde = []
+    s_d_tilde = []
+    zeta = 0.5
+    for t in s_a:
+        s_t = np.argmin(np.abs(eta_hat_data[s_d] - eta_hat_data[t]))
+        if np.abs(eta_hat_data[s_t] - eta_hat_data[t]) < n**(-1*zeta):
+            s_a_tilde.append(t)
+
+    for s in s_d:
+        t_s = np.argmin(np.abs(eta_hat_data[s_a] - eta_hat_data[s]))
+        if np.abs(eta_hat_data[t_s] - eta_hat_data[s]) < n**(-1*zeta):
+            s_d_tilde.append(s)
+
+
+    return s_a, s_d, gamma_hat, gamma_times_z_mean, gamma_times_z_var, s_a_tilde, s_d_tilde
 
 # parameters:
 n = 1000
@@ -145,8 +160,6 @@ demographics = True
 c = 1
 k_vec = [1]
 
-z_residuals = []
-for j in range(10000):
-    test_data = algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, c, k_vec[0])
-    z_residuals.append(test_data[3] - gamma*z_bar)
-print(np.mean(z_residuals))
+data = algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, c, k_vec[0])
+print(data[6])
+print(data[5])
