@@ -47,7 +47,7 @@ def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho
     if demographics == False:
         x = np.random.normal(x_bar, x_var, n)
         y = w*binary(q[1], phi) + theta*x + nu
-    return y, q[0], q[1], x, w
+    return y, q[0], q[1], x, w, q[2]
 
 def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, plot):
     "Runs a dataset and makes plots if wanted"
@@ -90,9 +90,15 @@ def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
     return results, non_treatment_subset, non_treatment_results, treatment_subset, treatment_results
 
 def algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, c, k):
+    # step 1
     data = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics)
     y_data = data[0]
-    x_data = data[3]
+    if demographics == True:
+        x_data = data[3]
+        z_data = x_data
+    else:
+        x_data = data[3]
+        z_data = data[1]
     q_data = data[2]
     w_data = data[4]
     s_a = []
@@ -102,7 +108,12 @@ def algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, thet
             s_d.append(i)
         else:
             s_a.append(i)
-    return s_a, s_d
+
+    # step 2
+    gamma_hat = np.polyfit(x_data, q_data, 1)[0]
+    eta_hat_data = q_data - gamma_hat * z_data
+
+    return s_a, s_d, gamma_hat
 
 # parameters:
 n = 1000
@@ -120,5 +131,8 @@ demographics = True
 c = 1
 k_vec = [1]
 
-test_data = algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, c, k_vec[0])
-print(test_data[0], "\n", test_data[1])
+gamma_residuals = []
+for j in range(10000):
+    test_data = algorithm_three_one(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, c, k_vec[0])
+    gamma_residuals.append(test_data[2] - gamma)
+print(np.mean(gamma_residuals))
