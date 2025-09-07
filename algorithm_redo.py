@@ -1,0 +1,94 @@
+#libraries
+import numpy as np
+import os
+import matplotlib.pyplot as plt
+from scipy.stats import norm, stats
+from scipy.stats import linregress
+from scipy.optimize import brentq
+from sklearn.linear_model import LinearRegression
+import pandas as pd
+import seaborn as sns
+
+def sim_q(n, z_bar, z_var, eta_var, gamma):
+    "function that creates a dataset of Q to use in the model"
+    z = np.random.normal(z_bar, z_var, n)
+    i_1 = np.zeros(n)
+    eta = np.random.normal(0, eta_var, n)
+    q = i_1 + gamma * z + eta
+    return z, q, eta
+
+def binary(q, phi):
+    "The 1 value that checks if phi is crossed"
+    oneVector = []
+    for i in range(len(q)):
+        if q[i] > phi:
+            oneVector.append(1)
+        else:
+            oneVector.append(0)
+    return np.asarray(oneVector)
+
+def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics):
+    "Meant to simulate Y as a dataset"
+    epsilon = np.random.normal(0, 1, n)
+    q = sim_q(n, z_bar, z_var, eta_var, gamma)
+    nu = rho*q[2] + epsilon
+    w = []
+    if w_func == True:
+        for i in range(n):
+            reward = np.random.normal(q[2][i], 1)
+            w.append(reward)
+    if w_func == False:
+        for i in range(n):
+            reward = np.random.normal(-1 * q[2][i], 1)
+            w.append(reward)
+    if demographics == True:
+        x = q[0]
+        y = w*binary(q[1], phi) + theta*x+ nu
+    if demographics == False:
+        x = np.random.normal(x_bar, x_var, n)
+        y = w*binary(q[1], phi) + theta*x + nu
+    return y, q[0], q[1], x, w
+
+def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, plot):
+    "Runs a dataset and makes plots if wanted"
+    results = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics)
+
+    non_treatment_mask = (results[2] < phi)
+    non_treatment_subset = results[2][non_treatment_mask]
+    non_treatment_results = results[0][non_treatment_mask]
+
+    treatment_mask = (results[2] >= phi)
+    treatment_subset = results[2][treatment_mask]
+    treatment_results = results[0][treatment_mask]
+
+    non_treatment_coeff = np.polyfit(non_treatment_subset, non_treatment_results, deg=1)
+    non_treatment_lsrl = np.poly1d(non_treatment_coeff)
+    non_treatment_fit = np.linspace(np.min(non_treatment_subset), phi, len(non_treatment_subset))
+
+    treatment_coeff = np.polyfit(treatment_subset, treatment_results, deg=1)
+    treatment_lsrl = np.poly1d(treatment_coeff)
+    treatment_fit = np.linspace(phi, np.max(treatment_subset), len(treatment_subset))
+    if plot == True:
+        plt.scatter(results[1], results[0], c='royalblue')
+        plt.xlabel("Z value")
+        plt.ylabel("Y value")
+        plt.show()
+
+        plt.scatter(results[1], results[2], c='royalblue')
+        plt.xlabel("Z value")
+        plt.ylabel("Q value")
+        plt.show()
+
+        plt.scatter(results[2], results[0], c='royalblue')
+        plt.axvline(x=phi, color='black', linestyle='--', label=f'phi = {phi}')
+        plt.plot(non_treatment_fit, non_treatment_lsrl(non_treatment_fit), color='red')
+        plt.plot(treatment_fit, treatment_lsrl(treatment_fit), color='red')
+        plt.xlabel("Q value")
+        plt.ylabel("Y value")
+        plt.show()
+
+    return results, non_treatment_subset, non_treatment_results, treatment_subset, treatment_results
+
+def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, plot, c, k):
+
+    return
