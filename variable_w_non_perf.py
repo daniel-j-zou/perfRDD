@@ -243,11 +243,13 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
         return ((numerator/denominator) - u_mbs(phi_prime))
 
     def optimal_evo():
-        try:
-            phi_hat_evo = brentq(little_u_evo, -10, 10)
-        except:
-            phi_hat_evo = np.nan
-        return phi_hat_evo
+        net = np.linspace(0, 4, 400)
+        U_evos = np.zeros(len(net))
+        for i in range(len(net)):
+            U_evos[i] = u_evo(net[i])
+        return net[np.argmax(U_evos)]
+
+
 
     mu = 1
     sigma = np.sqrt(1 + gamma**2)
