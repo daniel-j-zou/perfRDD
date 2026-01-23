@@ -67,5 +67,5 @@ x_var = 1
 theta = 1
 
 # Example
-non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, False) # Z != Q
-non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, True) # Z = Q
+# non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, False) # Z != X
+non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, True) # Z = X

@@ -48,7 +48,7 @@ def sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho
         y = w*binary(q[1], phi) + theta*x+ nu
     if demographics == False:
         x = np.random.normal(x_bar, x_var, n)
-        y = w*binary(q[1], phi) - theta*x + nu
+        y = w*binary(q[1], phi) + theta*x + nu
     return y, q[0], q[1], x, w
 
 def non_perf_data(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics, plot):
@@ -310,7 +310,7 @@ def algorithm_two(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_f
 
     return s_a, s_d, z_t, q_t, gamma_hat, eta_t, theta_transpose, step_one[0][4], optimal_evo()
 
-n = 100000
+n = 1000
 z_bar = 0
 z_var = 1
 eta_var = 1
@@ -351,19 +351,27 @@ def monte_carlo_function(q, w, c, domain):
     return values
 
 
-domain = np.linspace(-10, 10, 1000)
-# monte_carlo_values = []
-for i in range (1):
+domain = np.linspace(-10, 10, 10000)
+monte_carlo_values = []
+for i in range (100):
     data = sim_y(n, z_bar, z_var, eta_var, gamma, phi, x_bar, x_var, theta, w_func, rho, demographics)
     q = data[2]
     w = data[4]
-    # monte_carlo_values.append(monte_carlo_function(q, w, c, domain))
-    monte_carlo_values = monte_carlo_function(q, w, c, domain)
+    monte_carlo_values.append(monte_carlo_function(q, w, c, domain))
 true_expectation_curve = norm.pdf(domain, 1, np.sqrt(1+ gamma**2)) - c * (1 - norm.cdf((domain - 1) / np.sqrt(1 + gamma**2), 0, 1))
+idx_mc = np.argmax(np.nanmean(monte_carlo_values, axis = 0))
+idx_te = np.argmax(true_expectation_curve)
 
-plt.plot(domain, monte_carlo_values, label=f"Monte Carlo, Maximized at {domain[np.argmax(monte_carlo_values)]}", color='red')
-plt.plot(domain, true_expectation_curve, label=f"True Expectation, Maximized at {domain[np.argmax(true_expectation_curve)]}" , color='blue')
-plt.legend(loc='upper right')
+plt.plot(domain, np.nanmean(monte_carlo_values, axis = 0), label=f"Monte Carlo", color='#FBEC5D', alpha = 0.8)
+plt.plot(domain, true_expectation_curve, label=f"True Expectation" , color='#00274C', alpha = 0.8)
+# plt.legend(loc='lower right')
+plt.title("Optimizing the Threshold", fontsize=20, fontname="Cambria")
+plt.xlabel(r"Threshold ($\varphi$)", fontsize=16, fontname="Times New Roman")
+plt.ylabel("Utility", fontsize=16, fontname="Times New Roman")
+plt.scatter(domain[idx_mc], np.nanmean(monte_carlo_values, axis = 0)[idx_mc], s = 150, color='gold', marker = '*', alpha = 0.8)
+plt.scatter(domain[idx_te], true_expectation_curve[idx_te], s = 150, color='gold', marker = '*', alpha = 0.8)
+plt.xticks([])
+plt.yticks([])
 plt.show()
 
 # Theory Checking
@@ -435,8 +443,8 @@ plt.show()
 # plt.ylabel("Absolute Value of Bias")
 # plt.show()
 
-# Convergence Checking
-# n_vec = [200, 400, 600, 800, 1000, 1200, 1400, 1600, 1800, 2000]
+# # Convergence Checking
+# n_vec = [200, 400]
 # data_list_theta = []
 # variances_theta = []
 # data_list_eta = []
