@@ -37,6 +37,58 @@ def pGen(n, beta, gamma, rng=None):
     return x, y, eta, nu, w, q
 
 
+def pGen2(n, beta, gamma, x_dist, nu_spec, rng):
+    """
+    Generalized DGP with configurable x distribution and nu specification.
+
+    x_dist:  "normal", "t3", "exp", "bimodal"
+    nu_spec: "current", "eta_sq", "exp_eta", "independent", "linear"
+    """
+    # --- x (all standardized to unit variance) ---
+    if x_dist == "normal":
+        x = rng.normal(0, 1, n)
+    elif x_dist == "t3":
+        x = rng.standard_t(3, n) / np.sqrt(3)
+    elif x_dist == "exp":
+        x = rng.exponential(1.0, n) - 1.0  # mean 0, var 1
+    elif x_dist == "bimodal":
+        signs = rng.choice([-1.0, 1.0], size=n)
+        x = rng.normal(signs * 1.5, 0.5, n) / np.sqrt(2.5)
+    else:
+        raise ValueError(f"Unknown x_dist: {x_dist}")
+
+    # --- latent heterogeneity (unchanged) ---
+    a_signs = rng.choice([-1.0, 1.0], size=n)
+    a = a_signs * rng.exponential(1.0, n)
+    eta = rng.normal(a, 1.0, n)
+
+    # --- nu ---
+    if nu_spec == "current":
+        nu_mean = 3 * np.exp(a) / (1 + np.exp(a))
+        nu = rng.normal(nu_mean, 1.0, n)
+    elif nu_spec == "eta_sq":
+        nu = rng.normal(eta ** 2, 1.0, n)
+    elif nu_spec == "exp_eta":
+        nu = rng.normal(np.exp(eta / 2), 1.0, n)
+    elif nu_spec == "independent":
+        nu = rng.normal(0, 1.0, n)
+    elif nu_spec == "linear":
+        nu = rng.normal(2 * eta, 1.0, n)
+    else:
+        raise ValueError(f"Unknown nu_spec: {nu_spec}")
+
+    # --- w (unchanged) ---
+    w_mean = 2 * np.exp(eta) / (1 + np.exp(eta))
+    w = rng.normal(w_mean, 0.1, n)
+
+    # --- treatment and outcome ---
+    q = gamma * x + eta
+    s = (q > 0).astype(float)
+    y = s * w + beta * x + nu
+
+    return x, y, eta, nu, w, q
+
+
 def _basis_params(q, kn, support=None):
     """Compute B-spline basis parameters.
 
@@ -101,7 +153,7 @@ def TSplm_robinson(y, x, eta_hat, kn, support):
 
 def TSplm_naive(y, x, eta_hat, kn, support):
     """
-    Naive partial linear model — no correction for eta being estimated.
+    Naive partial linear model -- no correction for eta being estimated.
         y = b * x + h(eta_hat) + error
     Single OLS of Y on [x, Phi(eta_hat)].
 
@@ -130,11 +182,11 @@ def TSplm_deb(y, x, eta_hat, kn, support):
         y = b * x + h(eta_hat) + error
 
     Steps:
-      1. Initial OLS of Y on [x, Phi(eta_hat)] → omega1
+      1. Initial OLS of Y on [x, Phi(eta_hat)] -> omega1
       2. Compute h'_hat by differentiating the fitted B-spline
       3. Corrected regression: Y on [x, x_tilde, Phi(eta_hat)]
          where x_tilde = h'_hat(eta_hat) * x absorbs the bias
-         from eta_hat ≠ eta.
+         from eta_hat != eta.
 
     Returns: (h, b, info)
     """
@@ -172,7 +224,7 @@ def TSplm_deb(y, x, eta_hat, kn, support):
 def _run_plugin(etaTr, etaCon, y, x, iTr, iCon, kn, support, method="robinson"):
     """Run the plug-in estimator E[W|Q>0] = E[h_Tr(eta) - h_Con(eta) | treated].
 
-    method: "robinson" or "deb"
+    method: "robinson", "naive", or "deb"
     Returns: ewA (scalar estimate)
     """
     if method == "deb":
@@ -202,69 +254,99 @@ def _run_plugin(etaTr, etaCon, y, x, iTr, iCon, kn, support, method="robinson"):
 
 
 def main():
-    from scipy.stats import t as t_dist
     rng = np.random.default_rng(2025)
 
+    N = 50000
     R = 500
     Beta = 2.0
     Gamma = 2.0
     ETA_SUPPORT = (-2.8, 2.8)
+    kn_s = max(4, int(round(N ** (1.0 / 3.0))))
 
-    N_grid = [500, 1000, 2000, 5000, 10000, 50000, 100000]
+    x_dists = ["normal", "t3", "exp", "bimodal"]
+    nu_specs = ["current", "eta_sq", "exp_eta", "independent", "linear"]
 
-    print(f"gamma = {Gamma},  R = {R}")
-    print(f"\n{'N':>8s} {'kn':>4s} {'Bias_R':>8s} {'Bias_N':>8s} "
-          f"{'Std_R':>8s} {'Std_N':>8s} {'VarRatio':>9s} {'sN*Std_R':>9s} {'sN*Std_N':>9s}")
+    print(f"N = {N},  R = {R},  gamma = {Gamma},  kn = {kn_s}\n")
+    print(f"{'x_dist':>10s} {'nu_spec':>12s} {'n_ok':>5s} {'Cor_Tr':>7s} "
+          f"{'Bias_R':>8s} {'Bias_N':>8s} "
+          f"{'Std_R':>8s} {'Std_N':>8s} {'VarRatio':>9s}")
+    print("-" * 85)
 
-    for N in N_grid:
-        kn_s = max(4, int(round(N ** (1.0 / 3.0))))
-        ew0 = np.zeros(R)
-        ewA_rob = np.zeros(R)
-        ewA_naive = np.zeros(R)
+    results = []
 
-        for r in range(R):
-            x, y, eta, nu, w, q = pGen(N, Beta, Gamma, rng=rng)
+    for x_dist in x_dists:
+        for nu_spec in nu_specs:
+            ew0 = np.zeros(R)
+            ewA_rob = np.zeros(R)
+            ewA_naive = np.zeros(R)
+            cors = np.zeros(R)
 
-            s = (q > 0)
-            idx_all = np.arange(N)
-            iTr = idx_all[s]
-            iCon = idx_all[~s]
+            for r in range(R):
+                x, y, eta, nu, w, q = pGen2(
+                    N, Beta, Gamma, x_dist, nu_spec, rng
+                )
 
-            ew0[r] = w[iTr].mean()
+                s = (q > 0)
+                idx_all = np.arange(N)
+                iTr = idx_all[s]
+                iCon = idx_all[~s]
 
-            X_design = np.column_stack((np.ones(N), x))
-            coef_q, *_ = np.linalg.lstsq(X_design, q, rcond=None)
-            b0_hat, b1_hat = coef_q
-            etaHat = q - b0_hat - b1_hat * x
+                ew0[r] = w[iTr].mean()
 
-            etaCon = etaHat[iCon]
-            etaTr = etaHat[iTr]
+                # First stage
+                X_design = np.column_stack((np.ones(N), x))
+                coef_q, *_ = np.linalg.lstsq(X_design, q, rcond=None)
+                b0_hat, b1_hat = coef_q
+                etaHat = q - b0_hat - b1_hat * x
 
-            ewA_rob[r] = _run_plugin(
-                etaTr, etaCon, y, x, iTr, iCon, kn_s, ETA_SUPPORT,
-                method="robinson"
-            )
-            ewA_naive[r] = _run_plugin(
-                etaTr, etaCon, y, x, iTr, iCon, kn_s, ETA_SUPPORT,
-                method="naive"
-            )
+                cors[r] = np.corrcoef(x[iTr], etaHat[iTr])[0, 1]
 
-        ok = (np.abs(ewA_rob - ew0) < 1.0) & (np.abs(ewA_naive - ew0) < 1.0)
-        dr = ewA_rob[ok] - ew0[ok]
-        dn = ewA_naive[ok] - ew0[ok]
+                etaCon = etaHat[iCon]
+                etaTr = etaHat[iTr]
 
-        bias_r = np.mean(dr)
-        bias_n = np.mean(dn)
-        std_r = np.std(dr)
-        std_n = np.std(dn)
-        var_ratio = std_r**2 / std_n**2
-        sn = np.sqrt(N)
+                ewA_rob[r] = _run_plugin(
+                    etaTr, etaCon, y, x, iTr, iCon, kn_s, ETA_SUPPORT,
+                    method="robinson"
+                )
+                ewA_naive[r] = _run_plugin(
+                    etaTr, etaCon, y, x, iTr, iCon, kn_s, ETA_SUPPORT,
+                    method="naive"
+                )
 
-        print(f"{N:>8d} {kn_s:>4d} {bias_r:>8.4f} {bias_n:>8.4f} "
-              f"{std_r:>8.4f} {std_n:>8.4f} {var_ratio:>9.4f} {sn*std_r:>9.2f} {sn*std_n:>9.2f}")
+            ok = (np.abs(ewA_rob - ew0) < 1.0) & (np.abs(ewA_naive - ew0) < 1.0)
+            dr = ewA_rob[ok] - ew0[ok]
+            dn = ewA_naive[ok] - ew0[ok]
 
-        if N >= 10000:
-            print(f"  ... completed N={N}")
+            n_ok = ok.sum()
+            bias_r = np.mean(dr)
+            bias_n = np.mean(dn)
+            std_r = np.std(dr)
+            std_n = np.std(dn)
+            var_ratio = std_r ** 2 / std_n ** 2 if std_n > 0 else np.nan
+            cor_mean = np.mean(cors[ok])
+
+            print(f"{x_dist:>10s} {nu_spec:>12s} {n_ok:>5d} {cor_mean:>7.3f} "
+                  f"{bias_r:>8.4f} {bias_n:>8.4f} "
+                  f"{std_r:>8.4f} {std_n:>8.4f} {var_ratio:>9.4f}")
+
+            results.append({
+                "x_dist": x_dist, "nu_spec": nu_spec,
+                "n_ok": n_ok, "cor": cor_mean,
+                "bias_r": bias_r, "bias_n": bias_n,
+                "std_r": std_r, "std_n": std_n,
+                "var_ratio": var_ratio,
+            })
+
+        print("-" * 85)
+
+    # Summary sorted by distance from 1
+    print("\n=== Summary: VarRatio sorted by distance from 1.0 ===")
+    results.sort(key=lambda r: abs(r["var_ratio"] - 1.0), reverse=True)
+    print(f"{'x_dist':>10s} {'nu_spec':>12s} {'Cor_Tr':>7s} "
+          f"{'Std_R':>8s} {'Std_N':>8s} {'VarRatio':>9s}")
+    for r in results:
+        print(f"{r['x_dist']:>10s} {r['nu_spec']:>12s} {r['cor']:>7.3f} "
+              f"{r['std_r']:>8.4f} {r['std_n']:>8.4f} {r['var_ratio']:>9.4f}")
 
 
 if __name__ == "__main__":
