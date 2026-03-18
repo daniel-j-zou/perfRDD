@@ -133,15 +133,8 @@ def run_analysis(eval_mode="trimmed"):
 
     print(f"\nbeta: {np.array2string(beta, precision=4, separator=', ')}")
 
-    # ---- OLS covariance for confidence intervals ----
     resid = y - H @ be
     sigma2 = np.sum(resid**2) / (n - H.shape[1])
-    HtH_inv = np.linalg.pinv(H.T @ H)
-    cov_treat = sigma2 * HtH_inv[p + n_basis:, p + n_basis:]
-    cov_base = sigma2 * HtH_inv[p:p + n_basis, p:p + n_basis]
-    cov_sum = cov_base + cov_treat + \
-              sigma2 * (HtH_inv[p:p + n_basis, p + n_basis:] +
-                        HtH_inv[p + n_basis:, p:p + n_basis])
     print(f"Residual std: {np.sqrt(sigma2):.4f}")
 
     # ---- Evaluation region ----
@@ -158,15 +151,6 @@ def run_analysis(eval_mode="trimmed"):
     eta_grid = np.linspace(eval_lo, eval_hi, 500)
     Phi_grid = _eval_basis(eta_grid, info)
     alpha_vals = Phi_grid @ omega_treat
-
-    # 95% CI for alpha
-    alpha_se = np.sqrt(np.sum((Phi_grid @ cov_treat) * Phi_grid, axis=1))
-    alpha_lo95 = alpha_vals - 1.96 * alpha_se
-    alpha_hi95 = alpha_vals + 1.96 * alpha_se
-
-    # 95% CI for h functions
-    hbase_se = np.sqrt(np.sum((Phi_grid @ cov_base) * Phi_grid, axis=1))
-    htreat_se = np.sqrt(np.sum((Phi_grid @ cov_sum) * Phi_grid, axis=1))
 
     # Plug-in
     in_eval = (eta_Tr >= eval_lo) & (eta_Tr <= eval_hi)
@@ -198,10 +182,8 @@ def run_analysis(eval_mode="trimmed"):
     fig0.savefig(os.path.join(OUTDIR, f"{tag}fig0_eta_distributions.png"), dpi=150, bbox_inches="tight")
     print(f"\nSaved {tag}fig0_eta_distributions.png")
 
-    # ---- Figure 1: alpha(eta) with 95% CI ----
+    # ---- Figure 1: alpha(eta) ----
     fig1, ax1 = plt.subplots(figsize=(10, 6))
-    ax1.fill_between(eta_grid, alpha_lo95, alpha_hi95, color="blue", alpha=0.15,
-                      label="95% CI")
     ax1.plot(eta_grid, alpha_vals, "b-", linewidth=2,
              label=r"$\hat\alpha(\eta)$")
     ax1.axhline(0, color="black", linewidth=0.5)
@@ -222,25 +204,16 @@ def run_analysis(eval_mode="trimmed"):
     fig1.savefig(os.path.join(OUTDIR, f"{tag}fig1_alpha.png"), dpi=150, bbox_inches="tight")
     print(f"Saved {tag}fig1_alpha.png")
 
-    # ---- Figure 2: h_base and h_treat with 95% CI ----
+    # ---- Figure 2: h_base and h_treat ----
     eta_grid_full = np.linspace(support[0], support[1], 500)
     Phi_full = _eval_basis(eta_grid_full, info)
     h_base_full = Phi_full @ omega_base
-    hbase_se_full = np.sqrt(np.sum((Phi_full @ cov_base) * Phi_full, axis=1))
 
     h_treat_eval = Phi_grid @ (omega_base + omega_treat)
 
     fig2, ax2 = plt.subplots(figsize=(10, 6))
-    ax2.fill_between(eta_grid_full,
-                     h_base_full - 1.96 * hbase_se_full,
-                     h_base_full + 1.96 * hbase_se_full,
-                     color="blue", alpha=0.1)
     ax2.plot(eta_grid_full, h_base_full, "b-", linewidth=2,
              label=r"$\hat h_{\mathrm{base}}(\eta)$ (control)")
-    ax2.fill_between(eta_grid,
-                     h_treat_eval - 1.96 * htreat_se,
-                     h_treat_eval + 1.96 * htreat_se,
-                     color="red", alpha=0.1)
     ax2.plot(eta_grid, h_treat_eval, "r-", linewidth=2,
              label=r"$\hat h_{\mathrm{base}}(\eta) + \hat\alpha(\eta)$ (treated)")
     ax2.axvline(eval_lo, color="green", linestyle=":", alpha=0.5)
@@ -248,7 +221,7 @@ def run_analysis(eval_mode="trimmed"):
                 label="Eval region")
     ax2.set_xlabel(r"$\eta$")
     ax2.set_ylabel("h")
-    ax2.set_title("Nonparametric components with 95% CI (pooled beta)")
+    ax2.set_title("Nonparametric components (pooled beta)")
     ax2.legend()
     fig2.tight_layout()
     fig2.savefig(os.path.join(OUTDIR, f"{tag}fig2_h_functions.png"), dpi=150, bbox_inches="tight")
