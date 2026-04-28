@@ -1,0 +1,12 @@
+# Per-dataset data (raw + processed); commit metadata-only stubs via .dvc
+datasets/*/data/raw/
+datasets/*/data/processed/
+
+# Per-method run artifacts
+runs/
+
+# Python / OS junk
+__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/

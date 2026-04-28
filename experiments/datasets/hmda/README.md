@@ -1,3 +1,23 @@
+# HMDA — 2024 mortgage data, dual-threshold RDD
+
+| Field | Value |
+|---|---|
+| **Q** | `(combined_loan_to_value_ratio, loan_amount)` |
+| **Threshold** | `(80.1, 766550)` (CLTV cutoff, conforming loan limit) |
+| **Treatment** | `1{Q1 > 80.1 ∧ Q2 > 766550}` |
+| **X** | borrower / contract / tract controls (~26 cols, see `adapter.py`) |
+| **Y** | `interest_rate + 100 * 0.008 * 1{CLTV > 80}` (PMI-adjusted financing cost) |
+| **Source** | HMDA 2024 LAR (CFPB), public |
+
+The adapter (`adapter.py`) is the entry point under the `experiments/`
+framework. It expects `data/raw/dftest_export.csv` (preferred) or the legacy
+`dftest_export.csv` at this folder's root. The processed CSV is built by
+`data_process.ipynb` from the public HMDA 2024 LAR; see Section 3 below.
+
+The original README of this folder follows.
+
+---
+
 # README — Dual-Threshold PLM Mortgage Analysis
 
 ## 1. Variable Definitions (Read This First)
