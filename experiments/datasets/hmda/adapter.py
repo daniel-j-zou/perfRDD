@@ -21,7 +21,7 @@ PRIMARY = Path(__file__).parent / "data" / "raw" / "dftest_export.csv"
 # Fallback: legacy location used by the existing notebooks.
 FALLBACK = Path(__file__).parent / "dftest_export.csv"
 
-SCORE1_COL = "combined_loan_to_value_ratio"
+SCORE1_COL = "loan_to_value_ratio"
 SCORE2_COL = "loan_amount"
 C1, C2 = 80.1, 766550.0
 PMI_RATE = 0.008

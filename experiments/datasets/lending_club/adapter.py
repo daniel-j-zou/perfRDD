@@ -1,13 +1,13 @@
-"""Lending Club loan-level data.
+"""Lending Club public loan-stats archive.
 
-Score Q = FICO score (composite of credit history). LC enforced an
-eligibility floor at FICO 660 (early years) and 600 (later). The natural
-RDD outcome is the realized loan return / interest rate among approved
-loans.
+FICO scores were stripped from the public Lending Club archive
+(resources.lendingclub.com) years ago, so this adapter uses
+`dti` (debt-to-income ratio) as Q instead — Lending Club's
+underwriting policy historically capped DTI at ~35% / 40%, so the
+threshold has policy bite.
 
-This adapter loads the *accepted* loans archive. Columns vary slightly
-by year; missing column failures are common — see README for the
-fallback aliases the adapter tries.
+For a FICO-based version, use the Kaggle `wordsforthewise/lending-club`
+dataset (auth required) and override the FICO_COL / threshold below.
 """
 from __future__ import annotations
 
@@ -20,15 +20,15 @@ from experiments._core.sample import RDDSample
 
 DATA_PATH = Path(__file__).parent / "data" / "raw" / "loans.csv"
 
-# Y candidates in order of preference: realized internal rate of return on
-# the loan, the originated interest rate, or the loan amount.
-Y_CANDIDATES = ["int_rate", "interest_rate"]
+Q_COL = "dti"
+Y_COL = "int_rate"
+THRESHOLD = 30.0  # a common LC underwriting trigger
 
-X_NUMERIC_CANDIDATES = [
-    "annual_inc", "dti", "loan_amnt", "term", "emp_length_num",
-    "delinq_2yrs", "open_acc", "pub_rec", "revol_util",
-    "total_acc", "inq_last_6mths",
+X_NUMERIC = [
+    "loan_amnt", "annual_inc", "delinq_2yrs", "open_acc",
+    "pub_rec", "total_acc", "inq_last_6mths",
 ]
+X_CATEGORICAL = ["term", "home_ownership", "purpose", "verification_status"]
 
 
 def _coerce_pct(s: pd.Series) -> pd.Series:
@@ -37,49 +37,48 @@ def _coerce_pct(s: pd.Series) -> pd.Series:
     return pd.to_numeric(s, errors="coerce")
 
 
+def _ordinal(s: pd.Series) -> np.ndarray:
+    return s.astype("category").cat.codes.to_numpy(dtype=float)
+
+
 def load() -> RDDSample:
     if not DATA_PATH.exists():
         raise FileNotFoundError(
             f"{DATA_PATH} missing. Run "
-            "`python -m experiments.datasets.lending_club.download` "
-            "(requires kaggle CLI auth)."
+            "`python -m experiments.datasets.lending_club.download` first."
         )
 
     df = pd.read_csv(DATA_PATH, low_memory=False)
+    df[Q_COL] = pd.to_numeric(df[Q_COL], errors="coerce")
+    df[Y_COL] = _coerce_pct(df[Y_COL])
 
-    # Q: FICO low end of the reported range; fall back to the midpoint if
-    # only fico_range_high is present.
-    if "fico_range_low" in df.columns:
-        df["fico"] = pd.to_numeric(df["fico_range_low"], errors="coerce")
-    elif "last_fico_range_low" in df.columns:
-        df["fico"] = pd.to_numeric(df["last_fico_range_low"], errors="coerce")
-    else:
-        raise KeyError("no FICO column found in lending_club loans CSV")
+    for c in X_NUMERIC:
+        if c in df.columns:
+            df[c] = pd.to_numeric(df[c], errors="coerce")
 
-    # Y: interest rate (commonly stored as '13.49%').
-    y_col = next((c for c in Y_CANDIDATES if c in df.columns), None)
-    if y_col is None:
-        raise KeyError(f"none of {Y_CANDIDATES} present in lending_club CSV")
-    df["y"] = _coerce_pct(df[y_col])
+    keep_numeric = [c for c in X_NUMERIC if c in df.columns]
+    keep_categorical = [c for c in X_CATEGORICAL if c in df.columns]
+    df = df.dropna(subset=[Q_COL, Y_COL] + keep_numeric).copy()
 
-    x_cols = [c for c in X_NUMERIC_CANDIDATES if c in df.columns]
-    for c in x_cols:
-        df[c] = _coerce_pct(df[c])
-
-    keep = df[["fico", "y"] + x_cols].notna().all(axis=1)
-    df = df[keep]
+    X_parts = [df[c].to_numpy(dtype=float).reshape(-1, 1) for c in keep_numeric]
+    cat_names = []
+    for c in keep_categorical:
+        X_parts.append(_ordinal(df[c].fillna("MISSING")).reshape(-1, 1))
+        cat_names.append(f"{c}_code")
+    X = np.hstack(X_parts) if X_parts else np.zeros((len(df), 0))
 
     return RDDSample(
-        Q=df["fico"].to_numpy(dtype=float),
-        X=df[x_cols].to_numpy(dtype=float),
-        Y=df["y"].to_numpy(dtype=float),
-        threshold=660.0,
+        Q=df[Q_COL].to_numpy(dtype=float),
+        X=X,
+        Y=df[Y_COL].to_numpy(dtype=float),
+        threshold=THRESHOLD,
         name="lending_club",
-        feature_names=x_cols,
+        feature_names=keep_numeric + cat_names,
         description=(
-            "Lending Club approved-loans archive. Q = FICO low; "
-            "treatment = 1{Q >= 660} (eligibility floor in early years); "
-            "Y = originated interest rate."
+            "Lending Club public loan-stats archive. Q = DTI; "
+            f"treatment = 1{{Q >= {THRESHOLD}}} (LC underwriting trigger); "
+            "Y = originated interest rate. FICO is not in the public "
+            "archive — substitute when using the Kaggle mirror."
         ),
-        citation="Lending Club historical loan archive (Kaggle: wordsforthewise/lending-club)",
+        citation="Lending Club historical loan-stats archive (resources.lendingclub.com)",
     )
