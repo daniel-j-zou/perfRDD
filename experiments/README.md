@@ -15,10 +15,13 @@ experiments/
 │   └── runner.py                #   run_all(method_fn) helper
 ├── datasets/
 │   ├── gpa/                     # academic probation (Lindo et al.)
-│   ├── hmda/                    # 2024 mortgage data, dual-threshold
-│   ├── taxi/                    # default tips (stub)
-│   ├── lending_club/            # FICO floor (stub)
-│   └── nlsy/                    # AFQT → wages (stub)
+│   ├── hmda/                    # 2024 mortgage, dual-threshold (build via notebook)
+│   ├── taxi/                    # NYC TLC 2009 default tips (Haggag-Paci)
+│   ├── oulad/                   # first-TMA pass cutoff (UK Open University)
+│   ├── nhanes/                  # HbA1c diabetic threshold
+│   ├── lending_club/            # FICO floor (Kaggle auth needed)
+│   ├── nlsy/                    # AFQT → wages (manual extract)
+│   └── mimic/                   # ICU severity score (PhysioNet DUA needed)
 ├── methods/                     # functions of RDDSample → result
 │   └── summary.py               #   trivial reference implementation
 ├── scripts/

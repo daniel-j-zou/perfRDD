@@ -21,7 +21,8 @@ class TestRegistry(unittest.TestCase):
     def test_lists_known_datasets(self):
         names = list_datasets()
         # Every folder we scaffolded with an adapter.py should be discovered.
-        for expected in ("gpa", "hmda", "lending_club", "nlsy", "taxi"):
+        for expected in ("gpa", "hmda", "lending_club", "mimic",
+                         "nhanes", "nlsy", "oulad", "taxi"):
             self.assertIn(expected, names, f"{expected} missing from registry")
 
     def test_load_returns_rddsample_when_data_present(self):
