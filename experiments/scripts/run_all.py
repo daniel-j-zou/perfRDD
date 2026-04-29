@@ -19,10 +19,10 @@ from experiments._core.runner import run_all
 
 def _resolve_method(name: str):
     mod = importlib.import_module(f"experiments.methods.{name}")
-    fn = getattr(mod, name, None) or getattr(mod, "run", None)
+    fn = getattr(mod, "run", None) or getattr(mod, name, None)
     if fn is None:
         raise AttributeError(
-            f"experiments.methods.{name} must define `{name}()` or `run()`"
+            f"experiments.methods.{name} must define `run()` or `{name}()`"
         )
     return fn
 

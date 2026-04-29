@@ -23,7 +23,8 @@ experiments/
 │   ├── nlsy/                    # AFQT → wages (manual extract)
 │   └── mimic/                   # ICU severity score (PhysioNet DUA needed)
 ├── methods/                     # functions of RDDSample → result
-│   └── summary.py               #   trivial reference implementation
+│   ├── summary.py               #   trivial reference implementation
+│   └── perfrdd.py               #   pooled-PLM plug-in estimator + plots
 ├── scripts/
 │   └── run_all.py               #   CLI: python -m experiments.scripts.run_all
 └── tests/                       # python -m unittest discover -s experiments/tests
