@@ -87,7 +87,8 @@ def eval_basis(pts, info):
 # Core estimator: pooled vs unpooled
 # ===========================================================================
 
-def estimate_alpha(X, q, y, D, pooled=True, eta_grid=None):
+def estimate_alpha(X, q, y, D, pooled=True, eta_grid=None,
+                   use_ridge=True, treat_basis="gaussian"):
     """
     Semiparametric PLM estimator of the treatment effect function alpha(eta).
 
@@ -98,9 +99,6 @@ def estimate_alpha(X, q, y, D, pooled=True, eta_grid=None):
         Y = X beta_con  +  D*X beta_diff  +  Phi_base(eta_hat) omega_base
               +  D * Phi_treat(eta_hat) omega_treat  +  eps
 
-    Ridge regularisation (lambda = 0.1/sqrt(n)) is applied only to the
-    nonparametric basis columns; the linear X (and D*X) columns are unpenalised.
-
     Parameters
     ----------
     X     : (n,) or (n, p) array of covariates
@@ -109,6 +107,8 @@ def estimate_alpha(X, q, y, D, pooled=True, eta_grid=None):
     D     : (n,) treatment indicator (float 0/1)
     pooled: if True, use pooled beta; if False, add D*X to design matrix
     eta_grid : optional 1-D array; if given, return alpha_grid evaluated there
+    use_ridge : if True, apply ridge (lambda=0.1/sqrt(n)) to basis columns only
+    treat_basis : "gaussian" (default) or "bspline" for the treatment basis
 
     Returns dict or None (if too few treated observations).
     """
@@ -133,14 +133,16 @@ def estimate_alpha(X, q, y, D, pooled=True, eta_grid=None):
     kn_base = max(4, int(round(n_tr ** (1.0 / 3.0))))
     info_base = _bspline_params(kn_base, support)
     Phi_base = eval_basis(eta_hat, info_base)
-    n_base = Phi_base.shape[1]
 
-    # --- Treatment basis (Gaussian, centred on treated eta) ---
+    # --- Treatment basis ---
     tr_lo = np.percentile(eta_Tr, 5)
     tr_hi = np.percentile(eta_Tr, 95)
     kn_treat = max(4, int(round(n_tr ** (1.0 / 3.0))))
-    centers = np.linspace(tr_lo, tr_hi, kn_treat)
-    info_treat = _gaussian_params(centers, bwf=1.5)
+    if treat_basis == "bspline":
+        info_treat = _bspline_params(kn_treat, (tr_lo, tr_hi))
+    else:
+        centers = np.linspace(tr_lo, tr_hi, kn_treat)
+        info_treat = _gaussian_params(centers, bwf=1.5)
     Phi_treat = eval_basis(eta_hat, info_treat)
     n_treat = Phi_treat.shape[1]
 
@@ -156,12 +158,16 @@ def estimate_alpha(X, q, y, D, pooled=True, eta_grid=None):
         p_param = 2 * p            # X and DX both unpenalised
 
     total_cols = H.shape[1]
-    lam_reg = 0.1 / np.sqrt(n)
-    P_mat = np.zeros((total_cols, total_cols))
-    np.fill_diagonal(P_mat[p_param:, p_param:], lam_reg)   # penalise basis only
+    if use_ridge:
+        lam_reg = 0.1 / np.sqrt(n)
+        P_mat = np.zeros((total_cols, total_cols))
+        np.fill_diagonal(P_mat[p_param:, p_param:], lam_reg)
+        A = H.T @ H + n * P_mat
+    else:
+        A = H.T @ H
 
     try:
-        be = np.linalg.solve(H.T @ H + n * P_mat, H.T @ y)
+        be = np.linalg.solve(A, H.T @ y)
     except np.linalg.LinAlgError:
         return None
 
