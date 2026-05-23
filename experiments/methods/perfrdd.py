@@ -103,13 +103,24 @@ class FitResult:
 def _fit_pooled_plm(
     Q: np.ndarray, X: np.ndarray, Y: np.ndarray, D: np.ndarray,
     direction: str, ridge_scale: float = 0.1,
+    eta: np.ndarray | None = None,
+    use_x_in_plm: bool = True,
 ) -> FitResult:
+    """Fit the pooled-PLM after `eta` is determined.
+
+    If `eta` is None, do a linear OLS first stage (Q on [1,X]).
+    `use_x_in_plm=False` removes the X term from the PLM design — used after Y has
+    been residualized nonparametrically against X.
+    """
     n = len(Y)
     n_tr = int(D.sum())
 
-    X_design = np.column_stack((np.ones(n), X))
-    gamma, *_ = np.linalg.lstsq(X_design, Q, rcond=None)
-    eta = Q - X_design @ gamma
+    if eta is None:
+        X_design = np.column_stack((np.ones(n), X))
+        gamma, *_ = np.linalg.lstsq(X_design, Q, rcond=None)
+        eta = Q - X_design @ gamma
+    else:
+        gamma = np.zeros(X.shape[1] + 1)
 
     # Spline support: trim 0.5%/99.5% of eta so extreme tails don't drive knots.
     support = (float(np.percentile(eta, 0.5)), float(np.percentile(eta, 99.5)))
@@ -119,8 +130,12 @@ def _fit_pooled_plm(
     n_basis = Phi.shape[1]
 
     DPhi = D[:, None] * Phi
-    H = np.column_stack((X, Phi, DPhi))
-    p = X.shape[1]
+    if use_x_in_plm:
+        H = np.column_stack((X, Phi, DPhi))
+        p = X.shape[1]
+    else:
+        H = np.column_stack((Phi, DPhi))
+        p = 0
     total = H.shape[1]
 
     lam = ridge_scale / np.sqrt(n)
@@ -128,7 +143,10 @@ def _fit_pooled_plm(
     np.fill_diagonal(P[p:, p:], lam)
     coefs = np.linalg.solve(H.T @ H + n * P, H.T @ Y)
 
-    beta = coefs[:p]
+    if use_x_in_plm:
+        beta = coefs[:p]
+    else:
+        beta = np.zeros(X.shape[1])
     omega_base = coefs[p:p + n_basis]
     omega_treat = coefs[p + n_basis:]
 
@@ -264,7 +282,7 @@ def _plot_utility(
 
 # ---------------------------------------------------------------- public API
 
-DEFAULT_MAX_N = 250_000
+DEFAULT_MAX_N = 30_000
 
 
 def _auto_c_values(avg_alpha: float) -> Tuple[float, ...]:
@@ -279,8 +297,17 @@ def perfrdd(
     c_values: Tuple[float, ...] | None = None,
     phi_grid: np.ndarray | None = None,
     max_n: int | None = DEFAULT_MAX_N,
+    first_stage: str = "linear",
 ) -> Dict[str, Any]:
     """Run the full pipeline on `sample` and save plots into `out_dir`.
+
+    `first_stage`:
+      - "linear"        : eta = Q - X @ gamma_lin (the original setting).
+      - "q_nonlinear"   : eta = Q - f_hat(X), f_hat cross-fitted nonparametric.
+                          Y is still treated linearly in X inside the PLM.
+      - "all_nonlinear" : same eta as above; additionally Y is residualized
+                          against X nonparametrically (cross-fitted), so the PLM
+                          has no X term.
 
     Returns a JSON-serializable summary dict.
     """
@@ -301,7 +328,23 @@ def perfrdd(
     else:
         n_used = len(Y)
 
-    fit = _fit_pooled_plm(Q, X, Y, D, direction)
+    first_stage_info: Dict[str, Any] = {"mode": first_stage}
+    if first_stage == "linear":
+        fit = _fit_pooled_plm(Q, X, Y, D, direction)
+    else:
+        from experiments.methods._nonpar import residualize
+        eta_resid, _q_pred, q_info = residualize(Q, X, label="Q")
+        first_stage_info["Q"] = q_info
+        if first_stage == "q_nonlinear":
+            fit = _fit_pooled_plm(Q, X, Y, D, direction,
+                                  eta=eta_resid, use_x_in_plm=True)
+        elif first_stage == "all_nonlinear":
+            y_resid, _y_pred, y_info = residualize(Y, X, label="Y", seed=1)
+            first_stage_info["Y"] = y_info
+            fit = _fit_pooled_plm(Q, X, y_resid, D, direction,
+                                  eta=eta_resid, use_x_in_plm=False)
+        else:
+            raise ValueError(f"unknown first_stage={first_stage!r}")
 
     if phi_grid is None:
         # Build a phi grid centered on the actual threshold, span ±3*std(Q).
@@ -332,6 +375,7 @@ def perfrdd(
         "avg_alpha": avg_alpha,
         "phi_star": {str(c): phi_stars[c] for c in phi_stars},
         "first_stage_R2": float(1.0 - fit.eta.var() / Q.var()),
+        "first_stage": first_stage_info,
         "out_dir": str(out_dir),
     }
 
