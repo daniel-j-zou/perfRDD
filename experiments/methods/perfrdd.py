@@ -3,8 +3,10 @@
 Steps (matches `prefRDD.tex` Section 1):
   1. First stage:   OLS of Q on [1, X] -> gamma_hat, eta_hat = Q - X @ gamma_hat.
   2. Spline basis:  cubic B-spline on eta_hat, knots ~ n_treated^(1/3).
-  3. Pooled PLM:    Y = X @ beta + Phi(eta) @ omega_base + D * Phi(eta) @ omega_treat,
-                    with a small ridge penalty on spline coefficients only.
+  3. Pooled PLM:    Y = beta0 + X @ beta + Phi(eta) @ omega_base + D * Phi(eta) @ omega_treat,
+                    with a small ridge penalty on the spline coefficients only;
+                    beta0 (intercept) and beta (X coefs) are unpenalised so the
+                    population mean of Y stays out of alpha and ω_base.
                     alpha(eta) = Phi(eta) @ omega_treat is the treatment-effect curve.
   4. Utility:       U(phi) = E[ alpha_bounded(eta) * P(Q on treated side of phi | eta) ]
                               - c * E[ P(Q on treated side of phi | eta) ]
@@ -92,12 +94,13 @@ class FitResult:
     eta: np.ndarray
     omega_base: np.ndarray
     omega_treat: np.ndarray
-    beta: np.ndarray
+    beta: np.ndarray            # coefficients on X (length X.shape[1]); excludes intercept
     info: Dict[str, Any]
     eta_eval: Tuple[float, float]
     direction: str
     n: int
     n_treated: int
+    intercept: float = 0.0      # PLM intercept; unpenalised, lets β/ω_base shed the constant offset of Y
 
 
 def _fit_pooled_plm(
@@ -131,8 +134,12 @@ def _fit_pooled_plm(
 
     DPhi = D[:, None] * Phi
     if use_x_in_plm:
-        H = np.column_stack((X, Phi, DPhi))
-        p = X.shape[1]
+        # Prepend an intercept so the constant offset of Y has an unpenalised home;
+        # otherwise the constant leaks into the L2-penalised ω_base/ω_treat blocks
+        # and inflates α̂ in treated/control-imbalanced samples.
+        X_aug = np.column_stack((np.ones(n), X))
+        H = np.column_stack((X_aug, Phi, DPhi))
+        p = X_aug.shape[1]
     else:
         H = np.column_stack((Phi, DPhi))
         p = 0
@@ -144,8 +151,10 @@ def _fit_pooled_plm(
     coefs = np.linalg.solve(H.T @ H + n * P, H.T @ Y)
 
     if use_x_in_plm:
-        beta = coefs[:p]
+        intercept = float(coefs[0])
+        beta = coefs[1:p]
     else:
+        intercept = 0.0
         beta = np.zeros(X.shape[1])
     omega_base = coefs[p:p + n_basis]
     omega_treat = coefs[p + n_basis:]
@@ -164,6 +173,7 @@ def _fit_pooled_plm(
         eta_eval=(eval_lo, eval_hi),
         direction=direction,
         n=n, n_treated=n_tr,
+        intercept=intercept,
     )
 
 
