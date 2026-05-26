@@ -1,12 +1,11 @@
-"""Finer ε sweep starting from ε = 0.2 and going DOWN, to nail down the
-convergence rate of the trimmed estimator to the standard estimator as
-ε → 0 on the three datasets where the convergence is visible (GPA,
-NHANES, Lending Club). OULAD is omitted because its overlap window is
-structurally tiny — see the synthetic study for that case.
+"""Finer ε sweep starting from ε = 0.2 and going DOWN, to characterize the
+behaviour of the trimmed estimator as ε → 0 on all four linear-Q datasets.
+OULAD is included for completeness, but its structurally-tiny overlap window
+makes the convergence story noisy (see the bootstrap CIs).
 
 Output:
-  experiments/runs/three_datasets_trim_eps_fine.png
-  experiments/runs/three_datasets_trim_eps_fine.json
+  experiments/runs/four_datasets_trim_eps_fine.png
+  experiments/runs/four_datasets_trim_eps_fine.json
 """
 from __future__ import annotations
 
@@ -28,12 +27,13 @@ from experiments.methods.perfrdd_trim import perfrdd_trim
 
 ROOT = Path(__file__).resolve().parent.parent
 RUNS_STD = ROOT / "runs" / "perfrdd"
-OUT_FIG = ROOT / "runs" / "three_datasets_trim_eps_fine.png"
-OUT_JSON = ROOT / "runs" / "three_datasets_trim_eps_fine.json"
+OUT_FIG = ROOT / "runs" / "four_datasets_trim_eps_fine.png"
+OUT_JSON = ROOT / "runs" / "four_datasets_trim_eps_fine.json"
 
 DATASETS = [
     ("gpa", "GPA — academic probation"),
     ("nhanes", "NHANES — HbA1c diabetic cutoff"),
+    ("oulad", "OULAD — first-TMA pass mark"),
     ("lending_club", "Lending Club — DTI trigger"),
 ]
 
@@ -139,22 +139,23 @@ def main() -> None:
     OUT_JSON.write_text(json.dumps(results, indent=2, default=float))
     print(f"wrote {OUT_JSON}")
 
-    fig = plt.figure(figsize=(20, 6.5))
-    gs_outer = fig.add_gridspec(1, 3, hspace=0.32, wspace=0.20,
-                                left=0.05, right=0.99, top=0.88, bottom=0.10)
+    fig = plt.figure(figsize=(17, 12))
+    gs_outer = fig.add_gridspec(2, 2, hspace=0.32, wspace=0.22,
+                                left=0.06, right=0.98, top=0.91, bottom=0.05)
     fig.suptitle(
-        r"Convergence of trimmed estimator as $\epsilon \to 0$ — three linear-Q datasets",
-        fontsize=15, fontweight="bold", y=0.98,
+        r"Convergence of trimmed estimator as $\epsilon \to 0$ — four linear-Q datasets",
+        fontsize=15, fontweight="bold", y=0.975,
     )
     fig.text(
-        0.5, 0.93,
+        0.5, 0.945,
         r"solid markers: trimmed $\phi^*(\epsilon)$; dashed: standard $\phi^*$ at matching cost;"
         r"  grey vertical: default $\epsilon=0.10$;  black dotted: operating $\phi_0$",
         ha="center", fontsize=10,
     )
 
     for k, (name, title) in enumerate(DATASETS):
-        inner = gs_outer[0, k].subgridspec(2, 1, height_ratios=[3.5, 1.0], hspace=0.08)
+        i, j = k // 2, k % 2
+        inner = gs_outer[i, j].subgridspec(2, 1, height_ratios=[3.5, 1.0], hspace=0.08)
         ax_main = fig.add_subplot(inner[0])
         ax_sec = fig.add_subplot(inner[1], sharex=ax_main)
         _plot_panel(ax_main, ax_sec, results[name], title)
