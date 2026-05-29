@@ -53,17 +53,29 @@ def _alpha_curve(summary_json: Path, kind: str) -> tuple[np.ndarray, np.ndarray,
 
 def _run_both(name: str) -> Dict[str, Any]:
     """Run both estimators on the dataset; return dict with both summaries
-    plus the alpha-grid evaluations we will overlay."""
+    plus the alpha-grid evaluations we will overlay.
+
+    Both estimators are evaluated on the SAME absolute cost grid, calibrated
+    to the trimmed estimator's in-window avg alpha (the trimmed value is the
+    more reliable scale; the standard avg alpha is often biased toward 0 by
+    the no-overlap region, which would give a misleadingly small grid).
+    """
     sample = load(name)
 
-    # Standard estimator.
+    # Run trim first to get the in-window avg alpha, then build a shared
+    # cost grid {0, 0.5, 1.0, 1.5} * |trim avg alpha| and pass it to both.
+    trim_out = RUNS_TRIM / name
+    res_trim_probe = perfrdd_trim(sample, trim_out, eps=EPS)
+    a = abs(res_trim_probe["avg_alpha_for_c"])
+    if a < 1e-12:
+        a = abs(res_trim_probe["avg_alpha_trimmed"]) or 1.0
+    shared_costs = (0.0, round(0.5 * a, 4), round(1.0 * a, 4), round(1.5 * a, 4))
+
     std_out = RUNS_STD / name
-    res_std = perfrdd(sample, std_out)
+    res_std = perfrdd(sample, std_out, c_values=shared_costs)
     std_curve = _alpha_grid_from_perfrdd(sample, std_out)
 
-    # Trimmed estimator.
-    trim_out = RUNS_TRIM / name
-    res_trim = perfrdd_trim(sample, trim_out, eps=EPS)
+    res_trim = perfrdd_trim(sample, trim_out, eps=EPS, c_values=shared_costs)
     trim_curve = _alpha_grid_from_perfrdd_trim(sample, trim_out)
 
     return {
