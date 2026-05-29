@@ -251,10 +251,22 @@ def perfrdd_trim(
     out_dir: Path,
     eps: float = 0.1,
     c_values: Tuple[float, ...] | None = None,
+    c_ratios: Tuple[float, ...] | None = None,
     phi_grid: np.ndarray | None = None,
     max_n: int | None = DEFAULT_MAX_N,
 ) -> Dict[str, Any]:
     """Trimmed-estimator analog of `perfrdd`. Returns a JSON-serializable summary.
+
+    Cost-grid calibration:
+      - `c_values` given        -> use those absolute costs verbatim.
+      - else `c_ratios` given   -> cost grid = c_ratios * |in-window avg alpha|.
+                                   This is the recommended choice: it scales the
+                                   cost to the TRIMMED treatment-effect magnitude,
+                                   so phi*(c) shows the estimator's true cost
+                                   sensitivity rather than being flattened by a
+                                   grid calibrated to a (possibly overlap-biased)
+                                   standard avg alpha.
+      - else                    -> default ratios (0, 0.5, 1, 1.5) * |trim avg alpha|.
 
     `eps` is the propensity-trimming parameter from Section 3 of the paper.
     """
@@ -289,12 +301,15 @@ def perfrdd_trim(
         s = float(Q.std())
         phi_grid = np.linspace(threshold - 3 * s, threshold + 3 * s, 400)
 
-    # Provisional alpha mean to scale costs (match perfrdd.py's auto choice).
+    # In-window average alpha used to scale the cost grid.
     Phi_in = _eval_basis(eta_hat[in_window], fit.info)
     alpha_in = Phi_in @ fit.omega_treat
     avg_alpha_for_c = float(alpha_in.mean()) if len(alpha_in) else 0.0
     if c_values is None:
-        c_values = _auto_c_values(avg_alpha_for_c)
+        if c_ratios is None:
+            c_ratios = (0.0, 0.5, 1.0, 1.5)
+        s = abs(avg_alpha_for_c) if abs(avg_alpha_for_c) > 1e-12 else 1.0
+        c_values = tuple(float(r) * s for r in c_ratios)
 
     utils = _utility_curve_trimmed(fit, Q, phi_grid, c_values)
 
@@ -320,6 +335,9 @@ def perfrdd_trim(
         "l_hat": float(l_hat),
         "u_hat": float(u_hat),
         "avg_alpha_trimmed": avg_alpha,
+        "avg_alpha_for_c": avg_alpha_for_c,
+        "c_values": [float(c) for c in c_values],
+        "c_ratios": [float(r) for r in c_ratios] if c_ratios is not None else None,
         "phi_star": {str(c): phi_stars[c] for c in phi_stars},
         "first_stage_R2": float(1.0 - eta_hat.var() / Q.var()),
         "out_dir": str(out_dir),
