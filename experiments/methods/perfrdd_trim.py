@@ -44,6 +44,33 @@ from experiments.methods.perfrdd import (
 )
 
 
+# ---------------------------------------------------------------- knot placement
+
+def _basis_params_quantile(kn: int, eta_data: np.ndarray, support) -> Dict[str, Any]:
+    """Cubic B-spline knot vector with interior knots at QUANTILES of eta_data
+    (rather than uniform on the support). Concentrating knots where the data is
+    dense avoids spending degrees of freedom on near-empty sub-regions — which,
+    on a trimmed window whose edges have a sparse minority group, is what
+    produced the boundary wiggle under uniform placement.
+    """
+    degree = 3
+    lo, hi = support
+    if kn <= 0:
+        interior = np.array([])
+    else:
+        qs = np.linspace(0.0, 1.0, kn + 2)[1:-1]
+        interior = np.quantile(eta_data, qs)
+        # keep knots strictly interior and strictly increasing
+        interior = np.clip(interior, lo + 1e-9, hi - 1e-9)
+        interior = np.unique(interior)
+    t = np.concatenate([
+        np.repeat(lo, degree + 1),
+        interior,
+        np.repeat(hi, degree + 1),
+    ])
+    return {"t": t, "degree": degree, "lo": lo, "hi": hi}
+
+
 # ---------------------------------------------------------------- trimming
 
 def _compute_overlap_window(
@@ -82,10 +109,13 @@ def _fit_pooled_plm_trimmed(
     [l_hat, u_hat] (not on a quantile-based interval of all eta), and the
     OLS uses only observations with eta in [l_hat, u_hat].
 
-    Knot count uses the undersmoothing rate from (A5): kn = knot_const * n^{1/5}
-    in the *in-window* sample n_s, floored at 4 (the cubic-spline minimum). This
-    replaces the standard estimator's n^{1/3} cube-root rule, which over the
-    shrunken trimmed domain produced an over-fine knot spacing (wiggly alpha).
+    Knot count uses the undersmoothing rate from (A5): kn = knot_const * n^{1/5},
+    floored at 4 (the cubic-spline minimum). The base sample n is the MINORITY
+    group within the window, min(n_treated, n_control): alpha(eta) is the
+    treated-vs-control contrast, so its resolution is limited by whichever group
+    is scarcer (near the window edges the minority fraction is ~eps by
+    construction). Interior knots are placed at QUANTILES of the in-window eta
+    (see _basis_params_quantile), not uniformly, so they track the data density.
     The asymptotic rate fixes only the exponent; knot_const sets the constant.
     """
     n = len(Y)
@@ -97,17 +127,20 @@ def _fit_pooled_plm_trimmed(
     )
     n_s = len(Y_s)
     n_tr_s = int(D_s.sum())
-    if n_s < 50 or n_tr_s < 10:
+    n_co_s = n_s - n_tr_s
+    if n_s < 50 or n_tr_s < 10 or n_co_s < 10:
         raise ValueError(
-            f"trimmed sample too small (n={n_s}, treated={n_tr_s}) — "
+            f"trimmed sample too small (n={n_s}, treated={n_tr_s}, control={n_co_s}) — "
             "consider a smaller eps or a larger dataset"
         )
 
-    # Spline basis directly on [l_hat, u_hat]: no quantile-trim, because the
-    # window already excludes the tails where the basis would be unsupported.
+    # Spline basis directly on [l_hat, u_hat]. Count scales with the minority
+    # group (the binding constraint for the treated-vs-control contrast); knots
+    # are placed at in-window eta quantiles to track density.
     support = (l_hat, u_hat)
-    kn = max(4, int(round(knot_const * n_s ** (1.0 / 5.0))))
-    info = _basis_params(kn, support)
+    n_eff = min(n_tr_s, n_co_s)
+    kn = max(4, int(round(knot_const * n_eff ** (1.0 / 5.0))))
+    info = _basis_params_quantile(kn, eta_s, support)
     Phi = _eval_basis(eta_s, info)
     n_basis = Phi.shape[1]
 
