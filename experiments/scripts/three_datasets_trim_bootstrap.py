@@ -1,5 +1,5 @@
 """Bootstrap confidence intervals for the trimmed estimator across ε on each
-of the four linear-Q datasets.
+of the three linear-Q datasets.
 
 For each (dataset, ε): draw B bootstrap resamples with replacement from the
 working sample (after the subsampling cap and NaN drop), run perfrdd_trim on
@@ -7,7 +7,7 @@ each, record φ*. Plot median + IQR (and 2.5%/97.5%) bands as a function of ε,
 alongside the bootstrap CI for the standard estimator's φ*.
 
 Designed to clarify whether the wild OULAD oscillations in
-four_datasets_trim_eps_sweep are consistent with sampling noise.
+three_datasets_trim_eps_sweep are consistent with sampling noise.
 """
 from __future__ import annotations
 
@@ -30,13 +30,12 @@ from experiments._core.sample import RDDSample
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT_DIR_RUNS = ROOT / "runs" / "perfrdd_trim_bootstrap"
-OUT_FIG = ROOT / "runs" / "four_datasets_trim_bootstrap.png"
-OUT_JSON = ROOT / "runs" / "four_datasets_trim_bootstrap.json"
+OUT_FIG = ROOT / "runs" / "three_datasets_trim_bootstrap.png"
+OUT_JSON = ROOT / "runs" / "three_datasets_trim_bootstrap.json"
 
 DATASETS = [
     ("gpa", "GPA — academic probation"),
     ("nhanes", "NHANES — HbA1c diabetic cutoff"),
-    ("oulad", "OULAD — first-TMA pass mark"),
     ("lending_club", "Lending Club — DTI trigger"),
 ]
 
@@ -210,22 +209,22 @@ def main() -> None:
     OUT_JSON.write_text(json.dumps(results, indent=2, default=float))
     print(f"wrote {OUT_JSON}")
 
-    fig = plt.figure(figsize=(17, 12))
-    gs_outer = fig.add_gridspec(2, 2, hspace=0.32, wspace=0.22,
-                                left=0.06, right=0.98, top=0.91, bottom=0.05)
+    fig = plt.figure(figsize=(20, 6.8))
+    gs_outer = fig.add_gridspec(1, 3, hspace=0.32, wspace=0.22,
+                                left=0.06, right=0.98, top=0.85, bottom=0.11)
     fig.suptitle(
         rf"Bootstrap CIs for the trimmed estimator (B={B})",
-        fontsize=15, fontweight="bold", y=0.975,
+        fontsize=15, fontweight="bold", y=0.99,
     )
     fig.text(
-        0.5, 0.945,
+        0.5, 0.93,
         r"solid markers: median trim $\phi^*(\epsilon)$ over B resamples with 95% band;"
         r"  dashed: median std $\phi^*$",
         ha="center", fontsize=10,
     )
 
     for k, (name, title) in enumerate(DATASETS):
-        i, j = k // 2, k % 2
+        i, j = 0, k
         inner = gs_outer[i, j].subgridspec(2, 1, height_ratios=[3.5, 1.0], hspace=0.08)
         ax_main = fig.add_subplot(inner[0])
         ax_sec = fig.add_subplot(inner[1], sharex=ax_main)

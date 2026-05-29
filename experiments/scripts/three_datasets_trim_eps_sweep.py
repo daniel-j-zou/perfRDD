@@ -1,5 +1,5 @@
 """Sensitivity sweep over the trimming parameter ε for the trimmed perfrdd
-estimator on the four linear-Q datasets.
+estimator on the three linear-Q datasets.
 
 For each dataset:
   1. Run the standard `perfrdd` estimator once (reference; ε-independent).
@@ -8,8 +8,8 @@ For each dataset:
      fit) so φ*(c) is directly comparable across ε and against standard.
 
 Outputs:
-  experiments/runs/four_datasets_trim_eps_sweep.json    — full sweep summary
-  experiments/runs/four_datasets_trim_eps_sweep.png     — 2×2 sensitivity figure
+  experiments/runs/three_datasets_trim_eps_sweep.json    — full sweep summary
+  experiments/runs/three_datasets_trim_eps_sweep.png     — 2×2 sensitivity figure
 
 The figure shows, per dataset:
   - φ*(ε) for each cost c, with markers/colors
@@ -37,13 +37,12 @@ from experiments.methods.perfrdd_trim import perfrdd_trim
 ROOT = Path(__file__).resolve().parent.parent
 RUNS_STD = ROOT / "runs" / "perfrdd"
 RUNS_TRIM_SWEEP = ROOT / "runs" / "perfrdd_trim_sweep"
-OUT_FIG = ROOT / "runs" / "four_datasets_trim_eps_sweep.png"
-OUT_JSON = ROOT / "runs" / "four_datasets_trim_eps_sweep.json"
+OUT_FIG = ROOT / "runs" / "three_datasets_trim_eps_sweep.png"
+OUT_JSON = ROOT / "runs" / "three_datasets_trim_eps_sweep.json"
 
 DATASETS = [
     ("gpa", "GPA — academic probation"),
     ("nhanes", "NHANES — HbA1c diabetic cutoff"),
-    ("oulad", "OULAD — first-TMA pass mark"),
     ("lending_club", "Lending Club — DTI trigger"),
 ]
 
@@ -158,17 +157,17 @@ def main() -> None:
     OUT_JSON.write_text(json.dumps(results, indent=2, default=float))
     print(f"wrote {OUT_JSON}")
 
-    # 2×2 grid for the four datasets; each "cell" is two stacked axes
+    # 2×2 grid for the three datasets; each "cell" is two stacked axes
     # (main φ*(ε) + retention strip).
-    fig = plt.figure(figsize=(17, 12))
-    gs_outer = fig.add_gridspec(2, 2, hspace=0.32, wspace=0.22,
-                                left=0.06, right=0.98, top=0.91, bottom=0.05)
+    fig = plt.figure(figsize=(20, 6.8))
+    gs_outer = fig.add_gridspec(1, 3, hspace=0.32, wspace=0.22,
+                                left=0.06, right=0.98, top=0.85, bottom=0.11)
     fig.suptitle(
-        "Sensitivity to trimming parameter ε — four linear-Q datasets",
-        fontsize=15, fontweight="bold", y=0.975,
+        "Sensitivity to trimming parameter ε — three linear-Q datasets",
+        fontsize=15, fontweight="bold", y=0.99,
     )
     fig.text(
-        0.5, 0.945,
+        0.5, 0.93,
         r"solid markers: trimmed $\phi^*(\epsilon)$ at increasing cost $c_0<c_1<c_2<c_3$;  "
         r"dashed: standard $\phi^*$ at matching cost;  "
         r"vertical grey: default $\epsilon=0.10$;  black dotted: operating $\phi_0$",
@@ -176,7 +175,7 @@ def main() -> None:
     )
 
     for k, (name, title) in enumerate(DATASETS):
-        i, j = k // 2, k % 2
+        i, j = 0, k
         inner = gs_outer[i, j].subgridspec(2, 1, height_ratios=[3.5, 1.0], hspace=0.08)
         ax_main = fig.add_subplot(inner[0])
         ax_sec = fig.add_subplot(inner[1], sharex=ax_main)

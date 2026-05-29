@@ -16,8 +16,8 @@ Per panel (one per dataset):
   - legend labels the ratio ρ_k.
 
 Output:
-  experiments/runs/four_datasets_trim_normcost_sweep.png
-  experiments/runs/four_datasets_trim_normcost_sweep.json
+  experiments/runs/three_datasets_trim_normcost_sweep.png
+  experiments/runs/three_datasets_trim_normcost_sweep.json
 """
 from __future__ import annotations
 
@@ -39,13 +39,12 @@ from experiments.methods.perfrdd_trim import perfrdd_trim
 
 ROOT = Path(__file__).resolve().parent.parent
 RUNS_STD = ROOT / "runs" / "perfrdd"
-OUT_FIG = ROOT / "runs" / "four_datasets_trim_normcost_sweep.png"
-OUT_JSON = ROOT / "runs" / "four_datasets_trim_normcost_sweep.json"
+OUT_FIG = ROOT / "runs" / "three_datasets_trim_normcost_sweep.png"
+OUT_JSON = ROOT / "runs" / "three_datasets_trim_normcost_sweep.json"
 
 DATASETS = [
     ("gpa", "GPA — academic probation"),
     ("nhanes", "NHANES — HbA1c diabetic cutoff"),
-    ("oulad", "OULAD — first-TMA pass mark"),
     ("lending_club", "Lending Club — DTI trigger"),
 ]
 
@@ -179,16 +178,16 @@ def main() -> None:
     OUT_JSON.write_text(json.dumps(results, indent=2, default=float))
     print(f"wrote {OUT_JSON}")
 
-    fig = plt.figure(figsize=(17, 12))
-    gs_outer = fig.add_gridspec(2, 2, hspace=0.32, wspace=0.22,
-                                left=0.06, right=0.98, top=0.91, bottom=0.05)
+    fig = plt.figure(figsize=(20, 6.8))
+    gs_outer = fig.add_gridspec(1, 3, hspace=0.32, wspace=0.22,
+                                left=0.06, right=0.98, top=0.85, bottom=0.11)
     fig.suptitle(
         r"Trimmed estimator with cost calibrated to its OWN $\bar\alpha$ "
-        r"(relative cost $\rho=c/|\bar\alpha|$) — four datasets",
-        fontsize=15, fontweight="bold", y=0.975,
+        r"(relative cost $\rho=c/|\bar\alpha|$) — three datasets",
+        fontsize=15, fontweight="bold", y=0.99,
     )
     fig.text(
-        0.5, 0.945,
+        0.5, 0.93,
         r"solid markers: trimmed $\phi^*(\epsilon)$ at relative cost $\rho$;  "
         r"dashed: standard $\phi^*$ at the same $\rho$;  "
         r"grey vertical: $\epsilon=0.10$;  black dotted: $\phi_0$",
@@ -196,7 +195,7 @@ def main() -> None:
     )
 
     for k, (name, title) in enumerate(DATASETS):
-        i, j = k // 2, k % 2
+        i, j = 0, k
         inner = gs_outer[i, j].subgridspec(2, 1, height_ratios=[3.5, 1.0], hspace=0.08)
         ax_main = fig.add_subplot(inner[0])
         ax_sec = fig.add_subplot(inner[1], sharex=ax_main)

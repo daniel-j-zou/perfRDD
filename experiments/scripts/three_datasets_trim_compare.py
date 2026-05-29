@@ -1,11 +1,11 @@
 """Compare the standard `perfrdd` estimator with the trimmed `perfrdd_trim`
-estimator on the four linear-Q datasets (GPA, NHANES, OULAD, Lending Club).
+estimator on the three linear-Q datasets (GPA, NHANES, OULAD, Lending Club).
 
 Each estimator is run separately and its own per-dataset summary and figures
 are saved under experiments/runs/perfrdd/<name>/ and
 experiments/runs/perfrdd_trim/<name>/ respectively. This script then
 produces a single combined comparison figure
-experiments/runs/four_datasets_trim_compare.png plus a side-by-side
+experiments/runs/three_datasets_trim_compare.png plus a side-by-side
 summary JSON.
 """
 from __future__ import annotations
@@ -29,13 +29,12 @@ ROOT = Path(__file__).resolve().parent.parent
 RUNS_STD = ROOT / "runs" / "perfrdd"
 RUNS_TRIM = ROOT / "runs" / "perfrdd_trim"
 OUT_DIR = ROOT / "runs" / "trim_compare"
-OUT_FIG = ROOT / "runs" / "four_datasets_trim_compare.png"
-OUT_JSON = ROOT / "runs" / "four_datasets_trim_compare.json"
+OUT_FIG = ROOT / "runs" / "three_datasets_trim_compare.png"
+OUT_JSON = ROOT / "runs" / "three_datasets_trim_compare.json"
 
 DATASETS = [
     ("gpa", "GPA — academic probation"),
     ("nhanes", "NHANES — HbA1c diabetic cutoff"),
-    ("oulad", "OULAD — first-TMA pass mark"),
     ("lending_club", "Lending Club — DTI trigger"),
 ]
 
@@ -216,7 +215,7 @@ def main() -> None:
         left=0.04, right=0.99, top=0.94, bottom=0.04,
     )
     fig.suptitle(
-        "Standard vs trimmed estimator — four linear-Q datasets (ε = 0.1)",
+        "Standard vs trimmed estimator — three linear-Q datasets (ε = 0.1)",
         fontsize=15, fontweight="bold", y=0.985,
     )
 

@@ -16,8 +16,8 @@ the trimmed avg α at ε=0.10 so they sit on a meaningful scale) and printed in
 each U-panel title, so the axis is genuinely absolute.
 
 Output:
-  experiments/runs/four_datasets_alpha_utility_compare.png
-  experiments/runs/four_datasets_alpha_utility_compare.json
+  experiments/runs/three_datasets_alpha_utility_compare.png
+  experiments/runs/three_datasets_alpha_utility_compare.json
 """
 from __future__ import annotations
 
@@ -41,8 +41,8 @@ from experiments.methods.perfrdd_trim import (
 
 
 ROOT = Path(__file__).resolve().parent.parent
-OUT_FIG = ROOT / "runs" / "four_datasets_alpha_utility_compare.png"
-OUT_JSON = ROOT / "runs" / "four_datasets_alpha_utility_compare.json"
+OUT_FIG = ROOT / "runs" / "three_datasets_alpha_utility_compare.png"
+OUT_JSON = ROOT / "runs" / "three_datasets_alpha_utility_compare.json"
 
 DATASETS = [
     ("gpa", "GPA — academic probation"),
