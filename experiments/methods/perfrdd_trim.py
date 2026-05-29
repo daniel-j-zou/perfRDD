@@ -75,11 +75,18 @@ def _fit_pooled_plm_trimmed(
     Q: np.ndarray, X: np.ndarray, Y: np.ndarray, D: np.ndarray,
     direction: str, l_hat: float, u_hat: float, eta_hat: np.ndarray,
     ridge_scale: float = 0.1,
+    knot_const: float = 1.5,
 ) -> FitResult:
     """Same shape as `_fit_pooled_plm` in perfrdd.py, but operating on the
     overlap-restricted subsample. The spline basis is supported on
     [l_hat, u_hat] (not on a quantile-based interval of all eta), and the
     OLS uses only observations with eta in [l_hat, u_hat].
+
+    Knot count uses the undersmoothing rate from (A5): kn = knot_const * n^{1/5}
+    in the *in-window* sample n_s, floored at 4 (the cubic-spline minimum). This
+    replaces the standard estimator's n^{1/3} cube-root rule, which over the
+    shrunken trimmed domain produced an over-fine knot spacing (wiggly alpha).
+    The asymptotic rate fixes only the exponent; knot_const sets the constant.
     """
     n = len(Y)
     n_design = X.shape[1] + 1
@@ -99,7 +106,7 @@ def _fit_pooled_plm_trimmed(
     # Spline basis directly on [l_hat, u_hat]: no quantile-trim, because the
     # window already excludes the tails where the basis would be unsupported.
     support = (l_hat, u_hat)
-    kn = max(4, int(round(n_tr_s ** (1.0 / 3.0))))
+    kn = max(4, int(round(knot_const * n_s ** (1.0 / 5.0))))
     info = _basis_params(kn, support)
     Phi = _eval_basis(eta_s, info)
     n_basis = Phi.shape[1]
@@ -254,6 +261,7 @@ def perfrdd_trim(
     c_ratios: Tuple[float, ...] | None = None,
     phi_grid: np.ndarray | None = None,
     max_n: int | None = DEFAULT_MAX_N,
+    knot_const: float = 1.5,
 ) -> Dict[str, Any]:
     """Trimmed-estimator analog of `perfrdd`. Returns a JSON-serializable summary.
 
@@ -294,7 +302,9 @@ def perfrdd_trim(
     propensity_in = n_tr_in / n_in if n_in else float("nan")
 
     # Step 2: fit the PLM restricted to the overlap window.
-    fit = _fit_pooled_plm_trimmed(Q, X, Y, D, direction, l_hat, u_hat, eta_hat)
+    fit = _fit_pooled_plm_trimmed(Q, X, Y, D, direction, l_hat, u_hat, eta_hat,
+                                  knot_const=knot_const)
+    n_basis_trt = int(fit.omega_treat.shape[0])
 
     # Build phi grid centered on the actual threshold, span ±3 std(Q).
     if phi_grid is None:
@@ -334,6 +344,8 @@ def perfrdd_trim(
         "threshold_actual": threshold,
         "l_hat": float(l_hat),
         "u_hat": float(u_hat),
+        "knot_const": float(knot_const),
+        "n_basis_treat": n_basis_trt,
         "avg_alpha_trimmed": avg_alpha,
         "avg_alpha_for_c": avg_alpha_for_c,
         "c_values": [float(c) for c in c_values],
