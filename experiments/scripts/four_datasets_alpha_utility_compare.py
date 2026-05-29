@@ -47,7 +47,6 @@ OUT_JSON = ROOT / "runs" / "four_datasets_alpha_utility_compare.json"
 DATASETS = [
     ("gpa", "GPA — academic probation"),
     ("nhanes", "NHANES — HbA1c diabetic cutoff"),
-    ("oulad", "OULAD — first-TMA pass mark"),
     ("lending_club", "Lending Club — DTI trigger"),
 ]
 

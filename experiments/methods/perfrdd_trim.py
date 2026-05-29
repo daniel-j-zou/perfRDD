@@ -102,7 +102,7 @@ def _fit_pooled_plm_trimmed(
     Q: np.ndarray, X: np.ndarray, Y: np.ndarray, D: np.ndarray,
     direction: str, l_hat: float, u_hat: float, eta_hat: np.ndarray,
     ridge_scale: float = 0.1,
-    knot_const: float = 1.5,
+    knot_const: float = 0.5,
 ) -> FitResult:
     """Same shape as `_fit_pooled_plm` in perfrdd.py, but operating on the
     overlap-restricted subsample. The spline basis is supported on
@@ -110,7 +110,7 @@ def _fit_pooled_plm_trimmed(
     OLS uses only observations with eta in [l_hat, u_hat].
 
     Knot count uses the undersmoothing rate from (A5): kn = knot_const * n^{1/5},
-    floored at 4 (the cubic-spline minimum). The base sample n is the MINORITY
+    floored at 3. The base sample n is the MINORITY
     group within the window, min(n_treated, n_control): alpha(eta) is the
     treated-vs-control contrast, so its resolution is limited by whichever group
     is scarcer (near the window edges the minority fraction is ~eps by
@@ -139,7 +139,7 @@ def _fit_pooled_plm_trimmed(
     # are placed at in-window eta quantiles to track density.
     support = (l_hat, u_hat)
     n_eff = min(n_tr_s, n_co_s)
-    kn = max(4, int(round(knot_const * n_eff ** (1.0 / 5.0))))
+    kn = max(2, int(round(knot_const * n_eff ** (1.0 / 5.0))))
     info = _basis_params_quantile(kn, eta_s, support)
     Phi = _eval_basis(eta_s, info)
     n_basis = Phi.shape[1]
@@ -294,7 +294,7 @@ def perfrdd_trim(
     c_ratios: Tuple[float, ...] | None = None,
     phi_grid: np.ndarray | None = None,
     max_n: int | None = DEFAULT_MAX_N,
-    knot_const: float = 1.5,
+    knot_const: float = 0.5,
 ) -> Dict[str, Any]:
     """Trimmed-estimator analog of `perfrdd`. Returns a JSON-serializable summary.
 
