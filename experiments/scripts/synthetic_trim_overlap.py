@@ -104,7 +104,7 @@ def _true_phi_star_grid(scenario: str, n_big: int = 200_000,
 
 EPS_GRID = [0.02, 0.05, 0.10, 0.15, 0.20, 0.30, 0.40]
 N_SEEDS = 25
-N = 5000
+N = 10000
 PHI_GRID_GOOD = np.linspace(-4.0, 4.0, 400)
 PHI_GRID_BAD = np.linspace(-8.0, 8.0, 600)
 COSTS = (0.0, 0.5, 1.0)

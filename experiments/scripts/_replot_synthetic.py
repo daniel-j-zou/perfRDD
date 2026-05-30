@@ -72,14 +72,14 @@ def main() -> None:
     gs_outer = fig.add_gridspec(2, 2, hspace=0.45, wspace=0.20,
                                 left=0.06, right=0.99, top=0.86, bottom=0.06)
     fig.suptitle(
-        r"Synthetic DGP: each estimator vs its OWN true estimand (n=5000, 25 seeds)",
+        r"Synthetic DGP: trim estimator vs its OWN true estimand (n=10000, 25 seeds)",
         fontsize=15, fontweight="bold", y=0.97,
     )
     fig.text(
         0.5, 0.925,
-        r"blue solid = trim estimator median, IQR shaded;  red dashed = std estimator median.  "
+        r"blue solid = trim estimator median over MC seeds, 95% band shaded.  "
         r"green dotted (constant) = TRUE std estimand $\phi^*$;  "
-        r"green solid (varies) = TRUE trim estimand $\phi^*_\epsilon$.",
+        r"green solid markers (varies with $\epsilon$) = TRUE trim estimand $\phi^*_\epsilon$.",
         ha="center", fontsize=9.5,
     )
 
@@ -93,15 +93,11 @@ def main() -> None:
             ax_sec = fig.add_subplot(inner[1], sharex=ax)
 
             meds = np.array([np.median(r["trimmed_phi_star"][str(e)][str(c)]) for e in eps_grid])
-            q25 = np.array([np.percentile(r["trimmed_phi_star"][str(e)][str(c)], 25) for e in eps_grid])
-            q75 = np.array([np.percentile(r["trimmed_phi_star"][str(e)][str(c)], 75) for e in eps_grid])
+            q025 = np.array([np.percentile(r["trimmed_phi_star"][str(e)][str(c)], 2.5) for e in eps_grid])
+            q975 = np.array([np.percentile(r["trimmed_phi_star"][str(e)][str(c)], 97.5) for e in eps_grid])
             ax.plot(eps_grid, meds, "o-", color="C0", lw=2.0, ms=7,
                     label=r"trim est. median")
-            ax.fill_between(eps_grid, q25, q75, color="C0", alpha=0.22, label="trim est. IQR")
-
-            std_med = float(np.median(r["standard_phi_star"][str(c)]))
-            ax.axhline(std_med, color="C3", ls="--", lw=2.0,
-                       label=fr"std est. median = {std_med:.3f}")
+            ax.fill_between(eps_grid, q025, q975, color="C0", alpha=0.22, label="trim est. 95%")
 
             # Truth lines: two of them, both green.
             true_std = _true_phi_star(sc, eps=None, c=c)
