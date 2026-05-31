@@ -101,8 +101,8 @@ def _compute_overlap_window(
 def _fit_pooled_plm_trimmed(
     Q: np.ndarray, X: np.ndarray, Y: np.ndarray, D: np.ndarray,
     direction: str, l_hat: float, u_hat: float, eta_hat: np.ndarray,
-    ridge_scale: float = 0.1,
-    knot_const: float = 0.5,
+    ridge_scale: float = 0.01,
+    knot_const: float = 0.3,
 ) -> FitResult:
     """Same shape as `_fit_pooled_plm` in perfrdd.py, but operating on the
     overlap-restricted subsample. The spline basis is supported on
@@ -139,7 +139,7 @@ def _fit_pooled_plm_trimmed(
     # are placed at in-window eta quantiles to track density.
     support = (l_hat, u_hat)
     n_eff = min(n_tr_s, n_co_s)
-    kn = max(2, int(round(knot_const * n_eff ** (1.0 / 5.0))))
+    kn = max(0, int(round(knot_const * n_eff ** (1.0 / 5.0))))
     info = _basis_params_quantile(kn, eta_s, support)
     Phi = _eval_basis(eta_s, info)
     n_basis = Phi.shape[1]
@@ -294,7 +294,7 @@ def perfrdd_trim(
     c_ratios: Tuple[float, ...] | None = None,
     phi_grid: np.ndarray | None = None,
     max_n: int | None = DEFAULT_MAX_N,
-    knot_const: float = 0.5,
+    knot_const: float = 0.3,
 ) -> Dict[str, Any]:
     """Trimmed-estimator analog of `perfrdd`. Returns a JSON-serializable summary.
 
