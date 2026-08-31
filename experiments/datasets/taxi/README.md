@@ -24,6 +24,23 @@ The script downloads the public NYC TLC parquet files into `data/raw/`,
 filters each month to `vendor_name == 'VTS'` + credit-card payments + valid
 fare/tip ranges, and writes a single combined `data/processed/vts_credit.parquet`.
 
+## Hard-trim utility pilot
+
+The shared exact-hard-trim runner currently uses a deterministic 30,000-trip
+pilot subsample, `eps=0.1`, and the pilot-derived fixed nuisance support
+`[-6, 11]`. Run it and then create the dollar-denominated taxi utility figure:
+
+```bash
+python -m experiments.scripts.hard_trim_existing_applications
+python -m experiments.scripts.taxi_utility_curve --cost 0.20
+```
+
+The second command treats the cost as dollars per trip assigned the percentage
+tip-suggestion regime. It plots estimated utility in cents per hard-trimmed trip,
+relative to the observed $15 threshold, and compares a regularized full-sample
+fit with five-fold cross-fitting. The cost is illustrative rather than measured;
+the pilot has point estimates only and is not yet a publication-ready analysis.
+
 ## Notes on the filter
 
 - The Haggag & Paci paper uses 2009 data because it's the year all NYC

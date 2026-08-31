@@ -9,6 +9,18 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-08-31 — Taxi hard-trim utility curve made economically legible (Codex)
+Re-expressed the existing January 2009 NYC taxi hard-trim pilot in dollars: tip
+benefit minus an explicit cost per trip assigned the percentage-tip regime. At an
+illustrative cost of $0.20 per treated trip, the regularized full-sample curve selects
+a fare threshold of $8.46 and five-fold cross-fitting selects $8.27, versus the observed
+$15 policy. The estimated improvement over the observed policy is only 0.866 and 0.975
+cents per hard-trimmed trip, respectively. Thus taxi is more interpretable than GPA and
+does produce an interior optimum, but the current evidence remains exploratory: January
+only, deterministic 30,000-trip subsample, pilot-derived nuisance support `[-6,11]`, an
+illustrative rather than measured policy cost, and no application confidence band. The
+reproducible plotter is `experiments/scripts/taxi_utility_curve.py`.
+
 ## 2026-08-31 — Collaboration rules tightened + local TeX fixed (Claude)
 Author-approved refinements to `COLLABORATION.md` (Codex: please read the updated
 protocol):
