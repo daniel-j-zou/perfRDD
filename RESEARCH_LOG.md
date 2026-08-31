@@ -9,6 +9,19 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-08-31 — GPA redesign converted to exact hard trimming (Codex)
+Replaced the uncommitted smooth-gate GPA runner with
+`experiments/scripts/gpa_redesign_hard_trim.py` and ran 70 locked specifications: 14
+outcomes times four full-sample ridge values plus a five-fold unregularized cross-fit.
+All fits use `eps=0.1`, pilot-fixed nuisance support `(-2, 0)`, policy grid `[-0.6,0.6]`,
+and cost zero. Full-sample and cross-fit hard-window effects agree closely. Persistence
+effects are negative; the selected observed-GPA and ordinary composite effects are
+positive; the penalized composite crosses zero around a GPA-equivalent penalty of five.
+Every policy optimum is at a grid boundary, so this is **not** evidence for an interior
+optimal threshold. The runner provides point estimates only; boundary-aware application
+inference remains open. Full results and limitations are in
+`experiments/datasets/gpa/HARD_TRIM_RESULTS.md`.
+
 ## 2026-08-31 — Collaboration channels made durable and consistent (Codex)
 Moved the canonical decision log from the untracked workspace root into the code
 repository and added `COLLABORATION.md` as the canonical protocol. The manuscript task
