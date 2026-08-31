@@ -82,6 +82,23 @@ class HardTrimMethodTest(unittest.TestCase):
                     phi_grid=np.linspace(-1.5, 1.5, 51),
                 )
 
+    def test_can_return_curves_without_writing_outputs(self):
+        grid = np.linspace(-1.5, 1.5, 31)
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory) / "not_created"
+            result = perfrdd_hard_trim(
+                _sample(),
+                output,
+                (-1.75, 1.75),
+                c_values=(0.0,),
+                phi_grid=grid,
+                write_outputs=False,
+                return_curves=True,
+            )
+            self.assertFalse(output.exists())
+        np.testing.assert_allclose(result["returned_phi_grid"], grid)
+        self.assertEqual(len(result["returned_utility_curves"]["0.0"]), len(grid))
+
 
 if __name__ == "__main__":
     unittest.main()

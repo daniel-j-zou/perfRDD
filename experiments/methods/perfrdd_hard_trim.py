@@ -322,6 +322,8 @@ def perfrdd_hard_trim(
     knot_exponent: float = DEFAULT_KNOT_EXPONENT,
     crossfit_folds: int = 1,
     fold_seed: int = 72_931,
+    write_outputs: bool = True,
+    return_curves: bool = False,
 ) -> Dict[str, Any]:
     """Estimate the hard-trimmed policy target and write reproducible curves.
 
@@ -339,7 +341,8 @@ def perfrdd_hard_trim(
         knot_exponent,
         crossfit_folds,
     )
-    out_dir.mkdir(parents=True, exist_ok=True)
+    if write_outputs:
+        out_dir.mkdir(parents=True, exist_ok=True)
     Q, X, threshold = _reduce_to_primary_axis(sample)
     Y = np.asarray(sample.Y, dtype=float)
     D = np.asarray(sample.D, dtype=float)
@@ -424,32 +427,33 @@ def perfrdd_hard_trim(
     alpha_mean = np.mean(
         np.vstack([fold.alpha_grid for fold in fitted_folds]), axis=0
     )
-    _write_curve_csv(
-        out_dir / "alpha_curve.csv",
-        "eta",
-        alpha_grid,
-        {"alpha": alpha_mean},
-    )
-    _write_curve_csv(
-        out_dir / "utility_curve.csv",
-        "phi",
-        phi_grid,
-        {f"cost_{cost:g}": utility for cost, utility in utilities.items()},
-    )
-    _plot_diagnostics(
-        out_dir,
-        sample.name,
-        threshold,
-        support,
-        (
-            float(np.mean([fold.l_hat for fold in fitted_folds])),
-            float(np.mean([fold.u_hat for fold in fitted_folds])),
-        ),
-        alpha_grid,
-        alpha_mean,
-        phi_grid,
-        utilities,
-    )
+    if write_outputs:
+        _write_curve_csv(
+            out_dir / "alpha_curve.csv",
+            "eta",
+            alpha_grid,
+            {"alpha": alpha_mean},
+        )
+        _write_curve_csv(
+            out_dir / "utility_curve.csv",
+            "phi",
+            phi_grid,
+            {f"cost_{cost:g}": utility for cost, utility in utilities.items()},
+        )
+        _plot_diagnostics(
+            out_dir,
+            sample.name,
+            threshold,
+            support,
+            (
+                float(np.mean([fold.l_hat for fold in fitted_folds])),
+                float(np.mean([fold.u_hat for fold in fitted_folds])),
+            ),
+            alpha_grid,
+            alpha_mean,
+            phi_grid,
+            utilities,
+        )
 
     fold_diagnostics = [{
         "l_hat": fold.l_hat,
@@ -468,7 +472,7 @@ def perfrdd_hard_trim(
         "design_condition_number": fold.design_condition_number,
         "first_stage_R2": fold.first_stage_R2,
     } for fold in fitted_folds]
-    return {
+    result: Dict[str, Any] = {
         "name": sample.name,
         "method": "perfrdd_hard_trim",
         "estimand": "exact_hard_support_trimmed",
@@ -501,6 +505,13 @@ def perfrdd_hard_trim(
         "fold_diagnostics": fold_diagnostics,
         "out_dir": str(out_dir),
     }
+    if return_curves:
+        result["returned_phi_grid"] = [float(value) for value in phi_grid]
+        result["returned_utility_curves"] = {
+            str(cost): [float(value) for value in utility]
+            for cost, utility in utilities.items()
+        }
+    return result
 
 
 def run(sample: RDDSample) -> Dict[str, Any]:

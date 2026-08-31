@@ -9,6 +9,22 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-08-31 — Restricted taxi bootstrap is stable but boundary-valued (Codex)
+Corrected the paper-facing taxi sample before bootstrapping: the earlier generic pilot
+used all VTS credit-card rides, whereas Haggag--Paci's main RDD excludes tolls, taxes,
+and surcharges, uses daytime/standard-meter restrictions, and limits fares to $5--$25.
+The public January data contain 541,318 eligible rows; a locked 30,000-trip sample was
+bootstrapped 199 times with full re-estimation of every nuisance, trim endpoint, utility
+curve, and argmax. With driver tip revenue as the objective (`cost=0`), the estimate and
+all 199 replications select the $2.50 lower policy boundary. Moving from the observed
+$15 rule to percentage suggestions on all eligible fares has an estimated gain of 34.71
+cents per hard-trimmed trip (centered-bootstrap 95% interval [27.16,40.69] cents;
+bootstrap SE 3.29 cents). This establishes numerical stability only: iid trip resampling,
+34.1% hard retention, a roughly 297,000 baseline condition number, and strong
+counterfactual extrapolation prevent a publication-ready causal recommendation. The
+earlier unrestricted $0.20-cost curve is superseded for paper-facing work. Details:
+`experiments/datasets/taxi/BOOTSTRAP_RESULTS.md`.
+
 ## 2026-08-31 — Taxi hard-trim utility curve made economically legible (Codex)
 Re-expressed the existing January 2009 NYC taxi hard-trim pilot in dollars: tip
 benefit minus an explicit cost per trip assigned the percentage-tip regime. At an

@@ -24,7 +24,7 @@ The script downloads the public NYC TLC parquet files into `data/raw/`,
 filters each month to `vendor_name == 'VTS'` + credit-card payments + valid
 fare/tip ranges, and writes a single combined `data/processed/vts_credit.parquet`.
 
-## Hard-trim utility pilot
+## Hard-trim utility pilot (unrestricted exploratory sample)
 
 The shared exact-hard-trim runner currently uses a deterministic 30,000-trip
 pilot subsample, `eps=0.1`, and the pilot-derived fixed nuisance support
@@ -39,7 +39,27 @@ The second command treats the cost as dollars per trip assigned the percentage
 tip-suggestion regime. It plots estimated utility in cents per hard-trimmed trip,
 relative to the observed $15 threshold, and compares a regularized full-sample
 fit with five-fold cross-fitting. The cost is illustrative rather than measured;
-the pilot has point estimates only and is not yet a publication-ready analysis.
+the pilot has point estimates only and is not yet a publication-ready analysis. It
+does **not** apply the paper's no-toll/tax/surcharge, daytime, or standard-meter-grid
+restrictions and is superseded for paper-facing work by the restricted sample below.
+
+### Restricted-sample bootstrap
+
+`adapter.load_haggag_paci()` applies the published main-RDD restrictions: Vendor
+credit-card rides before November 2009, no tolls/taxes/surcharges, the published
+daytime windows, standard-meter fare increments, and fares from $5 to $25. The
+diagnostic bootstrap takes a locked 30,000-trip subsample after those restrictions
+and fully re-estimates every nuisance and the utility argmax:
+
+```bash
+python -m experiments.scripts.taxi_bootstrap_30k --replications 199
+```
+
+This bootstrap targets expected driver tip revenue (`cost=0`). It resamples trips
+independently because the public TLC file does not contain the anonymized driver and
+car identifiers available to Haggag and Paci. Treat its intervals as a method and
+numerical-stability diagnostic, not final clustered application inference. Verified
+results and limitations are in `BOOTSTRAP_RESULTS.md`.
 
 ## Notes on the filter
 
