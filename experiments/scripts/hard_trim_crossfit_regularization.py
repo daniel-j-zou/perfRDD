@@ -7,10 +7,12 @@ They differ only in sample reuse and regularization:
 * ``crossfit_5fold`` evaluates every observation with out-of-fold nuisances;
 * ``full_ridge_*`` fits and evaluates on the full sample over a ridge grid.
 
-Every variant fits its nuisance spline on the deterministic neighborhood J
-used in the theory audit.  This isolates cross-fitting and regularization from
-the separate application choice of putting spline boundaries at the estimated
-trim endpoints.
+Every variant fits its outcome nuisance spline on the deterministic
+neighborhood J used in the theory audit.  The T distribution can be estimated
+either by the original Gaussian location-scale fit or by the manuscript's
+least-squares spline projection density.  This isolates cross-fitting and
+regularization from the separate application choice of putting spline
+boundaries at the estimated trim endpoints.
 """
 from __future__ import annotations
 
@@ -20,7 +22,7 @@ import json
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Any, Dict, Iterable, Sequence
+from typing import Any, Dict, Iterable, Protocol, Sequence
 
 import matplotlib
 
@@ -31,6 +33,7 @@ from scipy.optimize import minimize_scalar
 from scipy.stats import norm
 
 from experiments.methods.perfrdd import _eval_basis
+from experiments.methods.spline_density import SplineDensityFit, fit_spline_density
 from experiments.scripts.hard_trim_gaussian_baseline import (
     COST,
     EPS,
@@ -52,7 +55,32 @@ from experiments.scripts.hard_trim_gaussian_baseline import (
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = ROOT / "runs" / "hard_trim_crossfit_regularization"
+DEFAULT_SPLINE_OUT = ROOT / "runs" / "hard_trim_spline_density"
 DEFAULT_RIDGE_GRID = (0.0, 0.0001, 0.001, 0.01, 0.1)
+# The hard target only evaluates T-density arguments in approximately
+# [-2.8, 2.8] under the fixed policy and trim windows.  This deterministic
+# interval leaves a margin without spending scarce finite-sample basis
+# functions on irrelevant Gaussian tails.
+T_DENSITY_SUPPORT = (-3.0, 3.0)
+DENSITY_METHODS = ("gaussian", "spline")
+
+
+class TDensity(Protocol):
+    """Minimal distribution interface needed by the policy criterion."""
+
+    def survival(self, points: np.ndarray | float) -> np.ndarray:
+        ...
+
+
+@dataclass(frozen=True)
+class GaussianTDensity:
+    """Gaussian location-scale nuisance retained as the old benchmark."""
+
+    mean: float
+    sd: float
+
+    def survival(self, points: np.ndarray | float) -> np.ndarray:
+        return np.asarray(norm.sf((np.asarray(points) - self.mean) / self.sd))
 
 
 @dataclass(frozen=True)
@@ -62,8 +90,21 @@ class EvaluationComponent:
     eta: np.ndarray
     hard_weights: np.ndarray
     treatment_effect: np.ndarray
-    T_mean: float
-    T_sd: float
+    T_density: TDensity
+
+
+def _fit_T_density(T_values: np.ndarray, method: str) -> TDensity:
+    """Fit either the legacy Gaussian or manuscript spline T nuisance."""
+    if method == "gaussian":
+        mean, sd = _estimate_T_normal(T_values)
+        return GaussianTDensity(mean, sd)
+    if method == "spline":
+        return fit_spline_density(T_values, T_DENSITY_SUPPORT)
+    raise ValueError(f"unknown density method: {method!r}")
+
+
+def _density_basis_count(density: TDensity) -> int:
+    return density.n_basis if isinstance(density, SplineDensityFit) else 2
 
 
 def make_crossfit_folds(n: int, seed: int, n_folds: int = 5) -> list[np.ndarray]:
@@ -95,7 +136,7 @@ def _maximize_components(
     def objective(phi: float) -> float:
         numerator = 0.0
         for part in components:
-            probability = norm.sf((phi - part.eta - part.T_mean) / part.T_sd)
+            probability = part.T_density.survival(phi - part.eta)
             numerator += float(np.sum(
                 part.hard_weights
                 * (part.treatment_effect - COST)
@@ -123,6 +164,7 @@ def _component(
     train_idx: np.ndarray,
     eval_idx: np.ndarray,
     ridge_scale: float,
+    density_method: str,
 ) -> EvaluationComponent:
     """Fit nuisances on ``train_idx`` and construct held-out policy inputs."""
     gamma_hat = _fit_gamma(data, train_idx)
@@ -136,7 +178,7 @@ def _component(
         NUISANCE_SUPPORT,
         ridge_scale=ridge_scale,
     )
-    T_mu, T_sd = _estimate_T_normal(T_train)
+    T_density = _fit_T_density(T_train, density_method)
     eta_eval = eta_hat[eval_idx]
     weights = ((eta_eval >= l_hat) & (eta_eval <= u_hat)).astype(float)
     effect = _eval_basis(eta_eval, fit.info) @ fit.omega_treat
@@ -144,8 +186,7 @@ def _component(
         eta=eta_eval,
         hard_weights=weights,
         treatment_effect=effect,
-        T_mean=T_mu,
-        T_sd=T_sd,
+        T_density=T_density,
     )
 
 
@@ -171,7 +212,10 @@ def run_replication(
     seed: int,
     ridge_grid: Sequence[float] = DEFAULT_RIDGE_GRID,
     n_folds: int = 5,
+    density_method: str = "gaussian",
 ) -> Dict[str, Any]:
+    if density_method not in DENSITY_METHODS:
+        raise ValueError(f"density_method must be one of {DENSITY_METHODS}")
     data = generate_data(n, seed)
     target = population_truth()["hard_phi_star"]
     all_idx = np.arange(n)
@@ -183,18 +227,19 @@ def run_replication(
     eta_hat = data.Q - _predict_T(data.X, gamma_hat)
     l_hat, u_hat = _estimate_boundaries(data, honest)
     fit = _fit_spline_plm(data, honest["outcome"], eta_hat, NUISANCE_SUPPORT)
-    T_density = _predict_T(data.X[honest["density"]], gamma_hat)
-    T_mu, T_sd = _estimate_T_normal(T_density)
+    T_density_values = _predict_T(data.X[honest["density"]], gamma_hat)
+    T_density = _fit_T_density(T_density_values, density_method)
     eta_eval = eta_hat[honest["utility"]]
     weights = ((eta_eval >= l_hat) & (eta_eval <= u_hat)).astype(float)
     effect = _eval_basis(eta_eval, fit.info) @ fit.omega_treat
     phi, boundary, retained = _maximize_components(
-        [EvaluationComponent(eta_eval, weights, effect, T_mu, T_sd)]
+        [EvaluationComponent(eta_eval, weights, effect, T_density)]
     )
     result.update({
         "honest_split_phi": phi,
         "honest_split_boundary": boundary,
         "honest_split_retention": retained / len(eta_eval),
+        "honest_split_density_basis": _density_basis_count(T_density),
     })
 
     # Standard K-fold cross-fitting: held-out evaluation, training-fold nuisances.
@@ -203,24 +248,32 @@ def run_replication(
         train_mask = np.ones(n, dtype=bool)
         train_mask[eval_idx] = False
         train_idx = all_idx[train_mask]
-        components.append(_component(data, train_idx, eval_idx, 0.0))
+        components.append(
+            _component(data, train_idx, eval_idx, 0.0, density_method)
+        )
     phi, boundary, retained = _maximize_components(components)
     crossfit_label = _crossfit_label(n_folds)
     result.update({
         f"{crossfit_label}_phi": phi,
         f"{crossfit_label}_boundary": boundary,
         f"{crossfit_label}_retention": retained / n,
+        f"{crossfit_label}_density_basis": float(np.mean([
+            _density_basis_count(part.T_density) for part in components
+        ])),
     })
 
     # Full-sample application-style variants, including its default ridge 0.01.
     for ridge_scale in ridge_grid:
-        component = _component(data, all_idx, all_idx, float(ridge_scale))
+        component = _component(
+            data, all_idx, all_idx, float(ridge_scale), density_method
+        )
         phi, boundary, retained = _maximize_components([component])
         label = _ridge_label(float(ridge_scale))
         result.update({
             f"{label}_phi": phi,
             f"{label}_boundary": boundary,
             f"{label}_retention": retained / n,
+            f"{label}_density_basis": _density_basis_count(component.T_density),
         })
 
     for label in estimator_labels(ridge_grid, n_folds):
@@ -230,8 +283,8 @@ def run_replication(
     return result
 
 
-def _worker(task: tuple[int, int, tuple[float, ...], int]) -> Dict[str, Any]:
-    return run_replication(task[0], task[1], task[2], task[3])
+def _worker(task: tuple[int, int, tuple[float, ...], int, str]) -> Dict[str, Any]:
+    return run_replication(task[0], task[1], task[2], task[3], task[4])
 
 
 def summarize(
@@ -271,6 +324,9 @@ def summarize(
                 ])),
                 "mean_retention": float(np.mean([
                     row[f"{label}_retention"] for row in subset
+                ])),
+                "mean_density_basis": float(np.mean([
+                    row[f"{label}_density_basis"] for row in subset
                 ])),
                 "mean_utility_regret": float(np.mean(regrets)),
             }
@@ -323,11 +379,14 @@ def run_experiment(
     out_dir: Path,
     ridge_grid: Sequence[float] = DEFAULT_RIDGE_GRID,
     n_folds: int = 5,
+    density_method: str = "gaussian",
 ) -> Dict[str, Any]:
+    if density_method not in DENSITY_METHODS:
+        raise ValueError(f"density_method must be one of {DENSITY_METHODS}")
     ridge_grid = tuple(float(value) for value in ridge_grid)
     out_dir.mkdir(parents=True, exist_ok=True)
     tasks = [
-        (int(n), int(seed), ridge_grid, int(n_folds))
+        (int(n), int(seed), ridge_grid, int(n_folds), density_method)
         for n in ns
         for seed in range(reps)
     ]
@@ -342,6 +401,10 @@ def run_experiment(
         "description": "Exact hard trimming: sample reuse and ridge comparison",
         "target": population_truth(),
         "n_folds": int(n_folds),
+        "density_method": density_method,
+        "deterministic_T_density_support": (
+            list(T_DENSITY_SUPPORT) if density_method == "spline" else None
+        ),
         "ridge_grid": list(ridge_grid),
         "ridge_definition": "spline penalty lambda = ridge_scale / sqrt(n_fit)",
         "deterministic_nuisance_support": list(NUISANCE_SUPPORT),
@@ -363,7 +426,14 @@ def main(argv: Sequence[str] | None = None) -> None:
         "--ridge", type=float, nargs="+", default=list(DEFAULT_RIDGE_GRID)
     )
     parser.add_argument("--folds", type=int, default=5)
-    parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    parser.add_argument(
+        "--density", choices=DENSITY_METHODS, default="gaussian",
+        help="T-distribution nuisance: legacy Gaussian or manuscript spline",
+    )
+    parser.add_argument(
+        "--out", type=Path, default=None,
+        help="output directory (defaults to a density-method-specific run folder)",
+    )
     args = parser.parse_args(argv)
     if args.reps <= 0 or args.workers <= 0:
         parser.error("--reps and --workers must be positive")
@@ -373,13 +443,22 @@ def main(argv: Sequence[str] | None = None) -> None:
         parser.error("all sample sizes must be at least 500")
     if any(value < 0.0 for value in args.ridge):
         parser.error("ridge scales must be nonnegative")
+    out_dir = args.out or (
+        DEFAULT_SPLINE_OUT if args.density == "spline" else DEFAULT_OUT
+    )
     payload = run_experiment(
-        args.n, args.reps, args.workers, args.out, args.ridge, args.folds
+        args.n,
+        args.reps,
+        args.workers,
+        out_dir,
+        args.ridge,
+        args.folds,
+        args.density,
     )
     print(json.dumps({"target": payload["target"], "summary": payload["summary"]}, indent=2))
-    print(f"[wrote] {args.out / 'replications.csv'}")
-    print(f"[wrote] {args.out / 'summary.json'}")
-    print(f"[wrote] {args.out / 'summary.png'}")
+    print(f"[wrote] {out_dir / 'replications.csv'}")
+    print(f"[wrote] {out_dir / 'summary.json'}")
+    print(f"[wrote] {out_dir / 'summary.png'}")
 
 
 if __name__ == "__main__":

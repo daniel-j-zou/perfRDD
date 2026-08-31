@@ -30,6 +30,12 @@ class HardTrimCrossfitRegularizationTest(unittest.TestCase):
             set(result["1000"]["estimators"]), set(estimator_labels(ridge))
         )
 
+    def test_spline_density_replication(self):
+        row = run_replication(1000, 3, (0.0,), 2, "spline")
+        for label in estimator_labels((0.0,), 2):
+            self.assertTrue(np.isfinite(row[f"{label}_phi"]), label)
+            self.assertGreaterEqual(row[f"{label}_density_basis"], 8)
+
 
 if __name__ == "__main__":
     unittest.main()
