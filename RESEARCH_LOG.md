@@ -9,6 +9,18 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-08-31 — GPA welfare menu yields boundary policies throughout (Codex)
+With a separate skeptic-agent audit, prespecified 16 GPA welfare outcomes: five direct
+progression outcomes, five inherited/physical missing-GPA values, and six modest
+leave/return stress tests. Ran four full-sample ridge levels, five-fold cross-fitting, and
+an expanded-grid audit at costs `{0,.025,.05,.10}` for every outcome. Full and cross-fit
+effects agree closely. Direct progression outcomes are negative and choose the lower
+policy boundary; all physical and modest status-adjusted GPA composites are positive and
+choose the upper boundary. All 16 no-cost optima and all 64 expanded-grid cost audits are
+boundary solutions. Conclusion: reasonable linear welfare calibrations clarify the
+performance-persistence tradeoff but do not identify an interior threshold. Details:
+`experiments/datasets/gpa/WELFARE_RESULTS.md`.
+
 ## 2026-08-31 — GPA redesign converted to exact hard trimming (Codex)
 Replaced the uncommitted smooth-gate GPA runner with
 `experiments/scripts/gpa_redesign_hard_trim.py` and ran 70 locked specifications: 14

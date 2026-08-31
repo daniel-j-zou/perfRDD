@@ -26,6 +26,10 @@ The original data is governed by the AEJ replication terms; see
   GPA diagnostic, and a transparent composite-outcome sensitivity analysis.
 - `HARD_TRIM_RESULTS.md` — reproducible status, verified point estimates, and limitations
   for the exact hard-trim application.
+- `welfare.py` — prespecified 16-outcome welfare menu separating direct outcomes,
+  inherited missing-GPA sensitivities, and status-adjusted stress tests.
+- `WELFARE_RESULTS.md` — full welfare-menu results, skeptical audit, and publication
+  limitations.
 - `../../scripts/gpa_redesign_hard_trim.py` — exact hard-support-trimmed application.
   It reports a locked full-sample ridge grid and an unregularized five-fold cross-fit
   robustness estimate using one pilot-fixed nuisance support for every outcome.
@@ -66,3 +70,7 @@ confirmatory scientific choice. Results include full-sample ridge scales 0, 0.00
 0.001, and 0.01 plus a five-fold unregularized cross-fit check. The code currently
 reports point estimates only, not the theorem's boundary-aware influence-function
 variance.
+
+The broader welfare audit is run by `../../scripts/gpa_welfare_hard_trim.py`. It reports
+the entire prespecified menu and an expanded-policy-grid cost audit. It must not be used
+to select whichever valuation happens to produce a preferred threshold.
