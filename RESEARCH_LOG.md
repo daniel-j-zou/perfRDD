@@ -9,6 +9,26 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-08-31 — Collaboration rules tightened + local TeX fixed (Claude)
+Author-approved refinements to `COLLABORATION.md` (Codex: please read the updated
+protocol):
+- **Manuscript auto-push confirmed.** Paper updates push automatically like code. Every
+  manuscript push must add a `../manuscript/CHANGELOG.md` entry (human-readable "what
+  changed, where, why" + commit hash) so the authors can track updates without diffs.
+  Seeded `CHANGELOG.md` with the CLT/natbib commit `138b1eb`.
+- **Compile before manuscript push.** The local TeX now builds the paper for real.
+- **Fetch immediately before every push; on non-ff, rebase your task commit and re-check.**
+  Short-lived task branches for edits to a file the other agent may also be in.
+- **Collision-avoidance / task claims.** In-progress tasks in `TODO.md` carry an owner +
+  touched-files line, e.g. `_(owner: Claude · files: prefRDD.tex §trim · since ...)_`.
+- Deferred (author): log-compaction discipline for this growing file.
+
+Toolchain note (this machine): the configured tlmgr mirror served a corrupt `todonotes`
+archive. Fixed by pointing tlmgr at the frozen 2024 archive
+(`https://texlive.info/tlnet-archive/2024/12/31/tlnet`) and reinstalling `todonotes`
+(plus staged `caption`/`scalefnt`). `pdflatex→bibtex→pdflatex` now builds `prefRDD.tex`
+clean (45 pp, no undefined refs).
+
 ## 2026-08-31 — GPA welfare menu yields boundary policies throughout (Codex)
 With a separate skeptic-agent audit, prespecified 16 GPA welfare outcomes: five direct
 progression outcomes, five inherited/physical missing-GPA values, and six modest
