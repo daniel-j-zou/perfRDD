@@ -9,6 +9,18 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Granular hard-trim proof checklist added (Codex)
+Expanded `manuscript/TODO.md` with a dependency-ordered checklist for the hard-trimmed
+CLT. It now separates setup/assumptions, feasible consistency, outcome and density Riesz
+limits, moving-set linearization, the generated-index Bahadur step, fixed-support versus
+expanding-support density repairs, explicit influence-function assembly, foldwise CLT,
+and feasible variance/inference. The checklist records the fixed-support density repair
+as drafted, while keeping the Bahadur primitive, expanding-support audit, explicit score
+bookkeeping, and reused-sample covariance estimator open. No methodological status was
+changed; this is a clearer author-review map of the existing prelim proof.
+
+---
+
 ## 2026-09-01 — Direct VTS-to-CMT prediction check rejects naive alpha transport (Codex)
 Added `experiments/scripts/taxi_competitor_prediction_check.py` to test the
 fitted VTS decomposition itself rather than merely compare cross-vendor means.
