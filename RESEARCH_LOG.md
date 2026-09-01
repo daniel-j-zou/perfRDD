@@ -9,6 +9,16 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Prelim notation audit (Codex)
+Compared the setup and estimator sections in `manuscript/prelim/prelim.tex` with
+`prefRDD.tex`, `oldstuff.tex`, and `goodstuff.tex`. The core notation was already
+consistent. Restored avoidable cosmetic deviations to the original `\tilde N_K`,
+`G_K`, `\epsilon`, and definition-style assignments, while retaining the necessary
+clarification that observed treatment is `D_i(phi_0)` and `D_i(phi)` is counterfactual.
+The density block now uses the original basis/Gram symbols, with the fixed versus
+expanding interval distinction stated in prose. Recompiled the 16-page prelim with
+resolved bibliography and visually checked the revised setup/estimation pages.
+
 ## 2026-09-01 — Confirmation gate added; taxi "interior" is a data artifact (Claude)
 Added a **full-n confirmation gate** to `screen_candidate` (committed `0354f6d`): when the
 250k working screen flags INTERESTING, it recomputes the welfare gain (same cost) on the
