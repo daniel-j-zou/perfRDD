@@ -9,6 +9,22 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Taxi empirical section: interior-optimum version is the version of record (Claude)
+Author (owner) decision: the interior-optimum taxi application supersedes the restricted
+boundary-optimum framing that had been integrated into `../manuscript/prelim/prelim.tex`.
+The empirical section now reports the full-VTS-sample result — sign-changing
+$\hat\alpha(\eta)$, welfare with a strictly interior maximizer, inference-grade hard-trim
+$\hat\phi_\epsilon\approx\$5.3$ (design cond\# $5.6\times10^3$, robust $\$5.0$–$7.6$), and
+the iid trip bootstrap ($B=120$, $m=120$k): 100\% interior, mean $\$3.61$, median $\$3.51$,
+95\% PI $[\$1.67,\$6.08]$, IQR $[\$2.68,\$4.50]$ — plus the CMT competitor-vendor
+falsification check (adjacent-fare jump $+\$0.357$ VTS vs $+\$0.050$ CMT; placebo
+$|\hat\alpha|$ mean $0.094$ vs $0.481$) and the caveats (iid vs clustered SEs; $\alpha$ on
+fare residual vs level, so sub-\$15 is a supported extrapolation; regularization
+sensitivity). Source: `../manuscript/taxi_application.tex` +
+`../manuscript/figures/taxi_{alpha,b,utility,bootstrap}.png`. The earlier "boundary optimum
+at \$2.50 / not publication-ready" paragraph is retired; this entry supersedes it per the
+author's instruction. prelim compiles clean (22 pp, no undefined refs/citations).
+
 ## 2026-09-01 — Separated outer integration-by-parts repair from hard-boundary terms (Codex)
 Revised item (3) of the opening “To discuss.” section to make the proof architecture
 explicit. The fixed-buffered and slowly expanding windows address only the artificial
