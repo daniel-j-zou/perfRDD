@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — FOLLOW-UP: lending_default interior does NOT survive the hard-trim (Claude)
+Supersedes the optimistic "Interesting interior found" entry below. Ran RD validity + the
+inference-grade `perfrdd_hard_trim` on full data (nuisance support [5,18], eps=0.1, c=0).
+
+*RD validity at DTI=30.* McCrary density mild (log-jump −0.08, no bunching, 0.03% exactly at
+30). But covariate balance shows significant jumps: `inq_last_6mths` (z=−3.9), `pub_rec`
+(z=+3.1), `loan_amnt` (z=+2.5) — economically tiny (n=884k makes trivial jumps significant),
+so a yellow flag on the clean-RD story, not fatal.
+
+*Hard-trim vs screen disagree.* Full-data hard-trim → **boundary** φ*=54.9, avg α over window
+= **−0.0235 (net negative)** ⇒ optimal policy is "treat no one." On a 100k subsample it gives
+an **interior** ~31–33 across ridge∈{0,2,10}. Reconciliation: the interior peak's welfare is
+≈0 (~2e−4), essentially tied with the trivial policy, so the argmax **flips interior↔boundary
+by sample** — exactly why the screen bootstrap CI was [7.5, 54.9].
+
+**Conclusion (changed):** α sign-change is robust, but the interior welfare optimum is **not**
+— the surface is too flat to beat doing nothing, and full-data inference picks the boundary.
+`lending_default` is a good methodology demonstration (the hard-trim correctly caught that the
+pooled-PLM screen over-flagged) but **not a paper application**. Lesson for the screen: add a
+welfare-gain-over-boundary check, not just interior-argmax. Data hunt continues.
+
 ## 2026-09-01 — Prelim proof build, phase 1 (Codex)
 Built the hard-support proof in `manuscript/prelim/prelim.tex` as six explicit
 modules: feasible consistency; sieve/Riesz convergence; moving sets; generated-index
