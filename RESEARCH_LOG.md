@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — CMT low-fare proxy supplies a negative menu component (Codex)
+Added `experiments/scripts/taxi_low_fare_proxy.py`, which uses all paper-restricted
+January records with $5 <= fare < $15 and fare-cell fixed effects, common and
+CMT-specific control slopes, and CMT-by-fare effects. The CMT-minus-VTS contrast
+is evaluated at mean VTS controls in each cell, so it is an auxiliary
+percentage-menu-minus-fixed-menu proxy rather than the causal PerfRDD
+`alpha(eta)`. Across 25 cells (484,123 VTS and 428,062 CMT rides), the VTS-
+distribution-weighted proxy is **-$0.212 per trip** (raw difference -$0.214),
+negative on 90.5% of VTS low-fare mass, and crosses zero near **$12.8**. It is
+about -$0.370 at $5.30, -$0.276 at $8.10, -$0.098 at $10.90, and +$0.144 at
+$14.90; HC0 intervals are exploratory and iid.
+
+This is the economically expected sign pattern for applying percentage tips to
+low fares, and it is stable to observed-control adjustment. It does not identify
+the VTS counterfactual without conditional vendor exchangeability: the public
+January data lack the driver IDs needed for a within-driver CMT/VTS comparison,
+and CMT's percentage menu differs from VTS's. Recommendation: retain the local
+VTS hard-trim alpha as the identified treatment effect and use this proxy only in
+a menu-aware calibration/sensitivity analysis. Details and figure are in
+`experiments/datasets/taxi/LOW_FARE_PROXY.md` and the ignored run directory.
+
 ## 2026-09-01 — Competitor-only taxi placebo validates local jump but flags broad-window specification (Codex)
 Added a vendor-selectable paper-restriction adapter and the reproducible
 `experiments/scripts/taxi_competitor_check.py` diagnostic. The local January raw

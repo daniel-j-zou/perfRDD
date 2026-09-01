@@ -61,6 +61,21 @@ car identifiers available to Haggag and Paci. Treat its intervals as a method an
 numerical-stability diagnostic, not final clustered application inference. Verified
 results and limitations are in `BOOTSTRAP_RESULTS.md`.
 
+### CMT low-fare menu proxy
+
+The companion CMT sample can be used to estimate an auxiliary low-fare contrast:
+CMT's percentage-menu tips minus VTS's fixed-dollar-menu tips by fare cell,
+adjusted for the published controls. This proxy is negative at low fares and
+crosses zero near $12.8 in the January data, but it is not the causal VTS
+`alpha(eta)` because vendor exchangeability is unverified. Run:
+
+```bash
+python -m experiments.scripts.taxi_low_fare_proxy
+```
+
+See `LOW_FARE_PROXY.md` for the specification, results, and identification
+limits.
+
 ## Notes on the filter
 
 - The Haggag & Paci paper uses 2009 data because it's the year all NYC
