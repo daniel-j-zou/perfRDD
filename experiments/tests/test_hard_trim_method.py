@@ -3,6 +3,7 @@ import unittest
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 from experiments._core.sample import RDDSample
 from experiments.methods.perfrdd_hard_trim import (
@@ -98,6 +99,28 @@ class HardTrimMethodTest(unittest.TestCase):
             self.assertFalse(output.exists())
         np.testing.assert_allclose(result["returned_phi_grid"], grid)
         self.assertEqual(len(result["returned_utility_curves"]["0.0"]), len(grid))
+        self.assertEqual(len(result["returned_alpha_curve"]), 501)
+        self.assertEqual(len(result["returned_baseline_curve"]), 501)
+        self.assertEqual(set(result["beta_coefficients"]), {"x1", "x2", "x3"})
+
+    def test_writes_all_outcome_model_components(self):
+        with tempfile.TemporaryDirectory() as directory:
+            output = Path(directory)
+            perfrdd_hard_trim(
+                _sample(),
+                output,
+                (-1.75, 1.75),
+                c_values=(0.0,),
+                phi_grid=np.linspace(-1.5, 1.5, 31),
+            )
+            alpha = pd.read_csv(output / "alpha_curve.csv")
+            baseline = pd.read_csv(output / "baseline_curve.csv")
+            beta = pd.read_csv(output / "beta_coefficients.csv")
+            self.assertTrue((output / "outcome_components.png").exists())
+        self.assertEqual(list(alpha.columns), ["eta", "alpha"])
+        self.assertEqual(list(baseline.columns), ["eta", "b"])
+        self.assertEqual(list(beta.columns), ["feature", "beta"])
+        self.assertEqual(beta["feature"].tolist(), ["x1", "x2", "x3"])
 
 
 if __name__ == "__main__":

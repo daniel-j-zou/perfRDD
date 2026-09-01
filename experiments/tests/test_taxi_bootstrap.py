@@ -9,6 +9,7 @@ import pandas as pd
 from experiments.datasets.taxi.adapter import prepare_haggag_paci_frame
 from experiments.scripts.taxi_bootstrap_30k import (
     centered_interval,
+    maximizing_grid_range,
     simultaneous_relative_band,
 )
 
@@ -52,6 +53,11 @@ class TaxiBootstrapTest(unittest.TestCase):
         lower, upper = centered_interval(1.0, np.array([0.8, 0.9, 1.1, 1.2]))
         self.assertLess(lower, 1.0)
         self.assertGreater(upper, 1.0)
+
+    def test_maximizing_grid_range_preserves_ties(self) -> None:
+        grid = np.array([2.5, 3.0, 3.5, 4.0])
+        curve = np.array([1.0, 1.0, 1.0 - 5e-13, 0.9])
+        self.assertEqual(maximizing_grid_range(curve, grid), (2.5, 3.5))
 
 
 if __name__ == "__main__":

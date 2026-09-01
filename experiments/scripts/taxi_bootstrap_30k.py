@@ -103,6 +103,25 @@ def centered_interval(
     return float(estimate - upper_deviation), float(estimate - lower_deviation)
 
 
+def maximizing_grid_range(
+    curve: np.ndarray,
+    grid: np.ndarray = POLICY_GRID,
+    atol: float = 1e-12,
+) -> Tuple[float, float]:
+    """Return the grid range numerically tied for the maximum.
+
+    The threshold criterion can be exactly flat when every model-supported case
+    already receives treatment. Reporting only ``np.argmax`` would then turn the
+    first grid point into an apparently point-identified optimum.
+    """
+    values = np.asarray(curve, dtype=float)
+    candidate_grid = np.asarray(grid, dtype=float)
+    if values.shape != candidate_grid.shape:
+        raise ValueError("curve and grid must have the same shape")
+    tied = values >= float(np.max(values)) - float(atol)
+    return float(np.min(candidate_grid[tied])), float(np.max(candidate_grid[tied]))
+
+
 def simultaneous_relative_band(
     estimate: np.ndarray,
     bootstrap_curves: np.ndarray,
@@ -279,6 +298,13 @@ def run(replications: int = 199, workers: int | None = None) -> Dict[str, Any]:
     estimate = np.asarray(
         baseline["returned_utility_curves"][str(COST)], dtype=float
     )
+    alpha_grid = np.linspace(NUISANCE_SUPPORT[0], NUISANCE_SUPPORT[1], 501)
+    alpha_curve = np.asarray(baseline["returned_alpha_curve"], dtype=float)
+    baseline_fold = baseline["fold_diagnostics"][0]
+    in_hard_window = (
+        (alpha_grid >= baseline_fold["l_hat"])
+        & (alpha_grid <= baseline_fold["u_hat"])
+    )
     seeds = [BOOTSTRAP_SEED + index for index in range(replications)]
     context = mp.get_context("spawn")
     records: List[Dict[str, Any]] = []
@@ -306,6 +332,10 @@ def run(replications: int = 199, workers: int | None = None) -> Dict[str, Any]:
     current_index = int(np.argmin(np.abs(POLICY_GRID - CURRENT_THRESHOLD)))
     all_fares_index = 0
     bands = simultaneous_relative_band(estimate, curves, current_index)
+    baseline_maximizer_range = maximizing_grid_range(estimate)
+    bootstrap_maximizer_ranges = np.asarray([
+        maximizing_grid_range(curve) for curve in curves
+    ])
 
     gain_estimate = float(estimate[all_fares_index] - estimate[current_index])
     bootstrap_gains = curves[:, all_fares_index] - curves[:, current_index]
@@ -327,6 +357,8 @@ def run(replications: int = 199, workers: int | None = None) -> Dict[str, Any]:
         key: value for key, value in record.items() if key not in {"curve", "error"}
     } for record in successful])
     records_frame["gain_all_fares_over_current"] = bootstrap_gains
+    records_frame["maximizer_range_lower"] = bootstrap_maximizer_ranges[:, 0]
+    records_frame["maximizer_range_upper"] = bootstrap_maximizer_ranges[:, 1]
     records_frame.to_csv(OUT_ROOT / "bootstrap_estimates.csv", index=False)
     np.savez_compressed(
         OUT_ROOT / "bootstrap_curves.npz",
@@ -372,6 +404,9 @@ def run(replications: int = 199, workers: int | None = None) -> Dict[str, Any]:
             "phi_star_at_boundary": bool(
                 baseline["phi_star_at_grid_boundary"][str(COST)]
             ),
+            "numerically_tied_maximizer_range": list(
+                baseline_maximizer_range
+            ),
             "avg_alpha_hard_weighted": float(
                 baseline["avg_alpha_hard_weighted"]
             ),
@@ -379,6 +414,17 @@ def run(replications: int = 199, workers: int | None = None) -> Dict[str, Any]:
             "design_condition_number": float(
                 baseline["fold_diagnostics"][0]["design_condition_number"]
             ),
+            "hard_trim_interval": [
+                float(baseline_fold["l_hat"]),
+                float(baseline_fold["u_hat"]),
+            ],
+            "alpha_min_on_hard_trim_grid": float(
+                np.min(alpha_curve[in_hard_window])
+            ),
+            "alpha_max_on_hard_trim_grid": float(
+                np.max(alpha_curve[in_hard_window])
+            ),
+            "beta_coefficients": baseline["beta_coefficients"],
             "gain_all_fares_over_current_cents_per_trimmed_trip": (
                 gain_estimate_cents
             ),
@@ -390,6 +436,16 @@ def run(replications: int = 199, workers: int | None = None) -> Dict[str, Any]:
             "phi_star_boundary_share": float(
                 np.mean(np.isclose(phi_star, POLICY_GRID[0]))
             ),
+            "maximizer_range_lower_percentile_95": [
+                float(value) for value in np.quantile(
+                    bootstrap_maximizer_ranges[:, 0], [0.025, 0.975]
+                )
+            ],
+            "maximizer_range_upper_percentile_95": [
+                float(value) for value in np.quantile(
+                    bootstrap_maximizer_ranges[:, 1], [0.025, 0.975]
+                )
+            ],
             "gain_all_fares_over_current_centered_95_cents": [
                 100.0 * gain_interval[0], 100.0 * gain_interval[1]
             ],
@@ -414,6 +470,16 @@ def run(replications: int = 199, workers: int | None = None) -> Dict[str, Any]:
             "utility_bands": str(OUT_ROOT / "utility_bands.csv"),
             "bootstrap_estimates": str(OUT_ROOT / "bootstrap_estimates.csv"),
             "bootstrap_curves": str(OUT_ROOT / "bootstrap_curves.npz"),
+            "alpha_curve": str(OUT_ROOT / "baseline" / "alpha_curve.csv"),
+            "baseline_curve": str(
+                OUT_ROOT / "baseline" / "baseline_curve.csv"
+            ),
+            "beta_coefficients": str(
+                OUT_ROOT / "baseline" / "beta_coefficients.csv"
+            ),
+            "outcome_components_figure": str(
+                OUT_ROOT / "baseline" / "outcome_components.png"
+            ),
         },
     }
     (OUT_ROOT / "summary.json").write_text(

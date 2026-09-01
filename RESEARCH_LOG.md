@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-08-31 — Taxi treatment-effect audit finds no negative fitted alpha (Codex)
+Exported every component of the restricted 30,000-trip taxi outcome regression. The
+hard-trim interval for the estimated fare residual is `[0.216,8.629]`; the fitted
+`alpha(eta)` is positive throughout it, ranging from $0.384 to $0.953, with a
+hard-window observation-weighted mean of $0.406. Thus the fitted model contains no
+residual-defined subgroup for which the percentage-menu effect is negative. This does
+not identify the effect at low fare levels: treatment is deterministic in fare, and the
+model restricts the treatment effect to depend on residual `eta`, not fare or displayed
+menu values. The point utility maximum is also exactly tied on the $2.50--$3.80 grid
+plateau; the reported $2.50 is the first-grid-point `argmax`, not a uniquely identified
+threshold. Added reproducible exports for `alpha(eta)`, baseline `b(eta)`, the linear
+control vector `beta`, and a combined diagnostic figure. The no-cost global threshold
+recommendation remains an unsupported transport exercise rather than a causal result.
+
 ## 2026-08-31 — Restricted taxi bootstrap is stable but boundary-valued (Codex)
 Corrected the paper-facing taxi sample before bootstrapping: the earlier generic pilot
 used all VTS credit-card rides, whereas Haggag--Paci's main RDD excludes tolls, taxes,

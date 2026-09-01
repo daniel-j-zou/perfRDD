@@ -69,6 +69,8 @@ class HardTrimFold:
     design_condition_number: float
     first_stage_R2: float
     alpha_grid: np.ndarray
+    baseline_grid: np.ndarray
+    beta: np.ndarray
 
 
 def _validate_inputs(
@@ -188,6 +190,7 @@ def _fit_fold(
     omega_treat = coefficients[
         n_features + n_basis:n_features + 2 * n_basis
     ]
+    omega_baseline = coefficients[n_features:n_features + n_basis]
     eta_eval = eta_all[eval_idx]
     hard_weights = (
         (eta_eval >= l_hat) & (eta_eval <= u_hat)
@@ -212,6 +215,8 @@ def _fit_fold(
             1.0 - np.var(eta_all[train_idx]) / np.var(Q[train_idx])
         ),
         alpha_grid=_eval_basis(alpha_grid, basis_info) @ omega_treat,
+        baseline_grid=_eval_basis(alpha_grid, basis_info) @ omega_baseline,
+        beta=coefficients[:n_features],
     )
 
 
@@ -304,6 +309,66 @@ def _plot_diagnostics(
     axes[1].legend(fontsize=8)
     fig.tight_layout()
     fig.savefig(out_dir / "diagnostics.png", dpi=150, bbox_inches="tight")
+    plt.close(fig)
+
+
+def _plot_outcome_components(
+    out_dir: Path,
+    sample_name: str,
+    support: tuple[float, float],
+    trim_interval: tuple[float, float],
+    alpha_grid: np.ndarray,
+    alpha_mean: np.ndarray,
+    baseline_mean: np.ndarray,
+    beta_mean: np.ndarray,
+    feature_names: Sequence[str],
+) -> None:
+    """Plot every component of the fitted conditional outcome regression."""
+    fig, axes = plt.subplots(1, 3, figsize=(16, 4.9))
+    for axis, curve, title, ylabel in (
+        (
+            axes[0],
+            alpha_mean,
+            r"Treatment effect $\hat\alpha(\eta)$",
+            "Tip effect of percentage menu ($)",
+        ),
+        (
+            axes[1],
+            baseline_mean,
+            r"Untreated baseline $\hat b(\eta)$",
+            "Baseline fitted component ($)",
+        ),
+    ):
+        axis.plot(alpha_grid, curve, color="#176D9C", lw=2.0)
+        axis.axvspan(
+            trim_interval[0],
+            trim_interval[1],
+            color="#74C476",
+            alpha=0.14,
+            label="hard-trim window",
+        )
+        axis.axvline(support[0], color="black", ls=":", lw=0.8)
+        axis.axvline(support[1], color="black", ls=":", lw=0.8)
+        axis.axhline(0.0, color="black", lw=0.7)
+        axis.set_title(title)
+        axis.set_xlabel(r"Estimated fare residual $\hat\eta$")
+        axis.set_ylabel(ylabel)
+        axis.grid(axis="y", alpha=0.2)
+    axes[0].legend(frameon=False, fontsize=8)
+
+    positions = np.arange(len(beta_mean))
+    colors = np.where(beta_mean >= 0.0, "#3182BD", "#CB181D")
+    axes[2].barh(positions, beta_mean, color=colors, alpha=0.85)
+    axes[2].set_yticks(positions)
+    axes[2].set_yticklabels(feature_names)
+    axes[2].invert_yaxis()
+    axes[2].axvline(0.0, color="black", lw=0.7)
+    axes[2].set_title(r"Linear controls $\hat\beta$")
+    axes[2].set_xlabel("Tip change per one-unit increase in X ($)")
+    axes[2].grid(axis="x", alpha=0.2)
+    fig.suptitle(f"{sample_name}: fitted outcome-model components", y=1.01)
+    fig.tight_layout()
+    fig.savefig(out_dir / "outcome_components.png", dpi=190, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -427,6 +492,19 @@ def perfrdd_hard_trim(
     alpha_mean = np.mean(
         np.vstack([fold.alpha_grid for fold in fitted_folds]), axis=0
     )
+    baseline_mean = np.mean(
+        np.vstack([fold.baseline_grid for fold in fitted_folds]), axis=0
+    )
+    beta_mean = np.mean(
+        np.vstack([fold.beta for fold in fitted_folds]), axis=0
+    )
+    feature_names = list(sample.feature_names)
+    if len(feature_names) != len(beta_mean):
+        feature_names = [f"x{index}" for index in range(len(beta_mean))]
+    trim_interval = (
+        float(np.mean([fold.l_hat for fold in fitted_folds])),
+        float(np.mean([fold.u_hat for fold in fitted_folds])),
+    )
     if write_outputs:
         _write_curve_csv(
             out_dir / "alpha_curve.csv",
@@ -434,6 +512,16 @@ def perfrdd_hard_trim(
             alpha_grid,
             {"alpha": alpha_mean},
         )
+        _write_curve_csv(
+            out_dir / "baseline_curve.csv",
+            "eta",
+            alpha_grid,
+            {"b": baseline_mean},
+        )
+        with (out_dir / "beta_coefficients.csv").open("w", newline="") as handle:
+            writer = csv.writer(handle)
+            writer.writerow(["feature", "beta"])
+            writer.writerows(zip(feature_names, beta_mean))
         _write_curve_csv(
             out_dir / "utility_curve.csv",
             "phi",
@@ -445,14 +533,22 @@ def perfrdd_hard_trim(
             sample.name,
             threshold,
             support,
-            (
-                float(np.mean([fold.l_hat for fold in fitted_folds])),
-                float(np.mean([fold.u_hat for fold in fitted_folds])),
-            ),
+            trim_interval,
             alpha_grid,
             alpha_mean,
             phi_grid,
             utilities,
+        )
+        _plot_outcome_components(
+            out_dir,
+            sample.name,
+            support,
+            trim_interval,
+            alpha_grid,
+            alpha_mean,
+            baseline_mean,
+            beta_mean,
+            feature_names,
         )
 
     fold_diagnostics = [{
@@ -503,6 +599,10 @@ def perfrdd_hard_trim(
         "phi_star_near_grid_boundary": near_boundary_flags,
         "grid_boundary_band_fraction": 0.01,
         "fold_diagnostics": fold_diagnostics,
+        "beta_coefficients": {
+            feature: float(value)
+            for feature, value in zip(feature_names, beta_mean)
+        },
         "out_dir": str(out_dir),
     }
     if return_curves:
@@ -511,6 +611,10 @@ def perfrdd_hard_trim(
             str(cost): [float(value) for value in utility]
             for cost, utility in utilities.items()
         }
+        result["returned_alpha_curve"] = [float(value) for value in alpha_mean]
+        result["returned_baseline_curve"] = [
+            float(value) for value in baseline_mean
+        ]
     return result
 
 

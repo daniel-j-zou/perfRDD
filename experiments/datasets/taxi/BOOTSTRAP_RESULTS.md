@@ -3,9 +3,11 @@
 ## Conclusion
 
 On the paper-restricted January 2009 sample, the no-cost driver-tip objective is
-strictly decreasing over the economically feasible threshold grid. The estimated
-policy therefore assigns percentage suggestions to all eligible fares (`phi*=2.5`).
-All 199 full-reestimation bootstrap replications select that same lower boundary.
+weakly decreasing over the economically feasible threshold grid. The point curve is
+numerically tied at its maximum from $2.50 through $3.80, after which it declines. The
+implementation reports `phi*=2.5` because `argmax` returns the first tied grid point.
+All 199 full-reestimation bootstrap replications likewise report the lower boundary,
+conditional on that tie-breaking rule.
 
 This is evidence that the numerical conclusion is stable on the locked sample. It is
 not evidence that moving the historical screen below $15 has a causally identified
@@ -29,7 +31,11 @@ Outputs are written to the ignored directory
 - `utility_bands.csv` — estimated relative utility and bootstrap bands;
 - `bootstrap_estimates.csv` — one row per successful replication;
 - `bootstrap_curves.npz` — baseline and replication-level utility curves;
-- `utility_curve_bootstrap.png` — utility band and gain distribution.
+- `utility_curve_bootstrap.png` — utility band and gain distribution;
+- `baseline/alpha_curve.csv` — fitted conditional percentage-menu effect;
+- `baseline/baseline_curve.csv` — fitted untreated baseline component;
+- `baseline/beta_coefficients.csv` — fitted linear-control coefficients;
+- `baseline/outcome_components.png` — combined outcome-model diagnostic.
 
 ## Locked specification
 
@@ -55,17 +61,45 @@ all filtered VTS credit-card records and is not a paper-comparable application s
 |---|---:|
 | Successful bootstrap replications | 199 / 199 |
 | Hard-window average effect | $0.4056 per trip |
+| Estimated hard-trim interval for fare residual | [0.216, 8.629] |
+| Range of fitted alpha on hard-trim grid | [$0.384, $0.953] per trip |
 | Hard-trim retention | 34.09% |
 | No-cost `phi*` | $2.50 (lower boundary) |
+| Numerically tied point-estimate maximizer range | [$2.50, $3.80] |
 | Bootstrap lower-boundary share | 100% |
+| Bootstrap 2.5th--97.5th percentiles of plateau upper endpoint | [$3.70, $4.05] |
 | Gain from all-fare percentage suggestions versus current $15 rule | 34.71 cents per hard-trimmed trip |
 | Bootstrap standard error of gain | 3.29 cents |
 | Centered-bootstrap 95% interval for gain | [27.16, 40.69] cents |
 | Simultaneous-band interval at $2.50 | [27.45, 41.98] cents |
 
-The percentile range of the argmax is `[$2.50,$2.50]`, but it should not be presented
-as an ordinary regular confidence interval: the optimum is at the policy boundary.
-The utility band and gain relative to the current policy are the meaningful inference.
+The percentile range of the first-grid-point argmax is `[$2.50,$2.50]`, but it should
+not be presented as an ordinary regular confidence interval: the optimum is on a flat
+boundary plateau and `np.argmax` deterministically selects its first point. The utility
+band and gain relative to the current policy are the meaningful inference.
+
+The fitted `alpha(eta)` curve is positive over the entire hard-trim interval; this
+specification therefore finds no residual-defined subgroup with a negative estimated
+percentage-menu effect. That is not evidence that the effect is positive at every fare.
+The historical treatment is deterministic in fare, so there is no fixed-versus-percentage
+comparison at the same fare. Moreover, the outcome model restricts the treatment effect
+to depend on the fare residual `eta`, not on the fare level or the dollar values displayed
+by the menu. Transporting the fitted effect below $15 consequently imposes rather than
+tests menu-value invariance.
+
+The fitted linear-control coefficients are in dollars per one-standard-deviation change
+because the controls were standardized on the restricted source sample:
+
+| Control | `beta` |
+|---|---:|
+| Trip distance | 0.3510 |
+| Passenger count | -0.0018 |
+| Hour of day | 0.0361 |
+| Day of week | -0.0287 |
+
+These are partial-regression components, not causal effects. The accompanying component
+figure also reports the nonlinear untreated baseline `b(eta)`, which is distinct from
+the finite-dimensional coefficient vector `beta`.
 
 ## What the bootstrap establishes
 
@@ -88,6 +122,10 @@ The utility band and gain relative to the current policy are the meaningful infe
 - The result extrapolates the local $15 discontinuity to much lower fares. At low fares,
   fixed dollar suggestions can mechanically exceed percentage suggestions, making
   policy invariance especially doubtful.
+- The public data cannot reveal where the low-fare effect changes sign without an
+  additional menu-response model or another source of assignment variation: below $15
+  only the fixed menu is observed, and at or above $15 only the percentage menu is
+  observed.
 - The analysis observes credit-card but not cash tips and does not identify effects on
   payment method, demand, repeat riding, or other driver revenue.
 
