@@ -9,6 +9,23 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Prelim setup, supported target, and estimator completed (Codex)
+Replaced the setup and estimation placeholders in `manuscript/prelim/prelim.tex`
+with a self-contained statement of the method. The write-up now distinguishes data
+generated under the deployed cutoff `phi_0` from counterfactual assignments under a
+candidate `phi`; defines the latent-index decomposition, heterogeneous-effect outcome
+model, propensity/survival identity, untrimmed value, exact hard-supported value, and
+outer nuisance region; and states the identification interpretation of every object.
+The estimation section now gives the OLS generated index and its exact first-order
+error, empirical-quantile trim endpoints, stacked spline partial-linear regression,
+orthogonal-series density and survival estimates, supported plug-in criterion, tie
+rule, and decoupled versus reused-sample fold construction. It distinguishes outcome
+and density dimensions `K_alpha` and `K_g`, taking both of order `K_n` only in the
+theory. It also distinguishes a fixed density interval containing the support of `T`
+from the deterministic expanding-support alternative. The resulting 16-page PDF
+compiled without undefined references or citations, and the new setup/estimation
+pages were visually checked.
+
 ## 2026-09-01 — Screen sharpened; Lending exhausted; boundary is the pattern (Claude)
 Sharpened `screen_candidate` per the flat-optimizer insight (committed `c293686`):
 (1) work on 250k rows so noise can't manufacture an interior; (2) gate on
