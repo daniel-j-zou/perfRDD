@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Separated outer integration-by-parts repair from hard-boundary terms (Codex)
+Revised item (3) of the opening “To discuss.” section to make the proof architecture
+explicit. The fixed-buffered and slowly expanding windows address only the artificial
+outer density-sieve trace at $(A,B)$. The internal Dirac terms at the hard-trim
+endpoints are genuine first-order contributions and remain in the score, handled
+separately from the outer-trace repair. Item (4) was shortened to the genuinely extra
+checks: uniform control of endpoint-crossing bands, derivative-level density-sieve
+control for curvature, and identification/curvature for $U_\epsilon$; bounded-density,
+endpoint, nuisance-rate, and conditional-ULLN conditions are inherited rather than
+relisted.
+
 ## 2026-09-01 — Additional supported-criterion assumptions stated in prelim (Codex)
 Added the item (4) assumptions requested by the author to
 `manuscript/prelim/prelim.tex`. The text distinguishes conditions inherited from
