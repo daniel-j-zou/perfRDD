@@ -9,6 +9,63 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Bahadur references and fold/covariance distinction (Codex)
+The original source is R. R. Bahadur (1966), “A Note on Quantiles in Large
+Samples,” *Annals of Mathematical Statistics* 37(3), 577–580,
+doi:10.1214/aoms/1177699450. Kiefer (1967), “On Bahadur's Representation of
+Sample Quantiles,” 38(5), 1323–1342, doi:10.1214/aoms/1177698690, sharpens the
+remainder. Ghosh (1971), “A New Proof of the Bahadur Representation of Quantiles
+and an Application,” 42(6), 1957–1961, doi:10.1214/aoms/1177693063, proves the
+weaker remainder \(o_p(n^{-1/2})\), which is sufficient for the present CLT under
+lighter conditions. Modern references separate according to the object: van der
+Vaart (1998), Chapter 21, treats empirical-quantile inversion; Koenker (2005),
+Section 4.3, treats Bahadur representations for quantile regression; and
+Bhattacharya (2020), arXiv:2012.13614, proves a uniform expansion for quantile
+regression with generated dependent variables/covariates. Uniform nonparametric
+quantile papers commonly cite Bahadur together with empirical-process/stochastic-
+equicontinuity results rather than treating the 1966 fixed-distribution theorem as
+covering an estimated index.
+
+For PerfRDD, Bahadur (1966) is the correct historical citation, but it does not by
+itself prove (A3''). The needed result follows from a short local argument for the
+VC class of halfspaces
+\(F_n(q,a)=P_n\{1(a^\top X\le q)\}\). Uniform stochastic equicontinuity near
+\((q_p,\gamma)\), together with
+
+\[
+F(q,\gamma+\delta)-p
+=f_T(q_p)\{q-q_p-m_p^\top\delta\}
++o(|q-q_p|+\|\delta\|),
+\]
+
+gives
+
+\[
+\hat Q_p(\hat\gamma^\top X)-q_p
+=\frac{P_n\{p-1(T\le q_p)\}}{f_T(q_p)}
++m_p^\top(\hat\gamma-\gamma)+o_p(n^{-1/2}).
+\]
+
+Recommendation: cite Bahadur (1966) plus a modern quantile exposition, cite the
+generated-variable paper as a close analogue, and include this short derivation.
+Kiefer (1967) is optional because the proof does not use his sharp remainder rate;
+Ghosh (1971) is the closest classical citation to the strength actually required.
+
+The author's fold clarification resolves task #5: the theorem uses separate
+\(\hat\gamma^\alpha,\hat\gamma^g,\hat\gamma^U\) from separate training folds for
+the alpha, density, and evaluation blocks. The lower and upper boundary half-folds
+use two additional boundary-specific gamma estimates. This bookkeeping question is
+distinct from density–boundary sample reuse. Even with different gamma estimates,
+the density score \(r_{g,\epsilon}(T)\) and empirical-quantile score
+\(p-1\{T\le q_p\}\) are correlated when computed from the same observations. The
+theorem's boundary folds are disjoint from the density fold, so that covariance is
+zero. The honest-split Monte Carlo also has disjoint boundary and density folds. In
+the five-fold and full-sample Monte Carlo variants, however, the same `train_idx`
+forms both the density estimate and both trim quantiles; their DGP-known variance
+therefore correctly includes density–boundary covariance. Adopting the theorem-style
+split for feasible inference removes that covariance but uses less data; retaining
+cross-fitting/full-sample reuse requires estimating and carrying the covariance.
+
 ## 2026-08-31 — Dataset hunt: Romania null, strong candidates are access-gated (Claude)
 Searched for downloadable datasets with a *real* threshold-treatment + continuous outcome
 + pre-treatment covariates + heterogeneous (sign-changing) effects.
