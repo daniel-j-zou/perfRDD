@@ -9,6 +9,16 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Hard-truncation preface added to prelim (Codex)
+Added a short opening “To discuss.” section to `manuscript/prelim/prelim.tex`. It records
+that hard truncation changes the support of the estimand without propensity weighting and
+summarizes the extra generated-boundary, moving-set, discontinuous density-Riesz,
+consistency/curvature, and interpretation issues. The title and author/running head are
+now explicit placeholders (`[Title Placeholder]`, `[Authors]`). Recompiled and visually
+checked the first three pages; the existing minor box/spacing warnings remain nonfatal.
+
+---
+
 ## 2026-09-01 — Taxi is a REAL interior application (corrects the "artifact" call) (Claude)
 Reversing my earlier "taxi interior = data artifact" entry. Author reframing: the effect
 depending on the fare *level* (percentages beat flat $2/$3/$4 at high fares, lose at low)
