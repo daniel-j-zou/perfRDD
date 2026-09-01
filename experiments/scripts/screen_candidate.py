@@ -54,6 +54,11 @@ from experiments.methods.perfrdd import (
 ROOT = Path(__file__).resolve().parent.parent
 RUNS = ROOT / "runs" / "screen_candidate"
 
+# The welfare surface is inherently flat near the optimum, so a small sample lets
+# noise manufacture a spurious interior optimum (e.g. lending_default flips from
+# "interior" at 40k to "boundary" at >=200k). Screen on enough data to tell.
+SCREEN_MAX_N = 250_000
+
 
 @dataclass
 class ScreenResult:
@@ -69,6 +74,8 @@ class ScreenResult:
     alpha_crosses_zero: bool
     phi_star_zero_cost: float
     phi_star_interior_zero_cost: bool
+    boundary_gain: float
+    boundary_gain_rel: float
     interior_cost_range: Tuple[float, float] | None
     cost_shown: float
     phi_star_shown: float
@@ -182,18 +189,21 @@ def _utility_profiles(fit, Q, phi_grid, window: Tuple[float, float]) -> Tuple[np
 def _interior_cost_range(
     A, B, phi_grid, alpha_min, alpha_max, n_grid: int = 61
 ) -> Tuple[float, float] | None:
-    """Which treatment costs c give an *interior* welfare max, via U=A-c*B.
+    """Which *non-negative* treatment costs c give an *interior* welfare max.
 
-    A crossing of ``alpha(eta) - c`` requires ``c in (alpha_min, alpha_max)``; we
-    scan a padded version of that interval (vectorized over c) and return the
-    [min, max] c whose maximizer is interior.
+    A cost is a cost: only ``c >= 0`` is explainable (a negative "cost" is a
+    benefit and would let any positive alpha manufacture an interior). A crossing
+    of ``alpha(eta) - c`` needs ``c < alpha_max``; we scan ``[0, alpha_max]``
+    (padded), vectorized over c, and return the [min, max] c whose maximizer is
+    interior AND strictly beats both boundaries.
     """
-    lo, hi = min(0.0, alpha_min), max(0.0, alpha_max)
-    pad = 0.05 * (hi - lo + 1e-9)
-    c_grid = np.linspace(lo - pad, hi + pad, n_grid)
+    hi = max(0.0, alpha_max)
+    pad = 0.05 * (hi + 1e-9)
+    c_grid = np.linspace(0.0, hi + pad, n_grid)
     U = A[:, None] - c_grid[None, :] * B[:, None]        # (n_phi, n_c)
     argmax = U.argmax(axis=0)
-    interior = (argmax != 0) & (argmax != len(phi_grid) - 1)
+    gain = U[argmax, np.arange(U.shape[1])] - np.maximum(U[0], U[-1])
+    interior = (argmax != 0) & (argmax != len(phi_grid) - 1) & (gain > 0)
     cs = c_grid[interior]
     return (float(cs.min()), float(cs.max())) if cs.size else None
 
@@ -203,7 +213,7 @@ def screen(
     *,
     out_root: Path = RUNS,
     eps: float = 0.1,
-    max_n: int | None = DEFAULT_MAX_N,
+    max_n: int | None = SCREEN_MAX_N,
     description: str | None = None,
     phi_grid: np.ndarray | None = None,
 ) -> ScreenResult:
@@ -258,7 +268,15 @@ def screen(
     interior_range = _interior_cost_range(A, B, phi_grid, alpha_min, alpha_max)
     best0 = int(np.argmax(A))
     phi_star = float(phi_grid[best0])
-    interior0 = best0 not in (0, len(phi_grid) - 1)
+    # Welfare gain of the interior optimum over the better boundary policy. The
+    # optimum is inherently flat, so this is small even when real; at large n its
+    # SIGN is what matters. A gain <= 0 means "treat all / none" is at least as
+    # good -> not an interesting interior.
+    boundary_gain = float(A[best0] - max(A[0], A[-1]))
+    scale = float(np.max(np.abs(A))) + 1e-12
+    boundary_gain_rel = boundary_gain / scale
+    GAIN_TOL = 1e-4  # relative; filters exact numerical ties, not real flat gains
+    interior0 = (best0 not in (0, len(phi_grid) - 1)) and (boundary_gain_rel > GAIN_TOL)
 
     # The utility figure shows the *interesting* case: zero cost if alpha already
     # gives an interior, otherwise a representative interior-inducing cost.
@@ -283,7 +301,8 @@ def screen(
 
     if crosses and interior0:
         verdict = ("INTERESTING — alpha changes sign on the data "
-                   f"({neg_alpha_mass:.0%} of in-window mass negative); interior optimum at zero cost")
+                   f"({neg_alpha_mass:.0%} of in-window mass negative); interior beats the "
+                   f"boundary at zero cost (gain {boundary_gain_rel:+.1%} of welfare scale)")
     elif interior_range is not None and interior_shown and cost_splits_mass:
         verdict = (
             f"INTERESTING with an explainable cost — interior optimum at treatment "
@@ -292,8 +311,8 @@ def screen(
             f"c must be economically justifiable"
         )
     else:
-        verdict = (f"boundary/sign-definite — not a candidate as-is "
-                   f"({neg_alpha_mass:.0%} of in-window mass negative)")
+        verdict = (f"boundary — interior does not beat 'treat all/none' "
+                   f"(gain {boundary_gain_rel:+.1%}; {neg_alpha_mass:.0%} of in-window mass negative)")
 
     result = ScreenResult(
         name=name, n=len(Y), first_stage_R2=first_stage_R2,
@@ -302,6 +321,7 @@ def screen(
         neg_alpha_mass=neg_alpha_mass,
         alpha_crosses_zero=crosses, phi_star_zero_cost=phi_star,
         phi_star_interior_zero_cost=interior0,
+        boundary_gain=boundary_gain, boundary_gain_rel=boundary_gain_rel,
         interior_cost_range=(tuple(interior_range) if interior_range else None),
         cost_shown=float(cost_shown), phi_star_shown=float(phi_star_shown),
         phi_grid_edges=(float(phi_grid[0]), float(phi_grid[-1])),
@@ -335,7 +355,8 @@ def _write_description(r: ScreenResult, sample: RDDSample, description: str | No
         f"| in-window data mass with α̂<0 | {r.neg_alpha_mass:.1%} |",
         f"| **α̂ crosses zero on the data** | **{r.alpha_crosses_zero}** |",
         f"| zero-cost φ* | {r.phi_star_zero_cost:.3g} (current cutoff {r.threshold:.3g}) |",
-        f"| **φ* interior (zero cost)** | **{r.phi_star_interior_zero_cost}** |",
+        f"| **interior beats boundary (zero cost)** | **{r.phi_star_interior_zero_cost}** |",
+        f"| welfare gain of interior over boundary | {r.boundary_gain_rel:+.2%} of scale |",
         f"| interior-inducing cost range (outcome units) | "
         f"{('[%.3g, %.3g]' % r.interior_cost_range) if r.interior_cost_range else 'none'} |",
         f"| utility figure shown at c | {r.cost_shown:.3g} → φ*={r.phi_star_shown:.3g} |",
@@ -352,7 +373,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("datasets", nargs="+", help="registered dataset name(s)")
     ap.add_argument("--eps", type=float, default=0.1)
-    ap.add_argument("--max-n", type=int, default=DEFAULT_MAX_N)
+    ap.add_argument("--max-n", type=int, default=SCREEN_MAX_N)
     args = ap.parse_args(argv)
     for name in args.datasets:
         try:
@@ -361,10 +382,10 @@ def main(argv: Sequence[str] | None = None) -> None:
             print(f"[{name}] FAILED: {exc}")
             continue
         flag = "★" if r.verdict.startswith("INTERESTING") else " "
-        print(f"[{name}] {flag} R2={r.first_stage_R2:.2f} "
-              f"alpha=[{r.alpha_min:.2g},{r.alpha_max:.2g}] neg_mass={r.neg_alpha_mass:.0%} "
-              f"crosses={r.alpha_crosses_zero} phi*={r.phi_star_zero_cost:.3g} "
-              f"interior={r.phi_star_interior_zero_cost}  {r.verdict.split(' — ')[0]}")
+        print(f"[{name}] {flag} n={r.n} R2={r.first_stage_R2:.2f} "
+              f"neg_mass={r.neg_alpha_mass:.0%} gain={r.boundary_gain_rel:+.1%} "
+              f"phi*={r.phi_star_zero_cost:.3g} interior={r.phi_star_interior_zero_cost}  "
+              f"{r.verdict.split(' — ')[0]}")
 
 
 if __name__ == "__main__":
