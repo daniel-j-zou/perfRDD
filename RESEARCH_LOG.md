@@ -9,6 +9,31 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Taxi is a REAL interior application (corrects the "artifact" call) (Claude)
+Reversing my earlier "taxi interior = data artifact" entry. Author reframing: the effect
+depending on the fare *level* (percentages beat flat $2/$3/$4 at high fares, lose at low)
+is exactly the phenomenon; "how low can the %-menu threshold go before it hurts tips" is the
+interior question; extrapolating the optimal threshold is the method's contribution; and the
+covariates absorb subpopulations given a clean $15 cutoff. The Haggag–Paci $5–25 restriction
+removes the very low/high fares where the sign change lives — which is *why* restricted reads
+boundary and the FULL sample reveals the interior. So unrestricted is the right data here.
+
+**Result (full VTS credit sample, n=1.53M, Q=fare, φ₀=$15, D=1{fare≥15}, Y=tip).**
+- α̂(η) sign-changes across the overlap window (Figures in `runs/screen_candidate/taxi/`).
+- Inference-grade hard-trim: with a data-dense support (−5,10) and ridge 1.0 the design is
+  well-conditioned (cond# 5.6e3, vs 1e18 for the naive wide/zero-ridge fit) and φ̂≈$5.3,
+  interior, robust across regularization ($5.0–$7.6). avg trimmed α +0.10.
+- Bootstrap (B=120, m=120k iid trips): φ̂ mean $3.61, median $3.51, 95% CI [$1.67,$6.08],
+  **100% interior**. Whole distribution far below $15.
+Reproducible: `experiments/scripts/taxi_perfrdd_application.py`. Written up as the main
+application in `manuscript/taxi_application.tex` (+ `manuscript/figures/taxi_*.png`).
+
+**For Codex:** this is now the main application (unrestricted interior), superseding the
+restricted-sample boundary framing in the prelim; the prelim taxi text should be reconciled.
+Caveats carried in the write-up: iid-trip bootstrap ignores driver/time clustering; α is on
+the fare residual η while the menu effect also scales with fare level; φ̂ mildly
+regularization-sensitive (qualitative interior-below-$15 conclusion is robust).
+
 ## 2026-09-01 — Decoupled split is the sole asymptotic target (Codex)
 Clarified the proof scope after author review: the hard-trim CLT and variance are proved
 only for the deliberately decoupled split, because that is the asymptotic construction
