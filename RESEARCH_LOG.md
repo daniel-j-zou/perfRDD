@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Taxi robustness: logit tip-share outcome preserves the interior optimum (Claude)
+Re-ran the taxi application with the outcome changed from tip dollars to the logit tip
+share, $Y=\operatorname{logit}(\text{Tip}/\text{Fare})$, via new script
+`experiments/scripts/taxi_perfrdd_logit_tip.py` (same sample, \$15 assignment, covariates,
+fixed nuisance support, and estimator as `taxi_perfrdd_application.py`). The share is
+degenerate for $3.6\%$ zero-tip rides ($p=0$) and $0.28\%$ with $p\ge1$ (entry outliers up
+to $40\times$); $p$ is clipped to $[0.01,0.99]$ before the logit. Single run (no bootstrap),
+full $n=1{,}528{,}292$. Results: first-stage $R^2=0.66$; $\hat\alpha(\eta)$ still changes
+sign on the overlap window $[-3.65,8.62]$ (range $\approx[-0.62,0.38]$, $\approx50\%$ of
+in-window mass negative); pooled-PLM screen interior $\hat\phi\approx\$9.24$ (beats the
+boundary by $+20.6\%$ of welfare scale, confirmed at full $n$); inference-grade hard-trim
+$\hat\phi_\epsilon\approx\$5.96$ (interior, design cond\# $5.6\times10^3$). Both interior and
+below \$15, as in the dollar-outcome analysis, so the sign-change and sub-\$15 interior
+optimum are not an artifact of measuring tips in dollars. Figures copied to
+`../manuscript/figures/taxi_logit_{alpha,b,utility}.png`; written up as a robustness
+subsection in `../manuscript/prelim/prelim.tex` (compiles, 23 pp). Only new caveat: the
+boundary clip compresses the zero-tip mass to one low value rather than modeling it.
+
 ## 2026-09-01 — Taxi empirical section: interior-optimum version is the version of record (Claude)
 Author (owner) decision: the interior-optimum taxi application supersedes the restricted
 boundary-optimum framing that had been integrated into `../manuscript/prelim/prelim.tex`.
