@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-08-31 — Dataset screening harness built + first-pass screen (Claude)
+Added `experiments/scripts/screen_candidate.py`: ingests a registered dataset, fits the
+pooled PLM, and emits three review figures — `alpha.png` (α̂(η)), `b.png` (b̂(η)),
+`utility.png` (Û(φ) with argmax marked) — plus `description.md`/`summary.json` with the
+screening verdict. **Goal: find a dataset with an interesting interior welfare optimum,
+i.e. α̂(η) non-constant and sign-changing across the overlap window** (a sign-definite α
+forces a boundary policy at zero cost). Explainable treatment costs `c` are supported: the
+harness reports the cost range that induces an interior optimum (in outcome units).
+
+Key robustness lesson baked in: the pooled-PLM spline **oscillates/extrapolates in the
+low-density η tails**, so a naive "does α dip below zero" flag over-fires (it flagged all
+of gpa/taxi/oulad/nhanes). Fixed by (i) assessing the crossing only on the overlap window
+[l₀,u₀], and (ii) gating on **data mass**: fraction of in-window observations with α̂<0
+must be ≥10% on each side. After the fix the first-pass screen matches known results —
+gpa (4% neg mass) and oulad (0%) → boundary; taxi (14%) and nhanes (55%) → sign-changing.
+This is a fast pooled-PLM triage; passing candidates go to `perfrdd_hard_trim` for
+inference-grade estimates. Next: ingest new public candidates (see TODO) and screen them.
+
 ## 2026-08-31 — Taxi treatment-effect audit finds no negative fitted alpha (Codex)
 Exported every component of the restricted 30,000-trip taxi outcome regression. The
 hard-trim interval for the estimated fare residual is `[0.216,8.629]`; the fitted
