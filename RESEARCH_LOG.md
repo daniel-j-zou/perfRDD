@@ -9,6 +9,31 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Interesting interior found: Lending Club repayment (Claude)
+The two author-downloaded openICPSR packages are both blocked for this method:
+**Adams (113908)** is code-only (no data); **Pop-Eleches (112645)** has the continuous
+Baccalaureate outcome `bcg` but **no individual covariates** in any admin file (design uses
+cutoff×year FEs), so there is no X to predict the score. Binding constraint crystallized:
+we need Lindo-style individual covariates predicting the score + a continuous outcome +
+sign-changing treatment; cutoff-FE RD packages (the common kind) lack the covariates.
+
+Found the result in an **in-hand covariate-rich dataset**: new `lending_default` adapter —
+Lending Club with a **repayment** outcome (Fully Paid=1; Charged Off/Default=0), Q=DTI,
+underwriting cutoff 30, n≈884k. Screen (`screen_candidate`): **α̂(η) changes sign inside the
+overlap window** (69% negative in-window mass, crossing at η≈12 where the data is dense — a
+real crossing, not the tail oscillation that fooled taxi), giving a **clean single-peaked
+interior welfare optimum** near φ*≈31–34 (vs the DTI-30 cutoff). Crossing DTI 30 is a more
+defensible treatment than nhanes (lenders tighten pricing/screening at DTI thresholds).
+
+**Bootstrap** (`bootstrap_candidate.py`, B=200, n_work=50k): the *qualitative* result is
+robust — **92% of resamples sign-changing, 93% interior** — but the φ* *location* is
+imprecise: mean 38.6, sd 11.4, 95% CI [7.5, 54.9]. Cause: flat welfare surface near the top
++ small α magnitudes (~±0.025). Two caveats shrink this: the bootstrap used 50k not the full
+884k (full-n SE ~4× tighter), and this is the pooled-PLM screen, not the inference-grade
+hard-trim. **Next:** run `perfrdd_hard_trim` on full data with a prespecified nuisance support
+for a real CI; verify the RD (density/covariate continuity at DTI 30) before any causal claim.
+Committed `code@main 6edca10` (adapter + bootstrap tool).
+
 ## 2026-09-01 — Bahadur references and fold/covariance distinction (Codex)
 The original source is R. R. Bahadur (1966), “A Note on Quantiles in Large
 Samples,” *Annals of Mathematical Statistics* 37(3), 577–580,
