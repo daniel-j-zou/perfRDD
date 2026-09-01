@@ -38,6 +38,23 @@ class TaxiBootstrapTest(unittest.TestCase):
         self.assertEqual(len(restricted), 1)
         self.assertAlmostEqual(float(restricted.iloc[0]["Fare_Amt"]), 14.9)
 
+    def test_paper_restrictions_can_select_competitor(self) -> None:
+        frame = pd.DataFrame({
+            "vendor_name": ["CMT", "VTS", "cmt"],
+            "Payment_Type": ["Credit"] * 3,
+            "Trip_Pickup_DateTime": ["2009-01-05 12:00:00"] * 3,
+            "Fare_Amt": [14.9, 14.9, 15.3],
+            "Tip_Amt": [2.0] * 3,
+            "Tolls_Amt": [0.0] * 3,
+            "surcharge": [0.0] * 3,
+            "mta_tax": [np.nan] * 3,
+            "Trip_Distance": [2.0] * 3,
+            "Passenger_Count": [1.0] * 3,
+        })
+        restricted = prepare_haggag_paci_frame(frame, vendor="CMT")
+        self.assertEqual(len(restricted), 2)
+        self.assertTrue((restricted["vendor_name"].str.upper() == "CMT").all())
+
     def test_centered_interval_and_relative_band(self) -> None:
         estimate = np.array([2.0, 1.0, 0.0])
         curves = np.array([

@@ -65,8 +65,11 @@ results and limitations are in `BOOTSTRAP_RESULTS.md`.
 
 - The Haggag & Paci paper uses 2009 data because it's the year all NYC
   yellow cabs were equipped with the TPEP credit-card system.
-- Vendor (VTS) is the only one with the $15 threshold flip; Competitor
-  (CMT) used a flat 15/20/30% scheme. We drop CMT rows.
+- Vendor (VTS) is the only one with the $15 threshold flip; Competitor (CMT)
+  used percentage suggestions on both sides of $15. The main VTS loader drops
+  CMT, while `python -m experiments.scripts.taxi_competitor_check` reads the
+  local raw January parquet and uses CMT for a placebo validation. See
+  `COMPETITOR_CHECK.md` for the result and identification limits.
 - 2009 parquet has no `mta_tax` column (it was zero / not yet recorded);
   the column exists with all-NaN and is excluded from X.
 - `Payment_Type` appears as both "Credit" and "CREDIT" in the raw data;

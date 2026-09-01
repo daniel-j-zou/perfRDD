@@ -9,6 +9,28 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Competitor-only taxi placebo validates local jump but flags broad-window specification (Codex)
+Added a vendor-selectable paper-restriction adapter and the reproducible
+`experiments/scripts/taxi_competitor_check.py` diagnostic. The local January raw
+parquet contains 478,012 CMT rides after the same restrictions (VTS has 541,318),
+so no additional download was needed. Using identical VTS-standardized controls,
+a locked 30,000-ride subsample, `eps=0.1`, support `[-6,11]`, and ridge `0.001`,
+the CMT artificial split at $15 has weighted mean placebo alpha +0.091, mean
+absolute alpha 0.094, and grid range [-0.288, +0.109] on its hard-trim window;
+the VTS actual menu split has mean +0.406, range [+0.384, +0.953].
+
+The direct adjacent meter-cell check is more favorable: VTS mean tips rise from
+$2.269 at $14.90 to $2.626 at $15.30 (+$0.357), while CMT rises from $2.411 to
+$2.461 (+$0.050). Thus CMT supports a local no-jump falsification, but its fitted
+placebo alpha is not identically zero over the broad residual window (and remains
+nonzero in larger exploratory CMT fits). This is a model-specification warning,
+not a CMT treatment effect: CMT's percentage menu is present on both sides of
+$15, and its baseline level/shape is not the VTS untreated counterfactual. The
+comparison strengthens the interpretation of the VTS local discontinuity while
+leaving transport to low-fare VTS counterfactuals unresolved. Durable details are
+in `experiments/datasets/taxi/COMPETITOR_CHECK.md`; run outputs are in the ignored
+`experiments/runs/taxi_competitor_check/` directory.
+
 ## 2026-09-01 — Prelim notation audit (Codex)
 Compared the setup and estimator sections in `manuscript/prelim/prelim.tex` with
 `prefRDD.tex`, `oldstuff.tex`, and `goodstuff.tex`. The core notation was already
