@@ -9,6 +9,30 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-08-31 — Dataset hunt: Romania null, strong candidates are access-gated (Claude)
+Searched for downloadable datasets with a *real* threshold-treatment + continuous outcome
++ pre-treatment covariates + heterogeneous (sign-changing) effects.
+
+**Tested — Pop-Eleches & Urquiola (2013) Romania school-admission RDD.** Pulled the survey
+subsample `df7.csv` (LFS media mirror:
+`https://media.githubusercontent.com/media/s6soverd/Microeconometrics-Final-Project/master/data/df7.csv`,
+~12k rows). Running var `dzag` (score − school cutoff), D=1{dzag≥0}, background X (child/parent
+demographics, home conditions; behavioral-response columns excluded). Screen → **null**:
+α̂ flat and tiny (−0.021..−0.005), 100% negative in-window mass, R²=0.08, retention 0.10.
+Cause: `df7`'s outcome `Y∈{5,6,7}` is coarse; the continuous Baccalaureate score sits in
+the covariate-less big files (`df4–df6`). Not dead — worth retrying with the continuous
+Bacc outcome from the **full Pop-Eleches package** (openICPSR 112645), which has both.
+
+**Access wall.** The strongest candidates are all openICPSR (login required, can't automate):
+Pop-Eleches full (112645); **Adams Scholarship, Cohodes–Goodman (113908)** — merit aid that
+*lowered* completion via mismatch → documented sign-changing effect, GPA/SAT threshold, has
+covariates (top pick); Georgia HOPE; Florida Bright Futures. **Author action needed:** log in
+and download one; then Claude builds the adapter + runs the full pipeline + bootstrap.
+
+**In-hand status:** nhanes remains the only screened dataset with sign-changing α (55% neg
+mass, interior) but n≈4.7k and the diagnosis→SBP "treatment" is not a clean intervention, so
+it is an illustrative pipeline demo, not a paper result. gpa/oulad boundary; taxi borderline.
+
 ## 2026-08-31 — Dataset screening harness built + first-pass screen (Claude)
 Added `experiments/scripts/screen_candidate.py`: ingests a registered dataset, fits the
 pooled PLM, and emits three review figures — `alpha.png` (α̂(η)), `b.png` (b̂(η)),
