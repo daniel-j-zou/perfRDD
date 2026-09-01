@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Additional supported-criterion assumptions stated in prelim (Codex)
+Added the item (4) assumptions requested by the author to
+`manuscript/prelim/prelim.tex`. The text distinguishes conditions inherited from
+the untrimmed proof from the genuinely new or strengthened requirements: a fixed
+buffered nuisance/density support and interior argument set, endpoint consistency,
+generated-index control on the evaluation fold, local uniform nuisance and density
+derivative consistency, bounded envelopes plus a conditional evaluation-fold ULLN,
+and uniqueness/interior curvature for the supported target $U_\epsilon$. The
+derivative rate is explicitly identified as necessary for curvature consistency,
+not for value consistency alone. The author's other edits were preserved.
+
 ## 2026-09-01 — Two hard-truncation boundary repairs explained (Codex)
 Expanded item (3) of the opening “To discuss.” section after author follow-up. The text
 now separates the internal trim jumps at (a=\phi-u_0) and (b=\phi-l_0) from the
