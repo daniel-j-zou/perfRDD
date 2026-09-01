@@ -76,6 +76,9 @@ class ScreenResult:
     phi_star_interior_zero_cost: bool
     boundary_gain: float
     boundary_gain_rel: float
+    confirmed_full_n: bool | None
+    boundary_gain_full: float
+    n_confirm: int
     interior_cost_range: Tuple[float, float] | None
     cost_shown: float
     phi_star_shown: float
@@ -91,8 +94,6 @@ def _prep(sample: RDDSample, max_n: int | None):
     D = np.asarray(sample.D, dtype=float)
     keep = np.isfinite(Q) & np.isfinite(Y) & np.isfinite(X).all(axis=1)
     Q, X, Y, D = Q[keep], X[keep], Y[keep], D[keep]
-    if max_n is not None and len(Y) > max_n:
-        (Q, X, Y, D), _, _ = _subsample([Q, X, Y, D], max_n)
     return Q, X, Y, D, float(threshold)
 
 
@@ -223,7 +224,11 @@ def screen(
     out_dir = out_root / name
     out_dir.mkdir(parents=True, exist_ok=True)
 
-    Q, X, Y, D, threshold = _prep(sample, max_n)
+    Qf, Xf, Yf, Df, threshold = _prep(sample, None)   # full cleaned data
+    if max_n is not None and len(Yf) > max_n:
+        (Q, X, Y, D), _, _ = _subsample([Qf, Xf, Yf, Df], max_n)
+    else:
+        Q, X, Y, D = Qf, Xf, Yf, Df
     direction = _detect_direction(D, Q)
     fit = _fit_pooled_plm(Q, X, Y, D, direction)
 
@@ -314,6 +319,33 @@ def screen(
         verdict = (f"boundary — interior does not beat 'treat all/none' "
                    f"(gain {boundary_gain_rel:+.1%}; {neg_alpha_mass:.0%} of in-window mass negative)")
 
+    # Confirmation gate: the welfare surface is flat, so a working-sample interior can
+    # be noise (lending-ROI passed at 250k, boundary at 884k). Whenever the working
+    # verdict is INTERESTING and we screened a subsample, re-check the gain — at the
+    # SAME cost — on the FULL data, and downgrade if it does not survive.
+    confirmed_full_n: bool | None = None
+    boundary_gain_full = float("nan")
+    n_confirm = len(Y)
+    if verdict.startswith("INTERESTING") and len(Yf) > len(Y):
+        fitf = _fit_pooled_plm(Qf, Xf, Yf, Df, _detect_direction(Df, Qf))
+        lof, hif = fitf.eta_eval
+        Tf = Qf - fitf.eta
+        l0f = threshold - float(np.quantile(Tf, 1.0 - eps))
+        u0f = threshold - float(np.quantile(Tf, eps))
+        l0f, u0f = (max(min(l0f, u0f), lof), min(max(l0f, u0f), hif))
+        spanf = 3.0 * float(np.std(Qf))
+        pgf = np.linspace(threshold - spanf, threshold + spanf, 401)
+        Af, Bf = _utility_profiles(fitf, Qf, pgf, window=(l0f, u0f))
+        Uf = Af - cost_shown * Bf
+        bestf = int(np.argmax(Uf))
+        gainf = float(Uf[bestf] - max(Uf[0], Uf[-1]))
+        boundary_gain_full = gainf / (float(np.max(np.abs(Uf))) + 1e-12)
+        n_confirm = len(Yf)
+        confirmed_full_n = bool(bestf not in (0, len(pgf) - 1) and boundary_gain_full > 1e-4)
+        if not confirmed_full_n:
+            verdict = (f"boundary on full n={len(Yf)} — the {len(Y)}-row interior did NOT "
+                       f"survive confirmation (full-n gain {boundary_gain_full:+.1%})")
+
     result = ScreenResult(
         name=name, n=len(Y), first_stage_R2=first_stage_R2,
         eta_support=(lo, hi), overlap_window=(l0, u0),
@@ -322,6 +354,8 @@ def screen(
         alpha_crosses_zero=crosses, phi_star_zero_cost=phi_star,
         phi_star_interior_zero_cost=interior0,
         boundary_gain=boundary_gain, boundary_gain_rel=boundary_gain_rel,
+        confirmed_full_n=confirmed_full_n, boundary_gain_full=boundary_gain_full,
+        n_confirm=n_confirm,
         interior_cost_range=(tuple(interior_range) if interior_range else None),
         cost_shown=float(cost_shown), phi_star_shown=float(phi_star_shown),
         phi_grid_edges=(float(phi_grid[0]), float(phi_grid[-1])),
@@ -347,6 +381,8 @@ def _write_description(r: ScreenResult, sample: RDDSample, description: str | No
         "| Metric | Value |",
         "|---|---|",
         f"| n (screened) | {r.n:,} |",
+        f"| full-n confirmation | "
+        f"{'not needed' if r.confirmed_full_n is None else ('CONFIRMED at n=%d (gain %+.2f%%)' % (r.n_confirm, r.boundary_gain_full*100) if r.confirmed_full_n else 'FAILED at n=%d (gain %+.2f%%)' % (r.n_confirm, r.boundary_gain_full*100))} |",
         f"| first-stage R² (Q on X) | {r.first_stage_R2:.3f} |",
         f"| η support | [{r.eta_support[0]:.3g}, {r.eta_support[1]:.3g}] |",
         f"| overlap window [l₀,u₀] (ε={0.1}) | [{r.overlap_window[0]:.3g}, {r.overlap_window[1]:.3g}] |",
@@ -382,10 +418,10 @@ def main(argv: Sequence[str] | None = None) -> None:
             print(f"[{name}] FAILED: {exc}")
             continue
         flag = "★" if r.verdict.startswith("INTERESTING") else " "
+        conf = "" if r.confirmed_full_n is None else f" conf={r.confirmed_full_n}@{r.n_confirm}"
         print(f"[{name}] {flag} n={r.n} R2={r.first_stage_R2:.2f} "
-              f"neg_mass={r.neg_alpha_mass:.0%} gain={r.boundary_gain_rel:+.1%} "
-              f"phi*={r.phi_star_zero_cost:.3g} interior={r.phi_star_interior_zero_cost}  "
-              f"{r.verdict.split(' — ')[0]}")
+              f"neg_mass={r.neg_alpha_mass:.0%} gain={r.boundary_gain_rel:+.1%}{conf} "
+              f"phi*={r.phi_star_zero_cost:.3g}  {r.verdict.split(' — ')[0]}")
 
 
 if __name__ == "__main__":
