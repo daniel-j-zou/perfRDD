@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Prelim proof build, phase 1 (Codex)
+Built the hard-support proof in `manuscript/prelim/prelim.tex` as six explicit
+modules: feasible consistency; sieve/Riesz convergence; moving sets; generated-index
+trim quantiles; the density generated-index loading; and decoupled CLT assembly.
+Migrated the completed feasible-consistency and moving-set proofs, replaced the Riesz
+lemma's unnecessary nested-space premise by direct approximation along the actual
+sieve sequence, and stated the boundary CLT conditionally on the remaining primitive
+VC/Bahadur derivation. The document now keeps both density outer-boundary solutions:
+(1) a fixed buffered interval with a zero-trace interior spline basis, for which the
+integration-by-parts repair is closed; and (2) a deterministic slowly expanding
+interval, for which the endpoint trace condition and effective resolution
+`q_n = K_n / tau_n` are stated but the full expanding-support stochastic rate audit
+remains open. No choice between the two has been imposed. The decoupled final CLT is
+assembled conditionally on these modules; reused-sample density–boundary covariance
+and its feasible estimator remain a separate phase. The 13-page Biometrika prelim
+source compiles twice without errors or undefined references and was visually checked
+page by page.
+
 ## 2026-09-01 — Interesting interior found: Lending Club repayment (Claude)
 The two author-downloaded openICPSR packages are both blocked for this method:
 **Adams (113908)** is code-only (no data); **Pop-Eleches (112645)** has the continuous
