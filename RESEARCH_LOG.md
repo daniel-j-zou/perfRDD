@@ -9,6 +9,29 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Screen sharpened; Lending exhausted; boundary is the pattern (Claude)
+Sharpened `screen_candidate` per the flat-optimizer insight (committed `c293686`):
+(1) work on 250k rows so noise can't manufacture an interior; (2) gate on
+`boundary_gain > 0` (interior must strictly beat treat-all/none); (3) cost-induced
+interiors only for explainable non-negative c.
+
+Result on Lending Club (covariate-rich, n=884k — the one in-hand large candidate):
+- **repayment** outcome: boundary at ≥250k (α sign-change itself was a 30k artifact;
+  100% negative mass at large n).
+- **ROI** = (total_pymnt−funded)/funded: looked interior at 250k (φ*≈24, gain +0.1%) but
+  **boundary at full 884k** (φ*=5.1, gain 0.0%, avg α≈+3e−4). Even 250k was fooled here —
+  the flattest cases need full n or a bootstrap-of-gain-sign to call.
+
+**Pattern:** every real dataset tested at large n is a **boundary** optimum — gpa, oulad,
+taxi (Codex), Romania (null), Lending×2. The apparent interiors were all small-n noise; the
+only large *gain* flag is nhanes (+51%) but at n=4.7k with a non-clean treatment. This is
+consistent with the theory: an interior needs α to cross the cost with enough welfare
+curvature, which real threshold treatments rarely have (α magnitudes ~±0.02–0.03 → flat).
+Tool caveat: bump the screen to full-n (or add a bootstrap gain-sign gate) before declaring
+any INTERESTING, since 250k passed lending-ROI. Decision needed from author on direction
+(new large download e.g. HMDA; pool NHANES cycles; or accept boundary + use synthetic MC as
+the interior demonstration).
+
 ## 2026-09-01 — Prelim numerical and taxi evidence added (Codex)
 Added a concise evidence section to `manuscript/prelim/prelim.tex`. The hard-trim
 Monte Carlo states the Gaussian DGP, exact 10% trim, 200 replications at each of
