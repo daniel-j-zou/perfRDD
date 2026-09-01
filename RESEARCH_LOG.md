@@ -9,6 +9,32 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Confirmation gate added; taxi "interior" is a data artifact (Claude)
+Added a **full-n confirmation gate** to `screen_candidate` (committed `0354f6d`): when the
+250k working screen flags INTERESTING, it recomputes the welfare gain (same cost) on the
+FULL data and downgrades if it doesn't survive. Verified on `lending_roi` (continuous/
+continuous ROI): flags at 250k (+0.1%), confirms False@884662 → boundary. Registered
+`lending_roi` adapter.
+
+Gated screen over in-hand continuous/continuous datasets:
+- gpa: boundary. oulad: boundary. lending_roi: boundary (gate downgrades).
+- nhanes: flags (+51%) but n=4.7k, too small for the gate to confirm — untrustworthy.
+- **taxi: flagged INTERESTING and even confirmed True@1.53M — but this is a DATA-QUALITY
+  ARTIFACT.** `load()` returns the *unrestricted* VTS sample; its α sign-change is driven by
+  junk low/high fares. On the **paper-restricted** sample (`load_haggag_paci`, fares $5–25,
+  n=541k) α has **0% negative mass** and the optimum is **boundary** — matching Codex.
+
+**Key limitation of the gate:** it catches *sampling noise* (flat surface at small n) but NOT
+*specification / data-quality bias* (both screen and gate use the same pooled PLM on the same
+contaminated data). The screen is only as good as the adapter's restrictions. Suggestion for
+Codex: consider making the registered taxi `load()` apply the paper restrictions, or add a
+`taxi_hp` dataset, so a naive screen isn't fooled.
+
+**Standing conclusion:** every *properly specified* continuous/continuous dataset tested is a
+**boundary** optimum. Genuine sign-changing α needs large heterogeneous effects (mismatch/
+discouragement), which the covariate-carrying public data we can get hasn't shown. Hunt
+continues toward a remediation-type RD with covariates.
+
 ## 2026-09-01 — Prelim setup, supported target, and estimator completed (Codex)
 Replaced the setup and estimation placeholders in `manuscript/prelim/prelim.tex`
 with a self-contained statement of the method. The write-up now distinguishes data
