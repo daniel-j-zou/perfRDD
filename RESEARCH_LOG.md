@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Truncation TODOs resolved in opening section (Codex)
+After pulling the author's Overleaf update, filled only the truncation-related TODOs in
+the new “To discuss.” section and preserved the separate empirical-work TODO. The text
+now names the classical Bahadur (1966) and Ghosh (1971) quantile results, explains the
+moving-indicator signs and generated-index endpoint shift, spells out the weak
+integration-by-parts pairing for the discontinuous density loading without using the
+word “Riesz,” and gives notation for the supported criterion's uniform consistency and
+curvature checks. The author's wording and all unrelated edits were retained.
+
+---
+
 ## 2026-09-01 — Hard-truncation preface added to prelim (Codex)
 Added a short opening “To discuss.” section to `manuscript/prelim/prelim.tex`. It records
 that hard truncation changes the support of the estimand without propensity weighting and
