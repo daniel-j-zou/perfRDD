@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Prelim numerical and taxi evidence added (Codex)
+Added a concise evidence section to `manuscript/prelim/prelim.tex`. The hard-trim
+Monte Carlo states the Gaussian DGP, exact 10% trim, 200 replications at each of
+three sample sizes, and a three-row pooled comparison. Verified pooled
+`n*MSE`/population-variance ratios are 0.991 for the honest split, 0.963 for
+five-fold cross-fitting, and 0.965 for full-sample reuse; DGP-known 95% coverage
+ranges from 0.945 to 0.975. The text explicitly treats this as a favorable-design
+test of the hard boundary, density score, and density--boundary covariance, not a
+misspecification exercise or feasible-SE result.
+
+Also added the current restricted taxi diagnostic: 541,318 eligible January 2009
+trips, deterministic 30,000-trip analysis sample, 10% exact hard trim, and 199 iid
+full-reestimation bootstraps. The objective is tied over the $2.50--$3.80 plateau;
+the reported $2.50 estimate is the first-grid tie break. The estimated gain relative
+to the deployed $15 threshold is 34.71 cents per hard-trimmed trip with centered
+bootstrap interval [27.16, 40.69] cents and 34.09% retention. The manuscript flags
+the missing driver clusters and the unsupported transport from the local $15 menu
+change to low fares, so the result is presented as an estimator demonstration rather
+than a causal policy recommendation. The 13-page PDF compiled with bibliography and
+resolved references, and pages 4--6 were visually checked.
+
 ## 2026-09-01 — FOLLOW-UP: lending_default interior does NOT survive the hard-trim (Claude)
 Supersedes the optimistic "Interesting interior found" entry below. Ran RD validity + the
 inference-grade `perfrdd_hard_trim` on full data (nuisance support [5,18], eps=0.1, c=0).
