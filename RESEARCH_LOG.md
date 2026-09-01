@@ -9,6 +9,25 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Direct VTS-to-CMT prediction check rejects naive alpha transport (Codex)
+Added `experiments/scripts/taxi_competitor_prediction_check.py` to test the
+fitted VTS decomposition itself rather than merely compare cross-vendor means.
+The VTS model is internally calibrated: on the VTS hard-trim interval, observed
+low-fare tips minus its fixed-menu prediction average **-$0.001** (n=8,513), and
+observed high-fare tips minus its percentage prediction average **-$0.005**
+(n=1,715). Applying the same VTS first-stage, `b`, `beta`, and `alpha` to CMT
+percentage rides gives a low-fare residual of **-$0.542** relative to the
+VTS-implied percentage prediction (n=144,131); CMT's high-fare residual is
+-$0.100. Subtracting that high-fare residual as a rough vendor/menu calibration
+still leaves **-$0.443** at low fares.
+
+Therefore CMT confirms the internal VTS fit and the direction of a negative
+low-fare component, but it does **not** confirm transporting the positive local
+VTS `alpha(eta)` unchanged below $15. The mismatch is informative: alpha is a
+local menu-jump effect, not a global fare-invariant response. The check remains
+non-causal because vendors and percentage menus differ and driver IDs are absent.
+Details and the figure are in `experiments/datasets/taxi/DIRECT_COMPETITOR_CHECK.md`.
+
 ## 2026-09-01 — CMT low-fare proxy supplies a negative menu component (Codex)
 Added `experiments/scripts/taxi_low_fare_proxy.py`, which uses all paper-restricted
 January records with $5 <= fare < $15 and fare-cell fixed effects, common and

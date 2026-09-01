@@ -76,6 +76,16 @@ python -m experiments.scripts.taxi_low_fare_proxy
 See `LOW_FARE_PROXY.md` for the specification, results, and identification
 limits.
 
+### Direct competitor prediction check
+
+To test the fitted VTS decomposition itself, run
+`python -m experiments.scripts.taxi_competitor_prediction_check`. This applies
+the VTS fixed-menu and percentage-menu predictions to actual CMT percentage rides
+below $15. The VTS fit reproduces its own observed regimes, but CMT tips remain
+below the VTS-implied percentage prediction, so this confirms the local fit while
+rejecting naive low-fare transport of the positive `alpha(eta)`. See
+`DIRECT_COMPETITOR_CHECK.md`.
+
 ## Notes on the filter
 
 - The Haggag & Paci paper uses 2009 data because it's the year all NYC
