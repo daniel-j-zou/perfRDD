@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Two hard-truncation boundary repairs explained (Codex)
+Expanded item (3) of the opening “To discuss.” section after author follow-up. The text
+now separates the internal trim jumps at (a=\phi-u_0) and (b=\phi-l_0) from the
+technical outer density-sieve endpoints (A,B), writes the integration-by-parts trace
+term, and explains why (L_2) convergence alone does not control that trace. It records
+the fixed buffered zero-trace construction as the shorter primary proof and the slowly
+expanding-support construction with tail/trace and effective-resolution conditions as
+the more flexible but longer alternative. The author's other edits were preserved.
+
+---
+
 ## 2026-09-01 — Truncation TODOs resolved in opening section (Codex)
 After pulling the author's Overleaf update, filled only the truncation-related TODOs in
 the new “To discuss.” section and preserved the separate empirical-work TODO. The text
