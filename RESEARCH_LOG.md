@@ -9,6 +9,16 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-01 — Decoupled split is the sole asymptotic target (Codex)
+Clarified the proof scope after author review: the hard-trim CLT and variance are proved
+only for the deliberately decoupled split, because that is the asymptotic construction
+needed for the paper. Ordinary cross-fitting and full-sample nuisance reuse remain
+possible implementation descriptions, but their covariance corrections are not proof
+obligations and no asymptotic theorem is claimed for them. Updated the prelim text,
+granular checklist, and Phase 3 task accordingly.
+
+---
+
 ## 2026-09-01 — Granular hard-trim proof checklist added (Codex)
 Expanded `manuscript/TODO.md` with a dependency-ordered checklist for the hard-trimmed
 CLT. It now separates setup/assumptions, feasible consistency, outcome and density Riesz
