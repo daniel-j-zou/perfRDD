@@ -9,6 +9,22 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-07 — Introduction and appendix planning TODOs expanded (Codex)
+
+Expanded the TODOs in `manuscript/prelim/prelim.tex` without changing the opening
+advisor-only ``To discuss.'' section. The Introduction TODOs now ask for the
+performative-feedback motivation, four-literature positioning, and a bounded list of
+contributions that distinguishes proved claims from conditional proof obligations and
+application diagnostics. Added an explicit spline-construction/approximation-theory
+appendix TODO and labeled ridge stabilization as numerical only. The discrete-policy
+placeholder now explains that it concerns a finite grid of policy tiers. Added an
+application identification/reproducibility TODO and an inference TODO to discuss a
+full estimator bootstrap; the analytic variance is not being claimed as currently
+feasible. The proof bookkeeping remains intentionally informal, and the fixed-versus-
+expanding support choice remains with the author.
+
+— Codex
+
 ## 2026-09-07 — Taxi empirical work frozen; simulations are the active workstream (Codex)
 
 Per the author's instruction, Codex is closing the taxi empirical work at its current
