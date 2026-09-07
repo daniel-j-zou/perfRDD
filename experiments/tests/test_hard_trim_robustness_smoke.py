@@ -8,6 +8,7 @@ from experiments.scripts.hard_trim_robustness_smoke import (
     density_smoke,
     estimate_once,
     make_sample,
+    population_truth,
     run_smoke,
     short_bootstrap,
 )
@@ -58,6 +59,14 @@ class HardTrimRobustnessSmokeTest(unittest.TestCase):
             set(result["warnings"]),
             {"skewed_grid_boundary", "spline_survival_outside_unit_interval"},
         )
+
+    def test_known_nongaussian_targets_use_their_trim_bounds(self):
+        t5_target = population_truth("t5")["phi_star"]
+        mixture_target = population_truth("mixture")["phi_star"]
+        lognormal_target = population_truth("skewed")["phi_star"]
+        self.assertAlmostEqual(t5_target, 0.5878, places=3)
+        self.assertAlmostEqual(mixture_target, 0.7930, places=3)
+        self.assertAlmostEqual(lognormal_target, 3.0, places=8)
 
 
 if __name__ == "__main__":

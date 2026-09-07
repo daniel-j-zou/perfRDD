@@ -16,11 +16,15 @@ from __future__ import annotations
 
 import argparse
 import json
+from functools import lru_cache
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import Any, Dict, Sequence
 
 import numpy as np
+from scipy.integrate import quad
+from scipy.optimize import brentq
+from scipy.stats import lognorm, norm, t as student_t
 
 from experiments._core.sample import RDDSample
 from experiments.methods.perfrdd_hard_trim import perfrdd_hard_trim
@@ -30,7 +34,22 @@ from experiments.methods.spline_density import fit_spline_density
 DEFAULT_N = 600
 DEFAULT_REPS = 3
 DEFAULT_SUPPORT = (-3.0, 3.0)
-DEFAULT_PHI_GRID = np.linspace(-1.5, 1.5, 121)
+DEFAULT_PHI_GRID = np.linspace(-3.0, 3.0, 241)
+POLICY_BOUNDS = (-3.0, 3.0)
+EPS = 0.10
+LOGNORMAL_SIGMA = 0.75
+LOGNORMAL_MEAN = float(np.exp(LOGNORMAL_SIGMA ** 2 / 2.0))
+LOGNORMAL_SD = float(np.sqrt(
+    (np.exp(LOGNORMAL_SIGMA ** 2) - 1.0)
+    * np.exp(LOGNORMAL_SIGMA ** 2)
+))
+MIXTURE_COMPONENTS = ((0.7, -0.4, 0.7), (0.3, 1.0, 0.8))
+MIXTURE_MEAN = float(sum(weight * mean for weight, mean, _ in MIXTURE_COMPONENTS))
+MIXTURE_VARIANCE = float(sum(
+    weight * (sd ** 2 + (mean - MIXTURE_MEAN) ** 2)
+    for weight, mean, sd in MIXTURE_COMPONENTS
+))
+MIXTURE_SD = float(np.sqrt(MIXTURE_VARIANCE))
 GAMMA = np.array([1.0, 0.0, 0.0])
 BETA = np.array([0.3, -0.2, 0.1])
 
@@ -45,7 +64,150 @@ def _running_variable(rng: np.random.Generator, n: int, law: str) -> np.ndarray:
         return (raw - np.exp(0.75 ** 2 / 2.0)) / np.sqrt(
             (np.exp(0.75 ** 2) - 1.0) * np.exp(0.75 ** 2)
         )
+    if law == "mixture":
+        component = rng.random(n) >= MIXTURE_COMPONENTS[0][0]
+        raw = np.empty(n)
+        for indicator, (_, mean, sd) in enumerate(MIXTURE_COMPONENTS):
+            mask = component == bool(indicator)
+            raw[mask] = rng.normal(mean, sd, size=int(mask.sum()))
+        return (raw - MIXTURE_MEAN) / MIXTURE_SD
     raise ValueError(f"unknown running-variable law: {law!r}")
+
+
+def running_density(value: float, law: str) -> float:
+    """Evaluate the known density for one of the smoke-test running laws."""
+    value = float(value)
+    if law == "t5":
+        scale = np.sqrt(5.0 / 3.0)
+        return float(scale * student_t.pdf(scale * value, 5))
+    if law == "skewed":
+        raw = LOGNORMAL_MEAN + LOGNORMAL_SD * value
+        if raw <= 0.0:
+            return 0.0
+        return float(LOGNORMAL_SD * lognorm.pdf(
+            raw, s=LOGNORMAL_SIGMA, scale=1.0
+        ))
+    if law == "mixture":
+        raw = MIXTURE_MEAN + MIXTURE_SD * value
+        return float(MIXTURE_SD * sum(
+            weight * norm.pdf(raw, mean, sd)
+            for weight, mean, sd in MIXTURE_COMPONENTS
+        ))
+    raise ValueError(f"unknown running-variable law: {law!r}")
+
+
+def running_survival(value: float, law: str) -> float:
+    """Evaluate the known survival function for one smoke-test law."""
+    value = float(value)
+    if law == "t5":
+        scale = np.sqrt(5.0 / 3.0)
+        return float(student_t.sf(scale * value, 5))
+    if law == "skewed":
+        raw = LOGNORMAL_MEAN + LOGNORMAL_SD * value
+        if raw <= 0.0:
+            return 1.0
+        return float(lognorm.sf(raw, s=LOGNORMAL_SIGMA, scale=1.0))
+    if law == "mixture":
+        raw = MIXTURE_MEAN + MIXTURE_SD * value
+        return float(sum(
+            weight * norm.sf(raw, mean, sd)
+            for weight, mean, sd in MIXTURE_COMPONENTS
+        ))
+    raise ValueError(f"unknown running-variable law: {law!r}")
+
+
+def running_quantile(probability: float, law: str) -> float:
+    """Return a quantile of the known running-variable distribution."""
+    probability = float(probability)
+    if not 0.0 < probability < 1.0:
+        raise ValueError("probability must lie strictly between zero and one")
+    if law == "t5":
+        return float(student_t.ppf(probability, 5) / np.sqrt(5.0 / 3.0))
+    if law == "skewed":
+        return float((
+            lognorm.ppf(probability, s=LOGNORMAL_SIGMA, scale=1.0)
+            - LOGNORMAL_MEAN
+        ) / LOGNORMAL_SD)
+    if law == "mixture":
+        raw_quantile = brentq(
+            lambda raw: sum(
+                weight * norm.cdf(raw, mean, sd)
+                for weight, mean, sd in MIXTURE_COMPONENTS
+            ) - probability,
+            -12.0,
+            12.0,
+        )
+        return float((raw_quantile - MIXTURE_MEAN) / MIXTURE_SD)
+    raise ValueError(f"unknown running-variable law: {law!r}")
+
+
+@lru_cache(maxsize=None)
+def trim_bounds(law: str) -> tuple[float, float]:
+    """Return the population hard-trim interval induced by T's quantiles."""
+    q_low = running_quantile(EPS, law)
+    q_high = running_quantile(1.0 - EPS, law)
+    return -q_high, -q_low
+
+
+def population_utility(phi: float, law: str) -> float:
+    """Known hard-trimmed population criterion for a running-variable law."""
+    lower, upper = trim_bounds(law)
+    return float(quad(
+        lambda eta: (eta - 0.25)
+        * running_survival(phi - eta, law)
+        * norm.pdf(eta),
+        lower,
+        upper,
+        epsabs=2e-10,
+        limit=250,
+    )[0])
+
+
+def population_score(phi: float, law: str) -> float:
+    """Derivative of the known population criterion."""
+    lower, upper = trim_bounds(law)
+    return float(-quad(
+        lambda eta: (eta - 0.25)
+        * running_density(phi - eta, law)
+        * norm.pdf(eta),
+        lower,
+        upper,
+        epsabs=2e-10,
+        limit=250,
+    )[0])
+
+
+def population_truth(
+    law: str,
+    policy_bounds: tuple[float, float] = POLICY_BOUNDS,
+) -> Dict[str, float]:
+    """Find the global maximizer of the known criterion on policy_bounds."""
+    lo, hi = map(float, policy_bounds)
+    if not lo < hi:
+        raise ValueError("policy_bounds must be increasing")
+    grid = np.linspace(lo, hi, 301)
+    scores = np.asarray([population_score(value, law) for value in grid])
+    candidates = [lo, hi]
+    for left, right, left_score, right_score in zip(
+        grid[:-1], grid[1:], scores[:-1], scores[1:]
+    ):
+        if left_score == 0.0:
+            candidates.append(float(left))
+        elif left_score * right_score < 0.0:
+            candidates.append(float(brentq(
+                lambda value: population_score(value, law), left, right
+            )))
+    values = np.asarray([population_utility(value, law) for value in candidates])
+    index = int(np.argmax(values))
+    return {
+        "phi_star": float(candidates[index]),
+        "utility": float(values[index]),
+        "score_at_phi_star": float(population_score(candidates[index], law)),
+        "trim_lower": float(trim_bounds(law)[0]),
+        "trim_upper": float(trim_bounds(law)[1]),
+        "policy_lower": lo,
+        "policy_upper": hi,
+    }
 
 
 def make_sample(

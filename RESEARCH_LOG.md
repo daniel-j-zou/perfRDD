@@ -9,6 +9,35 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-07 — Moderate non-Gaussian Monte Carlo and target correction (Codex)
+
+Extended the smoke harness with law-specific population trim bounds and known targets,
+and added `experiments/scripts/hard_trim_robustness_monte_carlo.py`. The moderate run
+used $n\in\{600,1{,}200,2{,}400\}$ and 20 replications for each of a standardized
+$t_5$, a skewed two-component Gaussian mixture, and a centered/scaled lognormal stress
+design. It also repeated the support, omitted-interaction, and bootstrap diagnostics.
+
+The target correction matters: hard trimming uses the $T$-quantile endpoints, so the
+population target is not the Gaussian-$\eta$-quantile target. The corrected targets are
+$\phi^\star=0.588$ for $t_5$, $0.793$ for the skewed mixture, and the upper policy
+boundary $\phi^\star=3$ for the lognormal stress design. The $t_5$ RMSE declines from
+0.203 at $n=600$ to 0.131 at $n=2{,}400$, with no grid-boundary selections. The mixture
+has a noisier but interior target (RMSE 0.958, 0.306, and 0.320 across those sample
+sizes; boundary rate 5% at $n=600$ and zero thereafter). The lognormal design is a
+deliberate boundary stress test rather than an interior-optimum convergence design;
+its boundary rates are 50%, 70%, and 70% for the full-sample estimator at the three
+sample sizes.
+
+The support perturbation changed the point estimate by about 0.008--0.010 on average in
+12 $t_5$ replications at $n=1{,}200$. The omitted-interaction outcome remains finite,
+but its reference to the correctly specified target is descriptive only. A 10-rep
+iid bootstrap was finite (mean $1.17$, SD $0.42$); inference is still unavailable from
+the point-estimation API. These results justify a longer run for the $t_5$ and mixture
+designs after the current tests are rerun; the lognormal case should remain a separate
+boundary/sieve stress table.
+
+— Codex
+
 ## 2026-09-07 — Short robustness smoke tests for the next simulation phase (Codex)
 
 Added `experiments/scripts/hard_trim_robustness_smoke.py` and
