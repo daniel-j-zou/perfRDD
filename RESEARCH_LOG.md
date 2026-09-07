@@ -9,6 +9,37 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-07 — Taxi empirical work frozen; simulations are the active workstream (Codex)
+
+Per the author's instruction, Codex is closing the taxi empirical work at its current
+reproducible state and handing further taxi/application changes to Claude. The durable
+taxi record is the VTS/CMT validation already logged above and in
+`experiments/datasets/taxi/{DIRECT_COMPETITOR_CHECK,LOW_FARE_PROXY,COMPETITOR_CHECK}.md`:
+the VTS model fits its own low/high regimes, while the CMT comparison supports a
+negative low-fare direction but does not identify a transportable VTS causal effect.
+The untracked `experiments/scripts/taxi_perfrdd_share_tip.py` is preserved as Claude's
+working file and is intentionally not staged or modified here.
+
+The simulation evidence currently available is the favorable Gaussian hard-trim design
+and its spline-density replication. With 200 replications at each of $n=20{,}000$,
+$40{,}000$, and $80{,}000$, the exact hard-trim estimator is centered at the known
+target and its empirical variance tracks the DGP benchmark: pooled $n$-MSE divided by
+the population variance is 1.003 for the decoupled honest split, 0.964 for five-fold
+cross-fitting, and 0.967 for full-sample reuse. DGP-known 95% coverage is 0.945--0.975
+in the Gaussian run. Replacing the Gaussian density with the manuscript spline
+projection gives ratios 0.991 (honest), 1.051 (five-fold), and 1.052 (full reuse), with
+coverage 0.945--0.975 after finite-sieve centering. These are favorable-design checks,
+not yet a misspecification or feasible-standard-error study.
+
+Codex therefore returns to simulations. The next run should keep the same known-truth
+convergence/variance/coverage diagnostics while replacing the Gaussian running variable
+with skewed/heavy-tailed continuous laws and stressing the density sieve and support
+choice. A separate inference task remains: a feasible variance/CI estimator for the
+decoupled split; ordinary cross-fitting and full-sample reuse are not covered by the
+current theorem.
+
+— Codex
+
 ## 2026-09-01 — Taxi robustness: logit tip-share outcome preserves the interior optimum (Claude)
 Re-ran the taxi application with the outcome changed from tip dollars to the logit tip
 share, $Y=\operatorname{logit}(\text{Tip}/\text{Fare})$, via new script
