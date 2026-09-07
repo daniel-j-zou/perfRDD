@@ -1,9 +1,10 @@
-"""Moderate Monte Carlo follow-up to the hard-trim robustness smoke tests.
+"""Moderate/long Monte Carlo follow-up to the hard-trim robustness smoke tests.
 
-This is intentionally smaller than a publication-grade run.  It supplies known
+The default is intentionally smaller than a publication-grade run.  It supplies known
 population targets for the non-Gaussian running variables, then checks finite-sample
 bias, RMSE, boundary frequency, support sensitivity, an omitted-interaction outcome,
-and a small iid bootstrap.  The script does not claim asymptotic coverage because the
+and a small iid bootstrap.  The same harness accepts a larger list of sample sizes and
+replications for the longer study.  It does not claim asymptotic coverage because the
 point-estimation API still has no feasible standard-error estimator.
 """
 from __future__ import annotations
@@ -28,10 +29,11 @@ def _summarize(
     values: Sequence[float],
     target: float,
     boundary_flags: Sequence[bool],
+    n: int | None = None,
 ) -> Dict[str, float]:
     values = np.asarray(values, dtype=float)
     errors = values - float(target)
-    return {
+    result = {
         "target": float(target),
         "mean": float(np.mean(values)),
         "bias": float(np.mean(errors)),
@@ -40,12 +42,26 @@ def _summarize(
         "n_times_mse": float(len(values) * np.mean(errors ** 2)),
         "boundary_rate": float(np.mean(np.asarray(boundary_flags, dtype=float))),
     }
+    if n is not None:
+        result["n_times_variance"] = float(n * np.var(values, ddof=1))
+    return result
+
+
+def _log_rmse_slope(rows: Dict[str, Dict[str, float]]) -> float:
+    """Estimate the log-log RMSE slope across the supplied sample sizes."""
+    ns = np.asarray([int(value) for value in rows], dtype=float)
+    rmses = np.asarray([rows[str(int(n))]["rmse"] for n in ns], dtype=float)
+    if len(ns) < 3:
+        return float("nan")
+    return float(np.polyfit(np.log(ns), np.log(rmses), 1)[0])
 
 
 def run_monte_carlo(
     n_values: Iterable[int] = (600, 1200, 2400),
     reps: int = 20,
     seed: int = 70_001,
+    laws: Iterable[str] = ("t5", "mixture", "skewed"),
+    include_auxiliary: bool = True,
 ) -> Dict[str, Any]:
     """Run a moderate, known-target comparison for non-Gaussian T laws."""
     if reps < 2:
@@ -53,9 +69,15 @@ def run_monte_carlo(
     output: Dict[str, Any] = {
         "n_values": [int(n) for n in n_values],
         "reps": int(reps),
+        "laws": list(laws),
+        "include_auxiliary": bool(include_auxiliary),
         "scenarios": {},
     }
-    for law_index, law in enumerate(("t5", "mixture", "skewed")):
+    valid_laws = {"t5", "mixture", "skewed"}
+    selected_laws = tuple(output["laws"])
+    if not selected_laws or not set(selected_laws).issubset(valid_laws):
+        raise ValueError(f"laws must be a nonempty subset of {sorted(valid_laws)}")
+    for law_index, law in enumerate(selected_laws):
         truth = population_truth(law)
         by_n: Dict[str, Any] = {}
         for n_index, n in enumerate(output["n_values"]):
@@ -79,16 +101,27 @@ def run_monte_carlo(
                 crossfit_boundary.append(crossfit["grid_boundary"])
             by_n[str(n)] = {
                 "full_sample": _summarize(
-                    full_values, truth["phi_star"], full_boundary
+                    full_values, truth["phi_star"], full_boundary, n
                 ),
                 "crossfit": _summarize(
-                    crossfit_values, truth["phi_star"], crossfit_boundary
+                    crossfit_values, truth["phi_star"], crossfit_boundary, n
                 ),
             }
         output["scenarios"][law] = {
             "population_truth": truth,
             "by_n": by_n,
+            "rmse_log_slope": {
+                "full_sample": _log_rmse_slope({
+                    n: by_n[n]["full_sample"] for n in by_n
+                }),
+                "crossfit": _log_rmse_slope({
+                    n: by_n[n]["crossfit"] for n in by_n
+                }),
+            },
         }
+
+    if not include_auxiliary:
+        return output
 
     support_n = 1200
     support_reps = min(reps, 12)
@@ -139,11 +172,13 @@ def run_monte_carlo(
             misspecified_values["full_sample"],
             population_truth("t5")["phi_star"],
             misspecified_boundary["full_sample"],
+            support_n,
         ),
         "crossfit": _summarize(
             misspecified_values["crossfit"],
             population_truth("t5")["phi_star"],
             misspecified_boundary["crossfit"],
+            support_n,
         ),
         "note": "The t5 target is only a reference; the omitted interaction changes the estimand.",
     }
@@ -160,9 +195,23 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser.add_argument("--n", type=int, nargs="+", default=[600, 1200, 2400])
     parser.add_argument("--reps", type=int, default=20)
     parser.add_argument("--seed", type=int, default=70_001)
+    parser.add_argument(
+        "--laws", nargs="+", choices=("t5", "mixture", "skewed"),
+        default=["t5", "mixture", "skewed"],
+    )
+    parser.add_argument(
+        "--skip-auxiliary", action="store_true",
+        help="skip support, misspecification, and bootstrap side diagnostics",
+    )
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
-    result = run_monte_carlo(args.n, args.reps, args.seed)
+    result = run_monte_carlo(
+        args.n,
+        args.reps,
+        args.seed,
+        args.laws,
+        include_auxiliary=not args.skip_auxiliary,
+    )
     args.out.parent.mkdir(parents=True, exist_ok=True)
     args.out.write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps(result, indent=2))

@@ -9,6 +9,30 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-07 — Longer interior non-Gaussian Monte Carlo (Codex)
+
+Ran the long-run mode for the two interior designs: 50 replications at
+$n\in\{1{,}200,2{,}400,4{,}800,9{,}600\}$ for both full-sample reuse and three-fold
+cross-fitting. The lognormal boundary stress design was excluded from this run. The
+known-target output is in the ignored local artifact
+`experiments/runs/hard_trim_robustness_long/summary.json`.
+
+The $t_5$ RMSEs for full-sample reuse are $0.153,0.111,0.081,0.057$ across the four
+sample sizes, with an estimated log--log slope $-0.473$ (cross-fit: $-0.481$). There
+were no grid-boundary selections. The skewed-mixture RMSEs are $0.366,0.221,0.216,0.113$,
+with slopes $-0.513$ (full sample) and $-0.479$ (cross-fit), again with no boundary
+selections. The mixture has a much larger and noisier asymptotic variance constant than
+$t_5$ (empirical $n\,\mathrm{Var}$ roughly 100--230 versus roughly 27--33), so it needs
+more replications before reporting a precise variance number. These slopes are close to
+the expected $-1/2$ rate, but this run still provides empirical variance diagnostics,
+not feasible confidence intervals.
+
+The long-run code now accepts `--laws` and `--skip-auxiliary`, records $n$-scaled
+variance, and reports the log--log RMSE slope. The run completed without numerical
+failures; the point-estimation API continues to mark inference as unavailable.
+
+— Codex
+
 ## 2026-09-07 — Moderate non-Gaussian Monte Carlo and target correction (Codex)
 
 Extended the smoke harness with law-specific population trim bounds and known targets,
