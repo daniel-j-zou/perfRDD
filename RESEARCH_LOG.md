@@ -27,7 +27,7 @@ target and its empirical variance tracks the DGP benchmark: pooled $n$-MSE divid
 the population variance is 1.003 for the decoupled honest split, 0.964 for five-fold
 cross-fitting, and 0.967 for full-sample reuse. DGP-known 95% coverage is 0.945--0.975
 in the Gaussian run. Replacing the Gaussian density with the manuscript spline
-projection gives ratios 0.991 (honest), 1.051 (five-fold), and 1.052 (full reuse), with
+projection gives ratios 0.991 (honest), 0.963 (five-fold), and 0.965 (full reuse), with
 coverage 0.945--0.975 after finite-sieve centering. These are favorable-design checks,
 not yet a misspecification or feasible-standard-error study.
 
