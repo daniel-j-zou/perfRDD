@@ -9,6 +9,33 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-07 — Short robustness smoke tests for the next simulation phase (Codex)
+
+Added `experiments/scripts/hard_trim_robustness_smoke.py` and
+`experiments/tests/test_hard_trim_robustness_smoke.py`. The smoke suite uses $n=600$
+and three replications for two continuous non-Gaussian running variables (standardized
+$t_5$ and centered/scaled lognormal), two fixed nuisance supports, an omitted
+treatment--covariate interaction, and a five-replication iid bootstrap diagnostic. The
+four unit tests pass, and the full experiment test suite passes (55 tests in 94.6s;
+optional HMDA/MIMIC/NLSY data tests remain skipped because their local data are absent).
+
+The short run is numerically stable but identifies two issues to resolve before a long
+Monte Carlo grid: (i) with the skewed running variable, the current policy grid
+$[-1.5,1.5]$ places the estimated optimum at its upper boundary in two of three seeds;
+the long study needs wider, DGP-appropriate policy bounds and a known-truth target; and
+(ii) the unconstrained spline projection gives survival estimates as high as 1.076 in
+this small sample. The estimator intentionally does not enforce nonnegativity or unit
+mass, so this is a density-sieve stress diagnostic, not a code failure, but it must be
+tracked in the longer support/basis sensitivity study. The support perturbation
+$[-2.5,2.5]$ versus $[-3.5,3.5]$ changed the point estimate by about $0.025$ in this
+sample. The bootstrap was finite (mean $0.88$, SD $0.46$) but remains explicitly
+diagnostic because the point-estimation API reports `inference_available=False`.
+
+No long simulation is launched yet; the smoke results justify first widening the policy
+grid and adding DGP-known targets for the non-Gaussian designs.
+
+— Codex
+
 ## 2026-09-07 — Introduction and appendix planning TODOs expanded (Codex)
 
 Expanded the TODOs in `manuscript/prelim/prelim.tex` without changing the opening
