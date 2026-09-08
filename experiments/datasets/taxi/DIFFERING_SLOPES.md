@@ -96,3 +96,35 @@ More than an extra term, less than a rewrite:
    collapses cleanly with Ḡ.
 
 Reproduce the headline with `experiments/scripts/taxi_differing_slopes.py`.
+
+## Treatment-direction gotcha (read before applying to other datasets)
+
+Do **not** hardcode `D = 1{Q ≥ threshold}`. Take the direction from the dataset's
+`treatment_rule` / `sample.D`, or from `_detect_direction(D, Q)`. In the registry:
+
+- **above-cutoff** (`D = 1{Q ≥ thr}`): taxi, oulad, lending_default, nhanes
+- **below-cutoff** (`D = 1{Q < thr}`): **gpa** — `sample.D` matches `Q≥thr` 0.00 of the time
+
+Hardcoding `Q ≥ thr` silently flips below-cutoff designs and produces spurious optima (gpa
+looked "interior $1.78" flipped; done correctly it is a boundary). Clean handling: mirror
+below-cutoff designs (`Q → −Q`, `thr → −thr`), run the standard above-cutoff pipeline, and map
+`φ* → −φ*`. Both the treatment indicator and the utility's `1{Q ≥ φ}` must use the right side.
+
+## Cross-dataset β₂ screen
+
+Same methodology (differing slopes, n^{1/5} knots, CV ridge, correct direction), empirical
+utility, c=0:
+
+| dataset | direction | cutoff | α-only φ* | differing-slopes φ* |
+|---|---|---:|---:|---:|
+| taxi (full) | above | 15 | 4.2 (int) | **9.2 (int)** |
+| taxi (restricted, CMT-matched) | above | 15 | 0 (bnd) | **12.5 (int)** |
+| oulad | above | 40 | 51.2 (int) | **36.0 (int)** |
+| lending_default | above | 30 | 45.45 | 45.45 (no move) |
+| gpa | below | 0 | 2.6 (bnd) | 2.6 (bnd) |
+| nhanes | above | 6.5 | 3.4 (bnd) | 3.4 (bnd) |
+
+β₂ moves the optimum **only where the effect is level-dependent** (taxi, oulad) and is inert
+on φ* elsewhere (gpa, lending_default, nhanes) — the desired behaviour of a correction, not a
+free parameter. It can still change the α̂ *shape* without moving φ* (lending_default, nhanes).
+Reproduce with the direction-aware screen used to generate this table.

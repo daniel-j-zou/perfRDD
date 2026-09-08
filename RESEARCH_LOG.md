@@ -9,6 +9,21 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Treatment-direction gotcha + cross-dataset β₂ screen (Claude)
+Applying the differing-slopes methodology across the registry surfaced a direction bug worth
+flagging for all future runs: do NOT hardcode `D=1{Q≥thr}`. Take the treatment direction from
+`sample.D`/`treatment_rule` or `_detect_direction(D,Q)`. **gpa is a BELOW-cutoff design**
+(`sample.D` matches `Q≥thr` 0.00 of the time); taxi/oulad/lending_default/nhanes are above.
+Hardcoding `≥` flips below-cutoff designs and gives spurious optima (gpa looked "interior
+$1.78"; corrected it is a boundary). Handle 'below' by mirroring `Q→−Q, thr→−thr`, run the
+standard above pipeline, map `φ*→−φ*`; both the treatment indicator and the utility indicator
+`1{Q≥φ}` must use the right side. Cross-dataset β₂ screen (n^{1/5} knots, CV ridge, correct
+direction): β₂ moves φ* only where the effect is level-dependent — taxi (α-only→boundary/low,
+diff-slopes→$9–12) and oulad ($51→$36, crossing cutoff 40) — and is inert on φ* for gpa
+(below, boundary), lending_default ($45.45), nhanes (boundary). So β₂ is a targeted
+correction/diagnostic, not a free knob. Table + details appended to
+`experiments/datasets/taxi/DIFFERING_SLOPES.md`.
+
 ## 2026-09-08 — Differing-slopes fix for the level-dependent taxi effect (Claude)
 The performative-RDD estimand collapse `U(φ)=E[(α(η)−c)Ḡ(φ−η)]` requires `T⊥(W,η)` — the
 effect must depend only on the residual η, not the covariate index T=γ'X. The taxi
