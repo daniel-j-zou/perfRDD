@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Differing-slopes fix for the level-dependent taxi effect (Claude)
+The performative-RDD estimand collapse `U(φ)=E[(α(η)−c)Ḡ(φ−η)]` requires `T⊥(W,η)` — the
+effect must depend only on the residual η, not the covariate index T=γ'X. The taxi
+percentage-menu effect depends on the fare LEVEL Q=T+η, violating this, so α(η)-only is
+biased/degenerate for the policy optimum (φ*≈$0 boundary on the RD sample, ~$5–7 unstable on
+the full sample; a controlled simulation shows even the exact α(η) mislocates φ*). Fix: let
+treated/control covariate slopes differ, `Y=b(η)+Dα(η)+X'β₁+(DX)'β₂+ε`, effect `α(η)+β₂'X`,
+so the effect can depend on T. With knots ≈ n_treated^{1/5} (~10; n^{1/3} over-fits → wiggle)
+and CV-selected ridge on the β₂+spline blocks, the empirical-utility max on the CMT-matched
+restricted VTS sample is **φ*≈$12.5**, vs α-only **$0** (boundary). This matches external
+validation *on the matched population*: CMT raw $1-bin crossover $12.7, vendor-adjusted $11.2,
+menu arithmetic $12, CMT-in-treated pooled $11–12. The full VTS sample gives $9.2 but is a
+DIFFERENT population (only 35% overlaps the CMT-matched set: 52% surcharge, 45% daytime, fares
+$2.5–200) so CMT cannot validate it. CMT is validation only; the estimator uses VTS.
+Not point-identified (β₂'s fare direction rests on linearity → ~$9–15 finite-sample band); the
+fix is robust in sign/shape and clearly beats α-only. Theory impact: drop `T⊥W`, redefine the
+estimand on the joint (X,T,η) (β₂'X term does not collapse to Ḡ), add β̂₂'s √n influence + a
+rank condition on [Φ(η),D·X]; the boundary-CLT machinery is reused unchanged. Write-up:
+`experiments/datasets/taxi/DIFFERING_SLOPES.md`; reproduce with
+`experiments/scripts/taxi_differing_slopes.py`.
+
 ## 2026-09-08 — Overnight simulation update: spline density and non-Gaussian rates (Codex)
 
 The completed overnight outputs are in the ignored local artifacts
