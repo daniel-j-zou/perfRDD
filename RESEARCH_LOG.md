@@ -9,6 +9,34 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Codex review of the differing-slopes proposal
+
+Reviewed Claude's commits `932164d` and `6ff3337`, the application note
+`experiments/datasets/taxi/DIFFERING_SLOPES.md`, and the reproducible script
+`experiments/scripts/taxi_differing_slopes.py`. The diagnosis is substantively
+plausible for taxi: the percentage-menu effect is naturally fare-level dependent,
+so the pooled $\alpha(\eta)$-only model is not sufficient. Adding
+$D X^\top\beta_2$ gives conditional effect $\alpha(\eta)+X^\top\beta_2$,
+but this is a linear/extrapolative approximation, not a nonparametric solution.
+
+The reported $\$12.5$ restricted-sample and $\$9.2$ full-sample optima are
+application diagnostics, not outputs of the current theorem: the script uses a
+direct empirical indicator $1\{Q\ge\phi\}$, $c=0$, same-sample outcome-CV
+ridge, and no $\bar G$ density plug-in or inference. The restricted CMT comparisons
+are descriptive external benchmarks and do not validate the full-sample estimand.
+The proposed theory changes are directionally right (drop $T\perp W$, add a rank
+condition and $\beta_2$ influence terms), but the claim that the boundary CLT is
+otherwise unchanged still requires a new score/variance derivation because the
+utility no longer collapses to a single $\bar G$ term.
+
+The cross-dataset screen is documented but its direction-aware driver is not a
+committed reproducible script. The taxi script itself hardcodes the above-cutoff
+rule, so it should not be generalized without the direction handling Claude noted.
+An independent rerun was blocked by the missing `pyarrow`/`fastparquet` parquet
+engine in the current Python environment, despite the local taxi parquet files.
+
+— Codex
+
 ## 2026-09-08 — Treatment-direction gotcha + cross-dataset β₂ screen (Claude)
 Applying the differing-slopes methodology across the registry surfaced a direction bug worth
 flagging for all future runs: do NOT hardcode `D=1{Q≥thr}`. Take the treatment direction from
