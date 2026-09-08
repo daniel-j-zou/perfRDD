@@ -9,6 +9,39 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Lessons from the Mukherjee--Banerjee--Ritov score-explained treatment-effect papers (Codex)
+
+Read the local main paper and 77-page supplement, `Mukherjee et al. - Estimation of a
+score-explained non-randomized treatment effect in fixed and high dimensions`. The
+paper's core model is the same latent-index partial-linear decomposition used here:
+\(Q=Z^\top\gamma+\eta\) and an outcome with a discontinuous treatment term plus a
+smooth function of \(\eta\). It uses deliberate three-way sample splitting, cubic
+B-splines on a fixed compact interval, and a proof organized around a projected
+linear representation. It explicitly treats the fixed interval as an efficiency
+loss, defers a growing-support analysis to future work, and uses bootstrap intervals
+because the analytic variance is difficult to estimate. These are useful precedents
+for our split construction, fixed buffered spline regions, spline appendix, and
+computational-bootstrap decision.
+
+The distinction that must remain explicit is substantive: their target is a constant
+treatment effect \(\alpha_0\), with a fixed treatment cutoff and a fixed nuisance
+truncation \(|\hat\eta|\leq\tau\). Their truncation therefore changes the information
+set and variance but not the target parameter. In PerfRDD, \(\ind\{l_0\leq\eta\leq
+u_0\}\) is inside the supported utility functional, so estimated endpoints change
+the target population and generate first-order moving-set, quantile-boundary, and
+density-boundary terms. Their fixed-\(\tau\) argument cannot replace Blocks C--E of
+the hard-supported threshold proof, and their spline growth range should not be
+copied because our density and threshold derivatives impose different rate
+restrictions.
+
+The paper also leaves bootstrap consistency as an open theoretical problem, which
+supports labeling our full re-estimation bootstrap as computational inference rather
+than claiming a bootstrap validity theorem. The local copy is marked “Submitted to
+Bernoulli,” so its layout is research-group precedent, not evidence of current
+Biometrika formatting requirements.
+
+— Codex
+
 ## 2026-09-08 — Reframe prelim TODOs around utility-maximizing threshold (Codex)
 
 Revised `manuscript/prelim/prelim.tex` so the planning TODOs and adjacent framing
