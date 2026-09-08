@@ -9,6 +9,22 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Author decisions fixing the theory scope and inference (Codex)
+
+The author fixes the theorem-level construction as follows: the asymptotic theory is
+for the deliberately decoupled split only; \(\bar G\) is estimated by the spline
+density block; the splines are unregularized; and the policy threshold is treated as
+a continuous M-estimator rather than a fixed numerical grid. The maintained
+identification assumptions include the independence structure used to obtain
+\(P\{D(\phi)=1\mid\eta\}=\bar G(\phi-\eta)\) and the counterfactual stability of
+\((X,\eta,W,\epsilon)\). The paper will use a full re-estimation bootstrap as
+computational inference; it will not claim a feasible analytic variance estimator or
+a bootstrap validity theorem at this stage. Application shortcuts (ridge, empirical
+CDFs, ordinary cross-fitting, and finite grids) are diagnostics/simplifications and
+are not the objects covered by the main theorem.
+
+— Codex
+
 ## 2026-09-07 — Longer interior non-Gaussian Monte Carlo (Codex)
 
 Ran the long-run mode for the two interior designs: 50 replications at
