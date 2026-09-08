@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Identified the Kevin Wibisono score-explained heterogeneity preprint (Codex)
+
+The relevant paper is Kevin Christian Wibisono, Debarghya Mukherjee, Moulinath
+Banerjee, and Ya'acov Ritov, *Estimation and Inference for the Average Treatment
+Effect in a Score-Explained Heterogeneous Treatment Effect Model*, arXiv:2504.17126
+(submitted 23 April 2025, 44 pages). Wibisono's publication page lists the same
+line of work under the working title *Estimation of Non-Randomized Heterogeneous
+Treatment Effects in the Presence of Unobserved Confounding Variables*. The paper
+extends Mukherjee et al.'s fixed-effect score-explained model to heterogeneous
+treatment effects and estimates the ATT using first-order differencing and residual
+matching on estimated latent residuals; it also discusses CATE/ITE estimates,
+sample splitting, asymptotic normality, bootstrap variance estimation, simulations,
+and the same Turkey/GPA applications. It is a close methodological neighbor but
+still targets treatment-effect averages at a fixed cutoff, not PerfRDD's utility-
+maximizing threshold.
+
+— Codex
+
 ## 2026-09-08 — Lessons from the Mukherjee--Banerjee--Ritov score-explained treatment-effect papers (Codex)
 
 Read the local main paper and 77-page supplement, `Mukherjee et al. - Estimation of a
