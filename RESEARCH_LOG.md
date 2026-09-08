@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Reframe prelim TODOs around utility-maximizing threshold (Codex)
+
+Revised `manuscript/prelim/prelim.tex` so the planning TODOs and adjacent framing
+center on estimating the threshold that maximizes the supported utility function.
+Removed literal performativity/feedback language, renamed the setup subsection to
+threshold assignment and outcome model, and deferred the discrete-policy extension
+because the main theory is continuous M-estimation. The deliberately decoupled
+spline-\(\bar G\) theory and maintained identification assumptions are unchanged.
+
+— Codex
+
 ## 2026-09-08 — Author decisions fixing the theory scope and inference (Codex)
 
 The author fixes the theorem-level construction as follows: the asymptotic theory is
