@@ -9,6 +9,35 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Overnight simulation update: spline density and non-Gaussian rates (Codex)
+
+The completed overnight outputs are in the ignored local artifacts
+`experiments/runs/overnight_auxiliary_20260908.json` and
+`experiments/runs/overnight_spline_density_20260908/summary.json`. The 100-replication
+non-Gaussian run gives RMSE log--log slopes of $-0.482$ (full sample) and
+$-0.501$ (three-fold) for standardized $t_5$, and $-0.489$ and $-0.481$ for
+the standardized two-component mixture. There are no grid-boundary selections;
+$n\,\mathrm{Var}(\hat\phi)$ is about 28--31 for $t_5$ and 133--222 for the
+mixture, with the mixture constant visibly noisier.
+
+The 500-replication spline-density comparison has target
+$\phi^\star=0.731292$. Full-sample reuse without ridge has RMSE slope $-0.480$
+and $n\,\mathrm{Var}$ about 42--46; five-fold cross-fitting has slope $-0.523$
+and $n\,\mathrm{Var}$ about 42--52. Boundary selections are essentially absent
+for these variants. The disjoint honest split has RMSE 0.620 and a 21\% boundary
+rate at $n=1{,}000$, and ridge scale 0.1 drives 94\% of those samples to the
+policy boundary. The finite-sample recommendation is therefore full-sample reuse
+or moderate cross-fitting with no/very mild ridge, while aggressive regularization
+and small honest splits are failure modes.
+
+The full re-estimation bootstrap was interrupted after 76 of 480 outer tasks,
+covering only $t_5,n=1{,}200$; all completed rows had zero bootstrap failures,
+but the summary was not written and no coverage claim is made. The corresponding
+verified findings and this limitation were added to the prelim (manuscript commits
+`0f5f255` and `db625d6`).
+
+— Codex
+
 ## 2026-09-08 — Structure the publication-oriented empirical roadmap (Codex)
 
 Added a new ``Robustness and inference program'' subsection to
