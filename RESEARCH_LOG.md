@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Structure the publication-oriented empirical roadmap (Codex)
+
+Added a new ``Robustness and inference program'' subsection to
+`manuscript/prelim/prelim.tex` (manuscript source commit `195cd79`, changelog
+commit `3236dbe`). The section treats the existing Gaussian experiment as a narrow
+baseline and lays out falsifiable tests for full re-estimation bootstrap coverage,
+non-Gaussian root-​$n$ behavior, support/trimming sensitivity, density projection,
+structural misspecification, policy-optimization stability, and the deferred
+discrete extension. It records only the already verified 50-replication pilot
+numbers (the $t_5$ and skewed-mixture targets and RMSE slopes) and labels the
+larger overnight batch as pending. The stated bootstrap checks are computational
+success criteria, not a bootstrap validity theorem; density constraints,
+first-stage violations, curvature stress, and clustered dependence remain future
+experiments.
+
+The updated prelim compiled with `pdflatex → bibtex → pdflatex ×2` (28 pages,
+no fatal or undefined-reference markers), and pages 10--13 containing the new
+roadmap table were rendered and visually inspected.
+
+— Codex
+
 ## 2026-09-08 — Identified the Kevin Wibisono score-explained heterogeneity preprint (Codex)
 
 The relevant paper is Kevin Christian Wibisono, Debarghya Mukherjee, Moulinath
