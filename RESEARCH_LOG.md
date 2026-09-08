@@ -926,3 +926,34 @@ m_p' Sigma_gamma m_p = 4.5645`; same-sample `n*Var = 4.51`, independent-`gamma` 
 expansion and zero cross-covariance hold same-sample (VC/Donsker generated-index
 quantile; cross-covariance vanishes because `E[eta|X]=0`). No sub-split needed. Only
 follow-up: (A3'') should cite/derive the uniform Bahadur expansion rather than posit it.
+
+## 2026-09-08 — Differing-slopes simulation and variance check (Codex)
+Added `experiments/scripts/differing_slopes_simulation.py` to test the proposed
+level-dependent treatment effect model
+`Y=b(eta)+D*alpha(eta)+X'beta1+(D*X)'beta2+epsilon` in a known-target Gaussian
+benchmark. The DGP sets `Q=X1+eta`, `D=1{Q>0}`, observes `eta` and uses the true
+normal distribution of `T=X1` for the smooth policy utility; the trim interval is
+fixed at the 10th/90th percentiles of `eta`. The full model's population optimum is
+`phi*=-0.1201`, while the alpha-only pseudo-target is `-0.3393`.
+
+The short run (`n={400,800,1600,3200}`, 150 replications per cell) shows the
+differing-slopes estimator nearly centered on the full target (bias between -0.0055
+and +0.0043) and RMSE falling from 0.097 to 0.039, while the alpha-only fit remains
+far from the full target (bias about -0.40 to -0.52). After correcting the delta
+method implementation so that the *average* policy gradient multiplies each OLS
+influence (rather than multiplying observation-specific gradients and influences),
+the estimated-to-Monte-Carlo variance ratios for differing slopes are
+`1.08, 1.01, 0.90, 0.83`; coverage is `0.973, 0.953, 0.933, 0.900` in this 150-rep
+run. A larger 300-rep run at `n={6400,12800}` gives ratios `0.994` and `1.106`,
+with coverage `0.937` and `0.963`. The remaining small-sample undercoverage is
+consistent with finite-replication noise and mild root-n bias; the variance check is
+substantially improved and is not showing systematic overestimation.
+
+These results support the *point-estimation idea* when the D×X block is correctly
+specified and support the corrected plug-in variance in this conditional benchmark.
+They do not validate the full PerfRDD theorem: the first-stage residual `eta`, trim
+endpoints, and `T` distribution are treated as known, and the utility is smoothed by
+the known Gaussian tail. Generated-index, moving-hard-boundary, density-sieve, and
+ordinary cross-fitting terms remain untested. The reproducible JSON/CSV outputs are
+under the ignored `experiments/runs/` directory; targeted unit tests are in
+`experiments/tests/test_differing_slopes_simulation.py`.
