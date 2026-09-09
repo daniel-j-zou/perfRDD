@@ -9,6 +9,22 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Clarified differing-slopes rank and smoothness conditions (Codex)
+
+The manuscript now states the differing-slopes replacement for the old A7:
+retain independence of $X$ and $\eta$ and the conditional mean-zero residual
+conditions, while dropping $W\perp X$ (which is incompatible with nonzero
+$\beta_2$ under nondegenerate covariates).  Appendix 4 defines the uniform
+augmented-rank condition as a lower eigenvalue bound for
+$(D N_K(\eta),N_K(\eta),X^\circ,D X^\circ)$ with a constant independent of
+$K$, and explains why fixed-$K$ nonsingularity is insufficient.  At the
+author's request, the vector weighted-density block now has explicit
+componentwise $C^3$ smoothness for $\rho_X$ and entrywise $W^{1,2}$ regularity
+for $E[XX^{\circ\top}\mid T=t]f_T(t)$.  The rank condition is defined but not
+treated as author-approved; no proof claim is changed.
+
+— Codex
+
 ## 2026-09-08 — Differing-slopes proof map added to the prelim (Codex)
 
 Added Appendix 4 to `manuscript/prelim/prelim.tex` with the current conditional
