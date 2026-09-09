@@ -1035,3 +1035,42 @@ has negligible bias. In the 250-replication runs, variance ratios are respective
 finite-sample undercoverage. These checks support the corrected sandwich under
 non-Gaussian and heteroskedastic errors, conditional on known eta and fixed support.
 They do not test generated-index or moving-boundary terms.
+
+## 2026-09-08 — Full differing-slopes robustness battery (Codex)
+Added `experiments/scripts/differing_slopes_full_pipeline.py`, which estimates the
+first-stage residual and hard-trim endpoints rather than conditioning on them. It
+also compares Gaussian and spline running-variable tails, full-sample OLS, a
+moderately ridge-regularized fit, and five-fold cross-fitting. The baseline run
+(`n={500,1000,2000,4000}`, 100 replications) gives full-model biases
+`-0.012,-0.010,-0.011,-0.000` for Gaussian full-sample OLS and
+`-0.008,-0.009,-0.013,+0.001` for spline OLS, with RMSE log--log slopes about
+`-0.57` in both cases. Cross-fitting tracks the full-sample estimates closely;
+the spline tail is slightly less variable. The alpha-only generated-index fit
+remains biased by roughly `-0.43` to `-0.50` relative to the differing-slopes
+target. The ridge setting used here (`0.50`) introduces finite-sample bias
+(about `+0.065` at `n=500`, declining to `+0.026` at `n=4000`).
+
+The nonlinear misspecification scenario adds a true treated effect
+`0.90*(X1^2-1)` while fitting only linear D×X terms. The true optimum is
+`0.4955`, but all linear differing-slopes variants converge near `0.405`, leaving
+an approximately `-0.09` pseudo-target bias even at `n=4000`. This is a useful
+negative control: the extension is not robust to omitted nonlinear effect
+heterogeneity. The weak-curvature scenario has target `-0.5000` and curvature
+`-0.0475`; the full model remains centered by `n=4000`, but RMSE is about `0.12`
+and the n-scaled Monte Carlo variance is roughly `55`, versus roughly `4--6` in
+the baseline. The boundary scenario selects the upper policy bound in `83--100%`
+of replications and confirms that interior CLT intervals are not meaningful for
+boundary optima.
+
+For clustered errors, clusters of 20 share a mean-zero treated-outcome shock.
+The oracle estimator's iid variance estimate is only `0.40--0.54` of the Monte
+Carlo variance and yields coverage `0.79--0.85`; a cluster-sum variance estimate
+is much closer (`0.82--1.12`) with coverage `0.89--0.96`. Thus clustering is a
+material application concern; cross-fitting does not repair dependence by itself.
+
+The run initially exposed a performance bottleneck from scalar spline evaluations;
+the objective search was vectorized and the optimized implementation passed 14
+targeted/regression tests. These experiments still do not provide the full
+generated-index/moving-boundary/density-Riesz variance theorem: generated variants
+are evaluated by Monte Carlo dispersion, while the analytic variance check remains
+oracle-index and conditional on fixed support.
