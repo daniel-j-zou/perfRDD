@@ -9,6 +9,22 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Differing-slopes proof map added to the prelim (Codex)
+
+Added Appendix 4 to `manuscript/prelim/prelim.tex` with the current conditional
+proof status for the unrestricted finite-dimensional $D X$ extension.  The
+appendix derives the altered supported target and its derivative, states the
+retained versus new assumptions, defines the augmented outcome design and
+Riesz loading, introduces the vector weighted-density nuisance and its
+hard-boundary integration-by-parts term, and maps the unchanged moving-set and
+generated-index Bahadur blocks into the conditional decoupled CLT.  The
+augmented Gram/Riesz lemma, vector-density weak-pairing lemma, explicit main
+influence function, and curvature verification remain marked as TODOs; no
+closed differing-slopes theorem is claimed.  The task board records this
+conditional appendix as complete, with those proof obligations still open.
+
+— Codex
+
 ## 2026-09-08 — Codex review of the differing-slopes proposal
 
 Reviewed Claude's commits `932164d` and `6ff3337`, the application note
