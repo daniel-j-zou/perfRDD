@@ -81,6 +81,28 @@ CMT does not validate it; report it separately as the broad-population answer.
 - Interior-vs-boundary and the exact `φ*` depend on the welfare formulation (Ḡ-projected vs
   fare-direct empirical) and on the population; state which.
 
+## Empirical rank diagnostic
+
+The theorem needs the augmented `[D·Φ(η), Φ(η), X, D·X]` design to remain
+identified. This is plausible in the restricted VTS sample, although no finite-sample check can
+prove a uniform population condition. With ten equal-mass `η` bins on the hard-trim interval,
+the treated share ranges from 7.2% to 40.5%, every menu-by-bin cell has at least 1,274 rides, and
+the smallest eigenvalue of the conditional second-moment matrices for `(1,X)` is 0.071. The
+column-normalized augmented design has condition number 9.33. After residualizing `D·X` on the
+spline and common-slope nuisance columns, its four Gram eigenvalues are 0.043, 0.058, 0.094,
+and 0.132 (condition number 3.04). Five- and twenty-bin checks give the same qualitative result.
+
+One implementation detail must be corrected in a theorem-aligned estimator. The current ridge
+diagnostic includes both a separate intercept and a baseline B-spline basis whose columns sum to
+one. The corresponding unregularized design is exactly singular; ridge selects a numerical
+solution, but the proof does not use ridge. The unregularized implementation must drop the
+separate intercept (or equivalently remove the constant direction from the spline basis). This
+is a parameterization repair, not a failure of the differing-slopes identification argument.
+
+Reproduce these diagnostics with
+`python -m experiments.scripts.taxi_differing_slopes_rank`; the machine-readable output is
+written to `experiments/runs/taxi_differing_slopes_rank/summary.json`.
+
 ## What adding β₂ does to the theory
 
 More than an extra term, less than a rewrite:

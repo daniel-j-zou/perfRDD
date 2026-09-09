@@ -9,6 +9,33 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Restricted-VTS augmented-rank diagnostic (Codex)
+
+Added `experiments/scripts/taxi_differing_slopes_rank.py` and ran it on all
+541,021 cleaned observations in the paper-restricted VTS sample.  On the hard-
+trim interval, ten equal-mass eta bins have treated shares from 7.2 to 40.5
+percent and at least 1,274 observations in every menu-by-bin cell.  The minimum
+eigenvalue among the binwise conditional second-moment matrices for `(1,X)` is
+0.071.  The column-normalized theorem design
+`[D*Phi(eta), Phi(eta), X, D*X]` has condition number 9.33, and the four
+eigenvalues of the `D*X` Gram matrix after residualizing on the nuisance columns
+are 0.043, 0.058, 0.094, and 0.132.  Five- and twenty-bin checks give the same
+qualitative conclusion.  These diagnostics support, but cannot prove, the
+maintained uniform population rank condition.
+
+The check also exposed a concrete theorem/application parameterization mismatch.
+The current ridge taxi diagnostic includes a separate intercept together with a
+baseline B-spline basis whose columns sum to one.  Its unregularized design is
+therefore exactly singular (condition number about 3.6e15).  Ridge makes the
+diagnostic numerically well defined, but the theorem-facing unregularized
+estimator must drop the separate intercept or remove the constant spline
+direction.  This is a straightforward implementation repair rather than a
+failure of the differing-slopes theory.
+
+— Codex
+
+---
+
 ## 2026-09-08 — Simulation evidence written into the prelim (Codex)
 
 Added a concise main-text subsection in `manuscript/prelim/prelim.tex` that states
