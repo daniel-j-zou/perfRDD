@@ -9,6 +9,39 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-09 — Introduction positioning: precedents and competitor (Claude)
+
+Reference/positioning findings for the Introduction rewrite (manuscript commit
+448b699; §1.1 restructured, `references.bib` extended).
+
+- **Wibisono, Mukherjee, Banerjee & Ritov (2025)**, arXiv:2504.17126, is the
+  heterogeneous-effect extension of the score-explained line. Model
+  `$Y=\alpha_0(X,\eta)\mathbb 1\{Q\ge\tau_0\}+X^\top\beta_0+\ell(\eta)+\epsilon$`,
+  `$Q=Z^\top\gamma+\eta$`; estimand is the **ATT** `$\E[\alpha_0(X,\eta)\mid Q\ge\tau_0]$`
+  (plus CATE/ITE) via first-order differencing + residual matching, three-fold split.
+  Assumptions: `$\E(\eta\mid Z)=0$`, `$\E(\epsilon\mid X,\eta)=0$` (mean-independence, not
+  full independence), compact supports, density-ratio overlap. PDF saved in
+  `manuscript/Papers/`.
+- **Mukherjee, Banerjee & Ritov (2021)** (`Dep2021`) is the homogeneous-`$\alpha_0$`,
+  fixed-cutoff, global root-$n$ precedent under `$(\eta,v)\perp(X,Z)$` (Assumption 1.1);
+  its contribution #1 is explicitly "use of the entirety of data … not just observations
+  in a small vicinity of the boundary" — so the RDD **local→global** framing is honest,
+  not a strawman.
+- **Competitor flag:** Marinescu, Triantafillou & Kording (2022), *PLOS ONE*
+  (`Marinescu2022`), is the namesake "RD threshold optimization" and **applies to the same
+  Haggag (2014) taxi tip data**. It is design-based (LATE + Dong–Lewbel marginal-threshold
+  effect, Gaussian-process regression, cost/conservatism constraints) with **no
+  score-explained latent-residual model and no root-$n$ limit theory**. §1.1/§1.2 must
+  differentiate it explicitly. PDF given to the author (`~/Downloads`), not committed.
+- Both precedents' reference lists were mined; verified entries added to
+  `references.bib` (RDD lineage, partial-linear, triangular/IV, and — new to this line —
+  policy learning `KitagawaTetenov2018`/`AtheyWager2021`/`Manski2004`, threshold change
+  `DongLewbel2015`, overlap trimming `CrumpHotzImbensMitnik2009`).
+
+— Claude
+
+---
+
 ## 2026-09-08 — Weakened full covariate--residual independence (Codex)
 
 A final assumption audit showed that the unrestricted differing-slopes target
