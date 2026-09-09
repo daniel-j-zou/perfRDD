@@ -9,6 +9,31 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-09 — Author choice and proof scaffold for differing slopes (Codex)
+
+The author elects to retain the stronger `$X\perp\eta$` condition rather than
+use the weaker index-sufficiency condition recorded below.  The author also
+accepts finite moments, a unique interior maximizer with nonzero curvature,
+reasonable uniform augmented-rank assumptions, and an additional honest fold
+for the vector weighted-density nuisance.  Under those choices, the only
+substantive new model/regularity conditions are the conditional linear effect
+model `$E(W\mid X,\eta)=a(\eta)+X^{\circ\top}\beta_2$` and smoothness/weak-
+derivative conditions for `$\rho_X(t)=E(X^\circ\mid T=t)f_T(t)$` and
+`$h_\rho(t)=E(XX^{\circ\top}\mid T=t)f_T(t)$`.
+
+Appendix 4 of `manuscript/prelim/prelim.tex` now provides a Luna-ready proof
+scaffold: DS1--DS5, a seven-block dependency map, a conditional decoupled-split
+CLT theorem, a five-step proof skeleton, and inline completion instructions for
+feasible consistency, augmented outcome normal equations/Riesz convergence,
+the multiplier weighted-density lemma, inherited moving-boundary substitutions,
+signed influence-function/fold bookkeeping, and curvature.  The original local
+uniform endpoint Bahadur lemma remains inherited unfinished work, not a new
+differing-slopes assumption.
+
+— Codex
+
+---
+
 ## 2026-09-09 — Introduction positioning: precedents and competitor (Claude)
 
 Reference/positioning findings for the Introduction rewrite (manuscript commit
