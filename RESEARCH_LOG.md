@@ -9,6 +9,78 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Simulation evidence written into the prelim (Codex)
+
+Added a concise main-text subsection in `manuscript/prelim/prelim.tex` that states
+the differing-slopes simulation hypotheses, testing strategy, headline results,
+and alignment with the maintained theory.  The main text reports the positive
+correct-specification result (RMSE slopes about -0.57, alpha-only bias about
+0.43--0.50, and larger-run variance ratios 0.98--1.11 with coverage 0.94--0.96),
+the nonlinear/weak-curvature negative controls, and the boundary and clustering
+warnings.  A new Appendix 5 records the DGP, estimator variants, replication
+matrix, objective search, variance scope, and reproducibility paths.  The text
+explicitly does not claim bootstrap validity or a completed generated-index
+analytic variance theorem.  The completed full-pipeline battery remains the
+source of all reported values (`differing_slopes_full_pipeline.py` and the
+2026-09-08 entries below).
+
+— Codex
+
+---
+
+## 2026-09-08 — Skeptical feasibility audit of differing slopes (Codex)
+
+The differing-slopes strategy is theoretically feasible without changing the
+hard-trim boundary architecture.  Under fixed-dimensional
+$W=a(\eta)+X^{\circ\top}\beta_2+R_W$, retained $X\perp\eta$, conditional
+mean-zero residuals, and an augmented rank condition, the outcome block remains
+a partially linear sieve regression.  The policy derivative adds the
+one-dimensional vector weighted density
+$\rho_X(t)=E(X^\circ\mid T=t)f_T(t)$; it does not introduce a higher-dimensional
+nonparametric nuisance.  The same fixed-buffer, zero-outer-trace weak
+integration-by-parts repair applies componentwise.  A primitive sufficient rank
+condition is uniform overlap plus uniformly nonsingular conditional second
+moments of $(1,X^\circ)$ within each $(\eta,D)$ cell.  This explicitly identifies
+the linear $D X^\circ$ effect through within-menu covariate variation; it remains
+model-based extrapolation, not nonparametric identification from the single VTS
+cutoff.
+
+The audit corrected two proof-level issues in `manuscript/prelim/prelim.tex`.
+First, the observed differing-slopes outcome residual is
+$R_Y^{DS}=\epsilon+D R_W$; the earlier display wrote only $\epsilon$ while the
+influence function used $R_Y^{DS}$.  Second, the vector-density linear expansion
+previously omitted the first-order effect of its fold-specific generated index;
+it now contains
+$A_{\rho,\eta,L}^\top\sqrt{n_\rho}(\hat\gamma^\rho-\gamma)$ and derives the
+identity from the deterministic Lebesgue Gram matrix.  The manuscript now states
+the nonempty rate window $\sqrt nL_n^{-3}\to0$ and
+$L_n^{5/2}/\sqrt n\to0$, adds the multiplier fourth-moment condition, and no
+longer calls the extension closed.  Remaining formal work is the
+multiplier-spline triangular-array/Lindeberg bound, empirical augmented-Gram
+convergence, exact sign and fold-fraction bookkeeping, the inherited local
+Bahadur lemma, and theorem/application estimator alignment.  An analytic
+foldwise variance estimator exists in principle, but the author prefers full
+re-estimation bootstrap inference in practice.
+
+The taxi motivation was checked against `DIFFERING_SLOPES.md`,
+`DIRECT_COMPETITOR_CHECK.md`, `LOW_FARE_PROXY.md`, and `COMPETITOR_CHECK.md`.
+The original scalar reduction omits
+$E[I_0\operatorname{Cov}\{W,1(T>\phi-\eta)\mid\eta\}]$.  This is exactly the
+taxi problem: at fixed $\eta$, larger $T$ means a larger fare and a larger dollar
+percentage suggestion, while the candidate policy also selects on $T$.  The VTS
+scalar fit is internally calibrated but overpredicts low-fare CMT percentage-menu
+tips by USD 0.542 (USD 0.443 after high-fare calibration); the auxiliary
+fare-cell proxy is negative on 90.5 percent of low-fare VTS mass and crosses near
+$12.8.  These are external sign/transport diagnostics only, because vendor
+selection prevents a causal CMT-minus-VTS interpretation.  The manuscript now
+states this logic in the application and Appendix 4 and flags the legacy
+scalar-$\alpha$ figures/results for replacement by the theorem-aligned
+$(\bar G,H_X)$ differing-slopes estimator.
+
+— Codex
+
+---
+
 ## 2026-09-08 — Maintained augmented rank and completed differing-slopes proof blocks (Codex)
 
 The author approved treating the uniform augmented-rank condition as a maintained
