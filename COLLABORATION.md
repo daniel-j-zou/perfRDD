@@ -61,3 +61,28 @@ Both agents push by default, so simultaneous edits to the same file are the main
 - For anything beyond a small, self-contained edit to a file the other agent may also be
   in, work on a short-lived task branch and fast-forward it onto the mainline when the
   task is verified and pushed.
+
+## Drafting manuscript prose
+
+When writing or rewriting manuscript sections (Introduction, Discussion, application
+narrative, and similar author-facing prose), follow the author's staged workflow rather
+than drafting whole sections unprompted:
+
+1. **Plan first.** Propose a paragraph-by-paragraph outline: for each paragraph, one line
+   on what it should accomplish (its job in the argument), not the prose itself. Present
+   the plan and wait for the author's approval or revisions.
+2. **Write on request.** Only after the author approves the plan (and asks) do you draft
+   the prose, matching *Biometrika* house style and the level and voice of the closest
+   prior papers (e.g. Mukherjee, Banerjee & Ritov). Keep it terse; avoid contents-of-the-
+   paper listing.
+3. **Draft and finalize one paragraph at a time.** Provide the draft for a given
+   paragraph, then iterate with the author to finalize it before moving on.
+
+Additional standing rules for this workflow:
+- Never invent citations. Use only keys already in `../manuscript/references.bib`; where a
+  referenced work is not yet in the bibliography, name it in prose or leave a marked
+  citation gap and defer it to a dedicated citation-gathering pass — do not fabricate a
+  key or entry.
+- The `\section*{To discuss.}` block at the top of `prelim/prelim.tex` is the author's
+  working notes for advisor discussion, not manuscript prose. Do not treat it as draft
+  text or rewrite it into the paper.
