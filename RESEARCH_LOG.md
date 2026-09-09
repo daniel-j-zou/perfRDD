@@ -9,6 +9,28 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Maintained augmented rank and completed differing-slopes proof blocks (Codex)
+
+The author approved treating the uniform augmented-rank condition as a maintained
+primitive assumption for the differing-slopes extension.  Appendix 4 now uses it
+to bound the inverse augmented Gram matrix and writes the corresponding spline
+projection/Riesz approximation argument; the old A4 condition is not invoked for
+the new $D X^\circ$ columns.  The vector weighted-density block now has an
+explicit cubic-spline approximation/loading lemma, including the matrix-to-vector
+dimension check, fold-specific influence representation, and weak integration by
+parts limit under the already approved componentwise $C^3$ and $W^{1,2}$
+conditions.  The main differing-slopes score is displayed with evaluation,
+outcome, scalar-density, vector-density, and four deliberately decoupled
+generated-index contributions.  Curvature consistency adds only the
+$\beta_2^\top\rho_X'$ term.  Remaining open work is inherited from the original
+hard-trim theorem: a primitive local Bahadur proof and a feasible variance
+estimator for the deliberately decoupled split; no ordinary cross-fitting or
+full-sample-reuse theorem is claimed.
+
+— Codex
+
+---
+
 ## 2026-09-08 — Clarified differing-slopes rank and smoothness conditions (Codex)
 
 The manuscript now states the differing-slopes replacement for the old A7:
