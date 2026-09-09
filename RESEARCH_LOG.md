@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-08 — Weakened full covariate--residual independence (Codex)
+
+A final assumption audit showed that the unrestricted differing-slopes target
+does not require full `$X\perp\eta$`.  It is enough to assume
+`$T\perp\eta$` together with the conditional-mean restriction
+`$E(X^\circ\mid T,\eta)=E(X^\circ\mid T)$`.  These conditions imply both the
+scalar survival factorization and
+`$E[X^\circ 1\{T>s\}\mid\eta]=H_X(s)$`; with centered covariates they also
+imply `$E(X^\circ\mid\eta)=0$`, so `$a(\eta)=E(W\mid\eta)$` retains its old
+interpretation.  Full `$X\perp\eta$` remains a simpler sufficient primitive.
+Dropping either part of this weaker index-sufficiency condition would make
+`$\bar G$` or `$H_X$` depend on `eta` and require a higher-dimensional nuisance
+analysis.  Appendix 4 and the task board now use the weaker exact condition.
+
+— Codex
+
+---
+
 ## 2026-09-08 — Restricted-VTS augmented-rank diagnostic (Codex)
 
 Added `experiments/scripts/taxi_differing_slopes_rank.py` and ran it on all
