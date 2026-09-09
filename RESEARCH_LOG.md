@@ -9,6 +9,23 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-09 — Attempted differing-slopes lemma, extension, and bookkeeping (Codex)
+
+The manuscript Appendix 4 now contains three concrete additions for the
+deliberately decoupled split.  First, the augmented outcome normal equations
+are expanded around the population sieve coefficient; the generated-index
+loading is $Q_{\mathrm{DS},K}^{-1}E[z_{\mathrm{DS},K}X^\top
+(\partial_\eta z_{\mathrm{DS},K})^\top\theta_K]$, and the finite-dimensional
+$X^\circ$ and $DX^\circ$ blocks contribute no derivative because only the two
+spline blocks depend on $\eta$.  Second, the vector weighted-density lemma now
+records a Lyapunov/Lindeberg bound $O(L^2/n)$ and the two remainders
+$O(\sqrt nL^{-3})$ and $O_p(L^{5/2}/\sqrt n)$ under the existing DS5 window.
+Third, the four main block scores and two endpoint scores are assembled with
+explicit fold fractions, endpoint signs, and within-block covariance; no
+ordinary-cross-fitting or full-sample-reuse theorem is claimed.  The argument
+still conditions on the inherited generated-index Bahadur and moving-boundary
+lemmas and leaves the final signed loading substitution for the next proof pass.
+
 ## 2026-09-09 — Author choice and proof scaffold for differing slopes (Codex)
 
 The author elects to retain the stronger `$X\perp\eta$` condition rather than
