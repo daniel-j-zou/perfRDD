@@ -973,3 +973,27 @@ the known Gaussian tail. Generated-index, moving-hard-boundary, density-sieve, a
 ordinary cross-fitting terms remain untested. The reproducible JSON/CSV outputs are
 under the ignored `experiments/runs/` directory; targeted unit tests are in
 `experiments/tests/test_differing_slopes_simulation.py`.
+
+## 2026-09-08 — Differing-slopes robustness scenarios (Codex)
+Extended the simulation runner with explicit reproducible scenarios for a null
+interaction, stronger level dependence, t(5) errors, skewed errors, and
+heteroskedastic errors (`--scenario`; all preserve the same known-target setup).
+The null-interaction run (`n={800,3200,6400}`, 250 replications) gives the same
+population target for both specifications and variance ratios converging to
+`1.14, 0.92, 1.01` for alpha-only and `1.25, 0.95, 1.04` for differing slopes.
+Thus the extra D×X block costs little efficiency when it is unnecessary.
+
+Under stronger interaction (`beta2=(1.6,0.5)`), the full model remains centered
+(bias about `-0.004, -0.004, -0.003` at `n={800,3200,6400}`), while alpha-only
+selects highly negative thresholds and misses the true target by roughly 1.5--2.2
+units. A 500-replication larger run gives differing-slopes variance ratios
+`0.994` and `1.051` and coverage `0.958` and `0.952` at `n=6400,12800`.
+
+For t(5), skewed, and heteroskedastic outcome errors, the differing-slopes estimator
+has negligible bias. In the 250-replication runs, variance ratios are respectively
+`0.96--0.99` (t(5) at `n<=3200`), `0.95--1.23` (skewed), and `0.94--1.14`
+(heteroskedastic). The t(5) 500-replication follow-up gives ratios `0.980` and
+`1.072` and coverage `0.958` and `0.962` at `n=6400,12800`, resolving the earlier
+finite-sample undercoverage. These checks support the corrected sandwich under
+non-Gaussian and heteroskedastic errors, conditional on known eta and fixed support.
+They do not test generated-index or moving-boundary terms.

@@ -25,13 +25,17 @@ Example::
     python -m experiments.scripts.differing_slopes_simulation \
         --n 800 1600 3200 --reps 200 \
         --out experiments/runs/differing_slopes_short.json
+
+Robustness scenarios are available with ``--scenario``: ``baseline``,
+``null_interaction``, ``strong_interaction``, ``t5_errors``, ``skewed_errors``,
+and ``heteroskedastic_errors``.
 """
 from __future__ import annotations
 
 import argparse
 import csv
 import json
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 
@@ -54,6 +58,7 @@ class DGP:
     b1: float = 0.60
     cost: float = 0.25
     sigma_eps: float = 0.50
+    error_law: str = "normal"
     trim_eps: float = 0.10
 
     @property
@@ -69,6 +74,24 @@ class DGP:
 DEFAULT_DGP = DGP()
 POLICY_BOUNDS = (-3.0, 3.0)
 MODEL_LABELS = ("alpha_only", "differing_slopes")
+
+
+SCENARIOS = {
+    "baseline": DEFAULT_DGP,
+    # With no D*X effect, the restricted and full specifications target the
+    # same policy.  This is a useful overfitting/variance sanity check.
+    "null_interaction": replace(DEFAULT_DGP, beta2=np.zeros(2)),
+    # A larger effect heterogeneity makes the omitted-interaction bias easier to
+    # detect while retaining an interior optimum.
+    "strong_interaction": replace(
+        DEFAULT_DGP, beta2=np.array([1.60, 0.50]),
+    ),
+    # These error laws leave the conditional mean unchanged, so the population
+    # target is unchanged while the robust variance calculation is stressed.
+    "t5_errors": replace(DEFAULT_DGP, error_law="t5"),
+    "skewed_errors": replace(DEFAULT_DGP, error_law="skewed"),
+    "heteroskedastic_errors": replace(DEFAULT_DGP, error_law="heteroskedastic"),
+}
 
 
 def _quadrature(dgp: DGP, n_nodes: int = 240) -> tuple[np.ndarray, np.ndarray]:
@@ -133,7 +156,20 @@ def generate_sample(n: int, seed: int, dgp: DGP = DEFAULT_DGP) -> dict[str, np.n
     alpha = dgp.a0 + dgp.a1 * eta
     baseline = dgp.b0 + dgp.b1 * eta + x @ dgp.beta1
     effect = alpha + x @ dgp.beta2
-    y = baseline + d * effect + rng.normal(0.0, dgp.sigma_eps, int(n))
+    if dgp.error_law == "normal":
+        error = rng.normal(0.0, dgp.sigma_eps, int(n))
+    elif dgp.error_law == "t5":
+        # Standardize t_5 to unit variance before applying sigma_eps.
+        error = dgp.sigma_eps * rng.standard_t(5, int(n)) / np.sqrt(5.0 / 3.0)
+    elif dgp.error_law == "skewed":
+        # Centered exponential errors are skewed but have unit variance.
+        error = dgp.sigma_eps * (rng.exponential(1.0, int(n)) - 1.0)
+    elif dgp.error_law == "heteroskedastic":
+        scale = dgp.sigma_eps * (0.50 + 0.75 * np.abs(x[:, 0]))
+        error = rng.normal(0.0, scale, int(n))
+    else:
+        raise ValueError(f"unknown error law: {dgp.error_law!r}")
+    y = baseline + d * effect + error
     return {"X": x, "eta": eta, "Q": q, "D": d, "Y": y}
 
 
@@ -322,6 +358,7 @@ def run_simulation(
             "b1": dgp.b1,
             "cost": dgp.cost,
             "sigma_eps": dgp.sigma_eps,
+            "error_law": dgp.error_law,
             "trim_eps": dgp.trim_eps,
             "trim_bounds": list(dgp.trim_bounds),
         },
@@ -352,9 +389,10 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser.add_argument("--n", type=int, nargs="+", default=[800, 1600, 3200])
     parser.add_argument("--reps", type=int, default=200)
     parser.add_argument("--seed", type=int, default=20260908)
+    parser.add_argument("--scenario", choices=sorted(SCENARIOS), default="baseline")
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
-    result = run_simulation(args.n, args.reps, args.seed)
+    result = run_simulation(args.n, args.reps, args.seed, dgp=SCENARIOS[args.scenario])
     write_outputs(result, args.out)
     print(json.dumps(result["summary"], indent=2))
     print(f"[wrote] {args.out}")

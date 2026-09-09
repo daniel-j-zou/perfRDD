@@ -4,6 +4,7 @@ import numpy as np
 
 from experiments.scripts.differing_slopes_simulation import (
     DEFAULT_DGP,
+    SCENARIOS,
     estimate_threshold,
     generate_sample,
     population_truth,
@@ -35,6 +36,13 @@ class DifferingSlopesSimulationTest(unittest.TestCase):
         self.assertLess(estimate["curvature_hat"], 0.0)
         self.assertGreaterEqual(estimate["score_variance_hat"], 0.0)
         self.assertGreater(estimate["variance_hat"], 0.0)
+
+    def test_error_law_scenarios_preserve_sample_contract(self):
+        for name, dgp in SCENARIOS.items():
+            sample = generate_sample(120, seed=20260908, dgp=dgp)
+            self.assertEqual(sample["X"].shape, (120, 2), name)
+            self.assertEqual(sample["Y"].shape, (120,), name)
+            self.assertTrue(np.isfinite(sample["Y"]).all(), name)
 
 
 if __name__ == "__main__":
