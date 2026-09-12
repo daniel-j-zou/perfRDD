@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-12 — Introduction Paragraph 1 candidates (Codex)
+
+At the author's request, reviewed the opening pages of the local Mukherjee,
+Banerjee & Ritov and Wibisono et al. PDFs before drafting §1.1. Both papers begin
+with a concrete score-threshold allocation, explain the substantive outcome,
+and only then introduce the statistical limitation. Following that pacing but
+orienting it toward PerfRDD's distinct policy question, added three candidate
+openings to `../manuscript/prelim/prelim.tex`. They use the examination--
+scholarship--college setting and differ in emphasis: the direct welfare
+question, the assignment mechanism and policy tradeoff, and evaluation versus
+policy design (manuscript source commit `05aa105`). The candidates remain review
+alternatives; the author still needs to select and finalize one before Paragraph
+2 is drafted.
+
+— Codex
+
+---
+
 ## 2026-09-12 — Focused assumption-swap simulation (Codex)
 
 Tested the hypothesis that the differing-slopes estimator is centered when the
