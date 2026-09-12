@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-12 — Paragraph 1 drafting workflow follow-up (Codex)
+
+The author asked to reverse the candidate-prose insertion recorded below. The
+prelim now again contains only the concise Paragraph 1 TODO: the author will
+write the initial text, and Codex will subsequently flesh it out through the
+paragraph-by-paragraph editorial workflow. The three candidate boxes and their
+task-board selection item were removed in manuscript commit `fd0d379`; this
+follow-up supersedes the earlier entry's proposed next step without altering
+that historical entry.
+
+— Codex
+
+---
+
 ## 2026-09-14 — Nonlinear treatment-effect simulation (Codex)
 
 Tested whether the linear `D*X` differing-slopes correction remains valid when
