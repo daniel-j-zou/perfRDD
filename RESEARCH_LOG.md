@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-12 — Prelim written-document and presentation scope (Codex)
+
+The author confirms that the written prelim is a **superset** of the oral
+presentation.  The written document due Wednesday should be organized around
+the introduction and related work, then the main same-slope contribution under
+the maintained $X\perp(W,\eta)$ assumption, followed by simulations and the
+taxi application.  The taxi results motivate the differing-slopes model; that
+extension should explain the failure of the scalar reduction, state why the
+$DX^\circ$ correction is useful, and give a proof sketch, but it is not to
+displace the same-slope theorem as the primary contribution.
+
+The Thursday presentation is a compressed **50-minute** version of this
+material: motivation/related work; setup, target, and identification; estimator,
+hard trimming, and the main CLT; simulations; taxi; and finally the differing-
+slopes motivation and proof sketch.  Slides should not introduce a separate
+estimand or claim a fully completed differing-slopes theorem.  Keep the
+deliberately decoupled split and the distinction between theorem-backed
+simulations and illustrative taxi diagnostics explicit.
+
+— Codex
+
 ## 2026-09-09 — Attempted differing-slopes lemma, extension, and bookkeeping (Codex)
 
 The manuscript Appendix 4 now contains three concrete additions for the
