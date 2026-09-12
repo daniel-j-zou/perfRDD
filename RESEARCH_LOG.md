@@ -9,6 +9,19 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-12 — Align Beamer scaffold with prelim presentation plan (Codex)
+
+The slide source `manuscript/prelim/slides.tex` now mirrors the approved
+50-minute talk: motivation/related work, same-slope setup and theorem,
+estimation and hard trimming, simulations, taxi, a three-slide differing-slopes
+extension/proof sketch, and conclusion.  The stale performativity subtitle and
+40-minute timing comment were removed; the title and author use the manuscript's
+placeholder convention.  The deck remains audience-facing scaffolding with
+TODO blocks, while the differing-slopes section is explicitly secondary to the
+same-slope theorem.
+
+— Codex
+
 ## 2026-09-12 — Prelim written-document and presentation scope (Codex)
 
 The author confirms that the written prelim is a **superset** of the oral
