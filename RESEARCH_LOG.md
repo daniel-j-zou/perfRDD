@@ -9,6 +9,47 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-12 — Focused assumption-swap simulation (Codex)
+
+Tested the hypothesis that the differing-slopes estimator is centered when the
+data-generating process satisfies $W=a(\eta)+X^\top\beta_2+R_W$, while the
+original $\alpha(\eta)$-only reduction is inconsistent for the full policy
+target when $\beta_2\ne0$.  The known-target runner
+`experiments/scripts/differing_slopes_simulation.py` was run with 300
+replications at $n\in\{500,1000,2000,4000\}$ for baseline, null-interaction,
+and strong-interaction designs, plus a 200-replication baseline follow-up at
+$n\in\{8000,16000\}$.  The durable report is
+`experiments/datasets/simulations/DIFFERING_SLOPES_ASSUMPTION_SWAP_20260912.md`.
+
+In the baseline nonzero-interaction DGP, the true differing-slopes target is
+$\phi^*=-0.120064$ while the alpha-only formula's target is $-0.339292$.
+The differing-slopes estimator has biases $(0.0014,-0.0008,-0.0026,-0.0004)$
+at $n=(500,1000,2000,4000)$ and $(0.0016,0.0009)$ at $n=(8000,16000)$;
+its RMSE log--log slope is $-0.504$.  The original estimator remains about
+$0.43$--$0.47$ below the full target, with normal coverage falling from
+$0.947$ at $n=500$ to $0$ at $n=16000$ even though its estimated variance
+tracks its own Monte Carlo dispersion.  This is the expected pattern for a
+misspecified but increasingly precise estimator.
+
+The null-interaction control sets $\beta_2=0$; both estimators then have small
+bias (absolute values below $0.021$), RMSE slopes near $-1/2$, variance ratios
+near one, and coverage about $0.93$--$0.97$.  Under the stronger interaction
+$\beta_2=(1.60,0.50)$, the true target is $-0.073010$; differing-slopes bias
+stays below $0.003$ in absolute value with coverage $0.927$--$0.950$, while
+alpha-only bias ranges from $-1.24$ to $-1.94$ and coverage is $0.573$--$0.723$.
+
+Conclusion: the focused simulation supports the hypothesis and separates
+identification bias from variance estimation.  It is conditional on known
+$\eta$, fixed trim bounds, and the known Gaussian tail; generated-index,
+estimated-endpoint, and moving-boundary terms remain outside this check.  The
+known-target unit tests pass (3 tests).  The broader full-pipeline test module
+could not import in the system Python because `matplotlib` is not installed;
+this is an environment dependency issue, not a failure of the focused runner.
+
+— Codex
+
+---
+
 ## 2026-09-12 — Align Beamer scaffold with prelim presentation plan (Codex)
 
 The slide source `manuscript/prelim/slides.tex` now mirrors the approved
