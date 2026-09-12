@@ -9,6 +9,46 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-14 — Nonlinear treatment-effect simulation (Codex)
+
+Tested whether the linear `D*X` differing-slopes correction remains valid when
+the treated effect is nonlinear in the threshold score.  The new runner
+`experiments/scripts/nonlinear_slopes_simulation.py` generates
+
+\[
+Y=b_0+b_1\eta+X^\top\beta_1
+ +D\{a_0+a_1\eta+\delta(T^2-1)\},\qquad T=X_1,
+\]
+
+with a hard 10% trim and known `eta`/normal score law.  It compares the
+alpha-only model, the existing linear `D*X` model, and a correctly augmented
+model containing `D*(T^2-1)`.  The population truth calculation now integrates
+directly over the trim interval using Gauss--Legendre quadrature, avoiding the
+boundary error from applying a hard indicator to Gauss--Hermite nodes.
+
+For the moderate design (`delta=0.40`, 300 replications at
+`n={500,1000,2000,4000}`), the full target is `0.424625`.  Alpha-only bias is
+about `0.60` at the larger sample sizes and its optimizer moves to the upper
+policy bound.  The linear differing-slopes estimator has stable bias about
+`-0.06`, so it is also inconsistent under nonlinear score heterogeneity.  The
+quadratic augmentation has biases `0.001, -0.003, -0.004` at
+`n={1000,2000,4000}`, RMSE tail slope about `-0.48`, variance ratios
+`1.01,1.08,0.93`, and coverage `0.963,0.957,0.940`.  The `n=500` quadratic
+variance cell is noisy because of a few poorly conditioned threshold fits.
+
+The null (`delta=0`) control leaves all specifications approximately centered,
+while the stronger curvature design (`delta=0.80`) gives linear-model bias near
+`-0.20` and quadratic-model bias below `0.002` in absolute value for the larger
+cells, with variance ratios near one and coverage about 0.92--0.95.
+
+Conclusion: the original reduction fails under nonlinear score heterogeneity,
+and the current linear differing-slopes extension is not a general nonlinear
+solution.  A sieve/spline treated-interaction basis is the natural next step;
+its basis-growth, regularization, and generated-index inference are not tested
+here.  Durable report: `experiments/datasets/simulations/NONLINEAR_SLOPES_SIMULATION_20260914.md`.
+
+— Codex
+
 ## 2026-09-12 — Introduction Paragraph 1 candidates (Codex)
 
 At the author's request, reviewed the opening pages of the local Mukherjee,
