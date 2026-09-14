@@ -9,6 +9,21 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-14 — Prelim scope narrowed to original hard trimming (Codex)
+
+The author confirms that the prelim's primary theory and narrative should remain
+the original same-slope setting with $X\perp(W,\eta)$, deliberately decoupled
+sample splitting, and hard trimming. The main document may retain the baseline
+simulations and the original residual-indexed taxi analysis as evidence for this
+method. The differing-slopes model, its additional assumptions and proof sketch,
+and the fare-level taxi correction are deferred to appendix material and should
+not be presented as a co-equal main result. The presentation follows the same
+priority, with only a brief deferred-extension preview.
+
+— Codex
+
+---
+
 ## 2026-09-12 — Paragraph 1 drafting workflow follow-up (Codex)
 
 The author asked to reverse the candidate-prose insertion recorded below. The
