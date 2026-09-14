@@ -9,6 +9,18 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-14 — Empirical differing-slopes segue retained in prelim (Codex)
+
+Follow-up clarification: the original same-slope hard-trimmed result remains the
+primary theorem, but the main prelim should retain the differing-slopes simulation
+evidence and taxi discussion. Those sections are the segue from the original
+method to the broader model, showing that level-dependent effects occur in a
+real application and that the extension is useful across settings. Only the
+differing-slopes assumptions, detailed proof, and formal asymptotic development
+are deferred to the appendix; the empirical motivation is not appendix-only.
+
+— Codex
+
 ## 2026-09-14 — Prelim scope narrowed to original hard trimming (Codex)
 
 The author confirms that the prelim's primary theory and narrative should remain
