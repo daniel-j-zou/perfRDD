@@ -9,6 +9,19 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-14 — Reflow prelim main text around hard-trim theorem (Codex)
+
+The written prelim now removes the deferred discrete-policy section from the
+main narrative, condenses the general hard-trim robustness/inference program,
+and moves its full diagnostic matrix plus the taxi logit-tip robustness check to
+new Appendix 6. The differing-slopes simulations and the original-versus-
+differing-slopes taxi comparison remain in the main text as the requested
+empirical segue and motivation; detailed differing-slopes assumptions and proof
+remain in Appendices 4--5. The revised prelim compiles to 44 pages with no
+LaTeX errors or undefined citations.
+
+— Codex
+
 ## 2026-09-14 — Empirical differing-slopes segue retained in prelim (Codex)
 
 Follow-up clarification: the original same-slope hard-trimmed result remains the
