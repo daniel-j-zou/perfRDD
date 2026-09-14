@@ -9,6 +9,40 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-14 — Generated-index Bahadur lemma completed (Codex)
+
+Appendix 2, Block D of `manuscript/prelim/prelim.tex` now proves rather than
+assumes the local uniform expansion for the empirical quantile of
+`a'X`, uniformly over `||a-gamma|| <= C/sqrt(n_b)`. The proof uses four pieces:
+(i) a continuously differentiable local projection cdf with positive density,
+(ii) the derivative identity `partial_a F = -f E[X | a'X=q]`, (iii) the
+VC/Donsker property and local L2 continuity of halfspace indicators, and (iv)
+monotone cdf inversion after a uniform root-n localization. A primitive
+sufficient condition is also recorded: conditional on the other, possibly
+discrete, covariates, one continuously distributed covariate has a continuous
+dominated density and a nonzero index coefficient.
+
+The boundary CLT is now written for the actual same-fold OLS construction. Its
+influence function is the ordinary quantile score plus
+`m_p' H_X^{-1} X eta`; the cross-covariance is zero under `E(eta | X)=0`.
+Without that restriction the general variance is `Var(xi_p)` and must retain
+the covariance. The signed endpoint influence functions are displayed
+separately for the lower and upper boundary folds.
+
+Crossref metadata and the original-source landing pages were checked for the
+four citations used: Bahadur (1966), DOI `10.1214/aoms/1177699450`; Kiefer
+(1967), DOI `10.1214/aoms/1177698690`; Ghosh (1971), DOI
+`10.1214/aoms/1177693063`; and van der Vaart & Wellner (1996), DOI
+`10.1007/978-1-4757-2545-2`. The classical papers establish fixed-distribution
+quantile representations; they are not cited as proving generated-index
+uniformity. Ghosh's Theorem 1 gives the `o_p(n^{-1/2})` remainder needed for a
+CLT, while van der Vaart--Wellner Sections 2.5--2.6 supply the empirical-process
+and VC machinery. Manuscript content commit: `89aefc5`. The 45-page prelim
+compiled with no errors or undefined references,
+and the new pages were visually inspected.
+
+— Codex
+
 ## 2026-09-14 — Prune completed material from `To discuss.` (Codex)
 
 The top advisor-notes block in `prelim/prelim.tex` now points to the completed
