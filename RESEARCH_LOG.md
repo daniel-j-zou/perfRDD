@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-14 — Prune completed material from `To discuss.` (Codex)
+
+The top advisor-notes block in `prelim/prelim.tex` now points to the completed
+fixed-support and moving-boundary arguments in Appendices 2--3 and retains only
+open questions: the generated-index Bahadur lemma, final endpoint-sign
+bookkeeping, the optional expanding-support route, feasible consistency/Riesz
+convergence, and the substantive trimming choice. The revised prelim compiles
+to 43 pages with no LaTeX errors or undefined citations.
+
+— Codex
+
 ## 2026-09-14 — Reflow prelim main text around hard-trim theorem (Codex)
 
 The written prelim now removes the deferred discrete-policy section from the
