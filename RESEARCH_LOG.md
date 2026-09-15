@@ -9,6 +9,37 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Fixed buffered support adopted after Mukherjee check (Codex)
+
+Re-read Mukherjee--Banerjee--Ritov, *Estimation of a score-explained
+non-randomized treatment effect in fixed and high dimensions*, including Remark
+2.2 on the printed page 8 and the associated supplement. Their main estimator
+restricts the latent residual to a fixed compact interval, explicitly noting
+that this loses efficiency. They say that a slowly increasing interval could
+recover the lost tail observations, but would require a density bounded away
+from zero over the growing interval, a known rate for the minimum density,
+stronger global conditional-mean derivative bounds, and further tail
+bookkeeping; they defer that analysis as methodologically uninformative.
+
+The same conclusion applies here, with one important target-specific check.
+Because $\Phi$ and the retained latent-index interval $\mathcal J$ are fixed
+and compact, choose the deterministic outer density window with strict margin
+so that every relevant argument $\phi-\eta$ lies in its interior. If $T$ is
+unbounded, the omitted upper survival tail is then the same constant for every
+candidate $\phi$; setting that unknown constant to zero changes utility levels
+but not its score, curvature, or maximizer. Thus the fixed buffered window is
+not an asymptotic approximation to the policy choice and does not require the
+extra tail/density conditions in Remark 2.2. A bound chosen too narrowly would
+be different: the omitted tail would become $\phi$-dependent and would change
+the target, so the strict buffer condition is part of the theorem.
+
+The manuscript now uses only this fixed-support route. The optional growing-
+window subsection and its unresolved rate conditions were removed from the
+preliminary document and task board; the historical comparison is retained in
+this log for provenance.
+
+— Codex
+
 ## 2026-09-15 — Final moving-set and density-boundary audit (Codex)
 
 The remaining theory audit found three assumption/bookkeeping issues and no new
