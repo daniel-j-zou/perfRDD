@@ -1743,3 +1743,32 @@ targeted/regression tests. These experiments still do not provide the full
 generated-index/moving-boundary/density-Riesz variance theorem: generated variants
 are evaluated by Monte Carlo dispersion, while the analytic variance check remains
 oracle-index and conditional on fixed support.
+
+## 2026-09-15 — Simulation-section literature benchmark (Codex)
+
+Reviewed closely related threshold/RD and policy-inference papers. Marinescu,
+Triantafillou, and Kording (2022) use one small illustrative simulation figure and
+then a taxi application with 100 bootstrap samples; they do not present a
+conventional Monte Carlo section. Mukherjee, Banerjee, and Ritov (2021) state that
+no-splitting behavior is corroborated by simulations but explicitly leave those
+results out of the manuscript. Dong and Lewbel (2015) are primarily analytical
+plus an application, without a substantial Monte Carlo section. By contrast,
+Calonico, Cattaneo, and Titiunik (2014) include a dedicated coverage/interval-length
+Monte Carlo section and put additional DGP and implementation details in the
+supplement. Andrews, Kitagawa, and McCloskey's ``Inference on Winners'' uses
+several pages of simulations, multiple calibrated scenarios, competing procedures,
+and $10^4$ draws because simulation evidence is central to its inference contribution.
+
+Decision for PerfRDD: keep a compact main-text simulation package (baseline hard
+trim, differing-slopes misspecification, nonlinear negative control, and
+variance/coverage/rate checks) at roughly 700--1,000 words plus one or two
+tables/figures. Move the full robustness grid, implementation details, and extra
+diagnostics to the appendix or supplement. This is more validation than most
+threshold-optimization papers report, but materially lighter than the simulation
+sections of dedicated inference papers. Sources: Marinescu et al.
+<https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0276755>;
+Mukherjee et al. <https://arxiv.org/abs/2102.11229>; Dong--Lewbel
+<https://doi.org/10.1162/rest_a_00510>; Calonico--Cattaneo--Titiunik
+<https://mdcattaneo.github.io/papers/Calonico-Cattaneo-Titiunik_2014_ECMA.pdf>;
+Andrews--Kitagawa--McCloskey
+<https://scholar.harvard.edu/files/iandrews/files/inference_on_winners.pdf>.
