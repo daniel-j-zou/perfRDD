@@ -9,6 +9,30 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-14 — Mixed-covariate Bahadur extension formalized (Codex)
+
+Appendix 2 now contains a formal mixed-covariate projection lemma rather than
+only an extension remark. Write `X=(1,R,Z')'`, allow `Z` to have any fixed-
+dimensional distribution, and choose `R` so that `gamma_R != 0`. Conditional
+on `Z`, it is sufficient that `R` have a continuous density along the local
+projection boundary, dominated by `B(Z)` with
+`E[(1+||Z||)B(Z)]<infinity`, and that the induced projection density remain
+locally positive. Conditioning on `Z` turns the continuous-covariate integral
+into an expectation and yields the same derivative
+`partial_a F=-f_{a'X}(q)E[X|a'X=q]`.
+
+The fixed-dimensional halfspace VC argument, local stochastic
+equicontinuity, quantile inversion, and same-fold boundary CLT are
+distribution-free beyond those population smoothness inputs, so they carry
+over without modification. The ordinary result still excludes a projection
+with an atom at a trimming quantile. This extension matches applications with
+continuous quantities plus indicators or counts; a fully atomic index would
+require different quantile asymptotics. Manuscript content commit: `e63177e`.
+The 46-page prelim compiled without undefined references, and pages 26--28
+were visually inspected.
+
+— Codex
+
 ## 2026-09-14 — Bahadur proof recast for continuous covariates (Codex)
 
 At the author's direction, Appendix 2 now states the generated-index quantile
