@@ -9,6 +9,18 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-14 — Introduction reference audit implemented (Codex)
+
+Follow-up to the audit above: the two verified metadata corrections and the
+overlap-trimming wording correction were applied to both manuscript bibliography
+copies and the active introduction. The Mukherjee--Banerjee--Ritov record now cites
+the 2026 *Bernoulli* publication; Lousdal now uses article number 1 and its DOI;
+the Wibisono typo is corrected; and the Crump comparison now describes target-
+population trimming. The published manuscript commits are `645c3a9` and
+`c3acfb2`; the latest 47-page worktree build has no undefined citations.
+
+— Codex
+
 ## 2026-09-14 — Introduction reference audit (Codex)
 
 Audited all 22 bibliography keys cited in `manuscript/prelim/prelim.tex` §1.1--1.2
