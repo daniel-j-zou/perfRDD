@@ -9,6 +9,23 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Appendix 1 bridge draft (Codex)
+
+Replaced the Appendix 1 TODO boxes with a first draft that records the latent-index
+and outcome-model identification conditions, supported target, estimator map, spline
+and fixed-support conventions, rate window, and the distinction between theorem and
+numerical ridge fitting. Added a crosswalk separating inherited score-explained
+ingredients from the new threshold-selection, hard-trimming, boundary, and foldwise
+CLT modules. The detailed expansions remain in Appendices 2--3.
+
+The clean worktree based on manuscript commit `e6a493b` compiled with
+`latexmk -pdf -interaction=nonstopmode -halt-on-error prelim.tex` after the final
+run, with no unresolved citations or references. The manuscript change was pushed
+as commits `9c759e2` and `1567d5d`. The local in-progress manuscript build also
+completed successfully.
+
+— Codex
+
 ## 2026-09-15 — Prelim presentation structure and slide audit (Codex)
 
 The current Sections 1--4 support a four-act, approximately 50-minute presentation:
