@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Boundary bookkeeping and theorem-scope audit (Codex)
+
+The main hard-trim theory had two small but consequential notation gaps. The
+endpoint score loadings are now defined as
+`b_l=b_{l_0}(phi_epsilon^*)` and `b_u=b_{u_0}(phi_epsilon^*)`, and
+`c_bdry` is defined as the combined limiting fraction of the two equal-size
+boundary folds. The feasible-consistency discussion now includes crossing due
+to the generated residual, not only crossing due to estimated endpoints.
+
+The audit also records the remaining substantive theory task: the theorem's
+`Ψ_main,epsilon` is still a deliberate collection placeholder and must be
+expanded into the fold-specific score and generated-index loadings before the
+hard-trim CLT is presented as fully self-contained. The omitted tail constant
+in the fixed density window is now described correctly as unknown and set to
+zero, since it shifts utility by a phi-independent constant only.
+
+Manuscript commits `dabff22` and `28fa525` were pushed to Overleaf after a
+successful 48-page LaTeX build with no errors or undefined references.
+
+— Codex
+
 ## 2026-09-14 — Riesz representation spaces clarified (Codex)
 
 The hard-trimming Riesz argument in `manuscript/prelim/prelim.tex` now identifies
