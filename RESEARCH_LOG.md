@@ -9,6 +9,25 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Supported-optimum identification tail condition repaired (Codex)
+
+The identification lemma in Appendix 3 previously claimed that strict
+log-concavity alone makes the trimmed tilt concentrate at the lower and upper
+endpoints as the candidate cutoff tends to minus or plus infinity. That claim
+is not valid for all strictly log-concave densities: exponential-tail examples
+can leave a nondegenerate limiting tilt. The lemma now adds the steep-tail
+condition `lim_{t->-infinity}(log g)'(t)=+infinity` and
+`lim_{t->+infinity}(log g)'(t)=-infinity`. This makes the endpoint-ratio
+argument valid and preserves the stated primitive sign condition
+`alpha(l_0)<c<alpha(u_0)`. An alternative is to assume the finite-Φ signs of
+the tilted mean directly; the manuscript retains the more interpretable
+steep-tail route.
+
+Manuscript commits `f369f82` and `3ce44d0` were pushed to Overleaf after a
+successful 48-page LaTeX build with no errors or undefined references.
+
+— Codex
+
 ## 2026-09-15 — Boundary bookkeeping and theorem-scope audit (Codex)
 
 The main hard-trim theory had two small but consequential notation gaps. The
