@@ -9,6 +9,26 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Prelim presentation structure and slide audit (Codex)
+
+The current Sections 1--4 support a four-act, approximately 50-minute presentation:
+question and target, estimator, large-sample theory, and evidence with the
+differing-slopes extension. The main talk in `../manuscript/prelim/slides.tex` now
+implements that structure. Filled frames use the current theorem, simulation values,
+and taxi figures from the manuscript. Backup frames remain explicit placeholders for
+committee questions.
+
+The deck follows the checked slide-design guidance that each frame carries one main
+message, the title states the message, and technical detail is concentrated in the
+spoken explanation and a small number of readable equations. `latexmk -pdf
+-interaction=nonstopmode -halt-on-error` completed successfully in a clean worktree,
+producing a 32-page deck. Visual inspection covered the theory and empirical frames.
+
+The slide source and changelog were pushed to the Overleaf repository in commits
+`ed52453` and `28f50ca`.
+
+— Codex
+
 ## 2026-09-15 — Fixed buffered support adopted after Mukherjee check (Codex)
 
 Re-read Mukherjee--Banerjee--Ritov, *Estimation of a score-explained
