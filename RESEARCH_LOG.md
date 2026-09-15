@@ -9,6 +9,28 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-14 — Riesz representation spaces clarified (Codex)
+
+The hard-trimming Riesz argument in `manuscript/prelim/prelim.tex` now identifies
+the represented objects and their spaces explicitly. The outcome block is a
+weighted Hilbert space on the fixed outer nuisance region, with inner product
+`E[S_J h_1 h_2]` and the intercept removed from the covariate block because the
+baseline spline contains a constant. Its Riesz functional is the treatment-effect
+component of the negative policy score, not the function `alpha` itself; the
+finite-sieve representer is the exact `Q_{Z,K,J}^{-1}` projection and converges in
+the selected `L_2` norm. The density block uses Lebesgue `L_2(T)`, with the hard
+trim indicator in the representer; its finite-sieve version is the exact `L_2`
+projection and only undifferentiated convergence is used for the boundary step.
+
+The manuscript changes are in commits `4721161` (content) and `174274b`
+(changelog), pushed to the Overleaf remote. `latexmk -pdf -interaction=nonstopmode
+-halt-on-error prelim.tex` succeeds with no LaTeX errors or undefined citations or
+references; the 47-page worktree build's Riesz pages were visually inspected.
+The deliberate split and hard-supported target are unchanged. Concurrent Claude
+edits remain uncommitted in the manuscript worktree and were preserved.
+
+— Codex
+
 ## 2026-09-14 — Introduction reference audit implemented (Codex)
 
 Follow-up to the audit above: the two verified metadata corrections and the
