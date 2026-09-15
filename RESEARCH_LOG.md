@@ -1789,3 +1789,16 @@ Mukherjee et al. <https://arxiv.org/abs/2102.11229>; Dong--Lewbel
 <https://mdcattaneo.github.io/papers/Calonico-Cattaneo-Titiunik_2014_ECMA.pdf>;
 Andrews--Kitagawa--McCloskey
 <https://scholar.harvard.edu/files/iandrews/files/inference_on_winners.pdf>.
+
+## 2026-09-15 — Main-text simulation scope decision (Codex)
+
+Following the literature benchmark and author direction, the prelim's pre-taxi
+Numerical study now answers only centering and the root-$n$ rate. The variance,
+coverage, bootstrap, and broader robustness diagnostics remain appendix material.
+The fold-construction TODO is resolved by calling the theorem-facing comparison
+the ``decoupled block split'' and distinguishing it from five-fold cross-fitting
+and full-sample reuse. The differing-slopes simulation evidence is placed after
+the taxi application, where the level-dependent extension is motivated, and is
+limited in the main text to the correctly specified linear comparison and the
+nonlinear negative control. The manuscript change was compiled successfully and
+pushed in commits `69090e1` and `34910ae` in the Overleaf repository.
