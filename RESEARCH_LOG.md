@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-14 — Bahadur proof recast for continuous covariates (Codex)
+
+At the author's direction, Appendix 2 now states the generated-index quantile
+proof first under a regular joint density for all nonconstant covariates. Writing
+`X=(1,R,V')'` and choosing a continuous coordinate with `gamma_R != 0`, the
+proof expresses the projection cdf as an integral up to the hyperplane boundary
+`s(a,q,v)`. Dominated differentiation yields the projection density and the
+identity `partial_a F(a,q)=-f_{a'X}(q)E[X|a'X=q]`, which supplies the population
+linearization used by the uniform Bahadur argument. The intercept is explicitly
+exempt from the continuity condition.
+
+The earlier mixed-covariate result is retained only as an extension remark. If
+some remaining coordinates are discrete, conditioning on them reduces the
+derivation to the same calculation, provided one coordinate with a nonzero
+index coefficient has a continuous dominated conditional density. The VC,
+stochastic-equicontinuity, quantile-inversion, and same-fold covariance pieces
+are unchanged. Manuscript content commit: `cd41a19`. The 45-page prelim builds
+without undefined references and the revised pages 25--27 were visually checked.
+
+— Codex
+
 ## 2026-09-14 — Generated-index Bahadur lemma completed (Codex)
 
 Appendix 2, Block D of `manuscript/prelim/prelim.tex` now proves rather than
