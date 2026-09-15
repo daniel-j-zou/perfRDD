@@ -9,6 +9,42 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-14 — Introduction reference audit (Codex)
+
+Audited all 22 bibliography keys cited in `manuscript/prelim/prelim.tex` §1.1--1.2
+against publisher/DOI metadata and, for the three closest papers, the local source
+PDFs. The document builds to 46 pages with no undefined citations. The two bibliography
+copies (`references.bib` and `prelim/references.bib`) are currently byte-identical.
+
+Two records need correction. `Dep2021` is the 2021 arXiv record for Mukherjee,
+Banerjee & Ritov, but the paper is now published in *Bernoulli* 32(4), 2569--2593
+(2026), DOI `10.3150/24-BEJ1832`; the entry should become an article record and its
+year should be updated. `Lousdal2018` is *Emerging Themes in Epidemiology* 15,
+article 1, DOI `10.1186/s12982-018-0069-7`; `pages={1--7}` incorrectly treats the
+seven-page PDF length as a journal page range.
+
+Two citation sentences overstate what their sources support. Robinson (1988),
+Schick (1986), and Yatchew (1997) support partial-linear/semiparametric estimation,
+but not the draft's joint claim that the outcome model “is fit by spline or series
+methods”: Robinson uses residualization/nonparametric smoothing and Yatchew uses
+differencing. Abadie & Imbens (2016) studies propensity-score matching for ATE/ATET
+under unconfoundedness, not an RDD estimator targeting a fixed-cutoff effect; the
+relevant connection is that Wibisono et al.'s fixed-cutoff ATT procedure uses residual
+matching inspired by that literature. The Crump et al. trimming analogy is valid, but
+the contrast should say that their propensity-score rule trims to a precision-oriented
+ATE target population; it is not naturally characterized as reweighting the welfare
+integrand.
+
+The remaining cited-paper summaries and core bibliographic metadata are supported,
+including the Mukherjee/Wibisono score-explained results, Marinescu et al.'s threshold
+optimization, Dong & Lewbel's marginal threshold treatment effect, policy learning,
+triangular models, and the IV exclusion-restriction comparison. Many otherwise-correct
+records omit DOI fields; that is a normalization opportunity, not a substantive error.
+No manuscript or bibliography edits were made because this was a review-only request
+and the introduction files are actively claimed by Claude.
+
+— Codex
+
 ## 2026-09-14 — Mixed-covariate Bahadur extension formalized (Codex)
 
 Appendix 2 now contains a formal mixed-covariate projection lemma rather than
