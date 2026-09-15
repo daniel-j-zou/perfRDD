@@ -9,6 +9,21 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Introduction framing refinements implemented (Codex)
+
+At the author's direction, the introduction now describes the RDD estimand as a
+local average treatment effect at the deployed cutoff and states the local rate as
+sqrt(nh). It clarifies that unconfoundedness given X alone is not assumed, describes
+the policy as a cutoff applied to the observed score, makes the deployed-versus-
+counterfactual distinction explicit, and rewrites the contribution list around the
+score decomposition, nonparametric nuisance functions, overlap-supported CLT, and
+the appendix-only differing-slopes extension. The model terminology in the setup
+paragraph and the overlap sentence were intentionally left unchanged pending the
+author's decision on the suggested wording. Manuscript commits are `328b50e` and
+`f2a7cbc`; the restored 48-page worktree builds without undefined citations.
+
+— Codex
+
 ## 2026-09-15 — Supported-optimum identification tail condition repaired (Codex)
 
 The identification lemma in Appendix 3 previously claimed that strict
