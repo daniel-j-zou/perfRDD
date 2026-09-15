@@ -9,6 +9,30 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Final moving-set and density-boundary audit (Codex)
+
+The remaining theory audit found three assumption/bookkeeping issues and no new
+conceptual obstruction. The moving-set lemma now explicitly assumes a uniformly
+bounded second derivative of its score integrand \(F_\phi(t)\) on a neighborhood
+of the retained residual support; this is what justifies the \(O_p(n^{-1})\)
+smooth-factor Taylor remainder (for the current \(F_\phi\), it follows from
+local \(C^2\) smoothness of \(\alpha\) and \(g\)). The boundary-integral
+remainder was weakened from \(O_p(n^{-1})\) to \(o_p(n^{-1/2})\), which follows
+from the stated endpoint-density and conditional-mean continuity and is
+sufficient for the root-\(n\) expansion. Finally, the density derivative and
+value rates are stated on the fixed interior argument region
+\(\mathcal T_{\mathrm{rel}}\Subset\mathcal T\), because zero-trace splines
+cannot uniformly approximate a generally nonzero density at the artificial
+outer endpoints; quasi-uniform knots are now explicit.
+
+These changes leave the estimator, supported estimand, and rate window
+unchanged. The manuscript compiles to 48 pages with no LaTeX errors or
+undefined citations/references. The corresponding manuscript edits remain in
+the active shared worktree for the concurrent theory pass and were not bundled
+into a separate commit.
+
+— Codex
+
 ## 2026-09-15 — Introduction framing refinements implemented (Codex)
 
 At the author's direction, the introduction now describes the RDD estimand as a
