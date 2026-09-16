@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-16 - Presentation font decision (Codex)
+
+The presentation remains a standard Beamer deck using the built-in `AnnArbor`
+theme and Michigan color overrides. The Fira Sans and Fira Mono packages were
+removed from `manuscript/prelim/slides.tex` at the author's request. A successful
+`latexmk -pdf -interaction=nonstopmode -halt-on-error slides.tex` build and
+`pdffonts` audit confirm that the compiled deck now uses Beamer's standard
+Computer Modern sans-serif (`CMSS`) and Computer Modern math fonts.
+
+-- Codex
+
 ## 2026-09-16 - Equal-split tradeoff documented (Codex)
 
 Added the equal-allocation tradeoff to the prelim.  For the finalized eight
