@@ -284,7 +284,7 @@ def run_replication(
     result: Dict[str, Any] = {"n": int(n), "seed": int(seed)}
 
     # The standard theorem-facing estimator uses one fixed eight-block role
-    # assignment and five first-stage fits.
+    # assignment and five separate first-stage fits (not five cross-fit folds).
     theory_folds = make_theory_folds(n, seed)
     theory_component, theory_diag = _theory_decoupled_component(
         data, theory_folds, density_method

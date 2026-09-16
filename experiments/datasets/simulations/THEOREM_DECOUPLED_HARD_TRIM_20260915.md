@@ -58,7 +58,7 @@ seeded, disjoint blocks:
 | `density` | Gaussian running-variable density fit |
 | `utility` | held-out hard-trimmed criterion and optimization |
 
-The five first-stage fits are therefore `gamma_alpha`, `gamma_g`, `gamma_U`,
+The five separate first-stage fits are therefore `gamma_alpha`, `gamma_g`, `gamma_U`,
 and the two boundary fits.  The theorem-facing estimator is reported as
 `decoupled_8block`.  Role rotation and full-sample reuse are retained only as
 empirical implementation comparisons.
