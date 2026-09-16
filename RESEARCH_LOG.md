@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-16 - Equal-split tradeoff documented (Codex)
+
+Added the equal-allocation tradeoff to the prelim.  For the finalized eight
+blocks, n_q=n/8+O(1), n_min is asymptotically proportional to n, and every
+lambda_{n,q} tends to sqrt(8).  Thus equal splitting changes variance
+constants but introduces no asymptotic centering or rate loss under the
+decoupled theorem.  The finite-sample cost is noisier spline, endpoint, and
+evaluation components because each uses about one eighth of the data.  An
+ideal unequal allocation would depend on unknown block influence variances,
+so equal blocks remain the transparent default; rotations and full-sample
+reuse are diagnostics outside the theorem.
+
+-- Codex
+
 ## 2026-09-16 - Final fold-size and proof consistency check (Codex)
 
 Rechecked the eight-block implementation at n=1000, 1001, and 10000; every
