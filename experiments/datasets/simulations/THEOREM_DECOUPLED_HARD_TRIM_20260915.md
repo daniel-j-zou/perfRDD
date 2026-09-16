@@ -1,5 +1,30 @@
 # Theorem-aligned fully decoupled hard-trim simulation (2026-09-15)
 
+## Fixed, role-rotated, and full-sample comparison (2026-09-15)
+
+The simulation driver now reports the three requested sample-use cases:
+
+1. `decoupled_8block`: one fixed theorem-aligned role assignment;
+2. `rotated_8block`: all eight cyclic role assignments over the same physical
+   eight-way partition, with the eight held-out criteria pooled before taking
+   the argmax; and
+3. `full_sample`: every first-stage fit, nuisance fit, and utility evaluation
+   uses the full sample.
+
+The rotated estimator is an implementation diagnostic, not a consequence of
+the single-split CLT: its eight criteria share observations across rotations,
+so its variance includes cross-rotation covariance.
+
+A short Gaussian-density check (30 replications at each of `n=1,000, 2,000,
+4,000`) illustrates the finite-sample trade-off. At `n=4,000`, RMSE was
+`0.322` for the fixed split, `0.443` for the rotated split, and `0.106` for
+full-sample reuse; boundary rates were 0%, 7%, and 0%, respectively. At
+`n=8,000` (20 replications), the corresponding RMSEs were `0.198`, `0.074`,
+and `0.072`, with no boundary solutions. The small-sample reversal is driven
+by unstable one-eighth nuisance fits; the rotation stabilizes once each block
+contains enough observations. These are diagnostic runs, not replacements
+for the 200-replication theorem-matched rate table.
+
 ## Purpose
 
 The earlier “decoupled” benchmark used six role blocks but reused one main

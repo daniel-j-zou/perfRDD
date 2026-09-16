@@ -1,13 +1,15 @@
 """Finite-sample comparison for exact hard-trimming implementations.
 
 All estimators maximize the same hard-support-trimmed population criterion.
-They differ only in sample reuse and regularization:
+The primary comparison is deliberately explicit about sample reuse:
 
-* ``decoupled_8block`` uses the theorem-aligned disjoint blocks: separate
-  first-stage source folds for the outcome, density, and evaluation blocks,
-  plus independent lower- and upper-boundary blocks;
-* ``crossfit_5fold`` evaluates every observation with out-of-fold nuisances;
-* ``full_ridge_*`` fits and evaluates on the full sample over a ridge grid.
+* ``decoupled_8block`` uses one theorem-aligned assignment of eight disjoint
+  blocks: separate first-stage source folds for the outcome, density, and
+  evaluation blocks, plus independent lower- and upper-boundary blocks;
+* ``rotated_8block`` repeats that fully decoupled construction over all eight
+  cyclic role assignments and maximizes the aggregate held-out criterion;
+* ``full_sample`` fits every nuisance and evaluates the criterion on the same
+  sample.  ``full_ridge_*`` adds optional regularized versions of that fit.
 
 Every variant fits its outcome nuisance spline on the deterministic
 neighborhood J used in the theory audit.  The T distribution can be estimated
@@ -119,6 +121,30 @@ def make_crossfit_folds(n: int, seed: int, n_folds: int = 5) -> list[np.ndarray]
         np.asarray(chunk, dtype=int)
         for chunk in np.array_split(rng.permutation(n), n_folds)
     ]
+
+
+def make_role_rotated_folds(
+    n: int, seed: int, rotation: int,
+) -> Dict[str, np.ndarray]:
+    """Rotate the eight theorem roles over one fixed eight-way partition.
+
+    A single call returns a valid theorem-facing split.  Across rotations,
+    every physical block serves every role exactly once.  The partition itself
+    is held fixed so that the comparison changes only role assignment, not the
+    random sample split.  The rotated estimator remains an implementation
+    diagnostic: averaging the eight criteria introduces cross-rotation
+    covariance that is not covered by the single-split CLT.
+    """
+    names = tuple(THEORY_FOLD_FRACTIONS)
+    if not 0 <= int(rotation) < len(names):
+        raise ValueError(f"rotation must lie in [0, {len(names) - 1}]")
+    base = make_theory_folds(n, seed)
+    blocks = [base[name] for name in names]
+    shift = int(rotation)
+    return {
+        name: np.asarray(blocks[(position + shift) % len(names)], dtype=int)
+        for position, name in enumerate(names)
+    }
 
 
 def _boundaries_from_T(T_train: np.ndarray) -> tuple[float, float]:
@@ -251,9 +277,14 @@ def _crossfit_label(n_folds: int) -> str:
 def estimator_labels(
     ridge_grid: Sequence[float], n_folds: int = 5,
 ) -> list[str]:
-    return ["decoupled_8block", _crossfit_label(n_folds)] + [
-        _ridge_label(float(value)) for value in ridge_grid
-    ]
+    del n_folds  # Retained in the public signature for backwards compatibility.
+    labels = ["decoupled_8block", "rotated_8block", "full_sample"]
+    labels.extend(
+        _ridge_label(float(value))
+        for value in ridge_grid
+        if float(value) > 0.0
+    )
+    return labels
 
 
 def run_replication(
@@ -270,8 +301,8 @@ def run_replication(
     all_idx = np.arange(n)
     result: Dict[str, Any] = {"n": int(n), "seed": int(seed)}
 
-    # The theorem-facing estimator uses eight disjoint blocks and five
-    # first-stage fits.  Keep it separate from ordinary K-fold cross-fitting.
+    # The standard theorem-facing estimator uses one fixed eight-block role
+    # assignment and five first-stage fits.
     theory_folds = make_theory_folds(n, seed)
     theory_component, theory_diag = _theory_decoupled_component(
         data, theory_folds, density_method
@@ -294,28 +325,52 @@ def run_replication(
         "theory_first_stage_diagnostics": theory_diag,
     })
 
-    # Standard K-fold cross-fitting: held-out evaluation, training-fold nuisances.
-    components = []
-    for eval_idx in make_crossfit_folds(n, seed, n_folds):
-        train_mask = np.ones(n, dtype=bool)
-        train_mask[eval_idx] = False
-        train_idx = all_idx[train_mask]
-        components.append(
-            _component(data, train_idx, eval_idx, 0.0, density_method)
+    # Role-rotated fully decoupled implementation.  Each rotation is itself a
+    # valid eight-block split; aggregate the held-out criteria before taking
+    # the argmax rather than averaging the eight threshold estimates.
+    rotated_components = []
+    rotated_diagnostics = []
+    for rotation in range(len(THEORY_FOLD_FRACTIONS)):
+        rotated_folds = make_role_rotated_folds(n, seed, rotation)
+        component, diagnostics = _theory_decoupled_component(
+            data, rotated_folds, density_method
         )
-    phi, boundary, retained = _maximize_components(components)
-    crossfit_label = _crossfit_label(n_folds)
+        rotated_components.append(component)
+        rotated_diagnostics.append(diagnostics)
+    phi, boundary, retained = _maximize_components(rotated_components)
     result.update({
-        f"{crossfit_label}_phi": phi,
-        f"{crossfit_label}_boundary": boundary,
-        f"{crossfit_label}_retention": retained / n,
-        f"{crossfit_label}_density_basis": float(np.mean([
-            _density_basis_count(part.T_density) for part in components
+        "rotated_8block_phi": phi,
+        "rotated_8block_boundary": boundary,
+        "rotated_8block_retention": retained / n,
+        "rotated_8block_density_basis": float(np.mean([
+            _density_basis_count(part.T_density)
+            for part in rotated_components
         ])),
+        "rotated_8block_rotations": len(rotated_components),
+        "rotated_8block_max_gamma_error": float(max(
+            max(
+                diagnostics[key]
+                for key in (
+                    "gamma_alpha_error", "gamma_g_error", "gamma_U_error",
+                    "gamma_l_error", "gamma_u_error",
+                )
+            )
+            for diagnostics in rotated_diagnostics
+        )),
     })
 
-    # Full-sample application-style variants, including its default ridge 0.01.
+    # Full-sample application-style estimator and optional ridge variants.
+    component = _component(data, all_idx, all_idx, 0.0, density_method)
+    phi, boundary, retained = _maximize_components([component])
+    result.update({
+        "full_sample_phi": phi,
+        "full_sample_boundary": boundary,
+        "full_sample_retention": retained / n,
+        "full_sample_density_basis": _density_basis_count(component.T_density),
+    })
     for ridge_scale in ridge_grid:
+        if float(ridge_scale) <= 0.0:
+            continue
         component = _component(
             data, all_idx, all_idx, float(ridge_scale), density_method
         )
@@ -450,9 +505,12 @@ def run_experiment(
     rows.sort(key=lambda row: (int(row["n"]), int(row["seed"])))
     summary = summarize(rows, ridge_grid, n_folds)
     payload = {
-        "description": "Exact hard trimming: sample reuse and ridge comparison",
+        "description": (
+            "Exact hard trimming: fixed decoupling, role-rotated decoupling, "
+            "and full-sample reuse"
+        ),
         "target": population_truth(),
-        "n_folds": int(n_folds),
+        "legacy_n_folds_argument": int(n_folds),
         "density_method": density_method,
         "deterministic_T_density_support": (
             list(T_DENSITY_SUPPORT) if density_method == "spline" else None
@@ -462,6 +520,11 @@ def run_experiment(
         "deterministic_nuisance_support": list(NUISANCE_SUPPORT),
         "decoupled_design": "eight disjoint blocks; five role-specific first-stage fits",
         "decoupled_fold_fractions": THEORY_FOLD_FRACTIONS,
+        "rotated_design": (
+            "all eight cyclic role assignments over one fixed eight-way "
+            "partition; aggregate held-out criteria"
+        ),
+        "rotated_role_count": len(THEORY_FOLD_FRACTIONS),
         "replications": int(reps),
         "summary": summary,
     }

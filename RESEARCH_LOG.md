@@ -9,6 +9,32 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Fixed, role-rotated, and full-sample hard-trim comparison (Codex)
+
+The hard-trim simulation driver now distinguishes the three requested sample-use
+cases. `decoupled_8block` is one fixed theorem-aligned assignment of eight
+disjoint role blocks and five first-stage fits. `rotated_8block` cycles all eight
+role assignments over the same physical partition and maximizes the pooled
+held-out criterion. `full_sample` fits every nuisance and evaluates on all rows;
+positive ridge values remain optional `full_ridge_*` diagnostics. The former
+five-fold row was an ordinary cross-fitting benchmark, not the theorem-facing
+estimator, and is no longer part of the primary comparison.
+
+Added `make_role_rotated_folds` and tests that verify every rotation is a valid
+partition and that each physical block serves each role once. The short Gaussian
+check (`n={1000,2000,4000}`, 30 replications) had RMSE at `n=4000` of `0.322`
+(fixed), `0.443` (rotated), and `0.106` (full sample); at `n=8000` in a 20-
+replication follow-up, the values were `0.198`, `0.074`, and `0.072`. This
+finite-sample crossover is consistent with noisy one-eighth nuisance fits at
+small `n`; the role rotation becomes competitive once block sizes are adequate.
+The rotated average has cross-rotation covariance and remains outside the
+single-split CLT. Targeted tests and syntax checks pass. Code changes are in the
+working tree pending commit/push.
+
+— Codex
+
+---
+
 ## 2026-09-15 — Clarify theorem-matched spline nuisance in manuscript (Codex)
 
 Section 5 now explicitly states that the outcome and density nuisances are
