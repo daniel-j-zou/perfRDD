@@ -34,6 +34,17 @@ the taxi data use a weak threshold (`Q >= 15`) while the theorem is written with
 
 — Codex
 
+## 2026-09-15 — Fixed-support operational clarification (Codex)
+
+Follow-up to the proof audit: the manuscript now states explicitly that the
+outer nuisance interval `J` is chosen a priori from a scientific or measurement
+range, while the theorem assumes that this fixed interval covers the unknown
+population trim window `[l_0,u_0]` with positive margin. This resolves the
+operational ambiguity without making `J` data-dependent. The corresponding
+manuscript commits are `7367de6` and `aa1f931`.
+
+— Codex
+
 ## 2026-09-15 — Full manuscript reference audit (Codex)
 
 Audited `../manuscript/references.bib` and every citation in
