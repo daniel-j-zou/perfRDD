@@ -9,6 +9,28 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Complete page-35 proof-expansion TODO (Codex)
+
+In `../manuscript/prelim/prelim.tex`, replaced the Appendix 2 collection
+placeholder for `\(\Psi_{{\rm main},\epsilon}\)` with an explicit score
+decomposition. The draft now displays the direct score block, outcome and
+density residual blocks, the evaluation-fold moving-set loading, the finite-
+sieve-to-limit outcome loading, and the fixed-buffer weak integration-by-parts
+density loading. It also records the signs of the generated-index terms and
+states how designated honest folds and fold-fraction rescaling enter the
+notation. The corresponding item in “Remaining small proof obligations” is
+marked closed. This closes the page-35 TODO only; the other proof obligations
+remain open.
+
+Verification: `latexmk -pdf -interaction=nonstopmode -halt-on-error
+prelim.tex` completed successfully in `../manuscript/prelim`, producing a
+46-page PDF with no unresolved references or citations. Existing overfull-box
+warnings remain layout warnings only.
+
+— Codex
+
+---
+
 ## 2026-09-15 — Appendix 1 bridge draft (Codex)
 
 Replaced the Appendix 1 TODO boxes with a first draft that records the latent-index
