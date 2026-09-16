@@ -9,6 +9,51 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-16 - Final fold-size and proof consistency check (Codex)
+
+Rechecked the eight-block implementation at n=1000, 1001, and 10000; every
+role block is nonempty and the counts sum exactly to n.  The focused Gaussian
+baseline and regularization suites pass (8 tests).  Rebuilt
+`manuscript/prelim/prelim.tex` after replacing the generic Bahadur prose's
+sample-size symbol by m (with m=n_b in the boundary lemma); the 37-page PDF
+has no undefined citations, duplicate labels, or LaTeX errors.
+
+The fold audit found no proof-breaking mismatch.  Evaluation, outcome,
+density, and three first-stage source sums use their own n_q^{-1/2} CLTs;
+the lower and upper endpoint terms use n_l^{-1/2} and n_u^{-1/2}, with the
+same-fold quantile/OLS covariance retained in sigma_p^2.  The theorem's
+lambda_{n,q}=sqrt(n/n_q) factors produce the total-sample normalization, and
+the n_min spline/moving-set rates are equivalent to the old total-n rates
+under positive limiting fold fractions.  The only substantive theorem-level
+check still conditional is a primitive unregularized-spline derivative rate
+that implies (R5); bootstrap validity remains intentionally unclaimed.
+
+-- Codex
+
+## 2026-09-16 - Explicit fold-size bookkeeping and theory audit (Codex)
+
+Verified the finalized theorem-facing implementation in
+`experiments/scripts/hard_trim_gaussian_baseline.py`: the eight roles
+`gamma_alpha`, `gamma_g`, `gamma_U`, `boundary_l`,
+`boundary_u`, `outcome`, `density`, and `utility` form a partition,
+each with limiting fraction 1/8 up to integer rounding.  A direct check at
+n=1000,1001,10000 confirmed that the fold counts sum to n; the existing
+cross-fit regularization tests also pass (`python3 -m unittest -q
+experiments.tests.test_hard_trim_crossfit_regularization`, 3 tests).
+
+Updated the prelim theorem and estimator map to use explicit block sizes
+n_q, total n=sum_q n_q, n_min, limiting fractions pi_q, and
+lambda_{n,q}=sqrt(n/n_q).  The CLT now displays six non-boundary block sums
+and the two endpoint terms with their own fold weights; the variance is the
+corresponding sum of pi_q^{-1}-weighted variances.  Spline and moving-set
+remainders use n_min, which is equivalent to the old total-n rates when all
+fractions are positive.  The remaining
+theorem-level author check is the primitive spline derivative-rate implication
+behind high-level condition (R5); the fold bookkeeping, Riesz, Bahadur,
+moving-set, density-boundary, and decoupled CLT assembly checks are explicit.
+
+-- Codex
+
 ## 2026-09-16 - Reference audit cleanup (Codex)
 
 Applied the reference-audit fixes in `manuscript/references.bib` and the synced
