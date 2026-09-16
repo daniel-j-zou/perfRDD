@@ -9,6 +9,35 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Full manuscript reference audit (Codex)
+
+Audited `../manuscript/references.bib` and every citation in
+`../manuscript/prelim/prelim.tex`. The bibliography has 35 entries, 26 of
+which are cited in the prelim. All 26 cited keys resolve to real works through
+publisher, DOI, Crossref, NBER, or arXiv records. There are no missing citation
+keys, duplicate keys, or BibTeX warnings in the current prelim build.
+
+Metadata follow-ups are needed before finalizing the bibliography. The
+`Montreuil2024` entry does not match the source: the verified title is
+“A Two-Stage Learning-to-Defer Approach for Multi-Task Learning,” with authors
+Yannis Montreuil, Shu Heng Yeo, Axel Carlier, Lai Xing Ng, and Wei Tsang Ooi.
+The work has a 2024 arXiv version and a later ICML/PMLR version. The
+`MaoMohri2024` entry also has a published ICML/PMLR version that should replace
+the arXiv-only metadata if the online paper cites the final version. The
+`Dep2021` key is a legacy key for the journal version published in 2026.
+
+Recommended additions or citation placements for the prelim are Hahn, Todd,
+and van der Klaauw (2001) for canonical RD identification; Imbens and Lemieux
+(2008) and Cattaneo and Titiunik (2022) for RD reviews; Porter (2003), already
+in the bibliography, for the RD convergence-rate statement; van der Vaart
+(1998), already in the bibliography, for argmax/M-estimation; and Newey (1997)
+for series and regression-spline rates. The IV contrast currently uses the
+generic Lousdal (2018) primer, which is real but weaker than a core econometric
+reference such as Imbens and Angrist (1994). No bibliography edits were made in
+this audit.
+
+— Codex
+
 ## 2026-09-15 — Theorem-matched role-rotation rerun (Codex)
 
 Completed the requested comparison with the spline-density DGP: one fixed
