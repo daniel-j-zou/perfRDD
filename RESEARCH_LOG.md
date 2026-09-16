@@ -9,6 +9,31 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Final hard-trim proof and clarity audit (Codex)
+
+Audited `manuscript/prelim/prelim.tex` from the supported target through the
+decoupled-split CLT. The moving-set signs are internally consistent: the lower
+endpoint contributes `-b_l Delta_l` to the criterion and `+b_l Delta_l` to the
+score, while the upper endpoint has the opposite pair; both quantile-to-endpoint
+maps carry a minus sign. The fixed-buffer density repair uses zero outer trace
+and weak integration by parts, retaining the two internal hard-trim masses. The
+generated-index Bahadur argument is stated under the continuous and mixed-
+covariate conditions, with the OLS moment `E||X eta||^2 < infinity` now listed
+explicitly.
+
+Clarity edits make the identification lower bound and feasible derivative
+consistency explicit as (R1) and (R5), distinguish the continuous theorem
+optimizer from a grid implementation, and point readers to Appendices 2--3 for
+the complete proof modules. The proof map and author-check list now reflect the
+closed endpoint-sign audit. The manuscript compiles to a 35-page PDF with no
+undefined or duplicate references and no overfull boxes from the edited proof
+displays. Remaining author-level checks are the primitive derivative-rate proof,
+fold-size bookkeeping, bootstrap protocol, and the empirical convention that
+the taxi data use a weak threshold (`Q >= 15`) while the theorem is written with
+`Q > phi` and continuous projection density.
+
+— Codex
+
 ## 2026-09-15 — Full manuscript reference audit (Codex)
 
 Audited `../manuscript/references.bib` and every citation in
