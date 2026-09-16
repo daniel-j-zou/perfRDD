@@ -9,6 +9,33 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-16 - Final proof-consistency pass (Codex)
+
+The final source audit found and repaired three notation/implementation
+consistency issues: the main stacked outcome-regression map now uses the
+nonconstant covariates `X^circ` (the baseline spline already spans the
+constant), endpoint variance notation defines `sigma_p^2 = Var(xi_p)`
+before giving its `X independent eta` simplification, and the
+feasible-consistency maximum-index bound is correctly written as
+`O_p(n_gammaU^(-1/2) n_U^(1/4)) = o_p(1)`.  The forced LaTeX build still
+succeeds after these edits;
+focused hard-trim tests pass 8/8.  No additional proof-breaking issue was found
+under the stated R1--R7 conditions and the explicit high-level R5 support/rate
+checks.
+
+-- Codex
+
+## 2026-09-16 - Final notation audit (Codex)
+
+The trim fraction \(\epsilon\) and the outcome error \(\varepsilon=\nu-b(\eta)\)
+were being denoted by the same symbol in the manuscript.  The model,
+regularity conditions, influence function, and simulation equations now use
+\(\epsilon\) only for trimming and \(\varepsilon\) only for the outcome error.
+The Gaussian baseline simulation also now labels its three nonconstant
+covariates \(X^\circ\), matching the intercept convention in the theorem.
+
+-- Codex
+
 ## 2026-09-16 - Final theorem audit and support/design-matrix repairs (Codex)
 
 The final manuscript audit found and repaired a rank-deficiency ambiguity:
