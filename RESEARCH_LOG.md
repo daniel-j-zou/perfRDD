@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-16 - Reference audit cleanup (Codex)
+
+Applied the reference-audit fixes in `manuscript/references.bib` and the synced
+`manuscript/prelim/references.bib`. The Mao and Montreuil entries now use their
+published PMLR records, with the Montreuil key renamed to `Montreuil2025`. The
+Mukherjee, Banerjee, and Ritov entry now uses the published 2026 key. Canonical
+RD references, the IV identification reference,
+Newey's series-rate result, and the van der Vaart asymptotic-statistics record
+were added or cited. DOI and URL fields were added to the relevant existing
+entries. The generic Lousdal IV primer and unused Abadie-Imbens entry were
+removed. The sharp RD wording now refers to the treatment effect at the cutoff,
+and the prelim builds with zero BibTeX warnings.
+
+The changes preserve the existing uncommitted manuscript edits and generated
+files from the other proof and numerical-study work.
+
+-- Codex
+
 ## 2026-09-15 — Final hard-trim proof and clarity audit (Codex)
 
 Audited `manuscript/prelim/prelim.tex` from the supported target through the
