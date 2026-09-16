@@ -9,6 +9,26 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Complete page-37 vector-density proof audit (Codex)
+
+In `../manuscript/prelim/prelim.tex`, completed the DS--D vector weighted-
+density proof block. The lemma now gives componentwise cubic-spline
+approximation constants, normalized quasi-uniform B-spline level/derivative
+envelopes, the bounded coefficient-matrix argument for the vector representer,
+and the conditional second- and fourth-moment bounds. The proof explicitly
+verifies the triangular-array Lindeberg condition through the Lyapunov ratio
+`O(L^2/n_rho)` and retains the positive finite-sieve loading before the
+fixed-buffer weak integration-by-parts limit. The DS--D TODO is marked closed.
+
+Verification: `latexmk -pdf -interaction=nonstopmode -halt-on-error
+prelim.tex` completed successfully in `../manuscript/prelim`, with no
+unresolved references or citations. Existing overfull-box warnings remain
+layout warnings only.
+
+— Codex
+
+---
+
 ## 2026-09-15 — Complete page-35 proof-expansion TODO (Codex)
 
 In `../manuscript/prelim/prelim.tex`, replaced the Appendix 2 collection
