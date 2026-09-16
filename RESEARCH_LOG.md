@@ -9,6 +9,26 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Complete page-36 augmented-outcome proof audit (Codex)
+
+The latest manuscript commit `5181dc5` closes the Appendix 4 DS--C TODO on
+page 36. The augmented outcome block now verifies the uniform empirical-Gram
+bound along the sieve sequence, including the oracle-sample and generated-index
+pieces, transfers the DS2 eigenvalue bound to the sample inverse, carries the
+$K^{-3}$ spline approximation through the fixed outcome loading, and displays
+the exact outcome-fold factor $\pi_o^{-1/2}$ in the score expansion. It also
+states that the finite-dimensional $DX^\circ$ block adds no sieve bias and no
+new generated-index derivative.
+
+Verification: the current 47-page `../manuscript/prelim/prelim.pdf` contains
+the completed DS--C calculation on page 36 and has no unresolved references or
+citations after the standard `latexmk` build. Existing overfull-box warnings
+remain layout warnings only.
+
+— Codex
+
+---
+
 ## 2026-09-15 — Complete page-37 vector-density proof audit (Codex)
 
 In `../manuscript/prelim/prelim.tex`, completed the DS--D vector weighted-
