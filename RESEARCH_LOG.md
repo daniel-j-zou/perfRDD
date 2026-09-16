@@ -9,6 +9,26 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Spline-density theorem-matched rerun and manuscript update (Codex)
+
+Because the stated hard-trim theorem uses a fixed-support spline density
+nuisance, reran the eight-block construction with `--density spline` for 200
+replications at `n={10000,20000,40000,80000}`.  The decoupled RMSEs are
+`0.223, 0.146, 0.102, 0.079`; `n*MSE` is `496, 429, 418, 502`; bias is
+`0.030, 0.014, 0.006, 0.002`; and boundary rates are `0.005, 0, 0, 0`.
+The log--log RMSE slope is `-0.499` and pooled `n*MSE` is `461.1`.  Ordinary
+five-fold and full-sample diagnostic slopes are `-0.521` and `-0.518`.
+
+Section 5 of the prelim now reports this spline-density run, explicitly names
+the eight-block/five-first-stage construction, and replaces the earlier
+shared-first-stage table.  The manuscript changes were compiled successfully
+and pushed to Overleaf in commits `179a51b` and `f2734f6`.  The task-board item
+for the theorem-aligned simulation is closed.
+
+— Codex
+
+---
+
 ## 2026-09-15 — Theorem-aligned eight-block hard-trim simulation (Codex)
 
 The previous baseline's six role blocks reused one main first-stage projection.
