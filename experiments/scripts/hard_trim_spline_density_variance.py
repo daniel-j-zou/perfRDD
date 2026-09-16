@@ -42,8 +42,8 @@ from experiments.scripts.hard_trim_gaussian_baseline import (
 
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_SUMMARY = ROOT / "runs" / "hard_trim_spline_density" / "summary.json"
-DEFAULT_OUT = ROOT / "runs" / "hard_trim_spline_density" / "variance_benchmark.json"
+DEFAULT_SUMMARY = ROOT / "runs" / "fixed_rotated_full_spline_20260915" / "summary.json"
+DEFAULT_OUT = ROOT / "runs" / "fixed_rotated_full_spline_20260915" / "variance_benchmark.json"
 
 
 def _alpha_minus_cost(eta: float) -> float:

@@ -43,9 +43,9 @@ from experiments.scripts.hard_trim_gaussian_baseline import (
 
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_OUT = ROOT / "runs" / "hard_trim_asymptotic_check" / "variance_benchmark.json"
+DEFAULT_OUT = ROOT / "runs" / "fixed_rotated_full_medium_20260915" / "variance_benchmark.json"
 DEFAULT_LARGE_N_SUMMARY = (
-    ROOT / "runs" / "hard_trim_asymptotic_check" / "summary.json"
+    ROOT / "runs" / "fixed_rotated_full_medium_20260915" / "summary.json"
 )
 
 # Fractions used by the legacy honest-split variance benchmark.  The current
