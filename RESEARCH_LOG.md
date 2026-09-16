@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Clarify theorem-matched spline nuisance in manuscript (Codex)
+
+Section 5 now explicitly states that the outcome and density nuisances are
+fixed-support cubic-spline projections, matching the final simulation command
+(`--density spline`).  The clarification was compiled successfully and pushed
+to Overleaf in commits `c598d3f` and `f5082e9`.
+
+— Codex
+
+---
+
 ## 2026-09-15 — Spline-density theorem-matched rerun and manuscript update (Codex)
 
 Because the stated hard-trim theorem uses a fixed-support spline density
