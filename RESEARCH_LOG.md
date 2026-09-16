@@ -9,6 +9,36 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Complete remaining Luna differing-slopes proof audits (Codex)
+
+In \`../manuscript/prelim/prelim.tex\`, completed the remaining Appendix 4
+Luna TODOs.  DS--B now gives the feasible criterion as an explicit five-term
+decomposition (evaluation empirical process, outcome nuisance, scalar survival
+nuisance, vector weighted-tail product, and moving trim/generated-residual
+term) and invokes the inherited crossing-band bound plus the compact argmax
+theorem.  DS--E now restates the moving-set expansion with
+\`F_{\phi,\mathrm{DS}}\`, verifies the lower/upper signs from the two boundary
+integrals and \`\bar G'=-g\`, restates the local generated-index Bahadur
+representation, and distinguishes genuine internal weak point masses from the
+removed artificial outer trace.  DS--F/G now display the signed loadings,
+retain within-block covariance and inverse fold fractions, and state the
+fixed-neighborhood derivative and curvature consistency bounds for both
+\`g'\` and \`\rho_X'\`.  The Appendix 4 dependency table, audit status, and
+\`manuscript/TODO.md\` proof checklist were updated accordingly.  The result
+remains conditional on the stated DS1--DS5 and inherited hard-trim
+assumptions, and remains deliberately decoupled; no full-sample-reuse or
+ordinary-cross-fitting theorem is introduced.
+
+Verification: \`latexmk -pdf -interaction=nonstopmode -halt-on-error
+prelim.tex\` completed successfully in \`../manuscript/prelim\`, producing a
+48-page PDF with no unresolved references.  Existing overfull/underfull box
+warnings are layout warnings only; pages 35, 40, 42, and 43 were visually
+checked.
+
+— Codex
+
+---
+
 ## 2026-09-15 — Complete page-36 augmented-outcome proof audit (Codex)
 
 The latest manuscript commit `5181dc5` closes the Appendix 4 DS--C TODO on
