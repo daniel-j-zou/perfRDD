@@ -9,6 +9,26 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Defer differing-slopes theory from the prelim (Codex)
+
+Author decision: the formal differing-slopes theory is not part of the prelim.
+The former Appendix 4 block has been moved from
+`../manuscript/prelim/prelim.tex` to
+`../manuscript/storage/differing_slopes_theory.tex`. The storage document is
+not included by the prelim and should be treated as archived theory for later
+work.
+
+The prelim retains the empirical taxi comparison, differing-slopes simulation
+evidence, and simulation implementation details. The remaining paper
+appendices were renumbered so the simulation implementation is Appendix 4 and
+the additional diagnostics are Appendix 5. Future sessions should not restore
+the DS assumptions, lemmas, or CLT to the prelim unless the author explicitly
+reopens this decision.
+
+— Codex
+
+---
+
 ## 2026-09-15 — Complete remaining Luna differing-slopes proof audits (Codex)
 
 In \`../manuscript/prelim/prelim.tex\`, completed the remaining Appendix 4
