@@ -46,6 +46,10 @@ trimming.  The implementation is in
 
 Commands run from the code repository root:
 
+The first two commands use the legacy Gaussian location-scale density as a
+sensitivity check.  The final command uses the fixed-support spline density
+and is the theorem-matched run.
+
 ```text
 python3 -m experiments.scripts.hard_trim_crossfit_regularization \
   --n 1000 2500 5000 10000 --reps 200 --workers 4 --ridge 0 \
@@ -57,7 +61,7 @@ python3 -m experiments.scripts.hard_trim_crossfit_regularization \
 
 python3 -m experiments.scripts.hard_trim_crossfit_regularization \
   --n 10000 20000 40000 80000 --reps 200 --workers 4 --ridge 0 \
-  --out experiments/runs/theorem_decoupled_final_20260915
+  --density spline --out experiments/runs/theorem_decoupled_spline_final_20260915
 ```
 
 The `experiments/runs/` directory is intentionally ignored; the JSON/CSV/PNG
@@ -66,7 +70,8 @@ durable record.
 
 ## Results
 
-The first run shows the finite-sample cost of eight-way splitting:
+The Gaussian-density sensitivity run shows the finite-sample cost of eight-way
+splitting:
 
 | (n) | RMSE | (n\times\mathrm{MSE}) | bias | boundary rate |
 |---:|---:|---:|---:|---:|
@@ -75,7 +80,7 @@ The first run shows the finite-sample cost of eight-way splitting:
 | 5,000 | 0.301 | 454.1 | 0.027 | 0.020 |
 | 10,000 | 0.226 | 512.2 | 0.020 | 0.005 |
 
-In the larger run, the decoupled estimator stabilizes:
+In the larger Gaussian-density run, the decoupled estimator stabilizes:
 
 | (n) | RMSE | (n\times\mathrm{MSE}) | bias | boundary rate |
 |---:|---:|---:|---:|---:|
@@ -84,28 +89,26 @@ In the larger run, the decoupled estimator stabilizes:
 | 40,000 | 0.104 | 432.9 | 0.010 | 0.000 |
 | 80,000 | 0.075 | 451.8 | 0.009 | 0.000 |
 
-The table-matched 200-replication run gives the final rate check:
+The table-matched spline-density run gives the final rate check:
 
 | (n) | RMSE | (n\times\mathrm{MSE}) | bias | boundary rate |
 |---:|---:|---:|---:|---:|
-| 10,000 | 0.226 | 512.2 | 0.020 | 0.005 |
-| 20,000 | 0.145 | 423.2 | 0.000 | 0.000 |
-| 40,000 | 0.100 | 397.1 | 0.004 | 0.000 |
-| 80,000 | 0.077 | 472.8 | 0.004 | 0.000 |
+| 10,000 | 0.223 | 495.6 | 0.030 | 0.005 |
+| 20,000 | 0.146 | 429.1 | 0.014 | 0.000 |
+| 40,000 | 0.102 | 418.1 | 0.006 | 0.000 |
+| 80,000 | 0.079 | 501.5 | 0.002 | 0.000 |
 
-The log--log RMSE slope for this final run is (-0.522).  The pooled
-(n\times\mathrm{MSE}) is 451.3; the scaled bias is below one at the three
-largest sample sizes.
+The log--log RMSE slope for this final run is (-0.499).  The pooled
+(n\times\mathrm{MSE}) is 461.1.  The scaled bias decreases from 2.96 at
+10,000 to 0.60 at 80,000, consistent with a finite-sample bias that vanishes.
 
-The log--log RMSE slope over the 100-rep larger grid is \(-0.538\), while the
-five-fold and full-sample comparisons are \(-0.505\) and \(-0.499\),
+The five-fold and full-sample comparison slopes are \(-0.521\) and \(-0.518\),
 respectively.  The approximately constant (n\times\mathrm{MSE}) from
 20,000 onward and the disappearance of boundary solutions support the
 theorem's root-(n) prediction.  The roughly ten-fold larger asymptotic
 variance is expected: each principal score block uses only one eighth of the
 sample, and five independent first-stage fits contribute sampling noise.
 
-These runs test centering and rate under the theorem's split.  They do not by
-themselves validate an analytic variance estimator or bootstrap coverage, and
-they use the Gaussian running-variable density rather than the spline-density
-variant.
+These runs test centering and rate under the theorem's split and nuisance
+density specification.  They do not by themselves validate an analytic
+variance estimator or bootstrap coverage.
