@@ -20,6 +20,20 @@ Computer Modern sans-serif (`CMSS`) and Computer Modern math fonts.
 
 -- Codex
 
+## 2026-09-16 - Frame-level slide collaboration workflow (Codex)
+
+Added a tracked collaboration protocol for `manuscript/prelim/slides.tex`.
+`prelim/tools/slide_lock.py` assigns stable frame ids, records one active owner,
+session, branch, and source range in `prelim/SLIDE_LOCKS.json`, and provides
+`checkout`, `list`, `release`, and `validate-staged` commands. The manuscript
+repository's pre-commit hook rejects unclaimed slide edits, wrong-branch edits,
+and commits that change more than one frame; deck-wide changes use the `deck`
+lock. Claims must be committed and pushed before content edits, and releases
+follow the content commit. Existing uncommitted slide work remains untouched;
+the checkout command refuses to claim while `slides.tex` is dirty.
+
+-- Codex
+
 ## 2026-09-16 - Equal-split tradeoff documented (Codex)
 
 Added the equal-allocation tradeoff to the prelim.  For the finalized eight
