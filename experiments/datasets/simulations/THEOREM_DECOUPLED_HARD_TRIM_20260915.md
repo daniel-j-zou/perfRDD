@@ -25,6 +25,16 @@ by unstable one-eighth nuisance fits; the rotation stabilizes once each block
 contains enough observations. These are diagnostic runs, not replacements
 for the 200-replication theorem-matched rate table.
 
+The final spline-density comparison uses 200 replications at each of
+`n={10,000,20,000,40,000,80,000}`. Pooled `n x MSE` is `461.1` for the fixed
+split, `43.2` for role rotation, and `42.6` for full-sample reuse. RMSE slopes
+are `-0.499`, `-0.526`, and `-0.518`, respectively. The rotated and
+full-sample estimators therefore have essentially the same root-n precision in
+this DGP, while the fixed split exhibits the expected one-eighth-sample cost.
+Scaled bias for the rotated estimator is `1.20, 2.13, -0.69, -0.40` across the
+four sample sizes; all boundary rates are zero. The rotated result is still an
+implementation diagnostic because the theorem covers only the fixed split.
+
 ## Purpose
 
 The earlier “decoupled” benchmark used six role blocks but reused one main

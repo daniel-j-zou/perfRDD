@@ -9,6 +9,26 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Theorem-matched role-rotation rerun (Codex)
+
+Completed the requested comparison with the spline-density DGP: one fixed
+eight-block theorem split (`decoupled_8block`), all eight cyclic role rotations
+(`rotated_8block`), and full-sample reuse (`full_sample`). Each rotated
+criterion is validly decoupled within its assignment; the eight criteria are
+pooled before maximizing. In 200 replications at
+`n={10000,20000,40000,80000}`, pooled `n*MSE` is `461.1` (fixed), `43.2`
+(rotated), and `42.6` (full sample). RMSE slopes are `-0.499`, `-0.526`, and
+`-0.518`. The rotation closes the fixed split's one-eighth-sample precision
+loss in this DGP; all boundary rates are zero. It remains an empirical
+implementation diagnostic because the current CLT covers only one fixed split
+and not the cross-rotation covariance. Outputs are in
+`experiments/runs/fixed_rotated_full_spline_20260915/`; code and tests were
+committed and pushed in `0d7f112`.
+
+— Codex
+
+---
+
 ## 2026-09-15 — Fixed, role-rotated, and full-sample hard-trim comparison (Codex)
 
 The hard-trim simulation driver now distinguishes the three requested sample-use
