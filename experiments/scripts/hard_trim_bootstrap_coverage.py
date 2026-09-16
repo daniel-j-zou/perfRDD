@@ -8,8 +8,8 @@ running-variable laws used by :mod:`hard_trim_robustness_smoke`.
 
 The current public estimator exposes point estimates only.  Consequently this script
 does *not* claim a bootstrap validity theorem, nor does it implement the manuscript's
-fully decoupled six-fold influence-function construction.  It answers the practical
-question: does full-sample or ordinary K-fold re-estimation bootstrap behave sensibly
+fully decoupled influence-function construction.  It answers the practical question:
+does full-sample or a small legacy K-fold re-estimation bootstrap behave sensibly
 in finite samples before we invest in a feasible analytic variance estimator?
 
 Examples
@@ -202,11 +202,11 @@ def run_coverage(
     """Run the coverage study and write a CSV plus JSON summary."""
     law_values = tuple(laws)
     estimator_values = tuple(estimators)
-    fold_map = {"full": 1, "crossfit3": 3, "crossfit5": 5}
+    fold_map = {"full": 1, "crossfit3": 3}
     if not law_values or not set(law_values).issubset({"t5", "mixture", "skewed"}):
         raise ValueError("laws must be a nonempty subset of t5, mixture, skewed")
     if not estimator_values or not set(estimator_values).issubset(fold_map):
-        raise ValueError("estimators must be a nonempty subset of full, crossfit3, crossfit5")
+        raise ValueError("estimators must be a nonempty subset of full, crossfit3")
     if workers < 1 or outer_reps < 1 or bootstrap_reps < 9:
         raise ValueError("workers and outer_reps must be positive; bootstrap_reps must be at least 9")
 
@@ -291,7 +291,7 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--laws", nargs="+", choices=("t5", "mixture", "skewed"),
                         default=["t5", "mixture"])
-    parser.add_argument("--estimators", nargs="+", choices=("full", "crossfit3", "crossfit5"),
+    parser.add_argument("--estimators", nargs="+", choices=("full", "crossfit3"),
                         default=["full", "crossfit3"])
     parser.add_argument("--seed", type=int, default=91_001)
     parser.add_argument("--out", type=Path, required=True)

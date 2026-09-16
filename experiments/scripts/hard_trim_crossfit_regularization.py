@@ -14,7 +14,7 @@ The primary comparison is deliberately explicit about sample reuse:
 Every variant fits its outcome nuisance spline on the deterministic
 neighborhood J used in the theory audit.  The T distribution can be estimated
 either by the original Gaussian location-scale fit or by the manuscript's
-least-squares spline projection density.  This isolates cross-fitting and
+least-squares spline projection density.  This isolates sample-use choices and
 regularization from the separate application choice of putting spline
 boundaries at the estimated trim endpoints.
 """
@@ -111,16 +111,6 @@ def _fit_T_density(T_values: np.ndarray, method: str) -> TDensity:
 
 def _density_basis_count(density: TDensity) -> int:
     return density.n_basis if isinstance(density, SplineDensityFit) else 2
-
-
-def make_crossfit_folds(n: int, seed: int, n_folds: int = 5) -> list[np.ndarray]:
-    if n_folds < 2 or n_folds > n:
-        raise ValueError("n_folds must lie between 2 and n")
-    rng = np.random.default_rng(seed + 87_401_039)
-    return [
-        np.asarray(chunk, dtype=int)
-        for chunk in np.array_split(rng.permutation(n), n_folds)
-    ]
 
 
 def make_role_rotated_folds(
@@ -270,14 +260,7 @@ def _ridge_label(ridge_scale: float) -> str:
     return f"full_ridge_{value}"
 
 
-def _crossfit_label(n_folds: int) -> str:
-    return f"crossfit_{n_folds}fold"
-
-
-def estimator_labels(
-    ridge_grid: Sequence[float], n_folds: int = 5,
-) -> list[str]:
-    del n_folds  # Retained in the public signature for backwards compatibility.
+def estimator_labels(ridge_grid: Sequence[float]) -> list[str]:
     labels = ["decoupled_8block", "rotated_8block", "full_sample"]
     labels.extend(
         _ridge_label(float(value))
@@ -291,7 +274,6 @@ def run_replication(
     n: int,
     seed: int,
     ridge_grid: Sequence[float] = DEFAULT_RIDGE_GRID,
-    n_folds: int = 5,
     density_method: str = "gaussian",
 ) -> Dict[str, Any]:
     if density_method not in DENSITY_METHODS:
@@ -383,21 +365,20 @@ def run_replication(
             f"{label}_density_basis": _density_basis_count(component.T_density),
         })
 
-    for label in estimator_labels(ridge_grid, n_folds):
+    for label in estimator_labels(ridge_grid):
         result[f"{label}_squared_error"] = float(
             (result[f"{label}_phi"] - target) ** 2
         )
     return result
 
 
-def _worker(task: tuple[int, int, tuple[float, ...], int, str]) -> Dict[str, Any]:
-    return run_replication(task[0], task[1], task[2], task[3], task[4])
+def _worker(task: tuple[int, int, tuple[float, ...], str]) -> Dict[str, Any]:
+    return run_replication(task[0], task[1], task[2], task[3])
 
 
 def summarize(
     rows: Sequence[Dict[str, Any]],
     ridge_grid: Sequence[float],
-    n_folds: int = 5,
 ) -> Dict[str, Any]:
     target = population_truth()["hard_phi_star"]
     target_utility = population_utility(target, True)
@@ -409,7 +390,7 @@ def summarize(
             "replications": len(subset),
             "estimators": {},
         }
-        for label in estimator_labels(ridge_grid, n_folds):
+        for label in estimator_labels(ridge_grid):
             values = np.asarray([row[f"{label}_phi"] for row in subset])
             errors = values - target
             regrets = np.asarray([
@@ -451,11 +432,10 @@ def _write_csv(rows: Sequence[Dict[str, Any]], path: Path) -> None:
 def _plot(
     summary: Dict[str, Any],
     ridge_grid: Sequence[float],
-    n_folds: int,
     path: Path,
 ) -> None:
     ns = np.asarray(sorted(int(value) for value in summary))
-    labels = estimator_labels(ridge_grid, n_folds)
+    labels = estimator_labels(ridge_grid)
     fig, axes = plt.subplots(1, 2, figsize=(12, 4.5))
     for label in labels:
         rmse = [summary[str(n)]["estimators"][label]["rmse"] for n in ns]
@@ -485,7 +465,6 @@ def run_experiment(
     workers: int,
     out_dir: Path,
     ridge_grid: Sequence[float] = DEFAULT_RIDGE_GRID,
-    n_folds: int = 5,
     density_method: str = "gaussian",
 ) -> Dict[str, Any]:
     if density_method not in DENSITY_METHODS:
@@ -493,7 +472,7 @@ def run_experiment(
     ridge_grid = tuple(float(value) for value in ridge_grid)
     out_dir.mkdir(parents=True, exist_ok=True)
     tasks = [
-        (int(n), int(seed), ridge_grid, int(n_folds), density_method)
+        (int(n), int(seed), ridge_grid, density_method)
         for n in ns
         for seed in range(reps)
     ]
@@ -503,14 +482,13 @@ def run_experiment(
         with ProcessPoolExecutor(max_workers=workers) as pool:
             rows = list(pool.map(_worker, tasks, chunksize=2))
     rows.sort(key=lambda row: (int(row["n"]), int(row["seed"])))
-    summary = summarize(rows, ridge_grid, n_folds)
+    summary = summarize(rows, ridge_grid)
     payload = {
         "description": (
             "Exact hard trimming: fixed decoupling, role-rotated decoupling, "
             "and full-sample reuse"
         ),
         "target": population_truth(),
-        "legacy_n_folds_argument": int(n_folds),
         "density_method": density_method,
         "deterministic_T_density_support": (
             list(T_DENSITY_SUPPORT) if density_method == "spline" else None
@@ -530,7 +508,7 @@ def run_experiment(
     }
     _write_csv(rows, out_dir / "replications.csv")
     (out_dir / "summary.json").write_text(json.dumps(payload, indent=2) + "\n")
-    _plot(summary, ridge_grid, n_folds, out_dir / "summary.png")
+    _plot(summary, ridge_grid, out_dir / "summary.png")
     return payload
 
 
@@ -542,7 +520,6 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser.add_argument(
         "--ridge", type=float, nargs="+", default=list(DEFAULT_RIDGE_GRID)
     )
-    parser.add_argument("--folds", type=int, default=5)
     parser.add_argument(
         "--density", choices=DENSITY_METHODS, default="gaussian",
         help="T-distribution nuisance: legacy Gaussian or manuscript spline",
@@ -554,8 +531,6 @@ def main(argv: Sequence[str] | None = None) -> None:
     args = parser.parse_args(argv)
     if args.reps <= 0 or args.workers <= 0:
         parser.error("--reps and --workers must be positive")
-    if args.folds < 2:
-        parser.error("--folds must be at least two")
     if any(n < 500 for n in args.n):
         parser.error("all sample sizes must be at least 500")
     if any(value < 0.0 for value in args.ridge):
@@ -569,7 +544,6 @@ def main(argv: Sequence[str] | None = None) -> None:
         args.workers,
         out_dir,
         args.ridge,
-        args.folds,
         args.density,
     )
     print(json.dumps({"target": payload["target"], "summary": payload["summary"]}, indent=2))

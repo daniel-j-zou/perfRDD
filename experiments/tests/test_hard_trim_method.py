@@ -38,7 +38,7 @@ class HardTrimMethodTest(unittest.TestCase):
         joined = np.concatenate(folds)
         np.testing.assert_array_equal(np.sort(joined), np.arange(1001))
 
-    def test_full_sample_and_crossfit_are_finite(self):
+    def test_full_sample_and_three_fold_diagnostic_are_finite(self):
         sample = _sample()
         grid = np.linspace(-1.5, 1.5, 101)
         with tempfile.TemporaryDirectory() as directory:
@@ -52,11 +52,11 @@ class HardTrimMethodTest(unittest.TestCase):
             )
             crossfit = perfrdd_hard_trim(
                 sample,
-                root / "crossfit",
+                root / "three_fold_diagnostic",
                 (-1.75, 1.75),
                 c_values=(2.25,),
                 phi_grid=grid,
-                crossfit_folds=5,
+                crossfit_folds=3,
             )
         for result in (full, crossfit):
             self.assertTrue(np.isfinite(result["phi_star"]["2.25"]))
@@ -81,6 +81,17 @@ class HardTrimMethodTest(unittest.TestCase):
                     (-0.5, 0.5),
                     c_values=(2.25,),
                     phi_grid=np.linspace(-1.5, 1.5, 51),
+                )
+
+    def test_five_fold_crossfit_is_retired(self):
+        with tempfile.TemporaryDirectory() as directory:
+            with self.assertRaisesRegex(ValueError, "five-fold cross-fitting is retired"):
+                perfrdd_hard_trim(
+                    _sample(),
+                    Path(directory),
+                    (-1.75, 1.75),
+                    c_values=(2.25,),
+                    crossfit_folds=5,
                 )
 
     def test_can_return_curves_without_writing_outputs(self):

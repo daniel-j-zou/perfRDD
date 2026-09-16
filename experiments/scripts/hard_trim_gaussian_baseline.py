@@ -8,9 +8,8 @@ symmetric smooth support gate, and an untrimmed benchmark.
 The theorem-aligned estimator uses eight disjoint blocks: separate first-stage
 source folds for the outcome, density, and evaluation blocks; separate lower
 and upper boundary blocks; and the three corresponding nuisance/evaluation
-blocks.  This is deliberately more conservative than ordinary K-fold
-cross-fitting and mirrors the independence structure in the hard-trimming
-theorem.
+blocks.  This is deliberately more conservative than ordinary sample reuse
+and mirrors the independence structure in the hard-trimming theorem.
 
 Run from the repository root, for example:
 

@@ -48,7 +48,9 @@ DEFAULT_LARGE_N_SUMMARY = (
     ROOT / "runs" / "hard_trim_asymptotic_check" / "summary.json"
 )
 
-# Fractions produced by hard_trim_gaussian_baseline.make_folds().
+# Fractions used by the legacy honest-split variance benchmark.  The current
+# theorem-matched simulation reports its eight-block rate separately; this
+# benchmark is retained for continuity of the variance audit.
 HONEST_FOLD_FRACTIONS = {
     "first_stage": 0.15,
     "boundary_l": 0.10,
@@ -277,11 +279,11 @@ def calculate_variance_benchmarks() -> Dict[str, Any]:
             "threshold_asymptotic_variance": full_threshold_variance,
             "asymptotic_sd_times_sqrt_n": float(np.sqrt(full_threshold_variance)),
         },
-        "crossfit_5fold": {
+        "rotated_8block": {
             "threshold_asymptotic_variance": full_threshold_variance,
             "note": (
-                "Ordinary fixed-fold cross-fitting is first-order equivalent "
-                "to the full-sample estimator in this correctly specified DGP."
+                "Role rotation uses the same per-role first-order benchmark, "
+                "but its cross-rotation covariance is not included."
             ),
         },
         "honest_split": {
@@ -310,7 +312,7 @@ def attach_monte_carlo_comparison(
         if replications_path.exists()
         else []
     )
-    estimators = ("honest_split", "crossfit_5fold", "full_ridge_0")
+    estimators = ("decoupled_8block", "rotated_8block", "full_sample")
     comparison: Dict[str, Any] = {}
     total_replications = 0
     for estimator in estimators:
@@ -333,7 +335,7 @@ def attach_monte_carlo_comparison(
             ]
             if matching_replications:
                 benchmark_name = (
-                    "honest_split" if estimator == "honest_split" else "full_sample"
+                    "honest_split" if estimator == "decoupled_8block" else "full_sample"
                 )
                 benchmark = payload[benchmark_name]["threshold_asymptotic_variance"]
                 target = payload["truth"]["hard_phi_star"]
@@ -353,7 +355,7 @@ def attach_monte_carlo_comparison(
             rows.append(row)
             if estimator == estimators[0]:
                 total_replications += int(block["replications"])
-        benchmark_name = "honest_split" if estimator == "honest_split" else "full_sample"
+        benchmark_name = "honest_split" if estimator == "decoupled_8block" else "full_sample"
         benchmark = payload[benchmark_name]["threshold_asymptotic_variance"]
         pooled = float(np.mean(constants))
         comparison[estimator] = {

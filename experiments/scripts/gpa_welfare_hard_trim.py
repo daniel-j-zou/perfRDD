@@ -5,7 +5,6 @@ This script reports all 16 welfare outcomes from
 produces a desired threshold. Each outcome receives:
 
 * four full-sample ridge specifications on the primary policy grid;
-* a five-fold unregularized cross-fit robustness estimate; and
 * an expanded-grid audit at four illustrative direct probation costs.
 
 The direct costs are sensitivity values in GPA-equivalent units, not estimated
@@ -60,19 +59,6 @@ def _run_primary_specifications(sample, key: str) -> Dict[str, Dict[str, Any]]:
             ridge_scale=ridge,
             crossfit_folds=1,
         )
-    label = "crossfit_5fold_ridge_0"
-    print(f"[run] {key}: {label}")
-    specifications[label] = perfrdd_hard_trim(
-        sample,
-        OUT_ROOT / key / label,
-        NUISANCE_SUPPORT,
-        eps=EPS,
-        c_values=(0.0,),
-        phi_grid=PRIMARY_PHI_GRID,
-        max_n=None,
-        ridge_scale=0.0,
-        crossfit_folds=5,
-    )
     return specifications
 
 
@@ -98,10 +84,6 @@ def _plot_summary(results: Dict[str, Dict[str, Any]]) -> None:
         item["specifications"][PRIMARY_SPECIFICATION]["avg_alpha_hard_weighted"]
         for item in results.values()
     ])
-    crossfit = np.array([
-        item["specifications"]["crossfit_5fold_ridge_0"]["avg_alpha_hard_weighted"]
-        for item in results.values()
-    ])
     phi = np.array([
         item["specifications"][PRIMARY_SPECIFICATION]["phi_star"]["0.0"]
         for item in results.values()
@@ -117,13 +99,10 @@ def _plot_summary(results: Dict[str, Dict[str, Any]]) -> None:
     fig, axes = plt.subplots(1, 2, figsize=(15, 9), gridspec_kw={"width_ratios": [1.4, 1]})
     axes[0].axvline(0.0, color="black", lw=0.7)
     axes[0].scatter(full, y, c=point_colors, marker="o", label="Full, ridge 0.001")
-    axes[0].scatter(crossfit, y, c=point_colors, marker="x", label="5-fold cross-fit")
-    for j in range(len(y)):
-        axes[0].plot([full[j], crossfit[j]], [j, j], color="0.7", lw=0.8, zorder=0)
     axes[0].set_yticks(y, labels)
     axes[0].invert_yaxis()
     axes[0].set_xlabel(r"Hard-window average treatment effect $\hat\alpha$")
-    axes[0].set_title("Welfare effects: full sample vs cross-fit")
+    axes[0].set_title("Welfare effects: full-sample ridge sensitivity")
     axes[0].legend(loc="lower right")
 
     axes[1].axvline(0.0, color="black", lw=0.7)

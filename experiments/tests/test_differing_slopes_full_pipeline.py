@@ -23,7 +23,7 @@ class DifferingSlopesFullPipelineTest(unittest.TestCase):
 
     def test_generated_index_variants_are_finite(self):
         sample = generate_sample(600, 20260925, DEFAULT_DGP)
-        for variant in ("full_gaussian_ols", "full_spline_ols", "crossfit5_gaussian"):
+        for variant in ("full_gaussian_ols", "full_spline_ols"):
             phi, boundary, retained, _ = _fit_variant(
                 sample, DEFAULT_DGP, 20260925, variant
             )

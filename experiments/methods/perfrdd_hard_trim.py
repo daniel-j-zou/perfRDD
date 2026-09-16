@@ -94,6 +94,11 @@ def _validate_inputs(
         raise ValueError("knot_exponent must lie strictly between zero and one")
     if crossfit_folds < 1:
         raise ValueError("crossfit_folds must be a positive integer")
+    if crossfit_folds == 5:
+        raise ValueError(
+            "five-fold cross-fitting is retired; use the fixed/rotated "
+            "eight-block implementations or full-sample reuse"
+        )
     return lo, hi
 
 

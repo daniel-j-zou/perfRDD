@@ -207,11 +207,14 @@ def calculate_limiting_variance() -> Dict[str, Any]:
                 np.sqrt(full_score_variance / curvature_squared)
             ),
         },
-        "crossfit_5fold": {
+        "rotated_8block": {
             "threshold_asymptotic_variance": (
                 full_score_variance / curvature_squared
             ),
-            "note": "Fixed-fold cross-fitting has the same first-order limit.",
+            "note": (
+                "Role rotation uses the same per-role first-order benchmark; "
+                "cross-rotation covariance is not included."
+            ),
         },
         "honest_split": {
             "fold_fractions": HONEST_FOLD_FRACTIONS,
@@ -267,7 +270,7 @@ def add_projection_diagnostics(payload: Dict[str, Any], ns: Sequence[int]) -> No
     for n in sorted(set(int(value) for value in ns)):
         schemes = {
             "honest_split": int(round(HONEST_FOLD_FRACTIONS["density"] * n)),
-            "crossfit_5fold": int(round(0.8 * n)),
+            "rotated_8block": int(round(HONEST_FOLD_FRACTIONS["density"] * n)),
             "full_sample": n,
         }
         diagnostics[str(n)] = {}
@@ -297,12 +300,12 @@ def attach_monte_carlo_comparison(
     summary = experiment["summary"]
     replications_path = summary_path.with_name("replications.csv")
     replication_rows = list(csv.DictReader(replications_path.open()))
-    estimators = ("honest_split", "crossfit_5fold", "full_ridge_0")
+    estimators = ("decoupled_8block", "rotated_8block", "full_sample")
     comparison: Dict[str, Any] = {}
     true_target = payload["truth"]["hard_phi_star"]
     for estimator in estimators:
         benchmark_name = (
-            "honest_split" if estimator == "honest_split" else "full_sample"
+            "honest_split" if estimator == "decoupled_8block" else "full_sample"
         )
         benchmark = payload[benchmark_name]["threshold_asymptotic_variance"]
         constants = []

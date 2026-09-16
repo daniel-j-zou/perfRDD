@@ -37,8 +37,8 @@ python -m experiments.scripts.taxi_utility_curve --cost 0.20
 
 The second command treats the cost as dollars per trip assigned the percentage
 tip-suggestion regime. It plots estimated utility in cents per hard-trimmed trip,
-relative to the observed $15 threshold, and compares a regularized full-sample
-fit with five-fold cross-fitting. The cost is illustrative rather than measured;
+relative to the observed $15 threshold, using a regularized full-sample fit. The
+cost is illustrative rather than measured;
 the pilot has point estimates only and is not yet a publication-ready analysis. It
 does **not** apply the paper's no-toll/tax/surcharge, daytime, or standard-meter-grid
 restrictions and is superseded for paper-facing work by the restricted sample below.

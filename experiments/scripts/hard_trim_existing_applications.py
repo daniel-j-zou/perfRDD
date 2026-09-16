@@ -3,12 +3,11 @@
 The nuisance intervals below were rounded outward from the support diagnostics
 in the earlier smooth-gate exploration.  They are therefore pilot-derived,
 not confirmatory choices.  This script records that provenance and uses the
-same locked interval for every ridge and cross-fitting specification.
+same locked interval for every full-sample ridge specification.
 
 For each dataset the script runs:
 
-* full-sample point estimation over a ridge sensitivity grid; and
-* a five-fold, unregularized robustness estimate.
+* full-sample point estimation over a ridge sensitivity grid.
 
 The cost grid is held fixed within a dataset.  It is calibrated once from the
 unregularized full-sample hard-window average treatment effect, so ridge
@@ -93,16 +92,6 @@ def main() -> Dict[str, Any]:
                 ridge_scale=ridge,
                 crossfit_folds=1,
             )
-        print(f"[run] {name}: crossfit_5fold_ridge_0")
-        specifications["crossfit_5fold_ridge_0"] = perfrdd_hard_trim(
-            sample,
-            OUT_ROOT / name / "crossfit_5fold_ridge_0",
-            support,
-            eps=0.1,
-            c_values=costs,
-            ridge_scale=0.0,
-            crossfit_folds=5,
-        )
         results[name] = {
             "sample_description": sample.description,
             "sample_citation": sample.citation,
@@ -117,8 +106,7 @@ def main() -> Dict[str, Any]:
     payload: Dict[str, Any] = {
         "description": (
             "Exploratory exact-hard-trim application comparison with fixed "
-            "nuisance supports, full-sample ridge sensitivity, and five-fold "
-            "unregularized robustness estimates"
+            "nuisance supports and full-sample ridge sensitivity"
         ),
         "confirmatory": False,
         "support_provenance": (

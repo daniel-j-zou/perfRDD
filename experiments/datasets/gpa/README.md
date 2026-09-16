@@ -31,8 +31,8 @@ The original data is governed by the AEJ replication terms; see
 - `WELFARE_RESULTS.md` — full welfare-menu results, skeptical audit, and publication
   limitations.
 - `../../scripts/gpa_redesign_hard_trim.py` — exact hard-support-trimmed application.
-  It reports a locked full-sample ridge grid and an unregularized five-fold cross-fit
-  robustness estimate using one pilot-fixed nuisance support for every outcome.
+  It reports a locked full-sample ridge grid using one pilot-fixed nuisance support
+  for every outcome.
 - `Dep_Data/` — raw + intermediate files (preserved from the original
   replication package layout).
 - `general/` — legacy GPA-specific analysis scripts and notebooks. New
@@ -67,7 +67,7 @@ The application uses the exact indicator
 spline support `(-2, 0)` is held fixed across outcomes and specifications. It was rounded
 outward from an August 2026 pilot diagnostic and is therefore exploratory rather than a
 confirmatory scientific choice. Results include full-sample ridge scales 0, 0.0001,
-0.001, and 0.01 plus a five-fold unregularized cross-fit check. The code currently
+0.001, and 0.01. The code currently
 reports point estimates only, not the theorem's boundary-aware influence-function
 variance.
 

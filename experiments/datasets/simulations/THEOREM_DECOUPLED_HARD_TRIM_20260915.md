@@ -60,8 +60,8 @@ seeded, disjoint blocks:
 
 The five first-stage fits are therefore `gamma_alpha`, `gamma_g`, `gamma_U`,
 and the two boundary fits.  The theorem-facing estimator is reported as
-`decoupled_8block`.  Ordinary five-fold cross-fitting and full-sample OLS are
-retained only as empirical comparisons.
+`decoupled_8block`.  Role rotation and full-sample reuse are retained only as
+empirical implementation comparisons.
 
 ## DGP and commands
 
@@ -137,10 +137,10 @@ The log--log RMSE slope for this final run is (-0.499).  The pooled
 (n\times\mathrm{MSE}) is 461.1.  The scaled bias decreases from 2.96 at
 10,000 to 0.60 at 80,000, consistent with a finite-sample bias that vanishes.
 
-The five-fold and full-sample comparison slopes are \(-0.521\) and \(-0.518\),
-respectively.  The approximately constant (n\times\mathrm{MSE}) from
-20,000 onward and the disappearance of boundary solutions support the
-theorem's root-(n) prediction.  The roughly ten-fold larger asymptotic
+The role-rotated and full-sample comparison slopes are approximately
+\(-0.526\) and \(-0.518\), respectively.  The approximately constant
+(n\times\mathrm{MSE}) from 20,000 onward and the disappearance of boundary
+solutions support the theorem's root-(n) prediction.  The roughly ten-fold larger asymptotic
 variance is expected: each principal score block uses only one eighth of the
 sample, and five independent first-stage fits contribute sampling noise.
 

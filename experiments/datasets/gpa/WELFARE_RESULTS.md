@@ -3,7 +3,7 @@
 ## Bottom line
 
 A prespecified menu of 16 welfare outcomes does not identify an interior GPA-probation
-threshold. Every no-cost full-sample and cross-fit optimum is at a policy-grid boundary.
+threshold. Every no-cost full-sample optimum is at a policy-grid boundary.
 On the expanded policy grid `[-1.2, 1.2]`, all 64 combinations of 16 outcomes and direct
 costs `{0, 0.025, 0.05, 0.10}` also select a boundary.
 
@@ -46,31 +46,31 @@ penalty or bonus by observed leave/return status.
 ## Prespecified menu and estimates
 
 `Hard alpha` is the hard-window average treatment-effect nuisance under the full-sample
-ridge-0.001 display specification. `CF alpha` is the five-fold unregularized estimate.
+ridge-0.001 display specification. The active application uses full-sample fits only.
 The ridge grid is `{0, 0.0001, 0.001, 0.01}`. All rows use exact hard trimming with
 `eps=0.1` and fixed nuisance support `(-2, 0)`.
 
-| # | Welfare outcome | Role | Hard alpha | CF alpha | No-cost phi* |
-|---:|---|---|---:|---:|---:|
-| 1 | Fall-year-2 enrollment | Primary direct | -0.0833 | -0.0852 | -0.6 |
-| 2 | Not voluntarily leaving | Primary direct | -0.0165 | -0.0178 | -0.6 |
-| 3 | Any subsequent GPA record | Primary direct | -0.0277 | -0.0293 | -0.6 |
-| 4 | Year-2 credits earned | Primary direct | -0.3719 | -0.3757 | -0.6 |
-| 5 | Good standing in year 2 | Secondary; coding provenance open | -0.2584 | -0.2589 | -0.6 |
-| 6 | Composite GPA; no record = 0.0 | Physical lower bound | 0.1433 | 0.1447 | 0.6 |
-| 7 | Composite GPA; no record = 0.8 | Inherited sensitivity | 0.1662 | 0.1681 | 0.6 |
-| 8 | Composite GPA; no record = 0.9 | Inherited sensitivity | 0.1691 | 0.1711 | 0.6 |
-| 9 | Composite GPA; no record = 1.1 | Inherited sensitivity | 0.1748 | 0.1769 | 0.6 |
-| 10 | Composite GPA; no record = 1.5 | Cutoff benchmark | 0.1863 | 0.1886 | 0.6 |
-| 11 | `a=.8` minus `0.10 × leave` | Stress test | 0.1645 | 0.1663 | 0.6 |
-| 12 | `a=.8` minus `0.25 × leave` | Stress test | 0.1619 | 0.1637 | 0.6 |
-| 13 | `a=1.1` minus `0.10 × leave` | Stress test | 0.1731 | 0.1751 | 0.6 |
-| 14 | `a=1.1` minus `0.25 × leave` | Stress test | 0.1705 | 0.1725 | 0.6 |
-| 15 | `a=.8` plus `0.10 × fall return` | Stress test | 0.1579 | 0.1596 | 0.6 |
-| 16 | `a=.8` plus `0.25 × fall return` | Stress test | 0.1454 | 0.1468 | 0.6 |
+| # | Welfare outcome | Role | Hard alpha | No-cost phi* |
+|---:|---|---|---:|---:|
+| 1 | Fall-year-2 enrollment | Primary direct | -0.0833 | -0.6 |
+| 2 | Not voluntarily leaving | Primary direct | -0.0165 | -0.6 |
+| 3 | Any subsequent GPA record | Primary direct | -0.0277 | -0.6 |
+| 4 | Year-2 credits earned | Primary direct | -0.3719 | -0.6 |
+| 5 | Good standing in year 2 | Secondary; coding provenance open | -0.2584 | -0.6 |
+| 6 | Composite GPA; no record = 0.0 | Physical lower bound | 0.1433 | 0.6 |
+| 7 | Composite GPA; no record = 0.8 | Inherited sensitivity | 0.1662 | 0.6 |
+| 8 | Composite GPA; no record = 0.9 | Inherited sensitivity | 0.1691 | 0.6 |
+| 9 | Composite GPA; no record = 1.1 | Inherited sensitivity | 0.1748 | 0.6 |
+| 10 | Composite GPA; no record = 1.5 | Cutoff benchmark | 0.1863 | 0.6 |
+| 11 | `a=.8` minus `0.10 × leave` | Stress test | 0.1645 | 0.6 |
+| 12 | `a=.8` minus `0.25 × leave` | Stress test | 0.1619 | 0.6 |
+| 13 | `a=1.1` minus `0.10 × leave` | Stress test | 0.1731 | 0.6 |
+| 14 | `a=1.1` minus `0.25 × leave` | Stress test | 0.1705 | 0.6 |
+| 15 | `a=.8` plus `0.10 × fall return` | Stress test | 0.1579 | 0.6 |
+| 16 | `a=.8` plus `0.25 × fall return` | Stress test | 0.1454 | 0.6 |
 
-The full-sample and cross-fit estimates are close in every row. Ridge sensitivity does
-not change any no-cost policy direction. The direct progression outcomes all favor the
+The full-sample ridge estimates are stable across the grid. Ridge sensitivity does not
+change any no-cost policy direction. The direct progression outcomes all favor the
 lower policy boundary, while every physical or modest status-adjusted GPA composite
 favors the upper boundary.
 

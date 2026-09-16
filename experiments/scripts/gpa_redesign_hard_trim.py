@@ -5,11 +5,10 @@ post-treatment-selected subsequent-GPA diagnostic and from explicitly valued
 full-population composite outcomes.  Every outcome is estimated with the same
 exact hard support indicator and the same fixed nuisance support.
 
-The application reports two implementation strategies without selecting among
-them after looking at the answers:
-
-* full-sample point estimates over a prespecified ridge-sensitivity grid; and
-* a five-fold, unregularized cross-fit robustness estimate.
+The application reports full-sample point estimates over a prespecified
+ridge-sensitivity grid.  The fixed eight-block and role-rotated eight-block
+estimators are simulation diagnostics and are not silently substituted into
+this application runner.
 
 The full-sample ridge-0.001 specification is used only to organize the summary
 plots.  All specifications are retained in ``summary.json``.  The fixed
@@ -129,7 +128,7 @@ def _data_audit() -> Dict[str, Any]:
 
 
 def _run_specifications(sample: RDDSample, key: str) -> Dict[str, Dict[str, Any]]:
-    """Run the locked full-sample ridge grid and cross-fit robustness check."""
+    """Run the locked full-sample ridge-sensitivity grid."""
     specifications: Dict[str, Dict[str, Any]] = {}
     for ridge in RIDGE_GRID:
         label = f"full_{_ridge_label(ridge)}"
@@ -145,19 +144,6 @@ def _run_specifications(sample: RDDSample, key: str) -> Dict[str, Dict[str, Any]
             ridge_scale=ridge,
             crossfit_folds=1,
         )
-    label = "crossfit_5fold_ridge_0"
-    print(f"[run] {key}: {label}")
-    specifications[label] = perfrdd_hard_trim(
-        sample,
-        OUT_ROOT / key / label,
-        NUISANCE_SUPPORT,
-        eps=EPS,
-        c_values=(0.0,),
-        phi_grid=PHI_GRID,
-        max_n=None,
-        ridge_scale=0.0,
-        crossfit_folds=5,
-    )
     return specifications
 
 
@@ -242,8 +228,8 @@ def main() -> Dict[str, Any]:
     _plot_sensitivity(results)
     payload: Dict[str, Any] = {
         "description": (
-            "GPA outcome redesign estimated with exact hard trimming, a locked "
-            "full-sample ridge grid, and five-fold unregularized robustness"
+            "GPA outcome redesign estimated with exact hard trimming and a "
+            "locked full-sample ridge grid"
         ),
         "confirmatory": False,
         "data_audit": audit,
@@ -266,8 +252,8 @@ def main() -> Dict[str, Any]:
         "ridge_grid": list(RIDGE_GRID),
         "primary_display_specification": PRIMARY_SPECIFICATION,
         "primary_display_note": (
-            "Used to organize plots only; every full-sample ridge and cross-fit result "
-            "is retained for transparent sensitivity analysis."
+            "Used to organize plots only; every full-sample ridge result is retained "
+            "for transparent sensitivity analysis."
         ),
         "inference_available": False,
         "inference_note": (

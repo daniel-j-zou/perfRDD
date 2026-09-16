@@ -5,7 +5,7 @@ This module tests the pieces that are deliberately held fixed in
 
 * estimated first-stage residuals and estimated hard-trim endpoints;
 * Gaussian versus least-squares spline estimates of the running-variable law;
-* full-sample fitting versus five-fold cross-fitting and ridge stabilization;
+* full-sample fitting and ridge stabilization;
 * a nonlinear treatment--covariate interaction omitted from the fitted model;
 * weak curvature and boundary-valued policy optima; and
 * clustered outcome errors, including an iid versus cluster-robust variance
@@ -55,7 +55,6 @@ from experiments.methods.spline_density import (
 POLICY_BOUNDS = (-3.0, 3.0)
 POLICY_THRESHOLD = 0.0
 DENSITY_SUPPORT = (-3.0, 3.0)
-N_FOLDS = 5
 
 
 @dataclass(frozen=True)
@@ -475,7 +474,7 @@ def _maximize(components: Sequence[Component], dgp: DGP) -> tuple[float, bool, f
         return numerator / denominator
 
     # Vectorize the coarse search over candidate thresholds.  This is important
-    # for the spline/cross-fit battery: evaluating a scalar spline 241 times
+    # for the spline battery: evaluating a scalar spline 241 times
     # per fold is needlessly expensive and does not improve the argmax audit.
     grid = np.linspace(POLICY_BOUNDS[0], POLICY_BOUNDS[1], 81)
     numerator = np.zeros(len(grid))
@@ -507,11 +506,6 @@ def _maximize(components: Sequence[Component], dgp: DGP) -> tuple[float, bool, f
         or phi_hat >= POLICY_BOUNDS[1] - 2e-4
     )
     return phi_hat, boundary, denominator
-
-
-def _folds(n: int, seed: int, n_folds: int = N_FOLDS) -> list[np.ndarray]:
-    rng = np.random.default_rng(seed + 91_401_221)
-    return [np.asarray(part, dtype=int) for part in np.array_split(rng.permutation(n), n_folds)]
 
 
 def _fit_variant(
@@ -548,26 +542,6 @@ def _fit_variant(
     if "ridge" in variant:
         ridge = 0.50
     density = "spline" if "spline" in variant else "gaussian"
-    if "crossfit5" in variant:
-        all_idx = np.arange(len(sample.Y))
-        parts: list[Component] = []
-        for eval_idx in _folds(len(sample.Y), seed):
-            train_mask = np.ones(len(sample.Y), dtype=bool)
-            train_mask[eval_idx] = False
-            parts.append(
-                _component(
-                    sample,
-                    dgp,
-                    all_idx[train_mask],
-                    eval_idx,
-                    density_method=density,
-                    ridge=ridge,
-                    include_beta2=include_beta2,
-                )
-            )
-        phi, boundary, retained = _maximize(parts, dgp)
-        return phi, boundary, retained, None
-
     idx = np.arange(len(sample.Y))
     component = _component(
         sample,
@@ -645,9 +619,6 @@ VARIANTS = (
     "full_gaussian_ols",
     "full_gaussian_ridge",
     "full_spline_ols",
-    "crossfit5_gaussian",
-    "crossfit5_spline",
-    "crossfit5_gaussian_alpha_only",
 )
 
 

@@ -2106,3 +2106,16 @@ the taxi application, where the level-dependent extension is motivated, and is
 limited in the main text to the correctly specified linear comparison and the
 nonlinear negative control. The manuscript change was compiled successfully and
 pushed in commits `69090e1` and `34910ae` in the Overleaf repository.
+
+## 2026-09-16 — Retire ordinary five-fold cross-fitting (Codex)
+
+Per author direction, ordinary five-fold cross-fitting is no longer an active
+estimator. The hard-trim API now rejects `crossfit_folds=5`; application runners
+use full-sample ridge fits, while the simulation comparison remains
+`decoupled_8block`, `rotated_8block`, and `full_sample`. The differing-slopes
+battery no longer contains five-way variants, and the bootstrap CLI no longer
+accepts a five-way estimator. Active dataset notes and manuscript text were
+updated accordingly; historical run records are preserved elsewhere in this log
+for provenance. Focused hard-trim, differing-slopes, and variance tests pass;
+the full test discovery still reports the pre-existing missing `pyarrow`
+dependency for the taxi parquet registry tests.

@@ -9,8 +9,7 @@ outputs identify two components at every candidate fare threshold:
 This script reconstructs those components and evaluates the curve at an
 explicit dollar cost.  The plotted vertical axis is relative to the utility at
 the observed $15 policy, which makes the magnitude readable in cents per
-hard-trimmed trip.  It compares a mildly regularized full-sample estimate with
-the unregularized five-fold cross-fitted robustness estimate.
+hard-trimmed trip.  It uses the mildly regularized full-sample estimate.
 
 Run after ``python -m experiments.scripts.hard_trim_existing_applications``::
 
@@ -40,7 +39,6 @@ DEFAULT_POLICY_MAXIMUM = 30.0
 
 SPECIFICATIONS = {
     "Regularized full sample": "full_ridge_0p001",
-    "Five-fold cross-fit": "crossfit_5fold_ridge_0",
 }
 
 
