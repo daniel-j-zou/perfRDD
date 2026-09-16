@@ -9,6 +9,37 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-16 - Final theorem audit and support/design-matrix repairs (Codex)
+
+The final manuscript audit found and repaired a rank-deficiency ambiguity:
+the score projection uses the full covariate vector \(X=(1,X^\circ)\), while
+the outcome spline regression uses only \(X^\circ\), because the baseline
+spline span contains a constant.  The theorem now also states nonsingularity
+of \(E(XX^\top)\), a finite \(R_W^2\) moment, continuity of
+\(m_\eta(t)=E[X\mid\eta=t]\) at the hard boundaries, and the local
+generated-index quantile conditions needed by the uniform Bahadur lemma.
+Criterion-level uniform consistency is explicit in (R5).
+
+One remaining support issue is now stated rather than hidden: selecting the
+outcome sample by the generated residual \(\hat\eta^\alpha\in\mathcal J\)
+can create an outer-boundary term even when \(\mathcal J\) is fixed.  The
+theorem therefore conditions on a negligible outer-support eligibility
+remainder (a strict-margin compact support for \(\eta\) is sufficient); absent
+that condition, the outer-boundary contribution must be added to the
+influence function.  The density basis is explicitly extended by zero outside
+its fixed buffered interval.  The feasible-consistency proof now uses the
+correct \(O_p(n_U^{1/4})\) maximum bound under a fourth moment.
+
+Verification: the focused hard-trim Gaussian and cross-fit suites pass (8
+tests); fold counts sum to \(n\) for \(n=1000,1001,10000\); the forced
+prelim LaTeX build exits 0 with 37 pages, no undefined citations/references,
+51 unique labels, and no tracked conflict markers.  The only author-level
+theory work left is a primitive spline criterion/derivative-rate check and
+documentation of the computational bootstrap; no bootstrap validity theorem
+or reused-sample variance claim is made.
+
+-- Codex
+
 ## 2026-09-16 - Presentation font decision (Codex)
 
 The presentation remains a standard Beamer deck using the built-in `AnnArbor`
