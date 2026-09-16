@@ -9,6 +9,38 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-15 — Theorem-aligned eight-block hard-trim simulation (Codex)
+
+The previous baseline's six role blocks reused one main first-stage projection.
+To match the hard-trim CLT, `experiments/scripts/hard_trim_gaussian_baseline.py`
+now provides `make_theory_folds`, an eight-block seeded partition with distinct
+`gamma_alpha`, `gamma_g`, and `gamma_U` source folds for the outcome, density,
+and evaluation blocks, plus independent lower- and upper-boundary blocks and
+their associated outcome/density/utility blocks.  The five first-stage fits are
+recorded in each replication.  The regularization comparison script now reports
+this estimator as `decoupled_8block`; ordinary five-fold cross-fitting and
+full-sample reuse remain diagnostics only.
+
+The known-target Gaussian simulation was rerun with 200 replications at
+`n={1000,2500,5000,10000}` and 100 replications at
+`n={10000,20000,40000,80000}`.  The decoupled RMSEs in the larger run are
+`0.232, 0.147, 0.104, 0.075` with `n*MSE` `538, 432, 433, 452`, bias
+`0.014, -0.000, 0.010, 0.009`, and boundary rates `0,0,0,0`; the log--log
+RMSE slope is `-0.538`.  The smaller run has boundary rates `0.420, 0.095,
+0.020, 0.005`, illustrating the finite-sample cost of one-eighth blocks.
+The five-fold and full-sample comparison slopes are `-0.505` and `-0.499`.
+Outputs are in the ignored `experiments/runs/theorem_decoupled_20260915*`
+folders; the durable methods/results note is
+`experiments/datasets/simulations/THEOREM_DECOUPLED_HARD_TRIM_20260915.md`.
+
+Verification: targeted baseline/cross-fit tests pass; the full experiment test
+suite passes except for three pre-existing registry tests requiring the optional
+`pyarrow` parquet engine for the local taxi data.  No taxi files were staged.
+
+— Codex
+
+---
+
 ## 2026-09-15 — Defer differing-slopes theory from the prelim (Codex)
 
 Author decision: the formal differing-slopes theory is not part of the prelim.

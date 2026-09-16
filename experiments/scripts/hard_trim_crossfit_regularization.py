@@ -3,7 +3,9 @@
 All estimators maximize the same hard-support-trimmed population criterion.
 They differ only in sample reuse and regularization:
 
-* ``honest_split`` uses the disjoint blocks in the hard-trim baseline;
+* ``decoupled_8block`` uses the theorem-aligned disjoint blocks: separate
+  first-stage source folds for the outcome, density, and evaluation blocks,
+  plus independent lower- and upper-boundary blocks;
 * ``crossfit_5fold`` evaluates every observation with out-of-fold nuisances;
 * ``full_ridge_*`` fits and evaluates on the full sample over a ridge grid.
 
@@ -37,17 +39,19 @@ from experiments.methods.spline_density import SplineDensityFit, fit_spline_dens
 from experiments.scripts.hard_trim_gaussian_baseline import (
     COST,
     EPS,
+    GAMMA,
     GeneratedData,
     NUISANCE_SUPPORT,
     PHI_0,
     POLICY_BOUNDS,
+    THEORY_FOLD_FRACTIONS,
     _estimate_T_normal,
-    _estimate_boundaries,
+    _estimate_theory_boundaries,
     _fit_gamma,
     _fit_spline_plm,
     _predict_T,
     generate_data,
-    make_folds,
+    make_theory_folds,
     population_truth,
     population_utility,
 )
@@ -190,6 +194,51 @@ def _component(
     )
 
 
+def _theory_decoupled_component(
+    data: GeneratedData,
+    folds: Dict[str, np.ndarray],
+    density_method: str,
+) -> tuple[EvaluationComponent, Dict[str, float]]:
+    """Construct one fully decoupled theorem-facing evaluation component.
+
+    The three main score blocks use distinct first-stage fits.  The lower and
+    upper boundary blocks use two additional fits, each on its own endpoint
+    block.  This is the eight-block analogue of the paper's decoupled split;
+    no first-stage estimate is shared across main nuisance/evaluation blocks.
+    """
+    gamma_alpha = _fit_gamma(data, folds["gamma_alpha"])
+    eta_alpha = data.Q - _predict_T(data.X, gamma_alpha)
+    fit = _fit_spline_plm(data, folds["outcome"], eta_alpha, NUISANCE_SUPPORT)
+
+    gamma_g = _fit_gamma(data, folds["gamma_g"])
+    T_density = _fit_T_density(
+        _predict_T(data.X[folds["density"]], gamma_g), density_method
+    )
+
+    gamma_U = _fit_gamma(data, folds["gamma_U"])
+    eval_idx = folds["utility"]
+    eta_eval = data.Q[eval_idx] - _predict_T(data.X[eval_idx], gamma_U)
+    l_hat, u_hat, gamma_l, gamma_u = _estimate_theory_boundaries(data, folds)
+    weights = ((eta_eval >= l_hat) & (eta_eval <= u_hat)).astype(float)
+    effect = _eval_basis(eta_eval, fit.info) @ fit.omega_treat
+    component = EvaluationComponent(
+        eta=eta_eval,
+        hard_weights=weights,
+        treatment_effect=effect,
+        T_density=T_density,
+    )
+    diagnostics = {
+        "gamma_alpha_error": float(np.linalg.norm(gamma_alpha[1:] - GAMMA)),
+        "gamma_g_error": float(np.linalg.norm(gamma_g[1:] - GAMMA)),
+        "gamma_U_error": float(np.linalg.norm(gamma_U[1:] - GAMMA)),
+        "gamma_l_error": float(np.linalg.norm(gamma_l[1:] - GAMMA)),
+        "gamma_u_error": float(np.linalg.norm(gamma_u[1:] - GAMMA)),
+        "l_hat": float(l_hat),
+        "u_hat": float(u_hat),
+    }
+    return component, diagnostics
+
+
 def _ridge_label(ridge_scale: float) -> str:
     value = f"{ridge_scale:g}".replace(".", "p").replace("-", "m")
     return f"full_ridge_{value}"
@@ -202,7 +251,7 @@ def _crossfit_label(n_folds: int) -> str:
 def estimator_labels(
     ridge_grid: Sequence[float], n_folds: int = 5,
 ) -> list[str]:
-    return ["honest_split", _crossfit_label(n_folds)] + [
+    return ["decoupled_8block", _crossfit_label(n_folds)] + [
         _ridge_label(float(value)) for value in ridge_grid
     ]
 
@@ -221,25 +270,28 @@ def run_replication(
     all_idx = np.arange(n)
     result: Dict[str, Any] = {"n": int(n), "seed": int(seed)}
 
-    # Conservative theorem-style construction with mutually disjoint blocks.
-    honest = make_folds(n, seed)
-    gamma_hat = _fit_gamma(data, honest["first_stage"])
-    eta_hat = data.Q - _predict_T(data.X, gamma_hat)
-    l_hat, u_hat = _estimate_boundaries(data, honest)
-    fit = _fit_spline_plm(data, honest["outcome"], eta_hat, NUISANCE_SUPPORT)
-    T_density_values = _predict_T(data.X[honest["density"]], gamma_hat)
-    T_density = _fit_T_density(T_density_values, density_method)
-    eta_eval = eta_hat[honest["utility"]]
-    weights = ((eta_eval >= l_hat) & (eta_eval <= u_hat)).astype(float)
-    effect = _eval_basis(eta_eval, fit.info) @ fit.omega_treat
+    # The theorem-facing estimator uses eight disjoint blocks and five
+    # first-stage fits.  Keep it separate from ordinary K-fold cross-fitting.
+    theory_folds = make_theory_folds(n, seed)
+    theory_component, theory_diag = _theory_decoupled_component(
+        data, theory_folds, density_method
+    )
+    eta_eval = theory_component.eta
+    weights = theory_component.hard_weights
     phi, boundary, retained = _maximize_components(
-        [EvaluationComponent(eta_eval, weights, effect, T_density)]
+        [theory_component]
     )
     result.update({
-        "honest_split_phi": phi,
-        "honest_split_boundary": boundary,
-        "honest_split_retention": retained / len(eta_eval),
-        "honest_split_density_basis": _density_basis_count(T_density),
+        "decoupled_8block_phi": phi,
+        "decoupled_8block_boundary": boundary,
+        "decoupled_8block_retention": retained / len(eta_eval),
+        "decoupled_8block_density_basis": _density_basis_count(
+            theory_component.T_density
+        ),
+        "theory_fold_counts": {
+            name: int(len(index)) for name, index in theory_folds.items()
+        },
+        "theory_first_stage_diagnostics": theory_diag,
     })
 
     # Standard K-fold cross-fitting: held-out evaluation, training-fold nuisances.
@@ -408,6 +460,8 @@ def run_experiment(
         "ridge_grid": list(ridge_grid),
         "ridge_definition": "spline penalty lambda = ridge_scale / sqrt(n_fit)",
         "deterministic_nuisance_support": list(NUISANCE_SUPPORT),
+        "decoupled_design": "eight disjoint blocks; five role-specific first-stage fits",
+        "decoupled_fold_fractions": THEORY_FOLD_FRACTIONS,
         "replications": int(reps),
         "summary": summary,
     }

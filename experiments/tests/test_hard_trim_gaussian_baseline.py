@@ -7,6 +7,7 @@ from experiments.scripts.hard_trim_gaussian_baseline import (
     U0,
     generate_data,
     make_folds,
+    make_theory_folds,
     population_truth,
     run_replication,
 )
@@ -25,6 +26,26 @@ class GaussianHardTrimBaselineTest(unittest.TestCase):
 
     def test_folds_are_disjoint_and_cover_sample(self):
         folds = make_folds(1000, 7)
+        joined = np.concatenate(list(folds.values()))
+        self.assertEqual(len(joined), 1000)
+        self.assertEqual(len(np.unique(joined)), 1000)
+        np.testing.assert_array_equal(np.sort(joined), np.arange(1000))
+
+    def test_theory_folds_are_eight_disjoint_blocks(self):
+        folds = make_theory_folds(1000, 7)
+        self.assertEqual(
+            set(folds),
+            {
+                "gamma_alpha",
+                "gamma_g",
+                "gamma_U",
+                "boundary_l",
+                "boundary_u",
+                "outcome",
+                "density",
+                "utility",
+            },
+        )
         joined = np.concatenate(list(folds.values()))
         self.assertEqual(len(joined), 1000)
         self.assertEqual(len(np.unique(joined)), 1000)
@@ -50,6 +71,8 @@ class GaussianHardTrimBaselineTest(unittest.TestCase):
         self.assertLess(row["l_hat"], row["u_hat"])
         self.assertGreater(row["hard_retention"], 0.4)
         self.assertLess(row["hard_retention"], 1.0)
+        self.assertEqual(set(row["theory_fold_counts"]), set(make_theory_folds(1000, 0)))
+        self.assertEqual(sum(row["theory_fold_counts"].values()), 1000)
 
 
 if __name__ == "__main__":

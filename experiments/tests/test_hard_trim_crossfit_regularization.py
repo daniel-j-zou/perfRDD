@@ -29,6 +29,12 @@ class HardTrimCrossfitRegularizationTest(unittest.TestCase):
         self.assertEqual(
             set(result["1000"]["estimators"]), set(estimator_labels(ridge))
         )
+        self.assertEqual(sum(row["theory_fold_counts"].values()), 1000)
+        self.assertEqual(
+            set(row["theory_first_stage_diagnostics"]),
+            {"gamma_alpha_error", "gamma_g_error", "gamma_U_error",
+             "gamma_l_error", "gamma_u_error", "l_hat", "u_hat"},
+        )
 
     def test_spline_density_replication(self):
         row = run_replication(1000, 3, (0.0,), 2, "spline")

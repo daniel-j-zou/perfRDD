@@ -5,10 +5,12 @@ targets are known accurately.  It compares an oracle-index hard estimator, a
 feasible split-sample hard estimator, the same feasible estimator with the
 symmetric smooth support gate, and an untrimmed benchmark.
 
-The feasible estimators use a deterministic nuisance support and disjoint
-folds for the first stage, lower boundary, upper boundary, outcome nuisance,
-T-distribution nuisance, and utility evaluation.  This mirrors the structure
-of the hard-trimming theorem more closely than the application harness does.
+The theorem-aligned estimator uses eight disjoint blocks: separate first-stage
+source folds for the outcome, density, and evaluation blocks; separate lower
+and upper boundary blocks; and the three corresponding nuisance/evaluation
+blocks.  This is deliberately more conservative than ordinary K-fold
+cross-fitting and mirrors the independence structure in the hard-trimming
+theorem.
 
 Run from the repository root, for example:
 
@@ -147,6 +149,46 @@ def make_folds(n: int, seed: int) -> Dict[str, np.ndarray]:
     return dict(zip(names, chunks))
 
 
+# The theorem has three main score blocks (outcome, density, evaluation), each
+# with its own first-stage projection, plus two boundary blocks.  Equal-sized
+# blocks make the simulation bookkeeping transparent; the theorem only needs
+# each limiting fraction to be strictly positive.
+THEORY_FOLD_FRACTIONS = {
+    "gamma_alpha": 1.0 / 8.0,
+    "gamma_g": 1.0 / 8.0,
+    "gamma_U": 1.0 / 8.0,
+    "boundary_l": 1.0 / 8.0,
+    "boundary_u": 1.0 / 8.0,
+    "outcome": 1.0 / 8.0,
+    "density": 1.0 / 8.0,
+    "utility": 1.0 / 8.0,
+}
+
+
+def make_theory_folds(n: int, seed: int) -> Dict[str, np.ndarray]:
+    """Partition observations into the theorem's eight disjoint blocks.
+
+    ``gamma_alpha``, ``gamma_g``, and ``gamma_U`` train the first-stage
+    projections used by the outcome, density, and evaluation blocks,
+    respectively.  The two boundary blocks estimate their own first-stage
+    projection and quantile endpoint on the same block, as in the boundary
+    CLT.  The function is deterministic conditional on ``seed`` and guarantees
+    a partition of ``range(n)``.
+    """
+    names = tuple(THEORY_FOLD_FRACTIONS)
+    fractions = np.asarray([THEORY_FOLD_FRACTIONS[name] for name in names])
+    if n < len(names):
+        raise ValueError("sample must have at least one observation per block")
+    rng = np.random.default_rng(seed + 20_000_029)
+    order = rng.permutation(n)
+    cuts = np.floor(np.cumsum(fractions)[:-1] * n).astype(int)
+    chunks = np.split(order, cuts)
+    folds = dict(zip(names, chunks))
+    if any(len(chunk) == 0 for chunk in folds.values()):
+        raise ValueError("theory fold partition produced an empty block")
+    return folds
+
+
 def _fit_gamma(data: GeneratedData, idx: np.ndarray) -> np.ndarray:
     design = np.column_stack((np.ones(len(idx)), data.X[idx]))
     coef, *_ = np.linalg.lstsq(design, data.Q[idx], rcond=None)
@@ -271,9 +313,29 @@ def _estimate_boundaries(data: GeneratedData, folds: Dict[str, np.ndarray]) -> t
     return l_hat, u_hat
 
 
+def _estimate_theory_boundaries(
+    data: GeneratedData, folds: Dict[str, np.ndarray]
+) -> tuple[float, float, np.ndarray, np.ndarray]:
+    """Estimate lower/upper hard-trim endpoints on independent boundary blocks.
+
+    Each endpoint has its own first-stage OLS fit.  Returning both coefficient
+    vectors makes the source-fold construction auditable in the simulation
+    output; the endpoint estimates themselves are the only downstream inputs.
+    """
+    gamma_l = _fit_gamma(data, folds["boundary_l"])
+    gamma_u = _fit_gamma(data, folds["boundary_u"])
+    T_l = _predict_T(data.X[folds["boundary_l"]], gamma_l)
+    T_u = _predict_T(data.X[folds["boundary_u"]], gamma_u)
+    l_hat = PHI_0 - float(np.quantile(T_l, 1.0 - EPS))
+    u_hat = PHI_0 - float(np.quantile(T_u, EPS))
+    if not l_hat < u_hat:
+        raise ValueError(f"estimated overlap window is invalid: [{l_hat}, {u_hat}]")
+    return l_hat, u_hat, gamma_l, gamma_u
+
+
 def run_replication(n: int, seed: int) -> Dict[str, Any]:
     data = generate_data(n, seed)
-    folds = make_folds(n, seed)
+    folds = make_theory_folds(n, seed)
     utility_idx = folds["utility"]
 
     # Oracle-index hard estimator: eta and trim endpoints are known, while
@@ -290,17 +352,23 @@ def run_replication(n: int, seed: int) -> Dict[str, Any]:
         fit_oracle, eta_oracle_eval, hard_oracle_weights, T_mu_oracle, T_sd_oracle
     )
 
-    # Feasible estimators share an independently estimated first stage and
-    # nuisance fit.  Only the final hard indicator versus smooth gate differs.
-    gamma_hat = _fit_gamma(data, folds["first_stage"])
-    eta_hat = data.Q - _predict_T(data.X, gamma_hat)
-    l_hat, u_hat = _estimate_boundaries(data, folds)
+    # Fully decoupled feasible estimator.  The outcome, density, and utility
+    # blocks each receive a distinct first-stage fit; lower and upper endpoint
+    # blocks receive two further fits.  No estimated residual or endpoint is
+    # reused across these independent score blocks.
+    gamma_alpha = _fit_gamma(data, folds["gamma_alpha"])
+    eta_alpha = data.Q - _predict_T(data.X, gamma_alpha)
     fit_feasible = _fit_spline_plm(
-        data, folds["outcome"], eta_hat, NUISANCE_SUPPORT
+        data, folds["outcome"], eta_alpha, NUISANCE_SUPPORT
     )
-    T_density_hat = _predict_T(data.X[folds["density"]], gamma_hat)
+    gamma_g = _fit_gamma(data, folds["gamma_g"])
+    T_density_hat = _predict_T(data.X[folds["density"]], gamma_g)
     T_mu, T_sd = _estimate_T_normal(T_density_hat)
-    eta_feasible_eval = eta_hat[utility_idx]
+    gamma_U = _fit_gamma(data, folds["gamma_U"])
+    eta_feasible_eval = (
+        data.Q[utility_idx] - _predict_T(data.X[utility_idx], gamma_U)
+    )
+    l_hat, u_hat, gamma_l, gamma_u = _estimate_theory_boundaries(data, folds)
     hard_weights = (
         (eta_feasible_eval >= l_hat) & (eta_feasible_eval <= u_hat)
     ).astype(float)
@@ -320,7 +388,7 @@ def run_replication(n: int, seed: int) -> Dict[str, Any]:
     # 6e-5 of a standard-normal eta distribution; basis evaluation clips the
     # vanishingly rare observations outside it.
     fit_untrimmed = _fit_spline_plm(
-        data, folds["outcome"], eta_hat, UNTRIMMED_SUPPORT
+        data, folds["outcome"], eta_alpha, UNTRIMMED_SUPPORT
     )
     untrimmed_phi, untrimmed_u, untrimmed_boundary = _maximize_utility(
         fit_untrimmed,
@@ -359,9 +427,19 @@ def run_replication(n: int, seed: int) -> Dict[str, Any]:
         "outcome_fit_treated": int(fit_feasible.n_treated),
         "outcome_fit_control": int(fit_feasible.n_control),
         "first_stage_gamma_error": float(
-            np.linalg.norm(gamma_hat[1:] - GAMMA)
+            np.linalg.norm(gamma_U[1:] - GAMMA)
         ),
-        "first_stage_intercept": float(gamma_hat[0]),
+        "first_stage_intercept": float(gamma_U[0]),
+        "theory_fold_counts": {
+            name: int(len(index)) for name, index in folds.items()
+        },
+        "theory_gamma_alpha_error": float(
+            np.linalg.norm(gamma_alpha[1:] - GAMMA)
+        ),
+        "theory_gamma_g_error": float(np.linalg.norm(gamma_g[1:] - GAMMA)),
+        "theory_gamma_U_error": float(np.linalg.norm(gamma_U[1:] - GAMMA)),
+        "theory_gamma_l_error": float(np.linalg.norm(gamma_l[1:] - GAMMA)),
+        "theory_gamma_u_error": float(np.linalg.norm(gamma_u[1:] - GAMMA)),
     }
 
 
@@ -504,7 +582,10 @@ def run_experiment(
     truth = population_truth()
     summary = _summarize(rows, truth)
     payload = {
-        "description": "Gaussian baseline for exact hard-support trimming",
+        "description": (
+            "Gaussian baseline for exact hard-support trimming with the "
+            "theorem-aligned eight-block decoupled split"
+        ),
         "dgp": {
             "p": P,
             "gamma": GAMMA.tolist(),
@@ -520,6 +601,7 @@ def run_experiment(
             "knot_exponent": KNOT_EXPONENT,
             "delta_exponent": DELTA_EXPONENT,
         },
+        "theory_fold_fractions": THEORY_FOLD_FRACTIONS,
         "truth": truth,
         "reps": reps,
         "summary": summary,
