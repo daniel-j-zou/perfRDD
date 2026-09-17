@@ -9,6 +9,12 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Slide 21 reworded (Claude)
+
+Per author: dropped the term 'Riesz representer' (r_alpha is now described as a fixed projection weight from the linearized least-squares fit), and rewrote the generated-index example as intuition/strategy (sensitivity via differentiation x OLS index error = one extra mean-zero score, root-n preserved) instead of the A_U equation. Trimmed to fit; deck builds.
+
+-- Claude
+
 ## 2026-09-17 - DECK CLAIM released: TODO 31 done (Claude)
 
 Slide 20 reframed into two slides per author: (1) three kinds of first-order terms -- single-nuisance changes g*(alpha_hat-alpha) [->psi_alpha] and (alpha-c)*(g_hat-g) [->psi_g], generated-index loadings from gamma_hat-gamma, plus the mean-zero direct score; (2) one worked psi_alpha (Riesz) and one worked gamma-loading. Landed via cherry-pick onto the author's rapidly-advancing master; deck builds.
