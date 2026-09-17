@@ -9,6 +9,15 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM: Codex - define early treatment probabilities and remove LLM-style slide wording; branch slides/notation-language-cleanup (open)
+
+Add the definition of $e_\phi(\eta)=\mathbb P\{D(\phi)=1\mid\eta\}$
+before its first use on the overlap slide, and revise audience-facing slide
+copy that uses vague or presentation-generator language such as “anchor.”
+Preserve the mathematical content, finalized sections, and concurrent edits.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM released: correct bootstrap running-variable law label (Codex)
 
 The validation frame now labels the t5 and mixture rows as **running-variable
