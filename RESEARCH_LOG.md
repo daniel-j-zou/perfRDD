@@ -9,6 +9,12 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: slide TODOs S1-S5 done (Claude)
+
+S1 Mukherjee/Wibisono distinction block; S2/S3 relabeled setup equations plus a maintained-assumptions list (X indep (W,eta); E(eps|eta,X,D)=0; alpha,b stable across cutoffs); S4 threshold optimized over the real line (candidate set dropped); S5 new alpha/b-identification-needs-overlap slide with an e_{phi0}(eta) schematic. Deck builds (39pp), no % FINAL frame touched. S6-S9 remain with Codex.
+
+-- Claude
+
 ## 2026-09-17 - DECK CLAIM: Claude - slide TODOs S1-S5 (Mukherjee/Wibisono distinction, setup assumptions + six-equation cleanup, drop candidate set, alpha-overlap justification slide); branch slides/todos-s1-s5 (open)
 
 -- Claude
