@@ -9,6 +9,15 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: Codex - slide 23 decoupled-split arrows cleaned
+
+The four slide-23 connectors were rerouted around the source boxes with separate
+entry heights on the optimization fold. The verified manuscript update is on
+Overleaf master in commit `e627d1a`; the build note documents the pre-existing
+slide-21 TODO 40 syntax error.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM: Codex - TODOs 40/41; make slides 20--21 non-overlapping; branch slides/todo40-41 (open)
 
 Follow-up to the earlier TODO 31 slide-20 restructure. The current shared deck
