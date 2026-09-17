@@ -9,6 +9,31 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Bootstrap coverage validation completed (Codex)
+
+The follow-up full-sample hard-trim re-estimation bootstrap used 200 outer
+replications and 199 bootstrap draws in each of the four pilot cells
+(`n={1,200,2,400}`; t5 and mixture errors), yielding 159,200 successful fits
+and zero failures. Percentile coverage was 0.935, 0.950, 0.945, and 0.945,
+respectively; normal coverage was 0.980, 0.975, 0.925, and 0.925. The
+percentile estimates' binomial 95% Wilson intervals all include 0.95. Normal
+intervals are conservative under t5 and mildly under-cover for the mixture,
+so percentile intervals remain the preferred diagnostic. This is finite-sample
+validation, not a bootstrap validity theorem; clustering and the fully
+decoupled influence-function construction remain untested here. Results are
+documented in `experiments/datasets/simulations/BOOTSTRAP_COVERAGE_VALIDATION_20260917.md`.
+
+-- Codex
+
+## 2026-09-17 - DECK CLAIM: Codex - update bootstrap coverage slide with validation; branch slides/bootstrap-coverage-validation-20260917 (open)
+
+Update the existing simulation-section bootstrap frame to replace the 20-replication
+pilot numbers with the completed 200-replication validation. Scope excludes slide
+23, all `% FINAL` frames, and the finalized Future Work section. The frame will
+show percentile versus normal coverage and retain the finite-sample caveat.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM released: bootstrap coverage diagnostic slide (Codex)
 
 The simulation section of the presentation now includes the full-sample,
