@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Slide TODO pass completed (Codex)
+
+The inline `[TODO:]` notes in `manuscript/prelim/slides.tex` have been
+resolved.  The deck now has section roadmaps, an explicit score/outcome
+decomposition, a three-step estimator overview, related work in backup, and a
+five-frame future-work sequence covering differing slopes, flexible nuisances,
+online updates, performative fixed points, and multiple scores.  The redundant
+OLS-only spline and closing frames were removed.  The Beamer source uses the
+standard Computer Modern Beamer fonts with the built-in AnnArbor theme and
+builds to a 49-page PDF without overfull boxes in the edited frames.
+
+The source commit is `dc82b78`; the deck lock was released in `0dcd441`.  The
+manuscript build completed to 35 pages, but still reports the pre-existing
+undefined `tab:taxi-2x2` references and layout warnings in `prelim.tex`; these
+are outside the slide change and are left for a separate manuscript cleanup.
+
+-- Codex
+
 ## 2026-09-17 - Prelim camera-readiness review (Codex)
 
 The current `manuscript/prelim/prelim.tex` builds to a 37-page PDF with no
