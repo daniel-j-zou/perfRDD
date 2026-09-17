@@ -9,6 +9,18 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: t5-only bootstrap validation slide (Codex)
+
+The bootstrap validation frame now shows only the two Student-t(5) running-
+variable cells (`n=1,200` and `2,400`) and omits the running-law column, as
+requested. It reports 79,600 successful bootstrap fits, percentile coverage
+0.935/0.950, and normal coverage 0.980/0.975. Source commit `58c2c0d` and
+changelog commit `a206540` are on Overleaf `master`; the deck rebuilds to 43
+pages and the updated frame was visually inspected. The complete four-cell
+validation remains in the tracked simulation note.
+
+-- Codex
+
 ## 2026-09-17 - Slide TODO 50 completed (Codex)
 
 Removed the rendered TODO 50 marker and the latent-type $\eta$ row from the
