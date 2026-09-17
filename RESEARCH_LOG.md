@@ -27,6 +27,21 @@ source was edited in this review.
 
 -- Codex
 
+## 2026-09-17 - Prelim prose cleanup completed (Codex)
+
+The intended manuscript title was already present in `prelim.tex`, and the
+running head now uses that title with the three-author byline.  The abstract
+was rewritten for grammar, spelling, and a clearer description of the
+covariate-index and latent-residual setup.  The remaining author-check and
+incomplete-bootstrap language was removed from the theorem discussion and
+diagnostics appendices, and the proof dependency label was recast as a proof
+roadmap.  The stray comma in the differing-slopes future-work sentence is
+gone.  The manuscript rebuilds to 35 pages with no undefined citation or
+reference warnings.  Manuscript changes were pushed to Overleaf as commit
+`ef82c7a`.
+
+-- Codex
+
 ## 2026-09-16 - Final proof-consistency pass (Codex)
 
 The final source audit found and repaired three notation/implementation
