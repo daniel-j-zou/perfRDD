@@ -9,6 +9,12 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: slide 20 influence function done (Claude)
+
+Replaced the trimmed 'Leading CLT pieces' with two slides: a derivation of the direct score psi_0=-F*, the outcome score psi_alpha via the Riesz representer, and a generated-index loading from eta-hat; then the full Psi_{main,eps,i} (three scores + three index loadings), density score, and linearization with boundary folds. Rebased onto the author's concurrent Overleaf edits (their Mukherjee/Wibisono/setup rewrites preserved). Deck builds (41pp).
+
+-- Claude
+
 ## 2026-09-17 - DECK CLAIM: Claude - slide 20 influence function (show full Psi_i and derive a few scores); also comment a build-breaking bracketed [TODO 11]; branch slides/slide20-psi (open)
 
 -- Claude
