@@ -9,6 +9,10 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM: Claude - TODO 31 restructure slide 20 (single-nuisance-change terms + generated-index loadings, with worked psi_alpha and gamma-loading examples); branch slides/todo31 (open)
+
+-- Claude
+
 ## 2026-09-17 - DECK CLAIM released: slide 20 influence function done (Claude)
 
 Replaced the trimmed 'Leading CLT pieces' with two slides: a derivation of the direct score psi_0=-F*, the outcome score psi_alpha via the Riesz representer, and a generated-index loading from eta-hat; then the full Psi_{main,eps,i} (three scores + three index loadings), density score, and linearization with boundary folds. Rebased onto the author's concurrent Overleaf edits (their Mukherjee/Wibisono/setup rewrites preserved). Deck builds (41pp).
