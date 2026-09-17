@@ -66,15 +66,22 @@ Both agents push by default, so simultaneous edits to the same file are the main
 
 The deck is a single file that the author edits live through Overleaf, so its `master`
 history moves on its own. Coordinate with in-file markers plus a logged branch claim.
-There is **no lock registry, Git hook, or frame parser** — an earlier tool-based lock was
+There is **no lock registry or blocking Git hook** — an earlier tool-based lock was
 removed because it added three-commit ceremony, crashed on ordinary source, and failed
-silently. Keep coordination lightweight and grep-able.
+silently. Finalization markers are advisory protocol, reported by the status helper,
+and must remain lightweight and grep-able.
 
 **Author markers (in `slides.tex`).**
 - `% FINAL` on the same line as a frame's `\begin{frame}{...}` means the author has
   finalized that frame. Treat it as **read-only**: do not change its content, title,
   layout, or the marker. Edit it only after the author names that slide and asks for a
   revision. Find them with `rg -n '% FINAL' manuscript/prelim/slides.tex`.
+- `% SECTION FINAL: <name>` followed later by `% END SECTION FINAL: <name>` marks an
+  author-finalized section. Treat every line in that range as **read-only**, including
+  commented-out frames and supporting prose. Only the author may revise the section;
+  an agent must ask the author to remove the marker or explicitly name the requested
+  revision before editing it. Find protected ranges with
+  `python3 code/tools/slide_status.py`.
 - `% TODO: ...` (a LaTeX comment, so it does not render) on or just below a frame's
   `\begin{frame}` line is an author edit request for that frame. Address it and delete the
   marker in the same commit. Do not add work to a `% FINAL` frame on a `% TODO`'s behalf
@@ -99,8 +106,8 @@ Fetch right before merging; if they touched your frames, rebase and re-apply. Ne
 force-push or discard their edits.
 
 **Optional advisory check.** `python3 code/tools/slide_status.py` lists the current
-`% FINAL` frames and the most recent deck claims. It is advisory only — a plain text scan
-that never blocks a commit and never edits anything.
+`% FINAL` frames, `% SECTION FINAL` ranges, and the most recent deck claims. It is advisory
+only — a plain text scan that never blocks a commit and never edits anything.
 
 ## Drafting manuscript prose
 

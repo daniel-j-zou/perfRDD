@@ -9,6 +9,16 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: Future Work section finalization markers (Codex)
+
+Added `% SECTION FINAL: Future Work` and matching `% END SECTION FINAL: Future Work`
+markers to the complete Future Work section. `COLLABORATION.md` now defines marked
+section ranges as author-only edit zones, and `tools/slide_status.py` reports them.
+The marker-only manuscript update was pushed to `master` in commits `308c33c` and
+`d853854`; the deck still compiles to 40 pages.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM: Codex - Future Work section finalization markers; branch slides/final-section-marker (open)
 
 The author requested section-level finalization so agents treat the entire
