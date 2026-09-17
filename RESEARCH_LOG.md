@@ -9,6 +9,15 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM: Codex - percentile-only bootstrap slide; branch slides/bootstrap-percentile-only-20260917 (open)
+
+Simplify the t5-only bootstrap validation frame by removing the normal-bootstrap
+column and discussion. Retain the percentile coverage, bootstrap spread, fit
+count, and finite-sample caveat. Scope excludes slide 23, all `% FINAL` frames,
+the finalized Future Work section, and concurrent author edits.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM released: Codex - presentation TODOs 51-56
 
 Completed the empirical-application TODOs through 56. The deck now explains
