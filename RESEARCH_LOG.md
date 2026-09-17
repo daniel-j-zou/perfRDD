@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: percentile-only bootstrap slide (Codex)
+
+The t5-only bootstrap validation frame now reports only the percentile
+confidence interval: $n=1,200$ coverage 0.935 and $n=2,400$ coverage 0.950,
+with the normal-bootstrap column and discussion removed. The frame retains the
+mean bootstrap spread, 79,600 successful fits, and the finite-sample caveat.
+Source commit `bce2f93` and changelog commit `0fb3e9e` are on Overleaf `master`;
+the deck rebuilds to 42 pages and the simplified frame was visually inspected.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM: Codex - percentile-only bootstrap slide; branch slides/bootstrap-percentile-only-20260917 (open)
 
 Simplify the t5-only bootstrap validation frame by removing the normal-bootstrap
