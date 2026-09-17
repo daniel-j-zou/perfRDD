@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Section roadmaps replaced by concise openers (Codex)
+
+The slide deck no longer inserts table-of-contents roadmap frames at section
+boundaries.  Each of the five main sections now begins with one simple opener
+showing the section title and its one-sentence purpose.  The default deck
+remains 41 pages because the backup appendix is still disabled.  The slide
+source and lock-release commits are `b05ef90` and `52d4bd5` in the manuscript
+repository.
+
+-- Codex
+
 ## 2026-09-17 - Backup slides hidden from default talk build (Codex)
 
 The eight backup frames remain in `manuscript/prelim/slides.tex` for committee
