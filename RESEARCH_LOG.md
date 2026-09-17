@@ -9,6 +9,15 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: Codex - slide 23 reference layout
+
+Slide 23 now follows the supplied figure's 2x2 source-box layout, with a taller
+optimization fold and clean right-angle connectors routed through the gaps. The
+manuscript update is on Overleaf master in commit `0a30a6f` (source change
+`1d1c442`); the 42-page deck builds with only the known taxi-slide warning.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM: Codex - bootstrap coverage diagnostic slide; branch slides/bootstrap-coverage-20260917 (open)
 
 Adding one simulation-results frame after the existing verification frame in
