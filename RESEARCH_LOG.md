@@ -2619,3 +2619,15 @@ adjustment in one fit. The spline basis $\tilde N_K$ and coefficient vectors
 $\omega_\alpha,\omega_b$ are now defined on-slide; separate fits or matching
 remain possible alternatives, but the stacked fit preserves the covariance
 between the two spline blocks and is the cleaner presentation.
+
+## 2026-09-17 — Verify the Wibisono comparison slide (Codex)
+
+The Wibisono et al. paper models the individual treatment effect as
+$\alpha_0(X,\eta)$, so it may depend on observed background covariates $X$ as
+well as the latent score residual $\eta$. Its ATT estimator first estimates the
+linear adjustment by first-order differences among controls, then matches each
+treated observation to the nearest control in estimated residual $\hat\eta$, and
+averages covariate-adjusted treated--control outcome differences. This is a
+residual-matching estimator, not a nonparametric outcome regression for
+$\alpha(\eta)$. Source: Wibisono et al., arXiv:2504.17126,
+<https://arxiv.org/abs/2504.17126> (Sections 1--2).
