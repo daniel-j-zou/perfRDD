@@ -42,6 +42,21 @@ reference warnings.  Manuscript changes were pushed to Overleaf as commit
 
 -- Codex
 
+## 2026-09-17 - Final oral-prelim readiness check (Codex)
+
+The current remote manuscript compiles to a 35-page PDF.  The compiled PDF
+has no visible TODOs, author-check labels, placeholders, undefined citations,
+or undefined references.  The title and three-author byline are present, the
+abstract reads cleanly, and sampled theorem, appendix, and bibliography pages
+have no visible clipping.  The document is ready to send for the oral prelim,
+with two substantive caveats for the author to be prepared to state aloud:
+the main theorem remains conditional on the high-level R5 feasible
+criterion/derivative condition, and the theory uses (D=1\{Q>\phi_0\}) while
+the taxi application uses (D=1\{Q\geq\phi_0\}).  These are not new edits in
+this check.
+
+-- Codex
+
 ## 2026-09-16 - Final proof-consistency pass (Codex)
 
 The final source audit found and repaired three notation/implementation
