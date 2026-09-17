@@ -9,6 +9,10 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM: Claude - author slide TODOs (figures, Mukherjee/Wibisono, assumptions, decoupled-split figure, theory opener, Future Work IV, multiple-scores); branch slides/todos-2026-09-17 (open)
+
+-- Claude
+
 ## 2026-09-17 - Reinstate slide-deck collaboration as markers + branch + log-claim (Claude)
 
 At the author's request, replaced the removed tool-based slide lock with a
