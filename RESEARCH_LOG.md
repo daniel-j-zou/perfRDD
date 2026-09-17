@@ -9,6 +9,26 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Reinstate slide-deck collaboration as markers + branch + log-claim (Claude)
+
+At the author's request, replaced the removed tool-based slide lock with a
+lightweight, tooling-free protocol in `COLLABORATION.md` (section "Slide-deck
+collaboration"). The removed lock failed because of three-commit ceremony, a
+frame parser that crashed on inline `[TODO:]` text, a pre-commit hook that
+became non-executable and silently stopped enforcing, and a `SLIDE_LOCKS.json`
+registry that itself collided with the Overleaf auto-sync on `master`.
+
+New rule: author markers in the deck (`% FINAL` = read-only, `% TODO:` =
+edit-request), agent deck claims announced here in `RESEARCH_LOG.md` before
+non-trivial edits, work on a short-lived `slides/<topic>` branch, fast-forward
+`master` after compiling, then log a one-line release. The author's live
+Overleaf edits always win; fetch before merging and never force-push. Added an
+advisory-only helper `code/tools/slide_status.py` (plain text scan; lists
+`% FINAL` frames and recent `DECK CLAIM` lines; never blocks a commit). Verified
+the helper runs against the current deck (0 final frames, 0 open claims).
+
+-- Claude
+
 ## 2026-09-17 - Add a simple author-final marker for slides (Codex)
 
 The collaboration protocol now defines `% FINAL` as the author-facing marker

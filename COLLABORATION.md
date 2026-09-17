@@ -62,14 +62,45 @@ Both agents push by default, so simultaneous edits to the same file are the main
   in, work on a short-lived task branch and fast-forward it onto the mainline when the
   task is verified and pushed.
 
-### Author-final slide markers
+## Slide-deck collaboration (`manuscript/prelim/slides.tex`)
 
-- The author can mark an individual Beamer frame by adding `% FINAL` to the same line
-  as its `\begin{frame}{...}` declaration.
-- Treat a frame marked `% FINAL` as read-only. Do not edit its content, title, layout,
-  or marker, even when a TODO or general cleanup would otherwise suggest a change.
-- Edit a final-marked frame only after the author explicitly names that slide and asks
-  for a revision. Search for markers with `rg -n '% FINAL' manuscript/prelim/slides.tex`.
+The deck is a single file that the author edits live through Overleaf, so its `master`
+history moves on its own. Coordinate with in-file markers plus a logged branch claim.
+There is **no lock registry, Git hook, or frame parser** — an earlier tool-based lock was
+removed because it added three-commit ceremony, crashed on ordinary source, and failed
+silently. Keep coordination lightweight and grep-able.
+
+**Author markers (in `slides.tex`).**
+- `% FINAL` on the same line as a frame's `\begin{frame}{...}` means the author has
+  finalized that frame. Treat it as **read-only**: do not change its content, title,
+  layout, or the marker. Edit it only after the author names that slide and asks for a
+  revision. Find them with `rg -n '% FINAL' manuscript/prelim/slides.tex`.
+- `% TODO: ...` (a LaTeX comment, so it does not render) on or just below a frame's
+  `\begin{frame}` line is an author edit request for that frame. Address it and delete the
+  marker in the same commit. Do not add work to a `% FINAL` frame on a `% TODO`'s behalf
+  without the author. (Bracketed `[TODO: ...]` also works but renders on the slide, so the
+  comment form is preferred.)
+
+**Agent deck claims.** Before any deck change beyond a single-frame `% TODO` fix:
+1. Append a claim to `RESEARCH_LOG.md`, e.g.
+   `## <date> - DECK CLAIM: Claude - <scope>; branch slides/<topic> (open)`.
+2. Do the work on that short-lived `slides/<topic>` branch and compile it:
+   `latexmk -pdf -interaction=nonstopmode -halt-on-error -cd manuscript/prelim slides.tex`.
+3. Fetch, rebase the branch onto the updated `master`, recompile, fast-forward `master`,
+   and push.
+4. Append a one-line release follow-up to `RESEARCH_LOG.md` (`DECK CLAIM ... released`).
+
+Before claiming, check for an open claim (`rg 'DECK CLAIM' code/RESEARCH_LOG.md | head`); if
+another agent's is open, coordinate in the log rather than editing concurrently. A
+single-frame `% TODO` fix needs no branch, but still fetch immediately before pushing.
+
+**The author always wins.** The author's live Overleaf edits land on `master` continuously.
+Fetch right before merging; if they touched your frames, rebase and re-apply. Never
+force-push or discard their edits.
+
+**Optional advisory check.** `python3 code/tools/slide_status.py` lists the current
+`% FINAL` frames and the most recent deck claims. It is advisory only — a plain text scan
+that never blocks a commit and never edits anything.
 
 ## Drafting manuscript prose
 
