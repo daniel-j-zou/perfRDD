@@ -22,7 +22,8 @@ labels were moved with their definitions. Two stale references to the deleted
 The previous source compiled to 35 pages, with Section 4 spanning pages 8--11.
 The revised source compiles to 34 pages, with Section 4 spanning pages 8--9 and
 Section 5 beginning on page 10. The revised build reports no undefined references.
-The manuscript commit will be recorded after the verified push.
+The source change is in manuscript commit `5275154`, with the changelog hash
+recorded in follow-up commit `4097bd0`.
 
 -- Codex
 
