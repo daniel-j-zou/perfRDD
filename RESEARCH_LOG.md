@@ -2626,6 +2626,15 @@ $\omega_\alpha,\omega_b$ are now defined on-slide; separate fits or matching
 remain possible alternatives, but the stacked fit preserves the covariance
 between the two spline blocks and is the cleaner presentation.
 
+## 2026-09-17 — Stack the score-distribution definitions on the slide (Codex)
+
+The estimation slide now presents the distribution chain vertically:
+$G(t)=\mathbb P(T\le t)$, $\bar G(t)=1-G(t)$, and
+$e_\phi(\eta)=\mathbb P\{T>\phi-\eta\mid\eta\}=\bar G(\phi-\eta)$.
+This is only a presentation change; the underlying estimator continues to
+estimate the score distribution from fitted index values and evaluate its
+survival function at candidate thresholds.
+
 ## 2026-09-17 — Verify the Wibisono comparison slide (Codex)
 
 The Wibisono et al. paper models the individual treatment effect as
