@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM: Codex - TODOs 40/41; make slides 20--21 non-overlapping; branch slides/todo40-41 (open)
+
+Follow-up to the earlier TODO 31 slide-20 restructure. The current shared deck
+keeps slide 20 as the overview of single-nuisance changes and the three
+error-in-variables loadings, while slide 21 contains the worked examples.
+This pass will define the fixed least-squares projection weight for
+$\psi_\alpha$ and add one simple chain-rule example for an index loading on
+slide 21, without duplicating the slide-20 overview.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM: Codex - clean slide 23 decoupled-split arrows; branch slides/slide23-arrow-cleanup (open)
 
 ## 2026-09-17 - Slide 23 diagram labels updated (Codex)
