@@ -9,6 +9,23 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: Codex - presentation TODOs 51-56
+
+Completed the empirical-application TODOs through 56. The deck now explains
+CMT versus VTS, shows only the left taxi menu-crossover panel, fits the
+residual-only utility text, introduces and moves the differing-slopes material
+earlier, and adds the verified differing-slopes simulation comparison. The
+simulation slide uses the documented baseline results: full target
+`phi*=-0.120`, alpha-only pseudo-target `-0.339`, near-zero augmented bias,
+and declining alpha-only coverage. The marker's "CTS" was resolved as CMT
+versus VTS because those are the vendor labels used throughout the project;
+CMT remains validation only. Manuscript source commit `9bd7cb4` and changelog
+commit `5f4a0c2` are on Overleaf `master`; the 43-page deck compiled with no
+overfull or underfull-box warnings, and slides 31--37 were visually inspected.
+TODOs after 56 remain untouched (none were present in the synced source).
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM released: early $e_\phi(\eta)$ definition and language cleanup (Codex)
 
 The first overlap slide now defines
