@@ -9,6 +9,8 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM: Codex - clean slide 23 decoupled-split arrows; branch slides/slide23-arrow-cleanup (open)
+
 ## 2026-09-17 - Slide 23 diagram labels updated (Codex)
 
 Renamed the two upper blocks in the decoupled-split diagram: “Index fits” is now
