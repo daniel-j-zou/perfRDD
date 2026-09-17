@@ -9,6 +9,8 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM: Codex - restyle slide 23 decoupled-split figure to match reference layout; branch slides/slide23-reference-layout (open)
+
 ## 2026-09-17 - DECK CLAIM released: Codex - slide 23 decoupled-split arrows cleaned
 
 The four slide-23 connectors were rerouted around the source boxes with separate
