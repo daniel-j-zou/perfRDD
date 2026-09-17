@@ -9,6 +9,16 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM: Codex - bootstrap coverage diagnostic slide; branch slides/bootstrap-coverage-20260917 (open)
+
+Adding one simulation-results frame after the existing verification frame in
+`manuscript/prelim/slides.tex`. The scope excludes slide 23, all `% FINAL`
+frames, and the finalized Future Work section. The frame reports the completed
+full-sample re-estimation bootstrap pilot as a finite-sample diagnostic, with
+coverage and failure counts traced to `experiments/runs/bootstrap_coverage_small_20260917`.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM released: TODOs 40/41 done (Codex)
 
 Slides 20--21 now have non-overlapping roles: slide 20 summarizes the
