@@ -9,6 +9,10 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM: Claude - slide 20 influence function (show full Psi_i and derive a few scores); also comment a build-breaking bracketed [TODO 11]; branch slides/slide20-psi (open)
+
+-- Claude
+
 ## 2026-09-17 - Follow-up: concise Wibisono comparison slide (Codex)
 
 At the author's request, shortened Introduction slide 6 to focus on the
