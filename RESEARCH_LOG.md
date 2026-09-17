@@ -2598,3 +2598,20 @@ updated accordingly; historical run records are preserved elsewhere in this log
 for provenance. Focused hard-trim, differing-slopes, and variance tests pass;
 the full test discovery still reports the pre-existing missing `pyarrow`
 dependency for the taxi parquet registry tests.
+
+## 2026-09-17 — Slide notation for the outcome residual (Codex)
+
+The prelim's deployed assignment is deterministic, $D=\mathbf 1\{\gamma^\top
+X+\eta>\phi_0\}$. Therefore $\sigma(\eta,X,D)=\sigma(\eta,X)$, and the
+slide-level condition $\E(\varepsilon\mid\eta,X)=0$ is equivalent to the
+fuller $\E(\varepsilon\mid\eta,X,D)=0$ used in the theorem-facing manuscript
+statement. The weaker condition $\E(\varepsilon\mid\eta)=0$ alone would not
+control residual means across treated and untreated observations after the
+covariate adjustment.
+
+For the response-surface slide, the stacked regression directly estimates the
+treated-effect spline, untreated baseline spline, and partially linear
+adjustment in one fit. The spline basis $\tilde N_K$ and coefficient vectors
+$\omega_\alpha,\omega_b$ are now defined on-slide; separate fits or matching
+remain possible alternatives, but the stacked fit preserves the covariance
+between the two spline blocks and is the cleaner presentation.
