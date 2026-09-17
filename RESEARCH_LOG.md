@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Follow-up: S6-S9 title QA on current manuscript master (Codex)
+
+After the newer S6--S9 release landed on manuscript `master`, visual review
+found that the long leading-CLT and threshold-CLT titles clipped in the
+AnnArbor title bar. Manuscript commit `4da4be2` shortens those titles and names
+Future Work IV by its substantive idea, ``Performative stability.'' The current
+deck builds to 40 pages; slides 20--22 and 39--40 were rendered and checked.
+The existing taxi-slide overfull-vbox warning remains outside this QA change.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM released: S6-S9 slide TODOs (Codex)
 
 Reviewed the S6--S9 presentation changes now on manuscript `master`: the
