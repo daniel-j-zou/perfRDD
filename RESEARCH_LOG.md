@@ -9,6 +9,10 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM: Claude - slide TODOs S1-S5 (Mukherjee/Wibisono distinction, setup assumptions + six-equation cleanup, drop candidate set, alpha-overlap justification slide); branch slides/todos-s1-s5 (open)
+
+-- Claude
+
 ## 2026-09-17 - DECK CLAIM: Codex - S6-S9 slide TODOs; branch slides/todos-6-9-2026-09-17 (open)
 
 The author assigned Codex the round-2 slide TODOs S6--S9: rework the
