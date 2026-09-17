@@ -9,6 +9,29 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Author slide TODO follow-up implemented (Codex)
+
+The preliminary talk was updated in `manuscript/prelim/slides.tex` while
+preserving the author's latest synced edits. The Mukherjee and Wibisono setups
+are now separate Introduction slides; Setup and target states the maintained
+independence and hard-trim convention; Estimation is presented as four steps;
+and Large-sample theory gives a high-level assumption/proof map plus the
+six-block influence-function assembly. The Simulation studies opener now states
+the centering, root-$n$ rate, and variance-tracking checks before the DGP. The
+Empirical application opener maps the taxi variables to $(Y,X,Q,phi,D,eta)$
+and flags residual-only misspecification when effects depend on fare-level
+covariates. Discussion is renamed Future Work, the old summary is disabled, and
+the author's four Future Work I--IV slides are restored. Obsolete detailed theory
+and backup frames remain in source but are disabled in the default build.
+
+Verification: `latexmk -g -pdf -interaction=nonstopmode -halt-on-error slides.tex`
+produced a 40-page deck without overfull boxes in the edited frames; key edited
+slides were rendered and visually inspected. The full `prelim.tex` build exited
+successfully and produced a 34-page PDF with the repository's existing layout
+warnings. Manuscript source and changelog commits are `ae8a29b` and `d0bde5a`.
+
+-- Codex
+
 ## 2026-09-17 - Section dividers reduced to centered titles (Codex)
 
 The seven prelim-matched section opener frames now contain only the section
