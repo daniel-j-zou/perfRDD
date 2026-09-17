@@ -9,6 +9,18 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - OLS first-stage subsection shortened (Codex)
+
+The `Estimating gamma` subsection in `manuscript/prelim/prelim.tex` now states the
+ordinary least-squares fit once, keeps the source and held-out block convention,
+the exact generated-residual identity, its first-order role, and the same-fold
+boundary fits. The repeated OLS explanation and the triangular-equation literature
+detour were removed. The revised manuscript still compiles to 34 pages with no
+undefined references. The source change is in manuscript commit `ee4ed62`, with
+the final pushed changelog update in `af95efb`.
+
+-- Codex
+
 ## 2026-09-17 - Align slide sections with prelim and suspend slide locks (Codex)
 
 The deck now follows the seven main sections of the prelim: Introduction,
