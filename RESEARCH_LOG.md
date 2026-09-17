@@ -9,6 +9,16 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Backup slides hidden from default talk build (Codex)
+
+The eight backup frames remain in `manuscript/prelim/slides.tex` for committee
+use, but the appendix is now inside a default-off `\\iffalse` block.  The
+default slide PDF therefore contains 41 pages rather than 49; changing the
+guard to `\\iftrue` restores the backup appendix.  The source and lock-release
+commits are `2135b31` and `97cc381` in the manuscript repository.
+
+-- Codex
+
 ## 2026-09-17 - Slide lock hook portability (Codex)
 
 The Overleaf bridge normalized `.githooks/pre-commit` from executable to
