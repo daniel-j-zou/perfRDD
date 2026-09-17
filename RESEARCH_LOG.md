@@ -9,6 +9,16 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM: Codex - S6-S9 slide TODOs; branch slides/todos-6-9-2026-09-17 (open)
+
+The author assigned Codex the round-2 slide TODOs S6--S9: rework the
+decoupled-split figure, restructure the theory opener, make Future Work IV
+idea-focused, and add the multiple-scores Future Work slide. Claude retains
+S1--S5. This claim narrows the earlier broad TODO claim by scope; Codex will
+avoid editing S1--S5 and any `% FINAL` frames.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM released: taxi figures enlarged + bracketed TODOs commented (build fixed); other author TODOs remain as `% [TODO]` comments (Claude)
 
 -- Claude
