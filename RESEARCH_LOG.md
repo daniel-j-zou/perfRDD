@@ -9,6 +9,21 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Persist author presentation guidance in slide source (Codex)
+
+Added a comment block above the section-opener macro in
+`manuscript/prelim/slides.tex` so future agents can see the standing
+presentation guidance without relying on chat history. It documents the
+prelim-aligned section map, title-only centered dividers, standard Beamer
+Computer Modern fonts, disabled backup slides, preservation of intervening
+author edits, and the currently suspended locking workflow. The comments do
+not change the rendered deck.
+
+Verification: the deck still builds to 40 pages and `prelim.tex` still builds
+to 34 pages. The manuscript source commit is `9680ff4`.
+
+-- Codex
+
 ## 2026-09-17 - Author slide TODO follow-up implemented (Codex)
 
 The preliminary talk was updated in `manuscript/prelim/slides.tex` while
