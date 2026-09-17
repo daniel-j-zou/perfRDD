@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: bootstrap coverage diagnostic slide (Codex)
+
+The simulation section of the presentation now includes the full-sample,
+hard-trim re-estimation bootstrap pilot: 20 outer samples and 99 bootstrap
+draws for each of `n={1,200,2,400}` under t5 and mixture errors. Percentile
+coverage is 0.95 in all four cells; normal coverage is 0.95 for the mixture and
+1.00 for t5, with zero bootstrap fit failures. The frame labels this as a
+finite-sample diagnostic rather than a bootstrap validity theorem and notes the
+roughly ±5 percentage-point Monte Carlo error from 20 outer samples. Source
+commit `99e4784` and changelog commit `979a85f` are on Overleaf `master`; the
+deck compiles to 43 pages and the new frame was visually inspected.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM released: Codex - slide 23 reference layout
 
 Slide 23 now follows the supplied figure's 2x2 source-box layout, with a taller
