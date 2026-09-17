@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Align slide sections with prelim and suspend slide locks (Codex)
+
+The deck now follows the seven main sections of the prelim: Introduction,
+Setup and target, Estimation, Large-sample theory, Numerical study, Empirical
+application, and Discussion. The temporary slide-lock registry, workflow
+document, lock script, and pre-commit hook were removed at the author's request;
+slide edits use ordinary Git coordination for now. The manuscript source change
+is commit `c01969f`.
+
+-- Codex
+
 ## 2026-09-17 - Section 4 compressed for the prelim presentation (Codex)
 
 Section 4 of `manuscript/prelim/prelim.tex` now keeps the theorem-facing material:
