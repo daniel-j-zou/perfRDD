@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Prelim camera-readiness review (Codex)
+
+The current `manuscript/prelim/prelim.tex` builds to a 37-page PDF with no
+undefined citations or references.  The main narrative is coherent and the
+same-slope hard-trimmed theorem is clearly separated from the deferred
+differing-slopes theory.  The document is not yet camera ready as a written
+prelim because Appendices 1--3 still expose internal proof-status language,
+including the Appendix 2 status table, the Appendix 3 ``Remaining author
+checks'' section, and instructions about moving material to a later
+supplement.  The theorem remains conditional on the high-level R5 criterion
+and derivative condition, with the primitive spline-rate and outer-support
+eligibility checks still listed as author work.  The taxi discussion also
+needs softer causal wording and the application treatment rule should be made
+consistent with the strict inequality used in the theory.  No manuscript
+source was edited in this review.
+
+-- Codex
+
 ## 2026-09-16 - Final proof-consistency pass (Codex)
 
 The final source audit found and repaired three notation/implementation
