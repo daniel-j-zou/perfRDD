@@ -9,6 +9,16 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM: Codex - show t5-only bootstrap validation; branch slides/bootstrap-coverage-t5-only-20260917 (open)
+
+Narrow the existing simulation-section bootstrap frame to the requested t5
+running-variable validation cells, remove the running-law column, and update the
+fit count and wording. The underlying four-cell validation note remains the
+complete provenance record. Scope excludes slide 23, all `% FINAL` frames, the
+finalized Future Work section, and the concurrent notation-language cleanup.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM: Codex - define early treatment probabilities and remove LLM-style slide wording; branch slides/notation-language-cleanup (open)
 
 Add the definition of $e_\phi(\eta)=\mathbb P\{D(\phi)=1\mid\eta\}$
