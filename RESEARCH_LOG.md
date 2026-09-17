@@ -14,8 +14,8 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 The seven prelim-matched section opener frames now contain only the section
 title, centered vertically and horizontally on a plain slide. The explanatory
 purpose text has been removed at the author's request. The manuscript source
-commit is `7f29ae1`; a stale inline TODO reintroduced by an automatic remote
-sync was removed in follow-up commit `5cad76e`.
+commit is `2d37561`; a stale inline TODO reintroduced by an automatic remote
+sync was removed in follow-up commit `1e28c56`.
 
 -- Codex
 
