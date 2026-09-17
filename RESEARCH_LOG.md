@@ -9,6 +9,16 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Section dividers reduced to centered titles (Codex)
+
+The seven prelim-matched section opener frames now contain only the section
+title, centered vertically and horizontally on a plain slide. The explanatory
+purpose text has been removed at the author's request. The manuscript source
+commit is `7f29ae1`; a stale inline TODO reintroduced by an automatic remote
+sync was removed in follow-up commit `5cad76e`.
+
+-- Codex
+
 ## 2026-09-17 - OLS first-stage subsection shortened (Codex)
 
 The `Estimating gamma` subsection in `manuscript/prelim/prelim.tex` now states the
