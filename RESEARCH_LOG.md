@@ -9,6 +9,10 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: taxi figures enlarged + bracketed TODOs commented (build fixed); other author TODOs remain as `% [TODO]` comments (Claude)
+
+-- Claude
+
 ## 2026-09-17 - DECK CLAIM: Claude - author slide TODOs (figures, Mukherjee/Wibisono, assumptions, decoupled-split figure, theory opener, Future Work IV, multiple-scores); branch slides/todos-2026-09-17 (open)
 
 -- Claude
