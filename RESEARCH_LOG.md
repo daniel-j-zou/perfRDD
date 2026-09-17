@@ -9,6 +9,18 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: TODOs 40/41 done (Codex)
+
+Slides 20--21 now have non-overlapping roles: slide 20 summarizes the
+single-nuisance changes and three errors-in-variables loadings, while slide 21
+defines the fixed least-squares projection weight for $\psi_\alpha$ and works
+through one direct-score chain-rule loading. The rendered TODO markers and the
+unescaped build-breaking text were removed. Manuscript commits 848279b and
+5f63acd are on master; the 42-page deck builds and slides 20--21 were
+rendered together. The existing taxi-slide overfull-vbox warning remains.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM: Codex - restyle slide 23 decoupled-split figure to match reference layout; branch slides/slide23-reference-layout (open)
 
 ## 2026-09-17 - DECK CLAIM released: Codex - slide 23 decoupled-split arrows cleaned
