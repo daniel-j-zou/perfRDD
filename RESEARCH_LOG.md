@@ -19,7 +19,7 @@ score, and fold-weighted variance remain in Appendices 2--3. The score and loadi
 labels were moved with their definitions. Two stale references to the deleted
 `tab:taxi-2x2` table were removed.
 
-The previous source compiled to 35 pages, with Section 4 spanning pages 8--11.
+The previous source compiled to 35 pages, with Section 4 spanning pages 8--10.
 The revised source compiles to 34 pages, with Section 4 spanning pages 8--9 and
 Section 5 beginning on page 10. The revised build reports no undefined references.
 The source change is in manuscript commit `5275154`, with the changelog hash
