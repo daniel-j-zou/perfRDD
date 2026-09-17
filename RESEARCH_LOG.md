@@ -9,6 +9,10 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM: Claude - S1 refinement, make Mukherjee's nonparametric b(eta) explicit (branch slides/s1-mukherjee-b) (open)
+
+-- Claude
+
 ## 2026-09-17 - Follow-up: S6-S9 title QA on current manuscript master (Codex)
 
 After the newer S6--S9 release landed on manuscript `master`, visual review
