@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: early $e_\phi(\eta)$ definition and language cleanup (Codex)
+
+The first overlap slide now defines
+$e_\phi(\eta)=\mathbb P\{D(\phi)=1\mid\eta\}$ before its first use. Active
+simulation and empirical-application slide copy was revised to use direct
+technical language in place of metaphor-heavy or vague phrasing; the
+mathematical content and author-finalized Future Work section were unchanged.
+The deck rebuilds to 43 pages and the page-10 and revised application frames
+were visually inspected. Manuscript source commit `45b9607` and changelog
+commit `0f16f42` are on Overleaf `master`; the existing author TODO and
+taxi/application overflow warnings remain.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM: Codex - complete presentation TODOs 51-56; empirical application and differing-slopes simulation; branch slides/todos51-56-20260917 (open)
 
 Scope is limited to presentation TODOs 51--56: clarify the CMT/VTS roles, crop
