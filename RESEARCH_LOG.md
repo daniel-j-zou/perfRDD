@@ -9,6 +9,12 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: S1 refinement done (Claude)
+
+Confirmed from Mukherjee, Banerjee & Ritov (Bernoulli 2026, eq 1.3, Assumption 1.1, contribution 3): their outcome is a partial linear model with a nonparametric baseline b(eta)=E(nu|eta) that they estimate; the constant effect tau (their alpha_0) is root-n and independent of b's tuning. Slides now show b(eta) on the Mukherjee frame and state the distinction is constant tau vs nonparametric alpha(eta). Deck builds (40pp).
+
+-- Claude
+
 ## 2026-09-17 - DECK CLAIM: Claude - S1 refinement, make Mukherjee's nonparametric b(eta) explicit (branch slides/s1-mukherjee-b) (open)
 
 -- Claude
