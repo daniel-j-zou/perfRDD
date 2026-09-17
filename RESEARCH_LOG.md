@@ -18,7 +18,7 @@ manuscript workflow now restores the executable bit and documents
 frame checkout guard active in local clones while the tracked lock registry
 remains the shared source of truth.
 
-The repair is tracked in manuscript commit `a4825ed`.
+The repair is tracked in manuscript commit `49caf37`.
 
 -- Codex
 
@@ -37,7 +37,7 @@ The backup section now mirrors the Appendix~4 replication grid and completed
 (t_5)/standardized-mixture diagnostics, including the explicit statement that
 bootstrap coverage is not reported.  The backup model notation uses
 X^circ consistently with the current outcome regression.  The slide source
-commit is `c81318a`; the deck lock was released in `0bc48e5`.
+commit is `c5aaf3c`; the deck lock was released in `c71105e`.
 
 -- Codex
 
