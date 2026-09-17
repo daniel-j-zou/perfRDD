@@ -9,6 +9,19 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Follow-up: concise Wibisono comparison slide (Codex)
+
+At the author's request, shortened Introduction slide 6 to focus on the
+substantive distinction from Mukherjee: a constant effect $\tau$ versus a
+heterogeneous effect $\alpha(\eta)$. The repeated score/error decomposition was
+removed, and one line now summarizes the method: estimate the score index,
+recover $\hat\eta$, and estimate $\alpha(\eta)$ nonparametrically in the
+outcome model. Manuscript source commit `d1aa902` and changelog commit
+`ac7570b` are on `master`; the 40-page deck compiles and slide 6 was rendered
+and checked.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM released: Future Work section finalization markers (Codex)
 
 Added `% SECTION FINAL: Future Work` and matching `% END SECTION FINAL: Future Work`
