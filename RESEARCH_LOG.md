@@ -9,6 +9,16 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Slide TODO 50 completed (Codex)
+
+Removed the rendered TODO 50 marker and the latent-type $\eta$ row from the
+taxi data-to-model mapping slide. The frame now shows the observed outcome,
+covariates, score, treatment, candidate cutoff, and deployed cutoff only.
+The 43-page deck builds and slide 31 was visually inspected; manuscript commit
+`f121d69` is on Overleaf master. TODO 51 remains untouched.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM: Codex - show t5-only bootstrap validation; branch slides/bootstrap-coverage-t5-only-20260917 (open)
 
 Narrow the existing simulation-section bootstrap frame to the requested t5
