@@ -9,6 +9,16 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM: Codex - complete presentation TODOs 51-56; empirical application and differing-slopes simulation; branch slides/todos51-56-20260917 (open)
+
+Scope is limited to presentation TODOs 51--56: clarify the CMT/VTS roles, crop
+the taxi crossover figure, repair the utility-slide fit, add and reorder the
+differing-slopes explanation, and add the verified differing-slopes simulation
+comparison. TODOs after 56 remain out of scope. The simulation values will be
+drawn from `experiments/datasets/simulations/DIFFERING_SLOPES_ASSUMPTION_SWAP_20260912.md`.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM released: t5-only bootstrap validation slide (Codex)
 
 The bootstrap validation frame now shows only the two Student-t(5) running-
