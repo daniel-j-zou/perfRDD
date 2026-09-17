@@ -9,6 +9,23 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Section 4 compressed for the prelim presentation (Codex)
+
+Section 4 of `manuscript/prelim/prelim.tex` now keeps the theorem-facing material:
+the R1--R7 regularity conditions, identification and feasible-consistency lemmas,
+the spline dimension rate, and the hard-trimmed threshold CLT. The detailed Riesz
+representer construction, moving-set expansion, generated-index loadings, weighted
+score, and fold-weighted variance remain in Appendices 2--3. The score and loading
+labels were moved with their definitions. Two stale references to the deleted
+`tab:taxi-2x2` table were removed.
+
+The previous source compiled to 35 pages, with Section 4 spanning pages 8--11.
+The revised source compiles to 34 pages, with Section 4 spanning pages 8--9 and
+Section 5 beginning on page 10. The revised build reports no undefined references.
+The manuscript commit will be recorded after the verified push.
+
+-- Codex
+
 ## 2026-09-17 - Section roadmaps replaced by concise openers (Codex)
 
 The slide deck no longer inserts table-of-contents roadmap frames at section
