@@ -2635,6 +2635,15 @@ This is only a presentation change; the underlying estimator continues to
 estimate the score distribution from fitted index values and evaluate its
 survival function at candidate thresholds.
 
+## 2026-09-17 — Correct the scope of presentation TODO 20 (Codex)
+
+The prior TODO 20 edit stacked the score-distribution definitions, but the
+author intended TODO 20 for the stacked partially linear response regression.
+The score-distribution frame was restored. The response-surface frame now shows
+$Y_i\approx Z_i^\top\theta+\varepsilon_i$ with the treated spline, baseline
+spline, and $X^\circ$ blocks stacked inside $Z_i$, and the corresponding
+coefficient blocks stacked inside $\theta$.
+
 ## 2026-09-17 — Verify the Wibisono comparison slide (Codex)
 
 The Wibisono et al. paper models the individual treatment effect as
