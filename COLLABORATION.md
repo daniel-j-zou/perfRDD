@@ -62,6 +62,15 @@ Both agents push by default, so simultaneous edits to the same file are the main
   in, work on a short-lived task branch and fast-forward it onto the mainline when the
   task is verified and pushed.
 
+### Author-final slide markers
+
+- The author can mark an individual Beamer frame by adding `% FINAL` to the same line
+  as its `\begin{frame}{...}` declaration.
+- Treat a frame marked `% FINAL` as read-only. Do not edit its content, title, layout,
+  or marker, even when a TODO or general cleanup would otherwise suggest a change.
+- Edit a final-marked frame only after the author explicitly names that slide and asks
+  for a revision. Search for markers with `rg -n '% FINAL' manuscript/prelim/slides.tex`.
+
 ## Drafting manuscript prose
 
 When writing or rewriting manuscript sections (Introduction, Discussion, application

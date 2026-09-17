@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Add a simple author-final marker for slides (Codex)
+
+The collaboration protocol now defines `% FINAL` as the author-facing marker
+for an individual Beamer frame. The author places it on the same line as the
+frame's `\begin{frame}{...}` declaration. Agents must treat that frame as
+read-only and may edit it only after the author explicitly names the slide and
+requests a revision. The marker can be located with `rg -n '% FINAL'
+manuscript/prelim/slides.tex`.
+
+-- Codex
+
 ## 2026-09-17 - Persist author presentation guidance in slide source (Codex)
 
 Added a comment block above the section-opener macro in
