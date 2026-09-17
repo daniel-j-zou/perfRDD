@@ -9,6 +9,25 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Slide data audit completed (Codex)
+
+The slide claims were reconciled with the current `manuscript/prelim/prelim.tex`
+and its numerical-study appendices.  The baseline simulation now uses 200
+replications at n=(10,000,20,000,40,000,80,000), with pooled n x MSE values
+461.08, 43.20, and 42.58 and RMSE slopes -0.50, -0.53, and -0.52 for fixed
+eight-block, role-rotated, and full-sample implementations.  The taxi slide now
+reports the current residual-only estimate near 5.3 dollars, its 5.0--7.6 dollar
+sensitivity range, and the 4.6 dollar partial-linear screen.  The outdated
+placebo/old coverage claims were removed.
+
+The backup section now mirrors the Appendix~4 replication grid and completed
+(t_5)/standardized-mixture diagnostics, including the explicit statement that
+bootstrap coverage is not reported.  The backup model notation uses
+X^circ consistently with the current outcome regression.  The slide source
+commit is `6b94c46`; the deck lock was released in `8dfd0fb`.
+
+-- Codex
+
 ## 2026-09-17 - Slide TODO pass completed (Codex)
 
 The inline `[TODO:]` notes in `manuscript/prelim/slides.tex` have been
