@@ -9,6 +9,19 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: bootstrap coverage validation update (Codex)
+
+The simulation-section bootstrap frame now reports the 200-outer-replication,
+199-draw-per-cell validation. Percentile coverage is 0.935--0.950 across the
+four t5/mixture and `n={1,200,2,400}` cells; normal coverage is 0.925--0.980.
+The frame records 159,200 successful fits, zero failures, the approximately
+1.5 percentage-point coverage Monte Carlo error, and the fact that this is
+implementation validation rather than a bootstrap validity theorem. Source
+commit `477809f` and changelog commit `faf83d3` are on Overleaf `master`; the
+43-page deck rebuilds and the updated frame was visually inspected.
+
+-- Codex
+
 ## 2026-09-17 - Bootstrap coverage validation completed (Codex)
 
 The follow-up full-sample hard-trim re-estimation bootstrap used 200 outer
