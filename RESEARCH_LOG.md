@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: correct bootstrap running-variable law label (Codex)
+
+The validation frame now labels the t5 and mixture rows as **running-variable
+laws**, matching the DGP: $X_1$ is standardized t5 or a two-component normal
+mixture, while the outcome disturbance is Gaussian $N(0,0.5^2)$ in every cell.
+Numerical coverage results are unchanged. Source commit `8ae1d1f` and
+changelog commit `38c7565` are on Overleaf `master`; the 43-page deck compiles
+and the updated frame was visually inspected. The latest synced author TODO
+notation was kept buildable with an equivalent `\perp` token in commit
+`b44bbb7`; the author TODO and taxi-slide overflow warnings remain otherwise
+unchanged.
+
+-- Codex
+
 ## 2026-09-17 - Terminology correction: t5/mixture are running-variable laws (Codex)
 
 The `t5` and `mixture` labels in the bootstrap study refer to the distribution
