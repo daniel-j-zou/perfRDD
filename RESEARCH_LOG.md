@@ -9,6 +9,22 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - DECK CLAIM released: S6-S9 slide TODOs (Codex)
+
+Reviewed the S6--S9 presentation changes now on manuscript `master`: the
+decoupled-split schematic uses independent nuisance/index/endpoint folds plus
+one optimization fold; the theory opener targets the first-stage Taylor and
+approximately-iid score expansion; Future Work IV explains performative
+stability without notation; and Future Work V introduces jointly choosing a
+multiple-score index and threshold. The CLT source display was reflowed after
+render review so it fits the slide, and the long decoupled-split title was
+shortened. The task board and changelog were released in manuscript commits
+`0037d32` and `823607f`. The deck builds to 40 pages; rendered slides 20, 21,
+39, and 40 were checked. An existing taxi-slide overfull-vbox warning remains
+outside this TODO scope.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM released: slide TODOs S1-S5 done (Claude)
 
 S1 Mukherjee/Wibisono distinction block; S2/S3 relabeled setup equations plus a maintained-assumptions list (X indep (W,eta); E(eps|eta,X,D)=0; alpha,b stable across cutoffs); S4 threshold optimized over the real line (candidate set dropped); S5 new alpha/b-identification-needs-overlap slide with an e_{phi0}(eta) schematic. Deck builds (39pp), no % FINAL frame touched. S6-S9 remain with Codex.
