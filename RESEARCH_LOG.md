@@ -9,6 +9,19 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Slide lock hook portability (Codex)
+
+The Overleaf bridge normalized `.githooks/pre-commit` from executable to
+non-executable during a sync, which caused Git to skip the lock check.  The
+manuscript workflow now restores the executable bit and documents
+`chmod +x .githooks/pre-commit` as part of one-time setup.  This keeps the
+frame checkout guard active in local clones while the tracked lock registry
+remains the shared source of truth.
+
+The repair is tracked in manuscript commit `a4825ed`.
+
+-- Codex
+
 ## 2026-09-17 - Slide data audit completed (Codex)
 
 The slide claims were reconciled with the current `manuscript/prelim/prelim.tex`
@@ -24,7 +37,7 @@ The backup section now mirrors the Appendix~4 replication grid and completed
 (t_5)/standardized-mixture diagnostics, including the explicit statement that
 bootstrap coverage is not reported.  The backup model notation uses
 X^circ consistently with the current outcome regression.  The slide source
-commit is `6b94c46`; the deck lock was released in `8dfd0fb`.
+commit is `c81318a`; the deck lock was released in `0bc48e5`.
 
 -- Codex
 
