@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Terminology correction: t5/mixture are running-variable laws (Codex)
+
+The `t5` and `mixture` labels in the bootstrap study refer to the distribution
+of the first running-variable covariate $X_1$, after standardization to mean zero
+and variance one. The outcome disturbance is Gaussian $N(0,0.5^2)$ in every
+cell. The bootstrap notes and presentation table are being corrected from
+“error law” to “running-variable law”; numerical results are unchanged.
+
+-- Codex
+
+## 2026-09-17 - DECK CLAIM: Codex - correct bootstrap law label; branch slides/bootstrap-coverage-law-label-20260917 (open)
+
+Correct the validation frame's table heading and wording from “error law” to
+“running-variable law,” without changing the reported coverage values or any
+protected frames.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM released: bootstrap coverage validation update (Codex)
 
 The simulation-section bootstrap frame now reports the 200-outer-replication,

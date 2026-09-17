@@ -12,7 +12,8 @@ The runner is `experiments/scripts/hard_trim_bootstrap_coverage.py`.  We use
 the full-sample hard-trim estimator (`eps=0.1`, `cost=2.25`) with independent
 draws, 200 outer Monte Carlo samples per cell, and 199 bootstrap
 re-estimations per outer sample.  The four cells match the earlier pilot:
-`n in {1200, 2400}` and Student-t(5) or two-component-mixture errors.  Both
+`n in {1200, 2400}` and Student-t(5) or two-component-mixture
+running-variable laws.  Both
 percentile and normal intervals are evaluated against the known population
 threshold.  The run produced 159,200 successful bootstrap fits and zero
 failures.
@@ -29,7 +30,7 @@ PYTHONPATH=. python3 -m experiments.scripts.hard_trim_bootstrap_coverage \
 
 ## Results
 
-| Error law | n | Known target | Mean bootstrap SD | Percentile coverage | Normal coverage |
+| Running-variable law | n | Known target | Mean bootstrap SD | Percentile coverage | Normal coverage |
 |---|---:|---:|---:|---:|---:|
 | t5 | 1,200 | 0.5878 | 0.2249 | 0.935 (187/200) | 0.980 (196/200) |
 | t5 | 2,400 | 0.5878 | 0.1228 | 0.950 (190/200) | 0.975 (195/200) |
