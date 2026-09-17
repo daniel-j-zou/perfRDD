@@ -9,6 +9,15 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-17 - Slide 23 diagram labels updated (Codex)
+
+Renamed the two upper blocks in the decoupled-split diagram: “Index fits” is now
+“Estimates for $\eta$” and “Response surfaces” is now “Utility function terms”.
+No statistical content or computation changed; the updated 42-page deck builds and
+slide 23 was visually inspected.
+
+-- Codex
+
 ## 2026-09-17 - Slide 21 reworded (Claude)
 
 Per author: dropped the term 'Riesz representer' (r_alpha is now described as a fixed projection weight from the linearized least-squares fit), and rewrote the generated-index example as intuition/strategy (sensitivity via differentiation x OLS index error = one extra mean-zero score, root-n preserved) instead of the A_U equation. Trimmed to fit; deck builds.
