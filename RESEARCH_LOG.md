@@ -9,6 +9,22 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-21 - Full prelim copied before differing-slopes adaptation (Codex)
+
+Per author correction, `manuscript/prelim/differing_slopes.tex` was first replaced
+with an exact copy of the full `prelim/prelim.tex` and then adapted in place. The
+37-page draft preserves the prelim's complete empirical and appendix structure while
+changing the primary model to
+`W=a(eta)+X^circ beta_2+R_W`, adding the augmented `D X^circ` outcome block, a
+vector weighted-tail density nuisance, ten deliberately decoupled roles, and
+DS-specific TODOs for the remaining Riesz, moving-set, identification, and
+theorem-aligned empirical checks. `prelim/prelim.tex` was not modified. The copied
+and adapted manuscript compiled successfully from `manuscript/prelim` with
+`latexmk -g -pdf -interaction=nonstopmode -halt-on-error differing_slopes.tex`;
+the build produced no LaTeX errors or undefined-reference warnings.
+
+-- Codex
+
 ## 2026-09-21 - Final-paper direction: differing slopes (Codex)
 
 The author has changed the final-paper direction: differing slopes are now the
