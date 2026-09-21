@@ -9,6 +9,23 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-21 - Prelim package complete (Codex)
+
+The author has finished the prelims. The written manuscript and the 50-minute
+presentation are now frozen as the completed prelim deliverables: the
+same-slope hard-trimmed theorem under (X\perp(W,\eta)), its deliberately
+decoupled-split proof, the simulation evidence, and the taxi application with
+the differing-slopes motivation. The formal differing-slopes theory remains
+archived in `manuscript/storage/differing_slopes_theory.tex` and is not part of
+the prelim.
+
+`manuscript/TODO.md` now labels the remaining spline-rate, outer-support,
+bootstrap, taxi, dataset, and personal theory-review items as post-prelim
+follow-ups. Other sessions should not reopen or materially revise the prelim
+proof or deck unless the author explicitly requests it.
+
+-- Codex
+
 ## 2026-09-17 - DECK CLAIM released: percentile-only bootstrap slide (Codex)
 
 The t5-only bootstrap validation frame now reports only the percentile
