@@ -9,6 +9,22 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-21 - Final-paper direction: differing slopes (Codex)
+
+The author has changed the final-paper direction: differing slopes are now the
+primary model, rather than the original same-slope model used for the frozen
+prelim. A new standalone working draft, `manuscript/prelim/differing_slopes.tex`,
+mirrors the prelim structure and replaces the outcome model, utility target,
+estimator, and proof scaffold with the finite-dimensional `D X^circ` extension.
+The draft compiles to a 12-page PDF and marks unresolved assumptions,
+augmented-Riesz and vector-density calculations, foldwise signs/constants,
+bootstrap choices, and theorem-aligned taxi/simulation re-estimation with
+visible TODO boxes. The archived scaffold in
+`manuscript/storage/differing_slopes_theory.tex` remains supporting material;
+the new draft is the forward working document for the final paper.
+
+-- Codex
+
 ## 2026-09-21 - Prelim package complete (Codex)
 
 The author has finished the prelims. The written manuscript and the 50-minute
