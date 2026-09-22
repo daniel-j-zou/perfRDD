@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-21 - Terminology audit of the frozen prelim (Codex)
+
+Audited `manuscript/prelim/prelim.tex` for the terminology changes around the
+estimated score index. The document now uses **generated-residual error** for
+the identity `hat eta - eta = -X'(hat gamma-gamma)`, and uses **generated-index
+loading** for the derivative coefficients `A_U`, `A_alpha`, and `A_g`; the
+corresponding products `A' varphi_gamma` are the first-stage influence
+contributions. This distinction is technically coherent: endpoint quantiles are
+generated-index objects (`hat T`), while outcome/evaluation moving-set terms are
+generated-residual objects (`hat eta`). The only stale occurrence in the frozen
+prelim is the commented keyword `Generated regressor` (line 65); no rendered
+prose uses that term. The phrase **generated-index correction** does not yet
+appear; if adopted later, it should name the full first-stage contribution, not
+the loading alone. The differing-slopes draft inherits the stale keyword and
+additional scaffold terminology; that is a post-prelim cleanup item.
+
+-- Codex
+
 ## 2026-09-21 - Full prelim copied before differing-slopes adaptation (Codex)
 
 Per author correction, `manuscript/prelim/differing_slopes.tex` was first replaced
