@@ -42,6 +42,19 @@ generated-index loadings. The deck also contains the unhyphenated backup label
 
 -- Codex
 
+## 2026-09-21 - Presentation terminology is canonical for proof revisions (Codex)
+
+Author decision: as the author revises the proof, the terminology used in
+`manuscript/prelim/slides.tex` is the preferred vocabulary for the manuscript
+and proof. After each author change, Codex should reread the affected passage
+and propagate the presentation terms through nearby definitions, labels, and
+explanations. A different technical term should be retained only when it names
+a mathematically distinct object (for example, a loading coefficient versus
+the full first-stage influence contribution); such exceptions should be called
+out explicitly rather than silently changing the author's terminology.
+
+-- Codex
+
 ## 2026-09-21 - Full prelim copied before differing-slopes adaptation (Codex)
 
 Per author correction, `manuscript/prelim/differing_slopes.tex` was first replaced
