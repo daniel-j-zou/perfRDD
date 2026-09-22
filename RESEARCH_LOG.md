@@ -27,6 +27,21 @@ additional scaffold terminology; that is a post-prelim cleanup item.
 
 -- Codex
 
+## 2026-09-21 - Terminology audit of the prelim presentation (Codex)
+
+Audited `manuscript/prelim/slides.tex` against the frozen prelim terminology.
+The deck uses `threshold` for the selected policy and `cutoff` for the deployed
+rule in most places, but the M-estimation slide still says “candidate cutoff set
+`Phi`”; this is a minor wording/notation carry-over, not a mathematical error.
+The theory slides use “Errors in variables” (without the standard hyphens) in
+the taxonomy block, while another slide uses “error-in-variables components”.
+The displayed products `A' varphi_gamma` are full first-stage
+influence/contribution terms; only the coefficients `A` are technically the
+generated-index loadings. The deck also contains the unhyphenated backup label
+`Generated index`. No manuscript or deck source was changed in this audit.
+
+-- Codex
+
 ## 2026-09-21 - Full prelim copied before differing-slopes adaptation (Codex)
 
 Per author correction, `manuscript/prelim/differing_slopes.tex` was first replaced
