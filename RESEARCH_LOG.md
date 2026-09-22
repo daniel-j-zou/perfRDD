@@ -9,6 +9,29 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-22 - Larger active-estimator bootstrap grid completed (Codex)
+
+The restartable Slurm array `61751637` completed all four cells under
+`experiments/runs/active_bootstrap_array_20260922_gaussian/`, with 50 outer
+samples and 199 iid bootstrap draws per outer sample and no bootstrap failures.
+For the full-sample estimator, percentile coverage is `0.96, 0.96, 0.94,
+0.90` at `n={1200,2400,4800,9600}`; bootstrap-to-Monte-Carlo SD ratios are
+`1.11, 1.16, 0.87, 0.98`. The fixed eight-block estimator's point bias moves
+from `-0.309` to `0.018`, its point RMSE from `1.046` to `0.219`, and its
+bootstrap/Monte-Carlo SD ratio reaches `1.00` at `n=9600`; its lower-sample
+boundary rate is `0.40, 0.10, 0.00, 0.00`. The rotated estimator's bias moves
+from `-0.541` to `-0.026`, with SD ratios `0.98, 0.95, 1.10, 0.90` and
+boundary rates `0.40, 0.12, 0.02, 0.00`. Coverage uncertainty is material with
+50 outer samples: the binomial Monte Carlo standard error is about `0.028` at
+coverage `0.96`, `0.034` at `0.94`, and `0.042` at `0.90`. Thus the larger
+grid supports sensible bootstrap scale calibration and declining bias, while
+the eight-block variants need larger samples before their threshold distribution
+is stable; the `n=9600` coverage values are exploratory rather than a theorem
+check. A future validation run should increase outer replications for the
+largest cells before making a sharp coverage claim.
+
+-- Codex
+
 ## 2026-09-22 - Slurm execution hardening for bootstrap grid (Codex)
 
 The first monolithic bootstrap launch (job `61751112`) was stopped after 14 of
