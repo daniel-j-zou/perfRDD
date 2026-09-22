@@ -211,6 +211,9 @@ def _summarize(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
                 if np.isfinite(float(row[f"{label}_bootstrap_sd"]))
             ])
             emp_sd = float(np.std(point, ddof=1)) if len(point) > 1 else float("nan")
+            coverage = float(np.mean([
+                bool(row[f"{label}_percentile_coverage"]) for row in subset
+            ]))
             block["estimators"][label] = {
                 "target_phi": target,
                 "point_mean": float(np.mean(point)),
@@ -225,9 +228,10 @@ def _summarize(rows: Sequence[dict[str, Any]]) -> dict[str, Any]:
                     if valid_sd.size and np.isfinite(emp_sd) and emp_sd > 0
                     else float("nan")
                 ),
-                "percentile_coverage": float(np.mean([
-                    bool(row[f"{label}_percentile_coverage"]) for row in subset
-                ])),
+                "percentile_coverage": coverage,
+                "percentile_coverage_mc_se": float(
+                    np.sqrt(coverage * (1.0 - coverage) / len(subset))
+                ),
                 "point_boundary_rate": float(np.mean([
                     bool(row[f"{label}_point_boundary"]) for row in subset
                 ])),
