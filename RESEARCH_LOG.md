@@ -9,6 +9,25 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-22 - Active-estimator bootstrap harness (Codex)
+
+Added `experiments/scripts/hard_trim_bootstrap_active.py` and the reproducible
+Great Lakes batch wrapper `experiments/cluster/active_bootstrap.sbatch`. The
+bootstrap diagnostic now uses the three active implementations—fixed
+`decoupled_8block`, role-rotated `rotated_8block`, and `full_sample`—rather than
+the retired legacy fold labels. Bootstrap draws preserve the eight-block role
+assignment within each outer sample; re-randomizing roles would add split
+randomization to the conditional bootstrap and is reserved for a sensitivity
+run. The output reports point bias/RMSE, empirical and bootstrap standard
+deviations, `sqrt(n)`-scaled bias, `n`-scaled empirical variance, percentile
+coverage, boundary rates, and failed-resample counts. Smoke runs at `n=600`,
+`2400`, and `9600` completed without bootstrap failures; small samples showed
+boundary instability for the decoupled variants, while the `n=9600` smoke run
+was centered much more closely. The script explicitly remains a finite-sample
+diagnostic, not a bootstrap validity theorem.
+
+-- Codex
+
 ## 2026-09-22 - Keep differing-slopes draft outside prelim (Codex)
 
 Per author direction, the active differing-slopes manuscript was moved from
