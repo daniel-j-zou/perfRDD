@@ -9,6 +9,21 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-22 - Slurm execution hardening for bootstrap grid (Codex)
+
+The first monolithic bootstrap launch (job `61751112`) was stopped after 14 of
+200 outer samples when an audit showed numerical-library thread
+oversubscription relative to its eight-CPU allocation and no independent
+restart boundary by sample size. Its partial CSV and Slurm logs remain under
+`experiments/runs/active_bootstrap_20260922_gaussian/`. The replacement array
+job `61751637` uses one cell for each `n` in `{1200,2400,4800,9600}`, caps
+concurrency at two cells, binds one BLAS/OpenMP thread to each Python worker,
+records per-cell provenance, and resumes from completed CSV rows after a
+retry. This is an execution/reproducibility change only; no estimator or DGP
+was changed.
+
+-- Codex
+
 ## 2026-09-22 - Active-estimator bootstrap harness (Codex)
 
 Added `experiments/scripts/hard_trim_bootstrap_active.py` and the reproducible
