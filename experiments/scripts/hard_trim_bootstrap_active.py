@@ -253,6 +253,7 @@ def run_bootstrap(
     density_method: str,
     seed: int,
     out_dir: Path,
+    resume: bool = False,
 ) -> dict[str, Any]:
     """Run the active-estimator bootstrap study and write CSV/JSON outputs."""
     if density_method not in DENSITY_METHODS:
@@ -290,9 +291,52 @@ def run_bootstrap(
             f"{label}_percentile_q975", f"{label}_percentile_coverage",
         ])
 
-    with csv_path.open("w", newline="") as handle:
+    def parse_saved_row(raw: dict[str, str]) -> dict[str, Any]:
+        """Restore the small set of typed fields needed for summarization."""
+        parsed: dict[str, Any] = {}
+        for key, value in raw.items():
+            if key in {"density_method", "bootstrap_fold_assignment"}:
+                parsed[key] = value
+            elif key.endswith("_point_boundary") or key.endswith("_percentile_coverage"):
+                parsed[key] = value.strip().lower() == "true"
+            elif key in {"n", "outer_seed", "bootstrap_reps_requested"}:
+                parsed[key] = int(value)
+            elif key.endswith("_bootstrap_reps_successful") or key.endswith("_bootstrap_failures"):
+                parsed[key] = int(value)
+            else:
+                parsed[key] = float(value)
+        return parsed
+
+    completed: set[tuple[int, int, str]] = set()
+    if resume and csv_path.exists():
+        with csv_path.open(newline="") as handle:
+            reader = csv.DictReader(handle)
+            if reader.fieldnames != fields:
+                raise ValueError(
+                    f"cannot resume {csv_path}: existing columns do not match "
+                    "the current estimator output"
+                )
+            for raw in reader:
+                saved = parse_saved_row(raw)
+                rows.append(saved)
+                completed.add((int(saved["n"]), int(saved["outer_seed"]), str(saved["density_method"])))
+        tasks = [
+            task for task in tasks
+            if (int(task[0]), int(task[1]), str(task[4])) not in completed
+        ]
+
+    file_mode = "a" if resume and csv_path.exists() and csv_path.stat().st_size > 0 else "w"
+    with csv_path.open(file_mode, newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
-        writer.writeheader()
+        if file_mode == "w":
+            writer.writeheader()
+        if resume and completed:
+            print(
+                f"[bootstrap] resuming {csv_path}: "
+                f"{len(completed)} completed outer samples; "
+                f"{len(tasks)} remaining",
+                flush=True,
+            )
         if workers == 1:
             iterator = ((_outer_replication(task), i) for i, task in enumerate(tasks, 1))
             for row, index in iterator:
@@ -323,6 +367,7 @@ def run_bootstrap(
         "outer_replications_per_cell": int(outer_reps),
         "bootstrap_replications_per_outer_sample": int(bootstrap_reps),
         "seed": int(seed),
+        "resume": bool(resume),
         "target_phi": float(population_truth()["hard_phi_star"]),
         "summary": _summarize(rows),
         "replications_csv": str(csv_path),
@@ -339,11 +384,15 @@ def main(argv: Sequence[str] | None = None) -> None:
     parser.add_argument("--workers", type=int, default=1)
     parser.add_argument("--density", choices=DENSITY_METHODS, default="gaussian")
     parser.add_argument("--seed", type=int, default=20260922)
+    parser.add_argument(
+        "--resume", action="store_true",
+        help="resume from completed rows in the output CSV if it exists",
+    )
     parser.add_argument("--out", type=Path, required=True)
     args = parser.parse_args(argv)
     summary = run_bootstrap(
         args.n, args.outer_reps, args.bootstrap_reps, args.workers,
-        args.density, args.seed, args.out,
+        args.density, args.seed, args.out, args.resume,
     )
     print(json.dumps(summary["summary"], indent=2))
     print(f"[wrote] {args.out / 'replications.csv'}")
