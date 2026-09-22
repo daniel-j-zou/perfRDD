@@ -9,6 +9,19 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-22 - Keep differing-slopes draft outside prelim (Codex)
+
+Per author direction, the active differing-slopes manuscript was moved from
+`manuscript/prelim/differing_slopes.tex` to
+`manuscript/differing_slopes.tex` in manuscript commit `9df8014`. The frozen
+prelim package remains in `manuscript/prelim/` and was not edited. The moved
+draft now uses `prelim/` as the TeX support-file input path, `figures/` for
+figures, and the canonical root `references.bib`; a clean root compilation
+produces the same 37-page PDF with no LaTeX errors, undefined citations, or
+undefined references.
+
+-- Codex
+
 ## 2026-09-21 - Terminology audit of the frozen prelim (Codex)
 
 Audited `manuscript/prelim/prelim.tex` for the terminology changes around the
