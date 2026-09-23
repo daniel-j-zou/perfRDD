@@ -3592,3 +3592,30 @@ slopes block is present. A correctly specified low-dimensional quadratic fit
 recovers most of the target at modest variance cost; the flexible spline also
 removes the bias but is noisier with ten basis functions. Results are stored in
 `outputs/differing_slopes_nonlinear_outcome_20260923/nonlinear_outcome_results_500.json`.
+
+## 2026-09-23 — Percentile bootstrap for nonlinear alpha/b fits (Codex)
+
+Added `experiments/scripts/differing_slopes_nonlinear_bootstrap.py` and ran a
+full-sample re-estimation percentile bootstrap: 50 outer samples and 199
+bootstrap draws per outer sample, for both the linear benchmark and nonlinear
+$\alpha,b$ DGPs at $n\in\{800,1600,3200\}$, plus a separate nonlinear $n=6400$
+run. Every draw re-estimates the index, hard trimming, outcome coefficients,
+and policy optimum. There were no failed bootstrap draws.
+
+For the nonlinear DGP, percentile coverage for the linear fit was $0.94$,
+$0.88$, and $0.94$ at $n=800,1600,3200$, but fell to $0.64$ at $n=6400$.
+The corresponding persistent point biases were about $-0.040$, $-0.029$,
+$-0.033$, and $-0.040$. Thus the bootstrap can look acceptable at moderate
+sample sizes while failing to cover the structural target once the interval
+shrinks around the misspecified pseudo-target. The correctly specified
+quadratic fit had coverage $0.92$, $0.96$, $1.00$, and $0.92$ across those four
+sample sizes; its bias stayed between $-0.002$ and $-0.017$. The spline fit had
+coverage $0.98$, $0.94$, $0.96$, and $0.92$, with higher bootstrap dispersion
+than the quadratic fit. In the linear DGP, coverage was $0.98$, $0.94$, and
+$0.92$ for the linear fit at $n=800,1600,3200$ (Monte Carlo standard errors are
+about $0.02$--$0.04$ with 50 outer samples).
+
+These are finite-sample diagnostics, not a bootstrap validity theorem for the
+fully decoupled generated-index estimator. Results are in
+`outputs/differing_slopes_nonlinear_bootstrap_20260923/summary.json` and
+`outputs/differing_slopes_nonlinear_bootstrap_20260923_n6400/summary.json`.
