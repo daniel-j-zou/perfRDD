@@ -3545,3 +3545,33 @@ the treatment/index component. Consequently the generated residual error is
 $-X^\top(\widehat\gamma-\gamma)$; centering the outcome covariates alone
 does not remove its loading. A centered-index representation requires the
 intercept $\gamma^\top\E[X]$ to be handled explicitly.
+
+## 2026-09-23 — Nonlinear alpha/b outcome-flexibility diagnostic (Codex)
+
+Ran `experiments/scripts/differing_slopes_nonlinear_outcome.py` to test the
+current differing-slopes pipeline when both the treated response
+$\alpha(\eta)$ and the baseline $b(\eta)$ are quadratic in the latent score:
+$a_0+a_1\eta+a_2(\eta^2-1)$ and $b_0+b_1\eta+b_2(\eta^2-1)$, with
+$(a_2,b_2)=(0.35,0.50)$ in the nonlinear scenario. The DGP uses two observed
+covariates, the full $D X$ block, an OLS-generated index, hard trimming at the
+known Gaussian 10\% tails, and the known Gaussian score tail in the final
+objective. This is deliberately an outcome-flexibility diagnostic, not a full
+generated-index/density-Riesz theorem validation.
+
+The 500-replication battery at $n\in\{800,1600,3200,6400\}$ completed in
+roughly 30 seconds. It compares the current linear OLS response fit with a
+correctly specified quadratic fit and a 10-basis spline fit. In the linear DGP,
+all three estimators center on the same target (at $n=6400$, biases are
+$-0.0008$, $-0.0007$, and $-0.0011$ for linear, quadratic, and spline). In the
+nonlinear DGP, the linear fit has persistent pseudo-target bias of about
+$-0.033$ to $-0.036$ across $n=800$--$6400$, whereas the quadratic fit reduces
+it to $-0.006$ to $-0.008$ and the spline to $-0.008$ to $-0.015$. At $n=6400$
+the RMSEs are $0.0446$ (linear), $0.0299$ (quadratic), and $0.0382$ (spline);
+the corresponding $n$-scaled variances are $4.63$, $5.35$, and $8.89$.
+
+Interpretation: nonlinear $\alpha$ and $b$ invalidate the current linear
+outcome reduction through a non-vanishing bias, even though the full differing-
+slopes block is present. A correctly specified low-dimensional quadratic fit
+recovers most of the target at modest variance cost; the flexible spline also
+removes the bias but is noisier with ten basis functions. Results are stored in
+`outputs/differing_slopes_nonlinear_outcome_20260923/nonlinear_outcome_results_500.json`.
