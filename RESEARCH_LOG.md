@@ -9,6 +9,23 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 — Weekly note uses vector weighted density directly (Codex)
+
+At the author's request, removed the optional scalar symbol and scalar
+projection from `manuscript/this_week.tex`. The note's proposed estimate is
+the vector spline projection \(\hat p_X\); the differing-slopes term is
+written directly as \(\hat\beta_2^\top\hat p_X(t)\). With \(\beta_2\)
+held fixed in the distribution-fold calculation, linearity gives the
+same identity
+\(L_{\rho,\phi}(\beta_2^\top\hat p_X)
+=\mathbb P_{n_\rho}[r_L(T)\beta_2^\top X]\).
+The exact decomposition, approximation-error product, and
+generated-index evaluation loading were restated without a separate
+scalar density. No estimator, target, or rate condition changed.
+Also replaced stale numeric section references after the author's new
+opening section. The nine-page LaTeX note compiled without errors or
+undefined references and the affected pages were visually checked.
+
 ## 2026-09-23 — Add Gongjun discussion notes to weekly note (Codex)
 
 Added Section 1, ``Discussion with Gongjun,'' to `manuscript/this_week.tex`.
