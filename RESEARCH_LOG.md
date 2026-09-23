@@ -9,6 +9,42 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 — Author clarification: nonparametric alpha, g and p_X (Codex)
+
+The author elects to assume continuous fares and does not want discreteness
+to drive this theory discussion. The intended estimator uses a separate OLS
+fold for gamma, a stacked outcome regression with spline alpha and b plus
+linear X and DX coefficients, and nonparametric distribution estimation.
+Keep g=f_T for the baseline and add p_X(s)=E[X|T=s]f_T(s) for differing
+slopes. Both are functions of a scalar index; an augmented weighted-density
+projection with responses (1,X) estimates both. Scalar p_beta=beta2'p_X is
+an exactly equivalent computational reduction for the slope direction.
+
+Updated this_week.tex with the complete integrated-tail utility and its
+derivative, the explicit stacked outcome design, and the comparison with
+taxi_differing_slopes.py. The taxi script does use cubic splines for alpha
+and b (per _basis_params/_eval_basis); its current direct observed-Q
+objective still differs from the proposed spline-tail optimizer. No taxi
+code or simulation results were changed. Regularization is outside the
+requested comparison. This clarification does not establish independence
+of X and eta in the data; the marginal-tail theory continues to maintain it.
+
+Verified algebraic simplification: with one shared OLS estimate, the
+untrimmed slope-block loadings satisfy
+C_U+C_rho=-E[(Xtilde-E Xtilde)(beta2'X) f_eta'(phi-T)].
+Their intercept coordinate is zero, as is the intercept column of A_beta.
+Thus the total slope-block OLS intercept correction cancels. The slope
+coordinates and generated-outcome correction remain. This statement is
+not a claim that hard-trim boundary corrections disappear.
+
+The fixed-threshold score expansion is explicitly conditional on outcome
+linearization, spline derivative/moment rates and remainder control.
+The full hard-trimmed threshold CLT still requires joint outcome,
+distribution and endpoint expansions plus local uniformity and argmax
+assembly. These are marked as unfinished rather than certified by a
+successful compilation. Verification: latexmk build passes, no undefined
+references or horizontal overflow; rendered changed pages inspected.
+
 ## 2026-09-23 - Feasible differing-slopes and bootstrap diagnostics completed (Codex)
 
 Ran the Slurm arrays `61761710` and `61761711` from commit `ea2ee50`.  The
