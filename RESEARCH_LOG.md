@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 - Nonlinear bootstrap rerun with spline g and p_X; weekly note updated (Claude)
+
+Follow-up to the U_J switch entry below. Reran
+`differing_slopes_nonlinear_bootstrap.py` with the spline tails, same seeds as
+Codex's run (20260928 for linear/nonlinear at n=800,1600,3200; 20260929 for
+nonlinear n=6400), 50 outer x 199 draws, 8 local workers. Outputs:
+`outputs/differing_slopes_nonlinear_bootstrap_spline_20260923{,_n6400}`.
+Nonlinear DGP: linear fit bias -0.035/-0.024/-0.035/-0.041 with coverage
+0.92/0.90/0.82/0.56 (Gaussian tail: 0.94/0.88/0.94/0.64); quadratic fit bias
+-0.016/0.000/-0.011/-0.008, coverage 0.94/0.96/0.98/0.94; spline fit bias
+0.004/-0.004/-0.003/-0.011, coverage 0.96/0.94/0.96/0.92. The linear DGP stays
+covered (0.90-0.96). The conclusion is unchanged, and the linear fit's
+undercoverage now appears by n=3200. `this_week.tex` Simulations
+table and setup sentence updated (manuscript fca05b3 and follow-up); the
+coordination hold on that subsection is released.
+
+-- Claude
+
 ## 2026-09-23 - Differing-slopes code now maximizes U_J with spline g and p_X (Claude)
 
 At the author's request every differing-slopes estimator now maximizes
