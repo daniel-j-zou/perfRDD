@@ -108,6 +108,44 @@ Work IV, not a dataset for the current estimator: the threshold is state-level (
 hundred state-grade-subject-years), and within-state distributions near the cut need
 restricted NAEP.
 
+## Follow-up: free meals assigned on a score, and ECLS-K:2024 (Claude, 2026-09-23)
+
+Free meals assigned by a threshold on a score, by unit of assignment:
+
+| Program | Score (Q) and cutoff | Precedent / status | PerfRDD fit |
+|---|---|---|---|
+| US school lunch, individual | family income / poverty line; free at 130%, reduced price at 185% | Schanzenbach (2009, JHR): RD at 185% in the original ECLS-K | Good structure (demographics predict income; meal cost is known). Weakened by survey vs. application income, direct certification, and states that now pay the reduced-price copay or offer universal meals |
+| US School Breakfast mandates, school | school % free/reduced-price eligible; state cutoffs roughly 10-40% | Frisvold (2015, JPubE): NAEP difference-in-differences plus ECLS-K RD; achievement gains | Several deployed cutoffs across states, useful for checking counterfactual-threshold predictions; school-level n |
+| US CEP, school | Identified Student Percentage; 40%, then 25% | see candidate 1 above | best US lead |
+| Chile school meals (PAE), school | vulnerability index IVE; 1000 vs 700 kcal at IVE 68 | McEwan (2013, EER): no effects | flat effect, likely boundary; Chilean admin data are rich |
+| Chile BAES food card, university | automatic for quintiles 1-3 holding tuition aid; some aid has entrance-exam (PAES) cutoffs | bundled with tuition aid at the score cutoffs | compound treatment (food plus tuition) |
+| England free school meals, pupil | Universal Credit net earnings <= GBP 7,400 | threshold removed for all Universal Credit households from Sept 2026 | a real threshold move, but earnings are in benefits records, not the pupil database |
+| Philippines school feeding (SBFP), pupil | BMI-for-age z < -2 (wasted) -> 120-day feeding | PIDS evaluation: only 43% of recorded severely wasted verified on remeasurement | anthropometric running variable; possible gaming (performative angle); data not public |
+| Chinese university "invisible" meal subsidies | monthly canteen-card spending below a threshold -> automatic deposit (e.g., USTC) | no RD paper found; rule kept quiet to prevent gaming | performative angle; proprietary data |
+
+ECLS-K:2024 (kindergarten fall 2023 and spring 2024; first grade planned for spring 2025):
+- Data status is uncertain. The NCES page still lists the kindergarten restricted-use file as
+  "anticipated in early 2026", kindergarten plus first grade restricted in early 2027, and
+  public use in mid-2027. The ECLS contract was among the IES contracts reported cancelled
+  in February 2025. Release status was not confirmed.
+- There is no sharp treatment whose score the study records. The closest is the
+  free/reduced-price meal income cutoff (the Schanzenbach design). But 2023-24 is the year
+  that cutoff stopped binding for many children: eight states had universal free meals
+  (CA, CO, MA, ME, MI, MN, NM, VT), and CEP opened to 25% ISP in October 2023. It binds only
+  in non-CEP schools elsewhere, which leaves a small subsample. Earlier ECLS-K rounds also
+  collected income in categories. The upside is that both regimes coexist, which could
+  validate counterfactual-threshold predictions.
+- Head Start income eligibility (100% of poverty) in the pre-K year, with fall-K
+  assessments as `Y`, is fuzzy: categorical eligibility, over-income slots, limited supply,
+  and income measured a year late.
+- School-level cutoffs (CEP, Title I, breakfast mandates) via restricted school IDs cover
+  too few schools.
+- Birthdate cutoffs (kindergarten entry; California's widening TK birthday window) are
+  clean local RDs but give no spread in `T`.
+- Score-based services whose score ECLS does not record (special-education eligibility,
+  English-learner screeners, early-literacy screening laws) are unusable, because `Q` is
+  unobserved.
+
 ## Considered and rejected
 
 - **School-entry birthdate cutoffs** (relative age; TIMSS/PISA, NAEP Long-Term Trend age
@@ -151,3 +189,12 @@ restricted NAEP.
 - TIMSS 2023 Longitudinal: https://www.iea.nl/studies/iea/timss/2023-Longitudinal
 - LSAY data access (ADA): https://ada.edu.au/lsay/ ; LSAY and self-reported TER/ATAR: https://www.ncver.edu.au/research-and-statistics/publications/all-publications/the-impact-of-schools-on-young-peoples-transition-to-university
 - Maimonides' rule (Angrist & Lavy): https://www.nber.org/papers/w5888
+- Schanzenbach (2009): https://papers.ssrn.com/sol3/papers.cfm?abstract_id=1593844
+- Frisvold (2015): https://pmc.ncbi.nlm.nih.gov/articles/PMC4408552
+- McEwan (2013): https://www.sciencedirect.com/science/article/abs/pii/S0272775712001124
+- JUNAEB BAES: https://www.junaeb.cl/beca-alimentacion-la-educacion-superior ; https://portal.beneficiosestudiantiles.cl/becas-y-creditos/beca-de-alimentacion-baes
+- England FSM expansion: https://www.gov.uk/government/publications/free-school-meals-guidance-for-schools-and-local-authorities/free-school-meals-guidance-for-local-authorities-local-authority-maintained-schools-academies-and-free-schools
+- Philippines SBFP evaluation (PIDS): https://pidswebs.pids.gov.ph/CDN/PUBLICATIONS/pidsdps1605.pdf
+- USTC canteen-data subsidies: https://files.eric.ed.gov/fulltext/EJ1115858.pdf
+- ECLS-K:2024 release plan: https://nces.ed.gov/ecls/datainformation2024.asp ; contract cancellations: https://www.k12dive.com/news/Education-Department-DOGE-termination-of-education-research-contracts/739863/
+- Universal-meal states 2023-24: https://www.cnbc.com/2023/08/03/these-states-are-restoring-pandemic-era-free-school-meals-for-all-kids.html
