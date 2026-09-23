@@ -14,9 +14,15 @@ where ``T = gamma'X``.  Three outcome models are compared:
     The correctly specified extension, which additionally includes
     ``D*(T**2 - Var(T))``.
 
-The first-stage residual ``eta``, the normal law of ``T``, and the hard trim
-interval are treated as known.  This isolates the nonlinear outcome-model
-question; it is not a validation of generated-index or moving-boundary terms.
+The first-stage residual ``eta``, the index ``T``, and the hard trim interval
+are treated as known.  The threshold maximizes the differing-slopes utility
+U_J with the running-variable nuisances estimated: g and the weighted
+densities p_R of the effect regressors R = (T, X2, T**2 - Var(T)) are
+Lebesgue-Gram spline projections (``experiments.methods.weighted_tails``),
+and the sandwich variance includes their density-sample influence.  The
+population target uses the known normal law.  This isolates the nonlinear
+outcome-model question; it is not a validation of generated-index or
+moving-boundary terms.
 
 Example::
 
@@ -36,6 +42,14 @@ from typing import Any, Iterable, Sequence
 import numpy as np
 from scipy.optimize import minimize_scalar
 from scipy.stats import norm
+
+from experiments.methods.weighted_tails import (
+    WeightedTails,
+    density_influence,
+    fit_weighted_tails,
+    uj_score_terms,
+    uj_utility,
+)
 
 
 @dataclass(frozen=True)
@@ -180,76 +194,87 @@ def _fit_outcome(sample: dict[str, np.ndarray], model: str, dgp: DGP) -> tuple[n
     return coef, residual, design
 
 
-def _term_coefficients(coef: np.ndarray, model: str) -> tuple[float, float]:
-    """Extract coefficients on D*T and D*(T^2-sigma_T^2)."""
+EFFECT_TERMS = ("t", "x2", "q2")
+
+
+def _effect_regressors(sample: dict[str, np.ndarray], dgp: DGP) -> np.ndarray:
+    """R = (T, X2, T**2 - Var(T)), the regressors multiplying D in the effect."""
+    t = sample["T"]
+    return np.column_stack((t, sample["X"][:, 1], t**2 - dgp.sigma_T**2))
+
+
+def _fit_tails(sample: dict[str, np.ndarray], dgp: DGP) -> WeightedTails:
+    """Spline estimates of g and p_R for the known index T."""
+    support = (-3.0 * dgp.sigma_T, 3.0 * dgp.sigma_T)
+    return fit_weighted_tails(sample["T"], _effect_regressors(sample, dgp), support)
+
+
+def _slope_vector(coef: np.ndarray, model: str) -> np.ndarray:
+    """Coefficients on (D*T, D*X2, D*(T^2-Var T)), zero for omitted terms."""
     names = _basis(model)
-    linear = coef[6 + names.index("t")] if "t" in names else 0.0
-    quadratic = coef[6 + names.index("q2")] if "q2" in names else 0.0
-    return float(linear), float(quadratic)
+    return np.array([
+        float(coef[6 + names.index(term)]) if term in names else 0.0
+        for term in EFFECT_TERMS
+    ])
 
 
-def _sample_utility(phi: float, sample: dict[str, np.ndarray], coef: np.ndarray, model: str, dgp: DGP) -> float:
-    eta = sample["eta"]
-    probability, first, centered_second, _ = _conditional_moments(phi, eta, dgp)
-    alpha = coef[4] + coef[5] * eta - dgp.cost
-    linear, quadratic = _term_coefficients(coef, model)
-    value = alpha * probability + linear * first + quadratic * centered_second
-    return float(np.mean(_keep(eta, dgp) * value))
+def _effect_pieces(eta: np.ndarray, coef: np.ndarray, model: str, dgp: DGP):
+    keep = _keep(eta, dgp)
+    alpha_minus_c = coef[4] + coef[5] * eta - dgp.cost
+    return keep, alpha_minus_c, _slope_vector(coef, model)
 
 
-def _policy_terms(phi: float, sample: dict[str, np.ndarray], coef: np.ndarray, model: str, dgp: DGP) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+def _sample_utility(
+    phi: float, sample: dict[str, np.ndarray], coef: np.ndarray, model: str,
+    dgp: DGP, tails: WeightedTails,
+) -> float:
+    keep, alpha_minus_c, slopes = _effect_pieces(sample["eta"], coef, model, dgp)
+    return uj_utility(phi, sample["eta"], keep, alpha_minus_c, slopes, tails)
+
+
+def _policy_terms(
+    phi: float, sample: dict[str, np.ndarray], coef: np.ndarray, model: str,
+    dgp: DGP, tails: WeightedTails,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Return score, curvature, and coefficient-gradient arrays."""
     eta = sample["eta"]
-    sigma = dgp.sigma_T
-    probability, _, _, z = _conditional_moments(phi, eta, dgp)
-    density = norm.pdf(z)
-    alpha = coef[4] + coef[5] * eta - dgp.cost
-    linear, quadratic = _term_coefficients(coef, model)
-    keep = _keep(eta, dgp)
-
-    score = keep * (
-        -alpha * density / sigma
-        -linear * z * density
-        +quadratic * sigma * (1.0 - z**2) * density
-    )
-    curvature = keep * (
-        alpha * z * density / sigma**2
-        +linear * (z**2 - 1.0) * density / sigma
-        +quadratic * (z**3 - 3.0 * z) * density
-    )
-
+    keep, alpha_minus_c, slopes = _effect_pieces(eta, coef, model, dgp)
+    terms = uj_score_terms(phi, eta, keep, alpha_minus_c, slopes, tails)
     gradient = np.zeros((len(eta), len(coef)))
-    # This is the derivative of the policy first-order condition with
-    # respect to the outcome-regression coefficients (not the derivative of
-    # utility itself).  It is the cross-derivative needed in the argmax
-    # influence function.
-    gradient[:, 4] = keep * (-density / sigma)
-    gradient[:, 5] = keep * (-eta * density / sigma)
+    # Derivative of the policy first-order condition with respect to the
+    # outcome coefficients (the cross-derivative in the argmax influence).
+    gradient[:, 4] = -keep * terms.density
+    gradient[:, 5] = -keep * eta * terms.density
     names = _basis(model)
-    if "t" in names:
-        gradient[:, 6 + names.index("t")] = keep * (-z * density)
-    if "q2" in names:
-        gradient[:, 6 + names.index("q2")] = keep * (sigma * (1.0 - z**2) * density)
-    # The conditional mean of X2 given T is zero, so D*X2 has zero direct
-    # policy-gradient contribution in this design.
-    return score, curvature, gradient
+    for column, term in enumerate(EFFECT_TERMS):
+        if term in names:
+            gradient[:, 6 + names.index(term)] = -keep * terms.weighted_density[:, column]
+    return terms.score, terms.curvature, gradient
 
 
 def estimate_threshold(sample: dict[str, np.ndarray], model: str, dgp: DGP = DEFAULT_DGP) -> dict[str, float]:
     """Estimate the policy threshold and conditional plug-in variance."""
     coef, residual, design = _fit_outcome(sample, model, dgp)
+    tails = _fit_tails(sample, dgp)
     result = minimize_scalar(
-        lambda value: -_sample_utility(value, sample, coef, model, dgp),
+        lambda value: -_sample_utility(value, sample, coef, model, dgp, tails),
         bounds=POLICY_BOUNDS,
         method="bounded",
         options={"xatol": 1e-8, "maxiter": 200},
     )
     phi = float(result.x)
-    score, curvature_terms, gradient = _policy_terms(phi, sample, coef, model, dgp)
+    score, curvature_terms, gradient = _policy_terms(phi, sample, coef, model, dgp, tails)
     bread = np.linalg.inv((design.T @ design) / len(design))
     theta_influence = (design @ bread.T) * residual[:, None]
     gradient_mean = np.mean(gradient, axis=0)
-    score_influence = (score - np.mean(score)) + theta_influence @ gradient_mean
+    keep, alpha_minus_c, slopes = _effect_pieces(sample["eta"], coef, model, dgp)
+    density_term = density_influence(
+        phi, sample["eta"], keep, alpha_minus_c, slopes, tails,
+        sample["T"], _effect_regressors(sample, dgp),
+    )
+    score_influence = (
+        (score - np.mean(score)) + theta_influence @ gradient_mean + density_term
+    )
     score_variance = float(np.var(score_influence, ddof=1))
     curvature = float(np.mean(curvature_terms))
     variance_constant = score_variance / max(curvature**2, 1e-16)

@@ -15,9 +15,14 @@ process is changed:
     so the population target is unchanged and only finite-sample variability
     should move.
 
-This is a known-index, known-trim diagnostic: ``eta`` and the population trim
-window are supplied to the estimator.  It tests the differing-slopes outcome
-and weighted-tail algebra, not the generated-index/moving-boundary theorem.
+This is a known-index, known-trim diagnostic: ``eta``, the index ``T = X_1``
+and the population trim window are supplied to the estimator.  The threshold
+maximizes the differing-slopes utility U_J with the running-variable nuisances
+estimated: g and p_X are Lebesgue-Gram spline projections on a fixed interval
+holding the central 99.73% of the index law (``experiments.methods.
+weighted_tails``).  The population target is computed from the known laws.
+It tests the differing-slopes outcome and estimated-tail calculation, not the
+generated-index/moving-boundary theorem.
 """
 from __future__ import annotations
 
@@ -33,9 +38,13 @@ from scipy.integrate import quad
 from scipy.optimize import brentq, minimize_scalar
 from scipy.stats import lognorm, norm, t as student_t
 
+from experiments.methods.weighted_tails import fit_weighted_tails, uj_utility
+
 
 POLICY_BOUNDS = (-3.0, 3.0)
 TRIM_EPS = 0.10
+# Fixed density interval: the central mass of a normal law within +/-3 sd.
+TAIL_QUANTILES = (0.00135, 0.99865)
 MIXTURE_WEIGHTS = np.array([0.5, 0.5])
 MIXTURE_MEANS = np.array([-1.0, 1.0])
 MIXTURE_SDS = np.array([0.45, 0.45])
@@ -189,6 +198,14 @@ def trim_bounds(dgp: DGP) -> tuple[float, float]:
     return lower, upper
 
 
+def density_support(dgp: DGP) -> tuple[float, float]:
+    """Deterministic spline interval for the index law."""
+    return (
+        _law_quantile(TAIL_QUANTILES[0], dgp.x_law),
+        _law_quantile(TAIL_QUANTILES[1], dgp.x_law),
+    )
+
+
 def population_utility(phi: float, dgp: DGP, *, include_beta2: bool = True) -> float:
     lower, upper = trim_bounds(dgp)
     beta2 = float(dgp.beta2[0]) if include_beta2 else 0.0
@@ -273,17 +290,14 @@ def estimate_threshold(sample: dict[str, np.ndarray], dgp: DGP) -> dict[str, flo
     coef, *_ = np.linalg.lstsq(design, sample["Y"], rcond=None)
     eta = sample["eta"]
     lower, upper = trim_bounds(dgp)
-    keep = (eta >= lower) & (eta <= upper)
-    beta2 = float(coef[6])
+    keep = ((eta >= lower) & (eta <= upper)).astype(float)
+    alpha_minus_c = coef[4] + coef[5] * eta - dgp.cost
+    beta2 = coef[6:8]
+    # U_J with estimated g and p_X of the known index T = X_1.
+    tails = fit_weighted_tails(sample["X"][:, 0], sample["X"], density_support(dgp))
 
     def utility(phi: float) -> float:
-        cutoff = float(phi) - eta
-        value = (
-            (coef[4] + coef[5] * eta - dgp.cost)
-            * _law_survival(cutoff, dgp.x_law)
-            + beta2 * _law_weighted_tail(cutoff, dgp.x_law)
-        )
-        return float(np.mean(np.where(keep, value, 0.0)))
+        return uj_utility(phi, eta, keep, alpha_minus_c, beta2, tails)
 
     result = minimize_scalar(
         lambda value: -utility(value),
@@ -327,7 +341,8 @@ def run_simulation(
     return {
         "description": (
             "Known-index differing-slopes distributional battery; every fit "
-            "contains D*X, eta and trim bounds are supplied, and the target "
+            "contains D*X, eta and trim bounds are supplied, the threshold "
+            "maximizes U_J with spline-estimated g and p_X, and the target "
             "is recomputed for each X/eta law."
         ),
         "dgp": {
@@ -341,6 +356,8 @@ def run_simulation(
             "cost": dgp.cost,
             "sigma_eps": dgp.sigma_eps,
             "trim_eps": TRIM_EPS,
+            "tails": "spline g and p_X (Lebesgue-Gram projection)",
+            "density_support": list(density_support(dgp)),
         },
         "truth": target,
         "n_values": [int(n) for n in n_values],

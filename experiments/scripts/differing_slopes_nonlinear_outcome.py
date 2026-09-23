@@ -4,8 +4,9 @@ The DGP replaces the linear alpha(eta) and b(eta) functions by quadratic
 functions while retaining the full D * X block. The experiment compares the
 current linear outcome fit with a correctly specified quadratic fit and a
 cubic B-spline outcome fit. The index and hard-trim endpoints are estimated by
-OLS; the Gaussian running-variable tail is supplied because this is a targeted
-outcome-flexibility check.
+OLS, and the threshold maximizes the differing-slopes utility U_J with the
+running-variable nuisances g and p_X estimated by Lebesgue-Gram spline
+projection (``experiments.methods.weighted_tails``).
 """
 from __future__ import annotations
 
@@ -21,10 +22,12 @@ from scipy.special import roots_hermitenorm
 from scipy.stats import norm
 
 from experiments.methods.spline_density import _basis_info, evaluate_basis_zero_outside
+from experiments.methods.weighted_tails import fit_weighted_tails, uj_utility
 
 
 POLICY_BOUNDS = (-3.0, 3.0)
 SUPPORT = (-3.0, 3.0)
+DENSITY_SUPPORT = (-3.0, 3.0)
 TRIM_EPS = 0.10
 
 
@@ -179,16 +182,16 @@ def estimate(sample: dict[str, np.ndarray], dgp: DGP, variant: str) -> float:
     else:
         raise ValueError(f"unknown variant {variant!r}")
 
-    tail_sd = float(np.std(t_hat, ddof=1))
     eta_eval = eta_hat[keep]
     alpha_eval, beta2_hat = effect_hat(eta_eval)
-    beta_dot_gamma = float(np.asarray(beta2_hat) @ gamma_hat[1:])
+    # U_J with g_hat and p_X_hat of the estimated index.
+    tails = fit_weighted_tails(t_hat, x, DENSITY_SUPPORT)
+    weights = np.ones(len(eta_eval))
 
     def objective(phi: float) -> float:
-        z = (float(phi) - eta_eval - float(np.mean(t_hat))) / tail_sd
-        values = (alpha_eval - dgp.cost) * norm.sf(z)
-        values = values + beta_dot_gamma / tail_sd * norm.pdf(z)
-        return float(np.mean(values))
+        return uj_utility(
+            phi, eta_eval, weights, alpha_eval - dgp.cost, np.asarray(beta2_hat), tails
+        )
 
     result = minimize_scalar(
         lambda value: -objective(value),

@@ -9,13 +9,16 @@ The data-generating process is
         + D * (a0 + a1 eta + X'beta2) + eps,
 
 where ``D = 1{Q > 0}``, ``X`` and ``eta`` are independent, and ``eps`` is
-independent noise.  The target policy utility integrates over the known normal
-distribution of ``T = gamma'X``.  This keeps the policy criterion smooth and
-lets us calculate a delta-method sandwich variance for the threshold estimator.
+independent noise.  The population target integrates over the known normal
+distribution of ``T = gamma'X``.  The estimator maximizes the differing-slopes
+utility U_J with g and p_X estimated by Lebesgue-Gram spline projection
+(``experiments.methods.weighted_tails``).  The criterion is smooth, and the
+delta-method sandwich variance includes the density-sample influence of
+g_hat and p_X_hat as well as the evaluation and outcome terms.
 
 The script compares a misspecified alpha-only fit with the correctly specified
 fit containing ``D * X``.  The variance check is intentionally conditional on
-the true first-stage residual and the true trimming interval: it validates the
+the true first-stage residual, the true index, and the true trimming interval: it validates the
 new interaction block and the plug-in variance calculation, not the full
 generated-index/moving-boundary theorem.  A later experiment can add those
 terms once the extension's theory is settled.
@@ -43,6 +46,14 @@ import numpy as np
 from scipy.optimize import minimize_scalar
 from scipy.special import roots_hermitenorm
 from scipy.stats import norm
+
+from experiments.methods.weighted_tails import (
+    WeightedTails,
+    density_influence,
+    fit_weighted_tails,
+    uj_score_terms,
+    uj_utility,
+)
 
 
 @dataclass(frozen=True)
@@ -192,37 +203,40 @@ def _fit_outcome(sample: dict[str, np.ndarray], *, include_beta2: bool) -> tuple
     return coef, residual, design
 
 
+def _fit_tails(sample: dict[str, np.ndarray], dgp: DGP) -> WeightedTails:
+    """Spline estimates of g and p_X for the known index T = gamma'X."""
+    support = (-3.0 * dgp.sigma_T, 3.0 * dgp.sigma_T)
+    return fit_weighted_tails(sample["X"] @ dgp.gamma, sample["X"], support)
+
+
+def _effect_pieces(
+    eta: np.ndarray, coef: np.ndarray, dgp: DGP, *, include_beta2: bool
+) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    lo, hi = dgp.trim_bounds
+    keep = ((eta >= lo) & (eta <= hi)).astype(float)
+    alpha_minus_c = coef[4] + coef[5] * eta - dgp.cost
+    beta2 = coef[6:8] if include_beta2 else np.zeros(2)
+    return keep, alpha_minus_c, beta2
+
+
 def _policy_terms(
     phi: float,
     eta: np.ndarray,
     coef: np.ndarray,
     dgp: DGP,
+    tails: WeightedTails,
     *,
     include_beta2: bool,
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Return utility score, curvature contribution, and theta score gradient."""
-    lo, hi = dgp.trim_bounds
-    keep = ((eta >= lo) & (eta <= hi)).astype(float)
-    z = (float(phi) - eta) / dgp.sigma_T
-    density = norm.pdf(z)
-    alpha = coef[4] + coef[5] * eta - dgp.cost
-    beta2_dot_gamma = 0.0
-    if include_beta2:
-        beta2_dot_gamma = float(coef[6:8] @ dgp.gamma)
-    kappa = beta2_dot_gamma / dgp.sigma_T
-    score = keep * (-(alpha * density / dgp.sigma_T) - kappa * z * density / dgp.sigma_T)
-    curvature = keep * (
-        alpha * z * density / dgp.sigma_T**2
-        + kappa * (z**2 - 1.0) * density / dgp.sigma_T**2
-    )
+    keep, alpha_minus_c, beta2 = _effect_pieces(eta, coef, dgp, include_beta2=include_beta2)
+    terms = uj_score_terms(phi, eta, keep, alpha_minus_c, beta2, tails)
     gradient = np.zeros((len(eta), len(coef)))
-    gradient[:, 4] = keep * (-density / dgp.sigma_T)
-    gradient[:, 5] = keep * (-eta * density / dgp.sigma_T)
+    gradient[:, 4] = -keep * terms.density
+    gradient[:, 5] = -keep * eta * terms.density
     if include_beta2:
-        gradient[:, 6:8] = keep[:, None] * (
-            -z[:, None] * density[:, None] * dgp.gamma[None, :] / dgp.sigma_T**2
-        )
-    return score, curvature, gradient
+        gradient[:, 6:8] = -keep[:, None] * terms.weighted_density
+    return terms.score, terms.curvature, gradient
 
 
 def _sample_utility(
@@ -230,18 +244,13 @@ def _sample_utility(
     eta: np.ndarray,
     coef: np.ndarray,
     dgp: DGP,
+    tails: WeightedTails,
     *,
     include_beta2: bool,
 ) -> float:
-    """Evaluate the smooth plug-in policy utility on the empirical eta distribution."""
-    lo, hi = dgp.trim_bounds
-    keep = (eta >= lo) & (eta <= hi)
-    z = (float(phi) - eta) / dgp.sigma_T
-    alpha = coef[4] + coef[5] * eta - dgp.cost
-    value = alpha * norm.sf(z)
-    if include_beta2:
-        value = value + (float(coef[6:8] @ dgp.gamma) / dgp.sigma_T) * norm.pdf(z)
-    return float(np.mean(np.where(keep, value, 0.0)))
+    """Evaluate U_J with spline-estimated g and p_X on the empirical eta distribution."""
+    keep, alpha_minus_c, beta2 = _effect_pieces(eta, coef, dgp, include_beta2=include_beta2)
+    return uj_utility(phi, eta, keep, alpha_minus_c, beta2, tails)
 
 
 def estimate_threshold(
@@ -252,9 +261,10 @@ def estimate_threshold(
 ) -> dict[str, float]:
     """Estimate the threshold and a plug-in sandwich variance constant."""
     coef, residual, design = _fit_outcome(sample, include_beta2=include_beta2)
+    tails = _fit_tails(sample, dgp)
     result = minimize_scalar(
         lambda value: -_sample_utility(
-            value, sample["eta"], coef, dgp, include_beta2=include_beta2,
+            value, sample["eta"], coef, dgp, tails, include_beta2=include_beta2,
         ),
         bounds=POLICY_BOUNDS,
         method="bounded",
@@ -262,7 +272,7 @@ def estimate_threshold(
     )
     phi = float(result.x)
     score, curvature_terms, gradient = _policy_terms(
-        phi, sample["eta"], coef, dgp, include_beta2=include_beta2,
+        phi, sample["eta"], coef, dgp, tails, include_beta2=include_beta2,
     )
     bread = np.linalg.inv((design.T @ design) / len(design))
     # OLS influence: M^{-1} Z_i residual_i.  The score also has the direct
@@ -273,7 +283,18 @@ def estimate_threshold(
     # delta-method term E[g_i] E[Z_i e_i].
     theta_influence = (design @ bread.T) * residual[:, None]
     gradient_mean = np.mean(gradient, axis=0)
-    score_influence = (score - np.mean(score)) + theta_influence @ gradient_mean
+    # The same observations also fit g_hat and p_X_hat, so each one adds its
+    # density-sample influence on the score.
+    keep, alpha_minus_c, beta2 = _effect_pieces(
+        sample["eta"], coef, dgp, include_beta2=include_beta2
+    )
+    density_term = density_influence(
+        phi, sample["eta"], keep, alpha_minus_c, beta2, tails,
+        sample["X"] @ dgp.gamma, sample["X"],
+    )
+    score_influence = (
+        (score - np.mean(score)) + theta_influence @ gradient_mean + density_term
+    )
     score_variance = float(np.var(score_influence, ddof=1))
     curvature = float(np.mean(curvature_terms))
     variance_constant = score_variance / max(curvature**2, 1e-16)
