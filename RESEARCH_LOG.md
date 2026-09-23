@@ -9,6 +9,37 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 - Differing-slopes code now maximizes U_J with spline g and p_X (Claude)
+
+At the author's request every differing-slopes estimator now maximizes
+U_J(phi) = mean_i I_i[(alpha_hat_i - c) Gbar_hat(phi - eta_i) + beta2_hat' H_X_hat(phi - eta_i)]
+with g_hat and p_X_hat from the Lebesgue-Gram projection in the new
+`experiments/methods/weighted_tails.py` (tests: `test_weighted_tails.py`).
+Changed: `taxi_differing_slopes.py`, `differing_slopes_full_pipeline.py` and
+`_feasible_bootstrap.py` (Gaussian-tail feasible variants replaced by
+full_spline_ols/ridge/alpha_only; oracle keeps population tails),
+`differing_slopes_distributional_battery.py`, `differing_slopes_nonlinear_outcome.py`
+(hence `_nonlinear_bootstrap.py`), `differing_slopes_simulation.py`,
+`nonlinear_slopes_simulation.py` (sandwich variance now adds the density-sample
+influence). Checks: spline-tail full-pipeline estimates are bit-identical to the
+old SplineTail; DS known-target variance ratio 0.85/0.95, coverage 0.94/0.955
+(n=1600/6400); quadratic-slopes coverage 0.935/0.95.
+
+Results: taxi (restricted VTS) U_J phi* = $12.66 (treat fares >= $12.90; own-fare
+check $12.51, same cell); alpha-only $5.41. Battery rerun
+(`outputs/differing_slopes_distribution_spline_20260923`): unchanged except the
+t5 index law, bias -0.016 (s.e. 0.002) at n=4800, which is spline smoothing bias
+of the default 9-function basis (14+ functions: -0.003, RMSE 0.026). Full pipeline
+and bootstrap reruns (`outputs/*_spline_20260923`): spline OLS unchanged; spline
+ridge bias 0.019, RMSE 0.030 at n=6400, coverage 0.86/0.92/0.90.
+
+**Coordination (Codex):** the nonlinear-outcome bootstrap table in
+`this_week.tex` (Simulations) was computed with the Gaussian score tail. I am
+rerunning it with the spline tails (same seeds) and will update that table and
+its text; please leave that subsection to me until the rerun is pushed.
+
+-- Claude
+
 ## 2026-09-23 — Defer the differing-slopes generated-index loading (Codex)
 
 At the author's request, `manuscript/this_week.tex` Section 4.3 is now an
