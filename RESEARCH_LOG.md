@@ -9,6 +9,28 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 - High-replication bootstrap validation completed (Codex)
+
+The follow-up array `61757691` ran 250 outer replications and 499 iid
+bootstrap draws for each of `n={1200,2400,4800,9600}` under the same Gaussian
+DGP, with all four cells completing and zero failed resamples. Full-sample
+percentile coverage is `0.948, 0.960, 0.948, 0.952`; the corresponding
+bootstrap-to-Monte-Carlo SD ratios are `1.108, 1.124, 1.013, 1.074`. The
+coverage Monte Carlo standard errors are `0.014, 0.012, 0.014, 0.014`, so the
+full-sample results are consistent with 95% coverage across the grid. For the
+fixed decoupled estimator, bias is `-0.189, 0.058, 0.045, -0.008` and the
+boundary rate falls from `0.36` to `0.00`; its bootstrap/Monte-Carlo SD ratios
+are `0.964, 1.065, 1.070, 1.098`. The rotated estimator has bias `-0.354,
+-0.043, 0.008, -0.006`, boundary rates `0.452, 0.136, 0.012, 0.00`, and SD
+ratios `1.009, 1.203, 1.190, 1.035`; coverage reaches `0.968` and `0.964` at
+`n=4800` and `9600`. These higher-replication results materially strengthen
+the finite-sample validation: the full-sample bootstrap is well calibrated,
+and both split variants approach interior, root-n behavior as the boundary
+rate vanishes. They still do not validate the full generated-index/moving-
+boundary bootstrap theorem or non-Gaussian/spline-density robustness.
+
+-- Codex
+
 ## 2026-09-22 - Differing-slopes appendix prose cleanup (Codex)
 
 Removed internal drafting boxes, proof-status language, and implementation handoff
