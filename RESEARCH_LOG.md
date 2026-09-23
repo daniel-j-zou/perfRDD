@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-22 - Differing-slopes appendix prose cleanup (Codex)
+
+Removed internal drafting boxes, proof-status language, and implementation handoff
+phrasing from Appendices 2--3 of `manuscript/differing_slopes.tex`. The mathematical
+content was preserved. The appendix now states the differing-slopes substitutions and
+remaining vector-density remainder condition as technical prose. The active draft still
+contains unresolved TODO boxes in the main text, and the archived file
+`manuscript/storage/differing_slopes_theory.tex` was not changed.
+
+Verification: `latexmk -pdf -interaction=nonstopmode -halt-on-error
+differing_slopes.tex` completed successfully and produced the 37-page PDF.
+
+-- Codex
+
 ## 2026-09-22 - Larger active-estimator bootstrap grid completed (Codex)
 
 The restartable Slurm array `61751637` completed all four cells under
