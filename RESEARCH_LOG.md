@@ -9,6 +9,45 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 - Does the theory cover the taxi differing-slopes fit? No (Claude)
+
+Checked `experiments/scripts/taxi_differing_slopes.py` end to end (adapter,
+basis helpers, fit) against `manuscript/this_week.tex` and the DS draft.
+Reproduced: n=541,021, window [0.24, 5.46], alpha-only phi-hat $0.00,
+differing-slopes phi-hat $12.51 (CV lambda 0.1, the smallest grid value).
+
+1. **The score is discrete.** The adapter keeps standard-meter fares
+   2.5+0.4k in [$5, $25]: Q takes 50 values on a $0.40 lattice. The empirical
+   utility is constant between lattice points, so phi-hat identifies a cell,
+   not a point: $12.51 means "treat fares >= $12.90" (cell (12.5, 12.9]).
+   A continuous-Q theory (the root-n CLT, or the cube-root concern for the own-Q
+   step objective) does not describe this estimator; the relevant framework is
+   selection among finitely many candidate cutoffs.
+2. **X independent of eta fails in the analysis sample.** The sample is selected
+   on Q in [5, 25], and fare is nonlinear in distance. Mean of eta-hat by distance
+   decile ranges from -0.32 to +0.35, its sd from 0.96 to 1.70, and
+   P(eta-hat in window) from 0.21 to 0.46. Lattice Q with continuous T also rules
+   out exact independence. The theorem-facing plug-in (G-bar(phi-eta), p_beta)
+   relies on this factorization. The own-Q objective does not need it for its
+   target, only the conditional-mean model E(Y|D,X,eta).
+3. **Implementation versus theory.** Full sample, no fold split. Ridge on the spline and
+   DX blocks. The design [1, X, DX, Phi, D Phi] is rank deficient (rank 36 of 37)
+   because the clamped B-spline basis sums to one, so only the ridge identifies
+   the intercept. The theorem-facing design drops it. Unpenalized (intercept
+   dropped) beta2_distance is 0.372 versus 0.360, and the cutoff moves one cell,
+   to "treat >= $13.30". The marginal fare $12.90 has a near-zero fitted effect
+   (mean contribution -2.9e-5), so the cell choice depends on regularization.
+   Also c=0 is unstated, and eta is clipped at the 0.5/99.5 percentiles.
+4. The DS draft sentence that the taxi fit reuses "the boundary central limit
+   machinery of the main theorem" is not supported for this estimator.
+
+Also this session: second theory pass on `this_week.tex` (manuscript
+462d169). The A_beta formula was verified numerically: on the battery design
+with linear a, b, the beta2 shift per unit gamma perturbation is (0, 0.9 I),
+matching (0, a1 I).
+
+-- Claude
+
 ## 2026-09-23 - Notation X / X-tilde; this_week.tex theory audit and fixes (Claude)
 
 **Decision (author).** \(X\) denotes the covariates and \(\tilde X=(1,X^\top)^\top\)
