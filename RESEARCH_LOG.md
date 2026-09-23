@@ -9,6 +9,48 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 - Feasible differing-slopes and bootstrap diagnostics completed (Codex)
+
+Ran the Slurm arrays `61761710` and `61761711` from commit `ea2ee50`.  The
+full-pipeline array re-estimated the first-stage index, hard-trim endpoints,
+and running-variable tail in every sample, with the full `D X` block in every
+reported fit (oracle, Gaussian-tail OLS, spline-tail OLS, and ridge).  It used
+100 replications at `n={800,1600,3200,6400}` for the baseline, quadratic
+misspecification, weak-curvature, boundary-optimum, and clustered-error DGPs.
+
+For the regular baseline, generated-index and moving-trim OLS remain centered
+as `n` grows: at `n=6400`, bias is `0.0008` for Gaussian-tail OLS and
+`-0.0009` for spline-tail OLS, with RMSE `0.0267` and `0.0229`, respectively.
+The spline and Gaussian tails give similar behavior.  Ridge stabilization has
+the expected finite-sample bias (`0.065` at `n=800`, `0.021` at `n=6400`), so
+it should be treated as an application regularizer rather than a theorem-level
+estimator without a bias correction.
+
+The negative controls behave as intended.  Under a quadratic treated effect
+omitted from the linear `D X` block, the estimator converges to a pseudo-target
+about `0.09` below the true optimum.  Weak curvature produces much larger
+uncertainty (RMSE about `0.10` at `n=6400`, versus about `0.02--0.03` in the
+regular baseline).  Boundary optima select the policy bound essentially always,
+so interior CLT intervals are not appropriate.  Clustered treated shocks raise
+the variance substantially; the point estimates remain centered but iid
+variance calculations are not valid.
+
+The feasible full-re-estimation bootstrap (`50` outer samples and `199`
+bootstrap draws per sample at `n={800,1600,3200}`) had no failed resamples and
+no boundary selections in the regular baseline.  Percentile coverage was
+`0.96, 0.98, 0.98` for Gaussian-tail OLS and `0.96, 0.98, 0.98` for spline-tail
+OLS.  Bootstrap-to-Monte-Carlo SD ratios were `1.14, 1.19, 1.04` (Gaussian)
+and `1.24, 1.25, 1.09` (spline).  The ridge version covered only
+`0.88, 0.94, 0.94`, reflecting its finite-sample bias rather than bootstrap
+failure.
+
+The new harness is `experiments/scripts/differing_slopes_feasible_bootstrap.py`;
+the corresponding Slurm wrappers are `differing_slopes_full_pipeline_array.sbatch`
+and `differing_slopes_feasible_bootstrap_array.sbatch`.  These are full-sample
+re-estimation diagnostics, not a proof of the fully decoupled bootstrap theorem.
+
+-- Codex
+
 ## 2026-09-23 - Does the theory cover the taxi differing-slopes fit? No (Claude)
 
 Checked `experiments/scripts/taxi_differing_slopes.py` end to end (adapter,
