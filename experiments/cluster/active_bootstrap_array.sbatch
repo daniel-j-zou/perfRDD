@@ -14,6 +14,8 @@ set -euo pipefail
 
 N_VALUES=(1200 2400 4800 9600)
 N_VALUE="${N_VALUES[${SLURM_ARRAY_TASK_ID}]}"
+OUTER_REPS="${PERFRDD_OUTER_REPS:-50}"
+BOOTSTRAP_REPS="${PERFRDD_BOOTSTRAP_REPS:-199}"
 cd "${PERFRDD_REPO:?set PERFRDD_REPO to the repository root}"
 OUT_ROOT="${PERFRDD_OUT:?set PERFRDD_OUT to an output directory}"
 CELL_OUT="${OUT_ROOT}/n_${N_VALUE}"
@@ -37,6 +39,8 @@ export PYTHONPATH="${PERFRDD_REPO}"
     echo "array_job_id=${SLURM_ARRAY_JOB_ID}"
     echo "array_task_id=${SLURM_ARRAY_TASK_ID}"
     echo "sample_size=${N_VALUE}"
+    echo "outer_replications=${OUTER_REPS}"
+    echo "bootstrap_replications=${BOOTSTRAP_REPS}"
     echo "commit=$(git rev-parse HEAD)"
     echo "python=$(python3 --version 2>&1)"
     git status --short --branch
@@ -44,8 +48,8 @@ export PYTHONPATH="${PERFRDD_REPO}"
 
 srun --cpu-bind=cores python3 -m experiments.scripts.hard_trim_bootstrap_active \
   --n "${N_VALUE}" \
-  --outer-reps 50 \
-  --bootstrap-reps 199 \
+  --outer-reps "${OUTER_REPS}" \
+  --bootstrap-reps "${BOOTSTRAP_REPS}" \
   --workers "${SLURM_CPUS_PER_TASK}" \
   --density gaussian \
   --seed 20260922 \
