@@ -9,6 +9,33 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 - Differing-slopes distributional simulation battery completed (Codex)
+
+Ran the Slurm array `61760936` with the full differing-slopes outcome block in
+every fit (`D X_1`, `D X_2` included), 250 independent replications at each of
+`n={1200,2400,4800}`, for nine scenarios: Gaussian baseline; variance-one
+`t_5`, centered exponential, and two-component-mixture laws for `X_1`; the
+analogous `\eta` laws; and `t_5`, centered exponential, and heteroskedastic
+outcome errors. The battery is implemented in
+`experiments/scripts/differing_slopes_distributional_battery.py` and submitted
+by `experiments/cluster/differing_slopes_distribution_array.sbatch`.
+
+At `n=4800`, all nine scenarios had absolute bias below `0.005`, zero boundary
+selections, and RMSE between `0.027` and `0.037`. The Gaussian baseline had
+`n Var(\hat\phi)` about `4.47` across the sample-size grid. The X/eta-law
+changes alter the population target (as they should), while the error-law
+changes preserve the target; mixtures and heteroskedastic errors have larger
+variance constants (about `6.18` and `6.46`, respectively). This supports the
+algebra and distribution-specific population calculations for the differing-
+slopes estimator.
+
+Scope: this is a conditional diagnostic with the index, trim interval, and
+survival/weighted-tail functions supplied at their population values. It does
+not validate the estimated-density, generated-index, moving-boundary, or full
+bootstrap theorem. The note and task board record this limitation.
+
+-- Codex
+
 ## 2026-09-23 - Clarify empirical threshold objectives and rate claims (Codex)
 
 Correction to the preceding conversation: differing slopes do not by themselves
