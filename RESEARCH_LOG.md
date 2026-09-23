@@ -9,6 +9,59 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 - Notation X / X-tilde; this_week.tex theory audit and fixes (Claude)
+
+**Decision (author).** \(X\) denotes the covariates and \(\tilde X=(1,X^\top)^\top\)
+the intercept-augmented regressor for the regression of \(Q\):
+\(T=\gamma^\top\tilde X\), \(\hat\eta=Q-\hat\gamma^\top\tilde X\),
+\(\varphi_\gamma=\Sigma_{\tilde X}^{-1}\tilde X\eta\) with
+\(\Sigma_{\tilde X}=\E(\tilde X\tilde X^\top)\). The former \(X^\circ\) is now \(X\).
+Applied to every manuscript file except the frozen `prelim/prelim.tex` and
+`prelim/slides.tex` (author's choice) and `confirmation.tex` (no-intercept
+experiments). Python code already follows this convention (`X` covariates, `Xd`
+with ones); historical log entries that use `X^circ` are left as written.
+
+**Verified findings in `this_week.tex` (now fixed, manuscript commit 06df776).**
+1. The density fit described as a least-squares regression of \(X\) on
+   \(N_L(\hat T)\) estimates \(\E(X\mid T)\), not \(p_X=\E(X\mid T)f_T\). The Riesz
+   term \(\zeta_\rho=(\beta_2^\top X)f_\eta(\phi-T)-\theta_\phi\) is the influence
+   function of the Lebesgue-Gram orthogonal-series projection
+   \(\hat\omega=G_L^{-1}n^{-1}\sum N_L(\hat T_j)V_j\) (as in `differing_slopes.tex`).
+   Its bias is \(\int(r_L-r)(p_\beta-\Pi_Lp_\beta)\), a product of approximation
+   errors, and a fixed-interval basis needs \(\mathrm{supp}(T)\subset\mathcal T\).
+2. \(\hat\beta_2\) is estimated with the generated regressor \(\hat\eta^o\), so it carries a
+   first-stage loading \(A_\beta\) (DX-rows of \(\E(\tilde V\tilde V^\top)^{-1}
+   \E[\tilde V\{b'(\eta)+Da'(\eta)\}\tilde X^\top]\)), generally nonzero because \(D\)
+   depends on \(X\). With one OLS fold the first-stage term is
+   \((C_U+C_\rho+C_o)^\top\varphi_\gamma\), \(C_o=A_\beta^\top B_\phi\). This matches the
+   \(A_{\rm out,DS}\) loading in `differing_slopes.tex`.
+3. By \(X\perp\eta\), \(C_U=\E(\tilde X)\,\partial_\phi\theta_\phi\), and since the first
+   row of \(\Sigma_{\tilde X}\) is \(\E(\tilde X)^\top\),
+   \(C_U^\top\varphi_\gamma=\partial_\phi\theta_\phi\,\eta\).
+4. \(C_\rho=\int r'h=-\int h'r=-\E[\tilde X(\beta_2^\top X)f_\eta'(\phi-T)]\) for the
+   positive target (sign verified).
+5. The slope variance is not additive with the baseline variance (shared
+   evaluation, outcome and first-stage folds).
+
+**Deferred by the author (task board): taxi and simulation sections.**
+- The taxi objective \(n^{-1}\sum\hat W_i1\{Q_i\ge\phi\}\) uses \(c=0\) (unstated) and is a
+  step process, plausibly cube-root (see the Codex entry below), so no root-\(n\)
+  CI or naive bootstrap applies.
+- Battery (`outputs/differing_slopes_distribution_20260923`): all 36 table cells
+  match the JSON outputs. The theoretical \(n\,\mathrm{AVar}\) (delta method on
+  the known-law criterion, OLS sandwich) is 3.98 for the baseline, not 4.43--4.47.
+  Values for the other scenarios: \(X\)-\(t_5\) 3.64, \(X\)-skewed 3.45,
+  mixture 5.17, \(\eta\)-\(t_5\) 3.77, \(\eta\)-skewed 3.76, error \(t_5\) 4.01,
+  error skewed 3.98, heteroskedastic 5.54. A 2,000-replication rerun of the
+  baseline gives 4.04 (MC s.e. 0.13) at \(n=4800\) and 3.91 (0.20) at \(n=19200\).
+  With 250 replications \(n\,\mathrm{Var}\) has about 9% MC error, and all
+  scenarios share one seed stream, so their fluctuations co-move. The note also
+  misstates \(\varepsilon\) as standard normal; it is \(N(0,0.5^2)\).
+
+Verification: all edited manuscript files compile as before (see CHANGELOG).
+
+-- Claude
+
 ## 2026-09-23 - THEORY CLAIM: pairwise empirical tails (Codex)
 
 Working out the author's requested pairwise empirical-tail extension on branch
