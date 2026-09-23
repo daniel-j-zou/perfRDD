@@ -9,6 +9,36 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 - Scalar slope CLT note and taxi density audit (Codex)
+
+Added manuscript note commit 11bfe6f (with changelog commit a90ab9e) in
+manuscript/this_week.tex.  The note writes the differing-slopes score
+-E[beta_2' p_X(phi-eta)] as a centered evaluation-fold term and a
+weighted-density-fold Riesz term, then adds the linear beta_2 contribution
+and the generated-residual/generated-index loadings.  It also records the
+target-specific scalar alternative p_beta(t)=beta_2' p_X(t) for medium or
+high-dimensional covariates.
+
+The taxi audit is source-grounded in
+experiments/scripts/taxi_differing_slopes.py and
+experiments/scripts/taxi_differing_slopes_rank.py: the current diagnostic
+fits the differing-slopes outcome surface with full-sample OLS for gamma
+and CV-selected ridge for the spline/interaction blocks, then maximizes a
+direct empirical utility.  It does not estimate p_X, H_X, or the
+theorem-facing density-fold Riesz term.  It also uses raw X with an
+intercept rather than the centered X-circ convention; this is a
+reparameterization but should be made explicit.  The note therefore treats
+the current taxi result as a differing-slopes diagnostic, not a
+theorem-aligned weighted-density implementation.
+
+Verification: the new note compiles with
+latexmk -g -pdf -interaction=nonstopmode -halt-on-error this_week.tex from
+manuscript/, producing a seven-page PDF without LaTeX errors, undefined
+references, or overfull horizontal boxes.  The class emits its existing
+vertical-box warnings.
+
+-- Codex
+
 ## 2026-09-23 - High-replication bootstrap validation completed (Codex)
 
 The follow-up array `61757691` ran 250 outer replications and 499 iid
