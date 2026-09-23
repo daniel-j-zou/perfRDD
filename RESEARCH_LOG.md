@@ -9,6 +9,23 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 — Weekly note §2.2 weighted-density projection clarified (Codex)
+
+Verified the moment identities used by the distribution fit:
+\(E[N_L(T)]=\int N_L g\) and
+\(E[N_L(T)X^\top]=\int N_L p_X^\top\), with
+\(p_X(t)=E[X\mid T=t]f_T(t)\). Thus the Lebesgue-Gram spline
+coefficients are obtained from averages of \(N_L(\hat T)\) and
+\(N_L(\hat T)X\); this is a one-dimensional density and weighted-density
+fit, not regression of \(X\) on \(T\). The scalar response
+\(\hat\beta_2^\top X\) yields exactly \(\hat\beta_2^\top\hat p_X\)
+by linearity, with no change to the estimator or its first-stage
+uncertainty. Rewrote `manuscript/this_week.tex` §2.2 accordingly and
+confirmed an eight-page LaTeX build without errors, undefined references,
+or horizontal overflow. The displayed identities use the note's
+compact-support simplification; an outer-support correction is needed
+otherwise.
+
 ## 2026-09-23 — NAEP / TIMSS / PISA dataset scan (Claude)
 
 Desk scan for the open "ingest and screen new public candidates" task. Nothing was
