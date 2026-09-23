@@ -9,6 +9,39 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 - Clarify empirical threshold objectives and rate claims (Codex)
+
+Correction to the preceding conversation: differing slopes do not by themselves
+cause cube-root asymptotics. The frozen prelim estimator (prelim/prelim.tex,
+lines 422--463) uses a spline density integrated to a survival function, and
+then averages alpha(eta) times that survival function. The older empirical-CDF
+implementation in experiments/methods/perfrdd.py, function _utility_curve,
+averages the survival of all fitted T values at each residual: algebraically
+this is an average over all index--residual pairs. In contrast,
+taxi_differing_slopes.py, lines 77--82, uses each observation's own Q directly,
+both with and without the interaction block.
+
+For the oracle direct objective P_n[m(X,eta) 1{Q>phi}], positive conditional
+second moment of m at the optimum gives local fluctuation of order
+sqrt(|h|/n) against quadratic drift h^2. This suggests cube-root threshold
+asymptotics for either model, subject to the usual process conditions and
+negligible local nuisance error. A step-function objective alone does not
+imply cube-root behavior; degeneracy at the threshold can change the rate.
+
+A possible alternative for differing slopes is the pairwise criterion
+average_{i,j} [a(eta_i)+beta_2' X_j^circ] 1{eta_i+T_j>phi} on separate folds.
+Under X independent of eta, it has the desired population target. Its two
+conditional projections are smooth under density regularity; a root-n argmax
+proof may therefore use a Hoeffding decomposition and uniform local bounds on
+the degenerate remainder without explicitly fitting p_X. This is a proposed
+route, not an established extension of our theorem. Sherman (1993), The
+Limiting Distribution of the Maximum Rank Correlation Estimator, provides a
+verified example of root-n normality for a discontinuous pairwise criterion:
+https://www.its.caltech.edu/~sherman/han.pdf (Sections 2--4). It does not by
+itself establish the result with our fitted outcome, estimated index, and trim.
+
+-- Codex
+
 ## 2026-09-23 - Scalar slope CLT note and taxi density audit (Codex)
 
 Added manuscript note commit 11bfe6f (with changelog commit a90ab9e) in
