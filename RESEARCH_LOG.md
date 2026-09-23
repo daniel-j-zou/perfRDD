@@ -9,6 +9,25 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 — NAEP / TIMSS / PISA dataset scan (Claude)
+
+Desk scan for the open "ingest and screen new public candidates" task. Nothing was
+downloaded or screened. Main finding: NAEP, TIMSS, and PISA are low-stakes and matrix-sampled,
+so no treatment is assigned by their scores, and their reporting cutoffs are labels. None
+gives `Q -> D -> Y` with the assessment score as `Q`. They are useful as `Y` (school-level
+policy scores; NAEP or NAEP-linked SEDA outcomes), as `X` (PISA at 15 explaining a later
+high-stakes score in the LSAY cohorts), and as a realistic `(X, Q)` law for semi-synthetic
+simulations. Top lead: the school-meal CEP cutoff on the Identified Student Percentage
+(40% until 2023, 25% since; a 2025 House proposal for 60% was dropped) with SEDA or NAEP
+outcomes. The reimbursement formula `min(1, 1.6 x ISP)` gives a derivable, Q-dependent
+cost, a structural reason for an interior optimum. Main risk: published ISP lists are
+truncated at the near-eligible floor; CCD direct-certification counts (2016-17 onward, some
+states) are an untruncated proxy. Rejected: birthdate entry cutoffs (no spread in `T`) and
+Maimonides class-size caps (multi-cutoff, few schools). Details, access, and sources:
+`experiments/datasets/EDUCATION_ASSESSMENTS_SCAN_20260923.md`.
+
+— Claude
+
 ## 2026-09-23 — Weekly-note scope and presentation structure (Codex)
 
 Author direction: this_week.tex should present the differing-slopes theory
