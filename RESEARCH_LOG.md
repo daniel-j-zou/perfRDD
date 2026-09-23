@@ -3661,3 +3661,13 @@ These are finite-sample diagnostics, not a bootstrap validity theorem for the
 fully decoupled generated-index estimator. Results are in
 `outputs/differing_slopes_nonlinear_bootstrap_20260923/summary.json` and
 `outputs/differing_slopes_nonlinear_bootstrap_20260923_n6400/summary.json`.
+
+## 2026-09-23 — Higher-replication bootstrap attempt stopped at author deadline (Codex)
+
+Attempted a larger nonlinear-only run with 200 outer samples, 399 bootstrap
+draws, four sample sizes ($n=800,1600,3200,6400$), and four workers. The run
+was still computing at the author's 2:50 hard stop and was terminated before
+writing a summary; no incomplete output is used in the manuscript. The
+completed 50-by-199 pilot remains the verified bootstrap result. A larger
+replication should be rerun on the cluster or with a more efficient estimator
+implementation before making publication-grade coverage claims.
