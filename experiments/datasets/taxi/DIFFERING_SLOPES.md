@@ -35,8 +35,19 @@ Y = b(η) + D·α(η) + Xᵀβ₁ + (D·X)ᵀβ₂ + ε,     effect  W = α(η) 
 ```
 
 Now the effect can depend on `T = γᵀX` through `β₂`, so it can represent the fare-level menu
-effect. Estimate `α, β₁, β₂, b` linear-in-X and maximize the **empirical** utility
-`Û(φ) = mean_{i: η_i∈[l₀,u₀]} (α̂(η_i) + β̂₂ᵀX_i)·1{Q_i ≥ φ}`.
+effect. Estimate `α, β₁, β₂, b` linear-in-X and maximize the differing-slopes utility
+(`manuscript/this_week.tex`, updated 2026-09-23)
+
+```
+Û_J(φ) = mean_i Î_i [ (α̂(η̂_i) − c) Ḡ̂(φ − η̂_i) + β̂₂ᵀ Ĥ_X(φ − η̂_i) ],   c = 0,
+```
+
+where `Ḡ̂` and `Ĥ_X` integrate the Lebesgue-Gram spline projections `ĝ` (density of `T̂`) and
+`p̂_X(t) = E(X | T=t) f_T(t)` (`experiments/methods/weighted_tails.py`). The earlier
+own-fare objective `mean_i Î_i (α̂(η̂_i) + β̂₂ᵀX_i)·1{Q_i ≥ φ}` is still printed as a robustness
+check. On the restricted VTS sample both select the same fare step: U_J gives φ* = $12.66,
+the own-fare objective $12.51, and both mean "treat fares ≥ $12.90" (fares lie on a $0.40
+lattice).
 
 Implementation choices that matter (all chosen for honest stability):
 
@@ -107,8 +118,9 @@ written to `experiments/runs/taxi_differing_slopes_rank/summary.json`.
 
 More than an extra term, less than a rewrite:
 
-1. **Drop `T ⊥ W`.** The estimand no longer collapses; `U(φ) = E[(α(η)−c)Ḡ(φ−η)I₀]` (unchanged)
-   **plus** `E[β₂ᵀX·1{T ≥ φ−η}I₀]`, which needs the joint `(X, T, η)` and does not reduce to Ḡ.
+1. **Drop `T ⊥ W`.** The estimand no longer collapses to Ḡ alone: `U(φ) = E[(α(η)−c)Ḡ(φ−η)I₀]`
+   **plus** `E[β₂ᵀX·1{T ≥ φ−η}I₀] = E[β₂ᵀH_X(φ−η)I₀]` (using `X ⊥ η`), with
+   `H_X(s) = E[X·1{T > s}]` estimated through the weighted density `p_X`.
 2. **Influence function / variance** gain `β̂₂`'s √n term and the empirical-average term for
    `E[X·1{T≥φ−η}I₀]`; the boundary terms acquire an additive `E[Xᵀβ₂|η=v]` piece.
 3. **New rank condition**: the augmented design `[Φ(η), D·X]` must be nonsingular (α-spline and
@@ -134,8 +146,10 @@ below-cutoff designs (`Q → −Q`, `thr → −thr`), run the standard above-cu
 
 ## Cross-dataset β₂ screen
 
-Same methodology (differing slopes, n^{1/5} knots, CV ridge, correct direction), empirical
-utility, c=0:
+Same methodology (differing slopes, n^{1/5} knots, CV ridge, correct direction), c=0.
+This screen predates the switch to `Û_J` and used the own-fare empirical utility; its
+direction-aware driver is not committed, so the rows other than restricted taxi have not
+been recomputed. Restricted taxi with `Û_J`: α-only $5.41, differing slopes $12.66.
 
 | dataset | direction | cutoff | α-only φ* | differing-slopes φ* |
 |---|---|---:|---:|---:|
