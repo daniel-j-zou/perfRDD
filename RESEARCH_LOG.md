@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 — Add Gongjun discussion notes to weekly note (Codex)
+
+Added Section 1, ``Discussion with Gongjun,'' to `manuscript/this_week.tex`.
+The section records possible education datasets, the Texas accelerated-instruction
+cutoff proposal, its sharp versus fuzzy RD interpretation, and the distinction
+between Sales--Hansen's fixed-cutoff RD setting and global threshold optimization.
+Verification: `latexmk -pdf -interaction=nonstopmode -halt-on-error this_week.tex`
+from `manuscript/` completed successfully and produced a nine-page PDF.
+
+-- Codex
+
 ## 2026-09-23 — Weekly note terminology: utility derivative (Codex)
 
 At the author's request, removed the unexplained “slope score” terminology
