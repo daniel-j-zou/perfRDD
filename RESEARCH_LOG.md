@@ -9,6 +9,28 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 — Weekly-note scope and presentation structure (Codex)
+
+Author direction: this_week.tex should present the differing-slopes theory
+route first and simulations afterward, for a quick weekly presentation.
+Keep it as a working note in this file; migration to another document
+requires author approval. No material was moved into the final paper,
+prelim, or slides.
+
+Restructured the note into model/target, estimation, the iid slope-score
+route, the hard-trimmed CLT roadmap, and simulations. Retained the stacked
+alpha/b/beta2 fit, scalar/vector weighted-density equivalence, Riesz
+derivation, three shared-OLS loadings, intercept cancellation, and explicit
+remaining proof obligations. Removed the lengthy taxi audit, repeated
+estimation descriptions, high-dimensional detour and closing repetition.
+
+Source check: the existing distributional battery's _design and
+estimate_threshold functions fit the correctly specified linear alpha/b
+model by OLS and use known distribution functions. This is not a spline
+outcome simulation. The note now says this explicitly, corrects the error
+SD to 0.5, and preserves every existing table entry. Full split-specific
+nonparametric validation remains a follow-up, not a claim of this batch.
+
 ## 2026-09-23 — Author clarification: nonparametric alpha, g and p_X (Codex)
 
 The author elects to assume continuous fares and does not want discreteness
