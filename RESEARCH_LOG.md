@@ -9,6 +9,26 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 — Weekly note §3 derivation clarified (Codex)
+
+Reworked the exposition in `manuscript/this_week.tex` §3 without changing
+the estimator or the displayed influence expansion. The two representations
+of \(\theta_\phi=\beta_2^\top E[p_X(\phi-\eta)]
+=\beta_2^\top E[Xf_\eta(\phi-T)]\) explain the separate evaluation and
+distribution fold averages. The \(L_2(dt)\) representer
+\(r_{\rho,\phi}(t)=f_\eta(\phi-t)\) converts the *integrated* spline
+weighted-density error into a centered distribution-fold average plus
+projection errors; no pointwise root-\(n\) density rate is claimed.
+The \(\beta_2\) contribution requires its outcome-fold expansion and
+the generated-index outcome loading. The same OLS \(\hat\gamma\) also
+shifts evaluation residuals and distribution indices, so the three
+loadings must be combined before variance calculation. The note still
+labels the spline, generated-index, and local-uniform remainder bounds
+as proof obligations. Verified with `latexmk -pdf -interaction=nonstopmode
+-halt-on-error this_week.tex` and visual inspection of the affected
+eight-page PDF; no LaTeX errors, undefined references, or horizontal
+overflow.
+
 ## 2026-09-23 — Weekly note §2.2 weighted-density projection clarified (Codex)
 
 Verified the moment identities used by the distribution fit:
