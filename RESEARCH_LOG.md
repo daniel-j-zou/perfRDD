@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 — Weekly note §4 marked as differing-slopes next steps (Codex)
+
+At the author's request, `manuscript/this_week.tex` §4 now presents the
+remaining work toward the hard-trimmed differing-slopes threshold CLT as
+next steps. Section 3 remains a conditional untrimmed slope-score
+expansion; the joint baseline/slope assembly, endpoint and moving-set
+terms, local uniformity, and argmax step have not been claimed proved.
+This is an exposition/status clarification only: no estimator, assumption,
+or formula changed. The eight-page note compiled and its revised page
+was visually checked.
+
 ## 2026-09-23 — Weekly note §3 derivation clarified (Codex)
 
 Reworked the exposition in `manuscript/this_week.tex` §3 without changing
