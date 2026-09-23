@@ -9,6 +9,19 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 — Weekly note terminology: utility derivative (Codex)
+
+At the author's request, removed the unexplained “slope score” terminology
+from `manuscript/this_week.tex`. The precise object is the contribution
+\(-\theta_\phi\) of \(\beta_2^\top X\) to the derivative of the
+untrimmed utility, where
+\(\theta_\phi=\beta_2^\top E[p_X(\phi-\eta)]\). The note now defines
+\(\hat\theta_\phi\) and expands \(\hat\theta_\phi-\theta_\phi\)
+directly; negating that equivalent expansion gives the contribution to
+the utility derivative. The hard-trimmed derivative still includes
+\(I(\eta)\). No estimand or estimator changed. The source compiled to
+eight pages and the revised pages were visually checked.
+
 ## 2026-09-23 — Weekly note §4 marked as differing-slopes next steps (Codex)
 
 At the author's request, `manuscript/this_week.tex` §4 now presents the
