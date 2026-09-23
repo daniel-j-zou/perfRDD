@@ -3252,3 +3252,13 @@ averages covariate-adjusted treated--control outcome differences. This is a
 residual-matching estimator, not a nonparametric outcome regression for
 $\alpha(\eta)$. Source: Wibisono et al., arXiv:2504.17126,
 <https://arxiv.org/abs/2504.17126> (Sections 1--2).
+
+## 2026-09-23 — Keep the structural index uncentered (Codex)
+
+The differing-slopes note now states the structural definition
+$T=\gamma^\top X$ explicitly. The notation $X^\circ=X-\E[X]$ is reserved
+for the centered covariates in the outcome slope block and does not redefine
+the treatment/index component. Consequently the generated residual error is
+$-X^\top(\widehat\gamma-\gamma)$; centering the outcome covariates alone
+does not remove its loading. A centered-index representation requires the
+intercept $\gamma^\top\E[X]$ to be handled explicitly.
