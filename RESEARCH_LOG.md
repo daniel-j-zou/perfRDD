@@ -9,6 +9,46 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 - THEORY CLAIM: pairwise empirical tails (Codex)
+
+Working out the author's requested pairwise empirical-tail extension on branch
+theory/pairwise-tail in the manuscript worktree. Deliverable: a new root-level
+`pairwise_theory.tex`, with an oracle/local-process proof and a precisely
+conditional fitted-nuisance CLT. This avoids `this_week.tex`, currently claimed
+by the distributional simulation task. No prelim or application-code changes.
+
+-- Codex
+
+## 2026-09-23 - Pairwise empirical-tail theory worked out (Codex)
+
+The new note manuscript/pairwise_theory.tex derives the pairwise criterion
+\(m_A^{-1}m_B^{-1}\sum_{i,j}I(\eta_i)\{a(\eta_i)-c+X_j^{\circ\top}\beta\}
+1\{\eta_i+\gamma^\top X_j>\phi\}\). Under \(X\perp\eta\), its population
+criterion is the original utility. The two-sample Hoeffding decomposition has
+two iid projection terms and a canonical product-empirical remainder. A
+localized Euclidean-class condition with \(\|k_{\phi+h}-k_\phi\|_2^2=O(|h|)\)
+gives \(o_p(N^{-1})\) for that remainder near the optimizer; Sherman (1994,
+Corollary 8) and Sherman (1993, Theorem 3) are the verified primary pointers.
+The oracle argmax is therefore root-\(N\) normal under scalar curvature, with
+variance equal to the two projection variances weighted by fold fractions.
+
+The feasible extension keeps the existing augmented outcome-functional/Riesz
+expansion and adds weak loadings for the residual-side generated index, the
+index-fold generated index, and the two hard-trim endpoints. The pairwise
+implementation directly estimates the scalar and weighted empirical tails, so
+it does not fit a vector-valued \(p_X\), but it does not eliminate endpoint or
+generated-index obligations. This theorem is not a result for the direct
+own-observation taxi criterion, which remains a separate step-process problem.
+
+Verification: pairwise_theory.tex compiles to a seven-page PDF with no
+LaTeX errors or undefined references using
+latexmk -g -pdf -interaction=nonstopmode -halt-on-error. Rendered pages 1,
+2, 3, 4, 5, 6, and 7 were inspected. Remaining warnings are
+the Biometrika class's existing vertical-box warnings and one long projection
+display; no clipping or overlap was observed.
+
+-- Codex
+
 ## 2026-09-23 - Differing-slopes distributional simulation battery completed (Codex)
 
 Ran the Slurm array `61760936` with the full differing-slopes outcome block in
