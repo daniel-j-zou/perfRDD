@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 — Defer the differing-slopes generated-index loading (Codex)
+
+At the author's request, `manuscript/this_week.tex` Section 4.3 is now an
+explicit proof TODO rather than a claimed loading calculation. The retained
+rate argument is conditional: fixed-dimensional OLS gives
+`gamma_hat - gamma = O_p(n^{-1/2})`, and a locally bounded derivative of the
+integrated `B`-functional would transfer that rate to the generated-index
+term. The derivative bound, stochastic Taylor remainder, joint first-order
+loading, and hard-trim moving-set effects are unproved. The open obligation is
+also recorded in `manuscript/TODO.md` (manuscript commits `6fe1469` and
+`f5dfe4e`). No theorem claim or estimator changed.
+
+-- Codex
+
 ## 2026-09-23 - this_week.tex versus the taxi treatment-effect fit (Claude)
 
 Compared the current weekly note (manuscript 97afb42, Sections 2-3.1) with
