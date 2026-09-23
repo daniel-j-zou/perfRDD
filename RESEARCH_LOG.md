@@ -9,6 +9,34 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-23 - this_week.tex versus the taxi treatment-effect fit (Claude)
+
+Compared the current weekly note (manuscript 97afb42, Sections 2-3.1) with
+`taxi_differing_slopes.py`. They agree on the model (W = alpha(eta) + X'beta2),
+the first stage (OLS of Q on (1, X)), and the effect blocks: alpha-hat from the
+D*spline(eta-hat) block and beta2-hat from the D*X block of one stacked
+regression. They differ in how that regression is fit:
+- The taxi design adds an explicit intercept to a clamped B-spline basis that
+  already sums to one; the note's Z_K has no intercept. Under ridge this changes
+  the fitted effect: with the same lambda, dropping the intercept moves W-hat by
+  up to 0.23 in the window.
+- Ridge (lambda*sqrt(n)) on the D*X, spline and D*spline blocks, CV-chosen at the
+  grid minimum 0.1; the note's fit is unpenalized. The note's fit
+  (unpenalized, no intercept) differs from the script's W-hat by up to 0.046 in
+  the window (mean -0.023); beta2 for distance 0.372 vs 0.360.
+- Full sample for gamma, outcome and evaluation versus separate folds.
+- Spline support is the 0.5-99.5% range of eta-hat with clamped evaluation (1%
+  of rows clipped but kept), not a fixed outer region with eligibility.
+  Basis dimension 14 (10 interior knots, n_treated^(1/5) rule), at n^(1/5).
+- Taxi X are standardized, so alpha-hat is the effect at average covariates and
+  beta2 is per SD. The note uses raw X, where alpha is the effect at X = 0; it
+  equals E(W|eta) only for centered X with X independent of eta.
+- The note assumes continuous scores (Section 2); taxi fares are on a $0.40 lattice.
+The utility aggregation difference (own-Q indicator versus integrated tails)
+is already stated in the note (lines 251-253).
+
+-- Claude
+
 ## 2026-09-23 — Weekly note uses vector weighted density directly (Codex)
 
 At the author's request, removed the optional scalar symbol and scalar
