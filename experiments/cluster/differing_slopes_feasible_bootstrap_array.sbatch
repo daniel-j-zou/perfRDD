@@ -49,6 +49,6 @@ srun --cpu-bind=cores python3 -m experiments.scripts.differing_slopes_feasible_b
   --outer-reps "${OUTER_REPS}" \
   --bootstrap-reps "${BOOTSTRAP_REPS}" \
   --workers "${SLURM_CPUS_PER_TASK}" \
-  --variant oracle full_gaussian_ols full_spline_ols full_gaussian_ridge \
+  --variant oracle full_spline_ols full_spline_ridge \
   --seed 20260926 \
   --out "${CELL_OUT}"

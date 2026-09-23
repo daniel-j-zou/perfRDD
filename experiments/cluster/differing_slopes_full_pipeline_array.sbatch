@@ -44,6 +44,6 @@ srun --cpu-bind=cores python3 -m experiments.scripts.differing_slopes_full_pipel
   --scenario "${SCENARIO}" \
   --n 800 1600 3200 6400 \
   --reps "${REPS}" \
-  --variant oracle full_gaussian_ols full_spline_ols full_gaussian_ridge \
+  --variant oracle full_spline_ols full_spline_ridge \
   --seed 20260926 \
   --out "${OUT_ROOT}/${SCENARIO}.json"

@@ -2,13 +2,13 @@
 
 The point estimator is imported from :mod:`differing_slopes_full_pipeline`.
 Every bootstrap resample re-estimates the first-stage index, hard-trim
-endpoints, outcome regression (including the full ``D * X`` block), and either
-the Gaussian or spline running-variable tail.  This is an application-style
+endpoints, outcome regression (including the full ``D * X`` block), and the
+Lebesgue-Gram spline estimates of g and p_X used by the utility U_J.  This is an application-style
 full-sample re-estimation bootstrap, not a claim of bootstrap validity for the
 fully decoupled theorem.
 
-The diagnostic compares an oracle-index benchmark with feasible Gaussian-tail,
-spline-tail, and ridge-stabilized fits.  It reports percentile coverage for the
+The diagnostic compares an oracle-index benchmark with the feasible spline-tail
+OLS and ridge-stabilized fits.  It reports percentile coverage for the
 known population optimum, Monte Carlo bias/RMSE, bootstrap dispersion, failed
 resamples, and boundary rates.
 
@@ -42,9 +42,8 @@ from experiments.scripts.differing_slopes_full_pipeline import (
 
 VARIANTS = (
     "oracle",
-    "full_gaussian_ols",
     "full_spline_ols",
-    "full_gaussian_ridge",
+    "full_spline_ridge",
 )
 
 

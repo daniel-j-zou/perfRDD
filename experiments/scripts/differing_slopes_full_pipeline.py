@@ -4,7 +4,8 @@ This module tests the pieces that are deliberately held fixed in
 ``differing_slopes_simulation.py``:
 
 * estimated first-stage residuals and estimated hard-trim endpoints;
-* Gaussian versus least-squares spline estimates of the running-variable law;
+* Lebesgue-Gram spline estimates of g and p_X, the nuisances of the
+  differing-slopes utility U_J (``experiments.methods.weighted_tails``);
 * full-sample fitting and ridge stabilization;
 * a nonlinear treatment--covariate interaction omitted from the fitted model;
 * weak curvature and boundary-valued policy optima; and
@@ -33,23 +34,15 @@ import argparse
 import csv
 import json
 from dataclasses import dataclass, field, replace
-from functools import lru_cache
 from pathlib import Path
 from typing import Any, Iterable, Protocol, Sequence
 
 import numpy as np
-from scipy.interpolate import BSpline
 from scipy.optimize import minimize_scalar
 from scipy.special import roots_hermitenorm
 from scipy.stats import norm
 
-from experiments.methods.spline_density import (
-    SplineDensityFit,
-    _basis_info,
-    evaluate_basis_zero_outside,
-    lebesgue_gram,
-    spline_basis_dimension,
-)
+from experiments.methods.weighted_tails import WeightedTails, fit_weighted_tails
 
 
 POLICY_BOUNDS = (-3.0, 3.0)
@@ -300,105 +293,9 @@ class GaussianTail:
         return out if values.ndim else out.reshape(-1)
 
 
-@dataclass(frozen=True)
-class SplineTail:
-    scalar_fit: SplineDensityFit
-    scalar_antiderivative: Any
-    vector_antiderivatives: tuple[Any, ...]
-    degree: int
-    support: tuple[float, float]
-
-    def survival(self, values: np.ndarray | float) -> np.ndarray:
-        values = np.asarray(values, dtype=float)
-        flat = values.reshape(-1)
-        lo, hi = self.support
-        clipped = np.clip(flat, lo, hi)
-        output = np.asarray(
-            self.scalar_antiderivative(hi) - self.scalar_antiderivative(clipped),
-            dtype=float,
-        )
-        output[flat >= hi] = 0.0
-        return output.reshape(values.shape)
-
-    def weighted_tail(self, values: np.ndarray | float) -> np.ndarray:
-        values = np.asarray(values, dtype=float)
-        flat = values.reshape(-1)
-        lo, hi = self.support
-        clipped = np.clip(flat, lo, hi)
-        out = np.column_stack([
-            antiderivative(hi) - antiderivative(clipped)
-            for antiderivative in self.vector_antiderivatives
-        ])
-        if out.ndim == 1:
-            out = out.reshape(1, -1)
-        for column in range(out.shape[1]):
-            out[flat >= hi, column] = 0.0
-        return out.reshape(values.shape + (len(self.vector_antiderivatives),))
-
-
-@lru_cache(maxsize=None)
-def _spline_metadata(n_basis: int) -> tuple[dict[str, Any], np.ndarray]:
-    """Cache deterministic spline knots and Lebesgue Gram matrices."""
-    info = _basis_info(int(n_basis), DENSITY_SUPPORT)
-    return info, lebesgue_gram(info)
-
-
-def _fit_spline_tail(t_values: np.ndarray, x_values: np.ndarray) -> SplineTail:
-    n_basis = spline_basis_dimension(len(t_values))
-    info, gram = _spline_metadata(n_basis)
-    basis = evaluate_basis_zero_outside(t_values, info)
-    scalar_coefficients = np.linalg.solve(gram, np.mean(basis, axis=0))
-    vector_coefficients = np.linalg.solve(gram, basis.T @ x_values / len(t_values))
-    scalar_fit = SplineDensityFit(
-        knots=np.asarray(info["t"], dtype=float),
-        degree=int(info["degree"]),
-        support=DENSITY_SUPPORT,
-        coefficients=np.asarray(scalar_coefficients, dtype=float),
-        gram_condition_number=float(np.linalg.cond(gram)),
-        n_fit=len(t_values),
-        n_basis=int(n_basis),
-        support_fraction=float(np.mean(
-            (t_values >= DENSITY_SUPPORT[0]) & (t_values <= DENSITY_SUPPORT[1])
-        )),
-    )
-    scalar_spline = BSpline(
-        scalar_fit.knots,
-        scalar_fit.coefficients,
-        scalar_fit.degree,
-        extrapolate=False,
-    )
-    vector_splines = tuple(
-        BSpline(
-            np.asarray(info["t"], dtype=float),
-            vector_coefficients[:, column],
-            int(info["degree"]),
-            extrapolate=False,
-        ).antiderivative()
-        for column in range(vector_coefficients.shape[1])
-    )
-    return SplineTail(
-        scalar_fit=scalar_fit,
-        scalar_antiderivative=scalar_spline.antiderivative(),
-        vector_antiderivatives=vector_splines,
-        degree=int(info["degree"]),
-        support=DENSITY_SUPPORT,
-    )
-
-
-def _fit_tail(
-    t_values: np.ndarray,
-    x_values: np.ndarray,
-    gamma_hat: np.ndarray,
-    method: str,
-) -> TailEstimator:
-    if method == "gaussian":
-        sd = float(np.std(t_values, ddof=1))
-        if not np.isfinite(sd) or sd <= 1e-8:
-            raise ValueError("estimated T standard deviation is degenerate")
-        return GaussianTail(float(np.mean(t_values)), sd, gamma_hat)
-    if method == "spline":
-        return _fit_spline_tail(t_values, x_values)
-    raise ValueError(f"unknown density method: {method!r}")
+def _fit_tail(t_values: np.ndarray, x_values: np.ndarray) -> WeightedTails:
+    """Lebesgue-Gram projection estimates of g and p_X on the fixed support."""
+    return fit_weighted_tails(t_values, x_values, DENSITY_SUPPORT)
 
 
 @dataclass(frozen=True)
@@ -426,7 +323,6 @@ def _component(
     train_idx: np.ndarray,
     eval_idx: np.ndarray,
     *,
-    density_method: str,
     ridge: float,
     include_beta2: bool,
 ) -> Component:
@@ -441,7 +337,7 @@ def _component(
         include_beta2=include_beta2,
         ridge=ridge,
     )
-    tail = _fit_tail(t_train, sample.X[train_idx], gamma_hat[1:], density_method)
+    tail = _fit_tail(t_train, sample.X[train_idx])
     eta_eval = eta_hat[eval_idx]
     weights = ((eta_eval >= l_hat) & (eta_eval <= u_hat)).astype(float)
     return Component(
@@ -523,6 +419,7 @@ def _fit_variant(
             include_beta2=True,
             ridge=0.0,
         )
+        # Oracle benchmark: population g and p_X of the Gaussian index.
         tail = GaussianTail(0.0, dgp.sigma_T, dgp.gamma)
         lo, hi = dgp.trim_bounds
         component = Component(
@@ -541,14 +438,12 @@ def _fit_variant(
     ridge = 0.0
     if "ridge" in variant:
         ridge = 0.50
-    density = "spline" if "spline" in variant else "gaussian"
     idx = np.arange(len(sample.Y))
     component = _component(
         sample,
         dgp,
         idx,
         idx,
-        density_method=density,
         ridge=ridge,
         include_beta2=include_beta2,
     )
@@ -615,10 +510,9 @@ def _oracle_variance(
 
 VARIANTS = (
     "oracle",
-    "full_gaussian_alpha_only",
-    "full_gaussian_ols",
-    "full_gaussian_ridge",
+    "full_spline_alpha_only",
     "full_spline_ols",
+    "full_spline_ridge",
 )
 
 
