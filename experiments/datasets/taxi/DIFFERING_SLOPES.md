@@ -146,21 +146,32 @@ below-cutoff designs (`Q → −Q`, `thr → −thr`), run the standard above-cu
 
 ## Cross-dataset β₂ screen
 
-Same methodology (differing slopes, n^{1/5} knots, CV ridge, correct direction), c=0.
-This screen predates the switch to `Û_J` and used the own-fare empirical utility; its
-direction-aware driver is not committed, so the rows other than restricted taxi have not
-been recomputed. Restricted taxi with `Û_J`: α-only $5.41, differing slopes $12.66.
+Reproduce with `python -m experiments.scripts.differing_slopes_screen --out
+../outputs/differing_slopes_screen_20260924` (committed driver, 2026-09-24). Both models
+maximize `Û_J` with spline `ĝ`, `p̂_X` (α-only: β₂ = 0); c = 0; standardized X; n_treated^{1/5}
+knots and CV ridge as in the taxi script; below-cutoff designs are mirrored. Candidate cutoffs span
+the 0.5–99.5% range of Q. Entries give the optimum and [share of the trim window it treats];
+(bnd) marks a boundary solution: a range endpoint, or ≥99% / ≤1% of the window treated.
 
-| dataset | direction | cutoff | α-only φ* | differing-slopes φ* |
-|---|---|---:|---:|---:|
-| taxi (full) | above | 15 | 4.2 (int) | **9.2 (int)** |
-| taxi (restricted, CMT-matched) | above | 15 | 0 (bnd) | **12.5 (int)** |
-| oulad | above | 40 | 51.2 (int) | **36.0 (int)** |
-| lending_default | above | 30 | 45.45 | 45.45 (no move) |
-| gpa | below | 0 | 2.6 (bnd) | 2.6 (bnd) |
-| nhanes | above | 6.5 | 3.4 (bnd) | 3.4 (bnd) |
+| dataset | dir. | cutoff | α-only `Û_J` | diff. slopes `Û_J` | diff. slopes own-score | previous own-score screen (α / DS) |
+|---|---|---:|---:|---:|---:|---:|
+| taxi (full VTS) | above | 15 | 3.61 [99%] | **9.30 [45%]** | 9.14 [44%] | 4.2 / 9.2 |
+| taxi (restricted) | above | 15 | 5.30 [100%] (bnd) | **12.72 [24%]** (fares ≥ $12.90) | 12.51 [30%] | 0 (bnd) / 12.5 |
+| oulad | above | 40 | 52.10 [0%] (bnd) | **38.58 [69%]** | 36.27 [85%] | 51.2 / 36.0 |
+| lending_default | above | 30 | 38.60 [1%] (bnd) | 1.36 [100%] (bnd) | 38.60 [0%] (bnd) | 45.45 / 45.45 |
+| gpa | below | 0 | 2.48 [100%] (bnd) | 2.48 [100%] (bnd) | 2.50 [100%] (bnd) | 2.6 (bnd) / 2.6 (bnd) |
+| nhanes | above | 6.5 | 5.11 [100%] (bnd) | 5.10 [100%] (bnd) | 4.50 [100%] (bnd) | 3.4 (bnd) / 3.4 (bnd) |
 
-β₂ moves the optimum **only where the effect is level-dependent** (taxi, oulad) and is inert
-on φ* elsewhere (gpa, lending_default, nhanes) — the desired behaviour of a correction, not a
-free parameter. It can still change the α̂ *shape* without moving φ* (lending_default, nhanes).
-Reproduce with the direction-aware screen used to generate this table.
+What changes with `Û_J`:
+- **Taxi:** unchanged. Full sample $9.30 (own-score $9.14, previous $9.2); restricted
+  $12.72, the same fare step as before.
+- **oulad:** β₂ still moves the optimum down, 52 → 38.6 (own-score 36.3). The treated-share
+  column shows the α-only "51.2" was effectively a boundary: it treats none of the window.
+  The first stage is weak (R² = 0.03) and the window holds 4% of the sample.
+- **lending_default:** no usable signal either way. The utility spans ~0.001 on a repayment
+  scale. `Û_J` (treat all) and own-score (treat none) pick opposite boundaries because X ⊥ η
+  fails: E[X'β̂₂ | window] = −0.016 against 0 overall (income z-scores reach 146).
+- **gpa, nhanes:** boundary solutions for both models, as before; β₂ is inert. nhanes's
+  `Û_J` maximum (5.1) lies on a flat plateau that treats the whole window.
+The `Û_J` versus own-score gap is itself a diagnostic: the two target the same utility only
+under X ⊥ η.
