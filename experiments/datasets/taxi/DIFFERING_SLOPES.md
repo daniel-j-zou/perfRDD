@@ -157,7 +157,8 @@ the 0.5–99.5% range of Q. Entries give the optimum and [share of the trim wind
 |---|---|---:|---:|---:|---:|---:|
 | taxi (full VTS) | above | 15 | 3.61 [99%] | **9.30 [45%]** | 9.14 [44%] | 4.2 / 9.2 |
 | taxi (restricted) | above | 15 | 5.30 [100%] (bnd) | **12.72 [24%]** (fares ≥ $12.90) | 12.51 [30%] | 0 (bnd) / 12.5 |
-| oulad | above | 40 | 52.10 [0%] (bnd) | **38.58 [69%]** | 36.27 [85%] | 51.2 / 36.0 |
+| oulad (dates fixed 2026-09-24) | above | 40 | 52.84 [0%] (bnd) | **42.14 [44%]** | 40.19 [59%] | 51.2 / 36.0 (buggy dates) |
+| oulad, rich covariates | above | 40 | 74.84 [0%] (bnd) | 48.13 [33%] | 48.02 [27%] | — |
 | lending_default | above | 30 | 38.60 [1%] (bnd) | 1.36 [100%] (bnd) | 38.60 [0%] (bnd) | 45.45 / 45.45 |
 | gpa | below | 0 | 2.48 [100%] (bnd) | 2.48 [100%] (bnd) | 2.50 [100%] (bnd) | 2.6 (bnd) / 2.6 (bnd) |
 | nhanes | above | 6.5 | 5.11 [100%] (bnd) | 5.10 [100%] (bnd) | 4.50 [100%] (bnd) | 3.4 (bnd) / 3.4 (bnd) |
@@ -165,9 +166,12 @@ the 0.5–99.5% range of Q. Entries give the optimum and [share of the trim wind
 What changes with `Û_J`:
 - **Taxi:** unchanged. Full sample $9.30 (own-score $9.14, previous $9.2); restricted
   $12.72, the same fare step as before.
-- **oulad:** β₂ still moves the optimum down, 52 → 38.6 (own-score 36.3). The treated-share
-  column shows the α-only "51.2" was effectively a boundary: it treats none of the window.
-  The first stage is weak (R² = 0.03) and the window holds 4% of the sample.
+- **oulad:** the OULAD adapter ranked assignment dates as text until 2026-09-24, so
+  earlier oulad rows used the wrong "first" TMA. With dates fixed, differing slopes gives
+  42.1 (above the deployed 40; own-score 40.2); α-only treats none of the window. The
+  estimate is regularization-dependent (unpenalized 37.3; ridge λ=3 reverts to α-only),
+  and the window is 1.8% of the sample. Richer covariates (`load_rich`, R² 0.18) make
+  it worse: 42–74 depending on the ridge, bootstrap 95% [44.5, 74.2].
 - **lending_default:** no usable signal either way. The utility spans ~0.001 on a repayment
   scale. `Û_J` (treat all) and own-score (treat none) pick opposite boundaries because X ⊥ η
   fails: E[X'β̂₂ | window] = −0.016 against 0 overall (income z-scores reach 146).

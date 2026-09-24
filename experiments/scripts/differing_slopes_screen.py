@@ -56,6 +56,7 @@ PREVIOUS = {
     "taxi_full": (4.2, 9.2),
     "taxi_restricted": (0.0, 12.5),
     "oulad": (51.2, 36.0),
+    "oulad_rich": (float("nan"), float("nan")),
     "lending_default": (45.45, 45.45),
     "gpa": (2.6, 2.6),
     "nhanes": (3.4, 3.4),
@@ -70,6 +71,13 @@ def _registry(name: str) -> Callable[[], tuple]:
     return loader
 
 
+def _oulad_rich():
+    from experiments.datasets.oulad.adapter import load_rich
+    sample = load_rich()
+    return (np.asarray(sample.Q, float), np.asarray(sample.X, float),
+            np.asarray(sample.Y, float), float(sample.threshold))
+
+
 def _taxi_restricted():
     Q, X, Y = _taxi_clean(load_haggag_paci_vendor("VTS"))
     return Q, X, Y, 15.0
@@ -79,6 +87,7 @@ DATASETS = {
     "taxi_full": (_registry("taxi"), "above"),
     "taxi_restricted": (_taxi_restricted, "above"),
     "oulad": (_registry("oulad"), "above"),
+    "oulad_rich": (_oulad_rich, "above"),
     "lending_default": (_registry("lending_default"), "above"),
     "gpa": (_registry("gpa"), "below"),
     "nhanes": (_registry("nhanes"), "above"),
@@ -140,7 +149,8 @@ def screen_dataset(name: str, seed: int = 0) -> dict:
         phi, at_end = _maximize(U, grid)
         own = own_fare_optimum(Qs, eta, (l0, u0), alpha + X @ beta2, grid)
         in_win = win > 0
-        share_uj = float(np.mean(tails.survival(phi - eta[in_win])) / max(tails.survival(-np.inf), 1e-12))
+        share_uj = float(np.clip(
+            np.mean(tails.survival(phi - eta[in_win])) / max(tails.survival(-np.inf), 1e-12), 0.0, 1.0))
         share_own = float(np.mean(Qs[in_win] >= own))
         result[label] = {
             "phi_uj": float(sign * phi),

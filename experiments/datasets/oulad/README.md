@@ -30,3 +30,15 @@ studentInfo` on the fly (no separate processed file).
 - Categorical X columns are ordinal-encoded for compatibility with
   numeric-array methods. Per-method one-hot encoding can read the
   original CSVs from `data/raw/`.
+- **Date fix (2026-09-24).** `assessments.csv` codes missing dates as `?`, so
+  the `date` column loads as text. The adapter used to rank TMAs by that text
+  ("117" < "19" < "54"), so for ~76% of enrolments the "first" TMA was not the
+  first and the outcome averaged earlier TMAs. Dates are now parsed as numbers.
+  Results built on the old adapter (e.g. `manuscript/applications.tex`, first-stage
+  R² 0.031) predate the fix.
+- `load_rich()` uses predetermined covariates for a stronger first stage:
+  one-hot demographics, module-presentation fixed effects, registration date,
+  VLE clicks and active-day share before the first TMA's due date, and the mean
+  CMA score due before it (with a missing flag). First-stage R² is 0.043 with
+  `load()` and 0.178 with `load_rich()`. Prior-achievement covariates exist for
+  only 6-12% of enrolments, which caps the attainable R².
