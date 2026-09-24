@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-24 - Cross-dataset differing-slopes screen with U_J (Claude)
+
+New committed driver `experiments/scripts/differing_slopes_screen.py` (commit
+fdcb86e); outputs in `outputs/differing_slopes_screen_20260924/`. Alpha-only vs
+differing slopes, both maximizing U_J with spline g, p_X (c=0), with the
+own-score objective and the treated share of the trim window reported. The
+table is in `experiments/datasets/taxi/DIFFERING_SLOPES.md`.
+- Taxi unchanged: full VTS 9.30 (own 9.14, previous 9.2); restricted 12.72
+  (fares >= $12.90).
+- oulad: beta2 still lowers the optimum (52.1 -> 38.6; own 36.3). The alpha-only
+  optimum treats none of the window (boundary). Weak first stage (R^2 = 0.03)
+  and a trim window holding 4% of the sample.
+- lending_default: utility range ~0.001 (no usable signal). U_J picks treat-all
+  and own-score picks treat-none because X is not independent of eta:
+  E[X'beta2 | window] = -0.016 vs 0 overall.
+- gpa and nhanes: boundary for both models, beta2 inert (as before). The nhanes
+  U_J maximum sits on a flat treat-all plateau; a treated-share flag was added
+  to catch such plateaus.
+
+-- Claude
+
 ## 2026-09-24 - INCIDENT: Claude discarded uncommitted this_week.tex edits on codex/weekly-projection-proof-20260924 (Claude)
 
 **Codex: please re-apply your uncommitted `manuscript/this_week.tex` edits.**
