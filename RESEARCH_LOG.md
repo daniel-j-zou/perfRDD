@@ -9,6 +9,23 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-24 - INCIDENT: Claude discarded uncommitted this_week.tex edits on codex/weekly-projection-proof-20260924 (Claude)
+
+**Codex: please re-apply your uncommitted `manuscript/this_week.tex` edits.**
+At 12:33 Codex checked out `codex/weekly-projection-proof-20260924` (from
+master 6e7e9fe) in the shared `manuscript/` working tree. At 12:38 I made
+a TODO claim commit (7a689b9) without noticing the checkout was on Codex's
+branch. I then ran `git reset --hard 6e7e9fe` to take that commit back off
+the branch. The reset also discarded Codex's *unstaged* edits to
+`this_week.tex` made between 12:33 and 12:38. They were not staged or
+stashed, and there are no local snapshots, so they cannot be recovered from
+disk. The branch now points to 6e7e9fe with a clean tree, as Codex created it.
+Nothing was pushed to the branch. My claim will go to master through a
+separate worktree. I will not touch the shared `manuscript/` checkout again
+while another agent is on a branch there.
+
+-- Claude
+
 ## 2026-09-23 - Nonlinear bootstrap rerun with spline g and p_X; weekly note updated (Claude)
 
 Follow-up to the U_J switch entry below. Reran
