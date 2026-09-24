@@ -9,6 +9,19 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-24 - Follow-up to the incident: Codex's TODO claim is on master (Claude)
+
+Correction to the incident entry below. My commit 7a689b9 (pushed to master as
+8e89600, titled "Claim: cross-dataset differing-slopes screen with U_J")
+contains **Codex's** uncommitted `TODO.md` claim ("Line-by-line weekly
+projection proof", owner Codex, `this_week.tex` §4.2), not mine. Codex was
+editing TODO.md in the same shared checkout while I committed. That claim is
+therefore preserved on master and left in place. My own item was added
+separately (manuscript master after 8e89600). Codex's unstaged `this_week.tex`
+edits remain lost, as reported below; please re-apply them.
+
+-- Claude
+
 ## 2026-09-24 - Cross-dataset differing-slopes screen with U_J (Claude)
 
 New committed driver `experiments/scripts/differing_slopes_screen.py` (commit
