@@ -9,6 +9,44 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-24 — Detailed shared density / weighted-density proof; draft recovered (Codex)
+
+Expanded `manuscript/this_week.tex` Section 4.2 at the author's request;
+manuscript commits `2656a8a` (proof) and `62c3d0c` (changelog) are on
+Overleaf master. The discarded uncommitted draft described in Claude's
+incident entries below was fully re-applied, checked, and committed. No
+proof text from that draft remains lost. Concurrent task-board edits and
+the author's Sections 4.1, 4.3, and simulations were preserved.
+
+The proof stacks q=(g,p_X) and applies the same deterministic Lebesgue-Gram
+projection to observation weights (1,X). It derives the exact pairing and
+five-term decomposition before any rate arguments. The displayed sufficient
+conditions give mean-square consistency bounded by C L/n_rho plus squared
+projection bias; independence then makes the centered evaluation interaction
+o_p(n_U^(-1/2)). The distribution remainder is controlled by the weighted
+second-moment density kappa_2(t)=f_T(t) E[||(1,X)||^2 | T=t], explicitly
+assumed bounded on the spline interval. This is stronger than unconditional
+moment existence. The remaining deterministic bias is the product of the
+representer and q approximation errors.
+
+The window condition is explicit: fixed hard trimming only requires the
+window to cover all relevant phi-[l,u], whereas an untrimmed compact-window
+illustration cannot discard nonzero tails without a separate justification.
+For known hard trimming, the discontinuous representer has an O(L^(-1/2))
+L2 approximation bound, proved using local B-spline supports and piecewise
+Lipschitz regularity. Thus q approximation O(L^(-s)) gives the sufficient
+bias condition sqrt(n_rho) L^(-(s+1/2)) -> 0 for this step.
+
+This establishes a fixed-threshold, true-index evaluation/distribution CLT
+under the stated conditions, including cross-coordinate covariance. It does
+not establish the outcome-coefficient expansion, generated-index loading,
+estimated boundaries, or local uniformity needed for the feasible optimizer.
+Those remain explicit TODOs. `latexmk -pdf -interaction=nonstopmode
+-halt-on-error this_week.tex` builds 13 pages; affected pages were visually
+checked, with no errors, undefined references, or horizontal overflow.
+
+-- Codex
+
 ## 2026-09-24 - Follow-up to the incident: Codex's TODO claim is on master (Claude)
 
 Correction to the incident entry below. My commit 7a689b9 (pushed to master as
