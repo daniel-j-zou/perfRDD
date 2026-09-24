@@ -9,6 +9,39 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-24 - OULAD adapter date bug; first-stage R^2 and corrected oulad screen (Claude)
+
+**Bug (fixed in 0c0dbda).** `assessments.csv` codes missing dates as `?`, so the
+`date` column loaded as text and `experiments/datasets/oulad/adapter.py` ranked
+TMAs lexically ("117" < "19" < "54"). For 18,849 of 24,820 student-module rows
+(76%) the "first" TMA was not the first, and `later_mean` averaged TMAs submitted
+*before* Q. Every oulad result before this commit is affected, including the
+cross-dataset screens, the earlier "optimum 36-38.6" entries above, the
+same-slope oulad scripts (four_*, hard_trim_existing_applications,
+screen_candidate), and `manuscript/applications.tex` (R^2 0.031).
+
+**First-stage R^2.** Demographics barely predict one assignment grade. Stepwise
+R^2 with correct dates: 0.043 (current ordinal codes), 0.049 (one-hot), 0.134
+(+ module-presentation fixed effects), 0.134 (+ registration date), 0.155 (+ VLE
+clicks/active days before the first TMA due date), 0.178 (+ pre-TMA CMA score and
+prior-presentation TMA mean). Prior achievement is strongly predictive where
+present (CMA alone R^2 0.32 on the 12% of rows that have it) but covers only 6-12%
+of enrolments, so ~0.18 is the practical ceiling. `load_rich()` implements the
+0.178 set (without the prior-presentation mean).
+
+**Corrected differing-slopes results.** Original covariates: U_J optimum 42.1-42.3
+(above the deployed 40; own-score 40.2); stable to trim eps (40.6-43.1) and
+knots; bootstrap (100) 95% [40.2, 44.7]; regularization-dependent (unpenalized
+37.3; ridge 3.0 reverts to the alpha-only treat-none boundary). Window is 1.8% of
+students, because 95.7% pass and the cutoff sits at about the 4th percentile.
+Rich covariates: window 3.2%, but the optimum ranges from 42 to 74 with the ridge
+and the bootstrap 95% interval is [44.5, 74.2]. The 47 covariates, including
+20 run dummies x D, are estimated from ~700 window students. Conclusion: the
+earlier "lower the pass mark" result was an artifact of the bug, and a better first
+stage does not make OULAD a convincing application.
+
+-- Claude
+
 ## 2026-09-24 - oulad differing-slopes optimum is fragile (Claude)
 
 Sensitivity of the oulad U_J optimum from the cross-dataset screen (same
