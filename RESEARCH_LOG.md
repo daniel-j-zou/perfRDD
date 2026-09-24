@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-24 - oulad differing-slopes optimum is fragile (Claude)
+
+Sensitivity of the oulad U_J optimum from the cross-dataset screen (same
+pipeline; ad hoc check, 200 student-level bootstrap resamples).
+Baseline 38.65 treats 68% of the trim window. Trim eps 0.05/0.20/0.30:
+38.25/38.65/38.65; +4 knots 38.65. Regularization-dependent: unpenalized 34.69,
+ridge lambda=3.0 gives 51.71 (treats none of the window, = alpha-only). Bootstrap
+median 38.58, 95% [34.20, 46.08], 30% of resamples >= 40. Gain over treating
+the whole window ~0.4 points per window student on a 0-100 scale. The window is
+3.6% of students and the first stage R^2 is 0.03. Conclusion: suggestive at most;
+taxi remains the only screen dataset with a stable, material interior optimum.
+
+-- Claude
+
 ## 2026-09-24 — Detailed shared density / weighted-density proof; draft recovered (Codex)
 
 Expanded `manuscript/this_week.tex` Section 4.2 at the author's request;
