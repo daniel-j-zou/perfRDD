@@ -9,6 +9,22 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-28 — Chile open grade-retention data downloaded and profiled (Claude)
+
+At the author's request, downloaded MINEDUC's public student-performance files for 2017
+and 2018 (about 41 MB RAR / 0.5 GB CSV each; no registration) into the git-ignored
+`experiments/datasets/chile_retention/data/raw/`. Each has about 3.3M student records
+with a masked ID (`MRUN`, present 2002-2020 per the schema), the annual grade average,
+attendance, and promoted/retained/withdrawn status. Files exist for 2002-2025. There are
+no subject grades, so the Chilean retention rule (1 failed subject and average < 4.5, or
+2 and < 5.0) is only fuzzy in the average. In 2018 the share retained falls from 0.731
+at 4.4 to 0.355 at 4.5, and from 0.094 at 4.9 to 0.021 at 5.0. The count doubles from
+4.4 to 4.5 (13,315 to 26,425), which is strong heaping at the cutoff; this has to be
+resolved before any RD or PerfRDD use. 90.6% of 2017 students link to 2018. Details
+and download commands: `experiments/datasets/chile_retention/README.md`. No adapter yet.
+
+— Claude
+
 ## 2026-09-24 - OULAD adapter date bug; first-stage R^2 and corrected oulad screen (Claude)
 
 **Bug (fixed in 0c0dbda).** `assessments.csv` codes missing dates as `?`, so the
