@@ -9,6 +9,25 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-28 — Chile retention data: all 24 years downloaded and profiled (Claude)
+
+Follow-up to the entry below. At the author's request, downloaded all MINEDUC
+student-performance years, 2002-2025 (1.06 GB of RAR, about 11 GB of CSV, git-ignored),
+with the new idempotent `experiments/datasets/chile_retention/download.py`. Every file
+matches the server's size, and the record counts match the ministry schema for
+2002-2020. Profiled all years with `experiments/scripts/chile_retention_profile.py`:
+- `MRUN` is never missing, and every average is on the 0.1 grid.
+- Excess mass at 4.5 is 21-51% in every year, and 7-16% at 5.0.
+- The retention jump at 4.5 is 0.31-0.41 through 2019. It nearly disappears in the
+  COVID years 2020-2021 (2.5% retained at 4.4 in 2020). From 2022 it returns, with lower
+  retention just below the cutoff than in 2010-2019.
+Pre-2019 years are the cleanest for a fixed rule. The per-year table is in
+`experiments/datasets/chile_retention/README.md`. Heaping at the cutoff remains the main
+obstacle for RD/PerfRDD use; the 2020-2021 near-suspension is a real change in the
+threshold, with the caveat that COVID confounds it.
+
+— Claude
+
 ## 2026-09-28 — Chile open grade-retention data downloaded and profiled (Claude)
 
 At the author's request, downloaded MINEDUC's public student-performance files for 2017
