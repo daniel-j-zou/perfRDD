@@ -1,4 +1,4 @@
-# Chile grade retention — MINEDUC open student-performance files (data only; no adapter yet)
+# Chile grade retention — MINEDUC open student-performance files
 
 | Field | Value |
 |---|---|
@@ -98,3 +98,41 @@ Heap = count at the cutoff / geometric mean of the counts 0.1 below and above it
 - Withdrawn (`Y`) counts rise from about 190k to about 300k around 2010-2011, possibly a
   change in how withdrawals are recorded. Check this before using withdrawal as an outcome.
 - `MRUN` is never missing, and every average is on the 0.1 grid.
+
+## Adapter and pre-screen (2026-09-28)
+
+`adapter.py` builds one cohort (default decision year 2017, cached in
+`data/processed/cohort_2017.csv.gz`). It links X from 2016 and Y from 2018 by `MRUN`
+and uses regular primary grades 2-8 and academic secondary grades 1-3. `load()` has
+Y = next-year average; `load_enrolled()` has Y = completes next year.
+
+- n = 2,167,129 students; 1.8% have Q <= 4.4.
+- First-stage R^2 = 0.68.
+- The retained share falls from 0.84 at 4.4 to 0.41 at 4.5.
+- D is eligibility (intent-to-treat).
+
+Screen (`python -m experiments.scripts.differing_slopes_screen --datasets
+chile_retention chile_retention_enrolled --out ...`), c = 0, trim eps 0.10. Flatness from
+`PYTHONPATH=. python experiments/scripts/screen_flatness.py OUT.json chile_retention
+chile_retention_enrolled`. Entries are the optimum [share of the trim window treated].
+The window holds 3.4-3.9% of students, with window Q from about 4.1 to 5.4.
+
+| Outcome | alpha-only U_J | Diff. slopes U_J | Mean effect in window (alpha-only / DS) | Share of window with negative effect (DS) |
+|---|---|---|---|---|
+| Next-year average | 6.89 [100%] (bnd) | 5.87 [98%] | +0.36 / +0.20 points | 18% |
+| Completes next year | 4.00 [4%] (bnd) | 6.89 [100%] (bnd) | -7.1 / +1.5 pp | 38% |
+
+- **Next-year average:** both models treat essentially the whole window. The DS interior
+  optimum beats treating everyone by 0.0004 points per window student, so it is
+  effectively a boundary. The outcome is also mechanical, because retained students
+  repeat the grade.
+- **Completing next year:** the models disagree in sign. Alpha-only gives -7.1 pp for
+  everyone, so treat no one; DS gives +1.5 pp on average (10th-90th percentile -11 to
+  +12 pp), so treat everyone. The flip means DS leans on D x X extrapolation. Prior
+  average in X likely makes X ⊥ eta fail. Do not read either as a finding.
+- **Open issues before any inference-grade run:**
+  - heaping at 4.5 (the first untreated value);
+  - the second cutoff at 5.0 sits inside the window's Q range and is not modeled;
+  - D is eligibility, not retention;
+  - longer-run outcomes (secondary completion, PAES, higher-education enrollment) are
+    available in the public data by `MRUN` and are more policy-relevant.

@@ -9,6 +9,40 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-28 — Chile retention pre-screen: alpha-only vs differing slopes (Claude)
+
+New adapter `experiments/datasets/chile_retention/adapter.py`, for the 2017 decision
+year:
+- X from 2016: prior average, attendance and retention; over-age; male; grade level;
+  secondary; school type; rural.
+- Q is the 2017 average. D = 1{Q <= 4.4}, eligibility (ITT), mirrored below-cutoff
+  design with threshold 4.45.
+- Y from 2018: next-year average, or completing the next year.
+- n = 2.17M, 1.8% treated, first-stage R^2 = 0.68 (vs oulad 0.03-0.18). Retained share
+  0.84 at 4.4 vs 0.41 at 4.5.
+
+Added both variants to `differing_slopes_screen.py`, plus a generic
+`experiments/scripts/screen_flatness.py`. Outputs are in
+`outputs/differing_slopes_screen_chile_20260928/`. c = 0; the trim window holds 3.4-3.9%
+of students.
+
+- **Next-year average:** alpha-only treats the whole window (effect +0.36 everywhere).
+  DS gives optimum 5.87, treating 98%. Its gain over treating everyone is 0.0004 points
+  per window student, so it is effectively a boundary; the outcome is mechanical
+  anyway.
+- **Completing next year:** alpha-only gives -7.1 pp everywhere, so treat none
+  (boundary). DS flips to +1.5 pp on average (10th-90th percentile -11 to +12 pp), so
+  treat all (boundary). The sign flip points to fragile D x X extrapolation and likely
+  failure of X ⊥ eta, given prior average in X.
+
+Verdict: no interior optimum at c = 0. The data are strong on n and first stage.
+Before any inference-grade run: heaping at 4.5, the unmodeled 5.0 cutoff, ITT vs
+retention, and longer-run outcomes (secondary completion, PAES, higher-education
+enrollment via MRUN). Checked: dropping students with duplicate 2018 records affects
+only 26 of them.
+
+— Claude
+
 ## 2026-09-28 — Chile retention data: all 24 years downloaded and profiled (Claude)
 
 Follow-up to the entry below. At the author's request, downloaded all MINEDUC

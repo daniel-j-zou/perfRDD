@@ -60,6 +60,8 @@ PREVIOUS = {
     "lending_default": (45.45, 45.45),
     "gpa": (2.6, 2.6),
     "nhanes": (3.4, 3.4),
+    "chile_retention": (float("nan"), float("nan")),
+    "chile_retention_enrolled": (float("nan"), float("nan")),
 }
 
 
@@ -78,6 +80,13 @@ def _oulad_rich():
             np.asarray(sample.Y, float), float(sample.threshold))
 
 
+def _chile_enrolled():
+    from experiments.datasets.chile_retention.adapter import load_enrolled
+    sample = load_enrolled()
+    return (np.asarray(sample.Q, float), np.asarray(sample.X, float),
+            np.asarray(sample.Y, float), float(sample.threshold))
+
+
 def _taxi_restricted():
     Q, X, Y = _taxi_clean(load_haggag_paci_vendor("VTS"))
     return Q, X, Y, 15.0
@@ -91,6 +100,8 @@ DATASETS = {
     "lending_default": (_registry("lending_default"), "above"),
     "gpa": (_registry("gpa"), "below"),
     "nhanes": (_registry("nhanes"), "above"),
+    "chile_retention": (_registry("chile_retention"), "below"),
+    "chile_retention_enrolled": (_chile_enrolled, "below"),
 }
 
 
