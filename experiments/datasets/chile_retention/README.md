@@ -136,3 +136,43 @@ The window holds 3.4-3.9% of students, with window Q from about 4.1 to 5.4.
   - D is eligibility, not retention;
   - longer-run outcomes (secondary completion, PAES, higher-education enrollment) are
     available in the public data by `MRUN` and are more policy-relevant.
+
+## Checks after the pre-screen (2026-09-28)
+
+**Long-run cohort.** `build_long_run(2012)` uses decision year 2012 with X from 2011.
+It covers primary 6-8 and youth secondary 1-3, including technical-vocational tracks.
+The outcome is `completed_secondary`: promoted from regular 4th-year secondary or from
+the final adult level, in any year 2013-2025. Loaders: `load_completed()` and
+`load_completed_donut()`, which drops Q = 4.5.
+- n = 1,441,489; 4.7% have Q <= 4.4; first-stage R^2 = 0.60.
+- Older files lack age and grouped school type. The adapter derives age from the birth
+  date (YYYYMM in recent files, YYYYMMDD in older ones) and school type from `COD_DEPE`.
+
+**Validation against the cutoff itself** (`experiments/scripts/chile_retention_local_checks.py`;
+effect columns from `screen_flatness.py`). The first two columns are local linear RD ITT
+estimates at 4.5, bandwidth 0.5, with robust SEs. The next two are the models' mean fitted
+effect for students within 0.5 of the cutoff; both are intent-to-treat quantities.
+
+| Outcome | Local RD ITT | Local RD ITT, donut | alpha-only effect near cutoff | DS effect near cutoff | Optimum: alpha-only / DS |
+|---|---|---|---|---|---|
+| Next-year average (2017) | +0.146 (0.008) | +0.144 (0.008) | +0.31 | +0.23 | treat all / treat 98% |
+| Completes next year (2017) | -0.003 (0.004) | -0.007 (0.004) | -0.089 | -0.035 | treat none / treat all |
+| Completes secondary (2012) | -0.004 (0.004) | -0.011 (0.004) | -0.132 | -0.073 | treat none / treat none |
+
+- **The global models overstate the local effect by roughly 2x to 40x.** Differing
+  slopes is closer than alpha-only, but neither is validated at the cutoff.
+- **X ⊥ eta fails clearly.** SD(eta) rises from about 0.21 to 0.45 (2017) and from 0.30
+  to 0.53 (2012) across deciles of the fitted index. Mean eta is inverted-U (about
+  -0.06 at both ends, +0.03 in the middle), so the linear index also misses curvature.
+- **Sorting at the cutoff.** Just above 4.5, students are more often previously retained,
+  older, in municipal schools and in lower grades (2017: prior average jump +0.060
+  (0.006), prior retention -0.018 (0.004), municipal -0.042 (0.006)). The jumps survive
+  dropping Q = 4.5, so they are not confined to the heaped value. This is consistent
+  with teachers promoting students they do not want to retain again.
+- **Heterogeneity by level (2012, ITT on completion):** secondary -0.019 (0.005);
+  primary 6-8 +0.005 (0.007). Next-year enrollment: -0.015 (0.005) vs +0.017 (0.005).
+  This is a real sign change across X, but small.
+- **Verdict:** not a usable PerfRDD application as specified. Every optimum is at a
+  boundary; the maintained X ⊥ eta assumption fails; the global fits are not validated
+  at the cutoff; and the cutoff shows sorting. The heaping and sorting may still serve as
+  evidence for the performative-threshold direction.

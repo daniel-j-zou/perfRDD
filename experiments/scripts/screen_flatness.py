@@ -5,11 +5,17 @@ alpha-only and differing-slopes fits, the fitted effect in the trim window (mean
 negative, 10th/90th percentiles) and U_J per window student at the grid optimum, at
 both ends of the candidate range (treat all / treat none of the window), and at the
 deployed cutoff. The gap between the optimum and the better end shows how flat the
-utility is.
+utility is. Two validation diagnostics are added:
+  * mean fitted effect among units within NEAR of the cutoff (in Q units), to compare
+    with a design-based local RD estimate at the cutoff;
+  * mean and SD of eta by decile of the fitted index T (X independent of eta implies a
+    flat mean and a constant SD).
 
     PYTHONPATH=. python experiments/scripts/screen_flatness.py OUT.json NAME [NAME ...]
 """
 import json, sys
+
+NEAR = 0.5
 import numpy as np
 from experiments.scripts import differing_slopes_screen as S
 from experiments.methods.perfrdd import _basis_params
@@ -37,7 +43,12 @@ for name in sys.argv[2:]:
     tails = fit_weighted_tails(T, X, tuple(np.quantile(T, S.DENSITY_QUANTILES)))
     win = ((eta >= l0) & (eta <= u0)).astype(float); iw = win > 0
     rng = np.random.default_rng(0)
-    res = {"y_mean_window": float(Y[iw].mean()), "y_sd_window": float(Y[iw].std()),
+    near = np.abs(Qs - thr_s) < NEAR
+    dec = np.digitize(T, np.quantile(T, np.linspace(0.1, 0.9, 9)))
+    res = {"eta_mean_by_T_decile": [float(eta[dec == k].mean()) for k in range(10)],
+           "eta_sd_by_T_decile": [float(eta[dec == k].std()) for k in range(10)],
+           "n_near_cutoff": int(near.sum()),
+           "y_mean_window": float(Y[iw].mean()), "y_sd_window": float(Y[iw].std()),
            "Q_window_quantiles": [float(sign * v) for v in np.quantile(Qs[iw], [0.1, 0.5, 0.9])]}
     for label, inter in (("alpha_only", False), ("differing_slopes", True)):
         a, b, lam = fit_effect(Qs, X, Y, eta, D, info, inter, rng)
@@ -46,6 +57,7 @@ for name in sys.argv[2:]:
         j = int(np.argmax(U)); pw = win.mean()
         res[label] = {
             "mean_effect_window": float(eff[iw].mean()),
+            "mean_effect_near_cutoff": float(eff[near].mean()),
             "share_effect_negative_window": float((eff[iw] < 0).mean()),
             "effect_q10_q90_window": [float(v) for v in np.quantile(eff[iw], [0.1, 0.9])],
             # utilities per window student, relative to treating no one in the window

@@ -9,6 +9,43 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-28 — Chile retention checks: not a usable application as specified (Claude)
+
+Follow-up to the pre-screen entry below. Outputs are in
+`outputs/differing_slopes_screen_chile_20260928/` (local_checks_*.json, flatness.json,
+longrun/).
+
+- **Long-run outcome.** New `build_long_run(2012)`: completing secondary by 2025, in
+  the regular or adult track; n = 1.44M; R^2 = 0.60. Both models give treat-none
+  boundaries, with or without Q = 4.5: alpha-only -11.6 pp across the window; DS -2.8 pp
+  on average, 60% negative.
+- **Validation at the cutoff.** Local linear RD ITT at 4.5 (bandwidth 0.5) vs the
+  models' fitted effect near the cutoff:
+
+  | Outcome | Local RD | alpha-only | DS |
+  |---|---|---|---|
+  | Next-year average (2017) | +0.146 | +0.31 | +0.23 |
+  | Completes next year (2017) | -0.003 | -0.089 | -0.035 |
+  | Completes secondary (2012) | -0.004 (donut -0.011) | -0.132 | -0.073 |
+
+  The global fits overstate the local effect by about 2x to 40x.
+- **X ⊥ eta fails.** SD(eta) roughly doubles across deciles of T (0.21 to 0.45 in
+  2017). Mean eta is inverted-U in T, so the linear index is misspecified.
+- **Sorting.** Covariates jump at 4.5 (2017 prior average +0.060, SE 0.006; prior
+  retention -0.018, SE 0.004; municipal -0.042, SE 0.006). The jumps persist without
+  Q = 4.5.
+- **Heterogeneity.** ITT on completion is -1.9 pp (SE 0.5) in secondary vs +0.5 (SE 0.7)
+  in primary 6-8. A real sign change across X, but small.
+- **Reproducibility.** The 2017 cohort was rebuilt under the updated adapter; its screen,
+  flatness and local-check numbers reproduced exactly.
+
+Verdict: not a usable PerfRDD application as specified. The heaping and sorting at 4.5
+may still be useful as evidence for performative thresholds. A salvage attempt would
+need a flexible first stage with heteroskedastic scaling, which is outside the current
+theory.
+
+— Claude
+
 ## 2026-09-28 — Chile retention pre-screen: alpha-only vs differing slopes (Claude)
 
 New adapter `experiments/datasets/chile_retention/adapter.py`, for the 2017 decision

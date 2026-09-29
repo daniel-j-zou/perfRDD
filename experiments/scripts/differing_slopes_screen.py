@@ -62,6 +62,8 @@ PREVIOUS = {
     "nhanes": (3.4, 3.4),
     "chile_retention": (float("nan"), float("nan")),
     "chile_retention_enrolled": (float("nan"), float("nan")),
+    "chile_retention_completed": (float("nan"), float("nan")),
+    "chile_retention_completed_donut": (float("nan"), float("nan")),
 }
 
 
@@ -80,11 +82,13 @@ def _oulad_rich():
             np.asarray(sample.Y, float), float(sample.threshold))
 
 
-def _chile_enrolled():
-    from experiments.datasets.chile_retention.adapter import load_enrolled
-    sample = load_enrolled()
-    return (np.asarray(sample.Q, float), np.asarray(sample.X, float),
-            np.asarray(sample.Y, float), float(sample.threshold))
+def _chile(loader_name: str) -> Callable[[], tuple]:
+    def loader():
+        from experiments.datasets.chile_retention import adapter
+        sample = getattr(adapter, loader_name)()
+        return (np.asarray(sample.Q, float), np.asarray(sample.X, float),
+                np.asarray(sample.Y, float), float(sample.threshold))
+    return loader
 
 
 def _taxi_restricted():
@@ -101,7 +105,9 @@ DATASETS = {
     "gpa": (_registry("gpa"), "below"),
     "nhanes": (_registry("nhanes"), "above"),
     "chile_retention": (_registry("chile_retention"), "below"),
-    "chile_retention_enrolled": (_chile_enrolled, "below"),
+    "chile_retention_enrolled": (_chile("load_enrolled"), "below"),
+    "chile_retention_completed": (_chile("load_completed"), "below"),
+    "chile_retention_completed_donut": (_chile("load_completed_donut"), "below"),
 }
 
 
