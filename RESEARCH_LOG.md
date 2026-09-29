@@ -9,6 +9,56 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-29 — Datasets from the education scan: Chile admission and NHANES lunch screened; others blocked (Claude)
+
+At the author's request, pulled the openly downloadable datasets from the scan and ran
+alpha-only vs differing slopes, flatness, and a design-based validation.
+
+New tools:
+- `experiments/scripts/local_rd_checks.py`: generic local linear RD of Y and of every
+  covariate at the cutoff, with an optional donut and subgroup split.
+- `screen_flatness.py --near H`.
+- New driver entries in `differing_slopes_screen.py`.
+
+Outputs: `outputs/screen_chile_admission_20260929/`, `outputs/screen_nhanes_lunch_20260929/`.
+
+**chile_admission** (PAES 2024, n = 267k, R^2 = 0.45; university-application
+eligibility Q >= 458).
+- The cutoff is clean: covariates barely move.
+- Local ITT: university enrollment 2024 +0.077 (0.009); any enrollment 2025 -0.017
+  (0.012), changing sign across NEM terciles (-0.040 / -0.017 / +0.017); university
+  2025 +0.052 (0.011).
+- Both models: boundary (lowest candidate cutoff) for all three outcomes.
+- Global near-cutoff effects: +0.14/+0.16, +0.10/+0.07 (wrong sign), +0.18/+0.19.
+- Cubic NEM/ranking terms (`*_flex`) flatten mean eta but leave the global effects
+  nearly unchanged. SD(eta) still rises from 75 to 107 across T deciles.
+- The CAE loan cutoff (485) cannot be studied, because CAE awards are not in the open
+  data.
+
+**nhanes_lunch** (2005-2016, n = 14k; free/reduced-price eligibility at 1.85).
+- No first stage: receipt +0.028 (0.037).
+- Lunches per week: +0.30 (0.15), matched by the global fits, but a treat-all boundary.
+- BMI: alpha-only "interior" at 1.30, worth 0.006 BMI units (noise).
+- Too small; not usable.
+
+**Blocked, not attempted:**
+- Kenya tracking (Harvard Dataverse): a guestbook form with personal details is required.
+- Colombia DataIcfes: account registration required.
+- CEP/SEDA: SEDA school files are pooled over 2009-2019, so there is no post-CEP
+  outcome; this would need state-level annual school files.
+- Texas ERC, NAEP restricted, ECLS-K:2024, LSAY, MEDC: applications.
+
+**Cross-dataset pattern.** In Chile retention, Chile admission and NHANES receipt, the
+global PerfRDD fits overstate the local RD effect at the cutoff by 2-40x, and sometimes
+get the sign wrong. The only match is NHANES lunches per week. Every dataset shows
+SD(eta) varying by about 1.5-2x across deciles of T, so the X ⊥ eta factorization fails
+in all the real data examined. Adding flexible X does not close the gap. This points to
+the additive outcome model and eta heteroskedasticity, not X nonlinearity. Suggestion:
+make "model-implied effect near the cutoff vs local RD" a standard specification check
+in the paper and pipeline.
+
+— Claude
+
 ## 2026-09-28 — Chile retention checks: not a usable application as specified (Claude)
 
 Follow-up to the pre-screen entry below. Outputs are in

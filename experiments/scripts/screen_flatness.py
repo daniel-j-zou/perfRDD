@@ -11,11 +11,15 @@ utility is. Two validation diagnostics are added:
   * mean and SD of eta by decile of the fitted index T (X independent of eta implies a
     flat mean and a constant SD).
 
-    PYTHONPATH=. python experiments/scripts/screen_flatness.py OUT.json NAME [NAME ...]
+    PYTHONPATH=. python experiments/scripts/screen_flatness.py OUT.json NAME [NAME ...] [--near H]
 """
 import json, sys
 
 NEAR = 0.5
+if "--near" in sys.argv:
+    k = sys.argv.index("--near")
+    NEAR = float(sys.argv[k + 1])
+    del sys.argv[k:k + 2]
 import numpy as np
 from experiments.scripts import differing_slopes_screen as S
 from experiments.methods.perfrdd import _basis_params

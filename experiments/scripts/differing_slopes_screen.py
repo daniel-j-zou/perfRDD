@@ -28,6 +28,7 @@ Run:
 from __future__ import annotations
 
 import argparse
+import importlib
 import json
 from pathlib import Path
 from typing import Callable
@@ -64,6 +65,15 @@ PREVIOUS = {
     "chile_retention_enrolled": (float("nan"), float("nan")),
     "chile_retention_completed": (float("nan"), float("nan")),
     "chile_retention_completed_donut": (float("nan"), float("nan")),
+    "chile_admission_univ_2024": (float("nan"), float("nan")),
+    "chile_admission_any_2025": (float("nan"), float("nan")),
+    "chile_admission_univ_2025": (float("nan"), float("nan")),
+    "chile_admission_univ_2024_flex": (float("nan"), float("nan")),
+    "chile_admission_any_2025_flex": (float("nan"), float("nan")),
+    "chile_admission_univ_2025_flex": (float("nan"), float("nan")),
+    "nhanes_lunch_subsidized": (float("nan"), float("nan")),
+    "nhanes_lunch_days": (float("nan"), float("nan")),
+    "nhanes_lunch_bmi": (float("nan"), float("nan")),
 }
 
 
@@ -91,6 +101,15 @@ def _chile(loader_name: str) -> Callable[[], tuple]:
     return loader
 
 
+def _loader(dataset: str, func: str) -> Callable[[], tuple]:
+    def loader():
+        module = importlib.import_module(f"experiments.datasets.{dataset}.adapter")
+        sample = getattr(module, func)()
+        return (np.asarray(sample.Q, float), np.asarray(sample.X, float),
+                np.asarray(sample.Y, float), float(sample.threshold))
+    return loader
+
+
 def _taxi_restricted():
     Q, X, Y = _taxi_clean(load_haggag_paci_vendor("VTS"))
     return Q, X, Y, 15.0
@@ -108,6 +127,15 @@ DATASETS = {
     "chile_retention_enrolled": (_chile("load_enrolled"), "below"),
     "chile_retention_completed": (_chile("load_completed"), "below"),
     "chile_retention_completed_donut": (_chile("load_completed_donut"), "below"),
+    "chile_admission_univ_2024": (_loader("chile_admission", "load_univ_2024"), "above"),
+    "chile_admission_any_2025": (_loader("chile_admission", "load_any_2025"), "above"),
+    "chile_admission_univ_2025": (_loader("chile_admission", "load_univ_2025"), "above"),
+    "chile_admission_univ_2024_flex": (_loader("chile_admission", "load_univ_2024_flex"), "above"),
+    "chile_admission_any_2025_flex": (_loader("chile_admission", "load_any_2025_flex"), "above"),
+    "chile_admission_univ_2025_flex": (_loader("chile_admission", "load_univ_2025_flex"), "above"),
+    "nhanes_lunch_subsidized": (_loader("nhanes_lunch", "load_subsidized"), "below"),
+    "nhanes_lunch_days": (_loader("nhanes_lunch", "load_lunch_days"), "below"),
+    "nhanes_lunch_bmi": (_loader("nhanes_lunch", "load_bmi"), "below"),
 }
 
 
