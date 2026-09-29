@@ -46,6 +46,70 @@ theory.
 
 — Claude
 
+## 2026-09-28 — Weekly non-boundary differing-slopes CLT and original-proof connection (Codex)
+
+Completed `manuscript/this_week.tex` Section 5 under an explicit sufficient
+set of deterministic spline, rank, moment, smoothness, and support conditions.
+Manuscript proof commit: `7fcd325`; edit-trail commit: `72a68b7`.
+Used isolated worktrees to preserve the author's Overleaf changes, the frozen
+prelim, and Claude's unrelated dirty data-analysis files.
+
+**Exact scope:** the outcome fit, both density fits, and evaluation residuals
+use one shared independently estimated OLS gamma. Evaluation membership I(eta)
+and any outcome-fitting membership S(eta) remain oracle/fixed. This proves the
+non-boundary contribution, NOT the fully feasible hard-trimmed estimator. A
+genuinely untrimmed version also needs global support/approximation compatibility;
+a finite compact spline window cannot silently remove nonzero target tails.
+
+**Outcome connection:** let H0 be the original outcome-regression space, r0 its
+alpha-functional representer, V=DX-proj_H0(DX), C=E[S VV'], and
+B=E[I p_X(phi-eta)]. The augmented representer is exactly
+`r_out = r0 + V' C^{-1} (B - E[S DX r0])`.
+The alpha part itself changes when DX is included; alpha and beta errors from
+the stacked fit cannot be treated as independent. Restricting beta2=0 AND
+removing DX recovers the original space/proof. Merely having a true beta2=0
+while fitting DX does not generally recover the restricted influence function.
+Also repaired the older `differing_slopes.tex` boundedness inequality, which
+omitted the beta-functional term. No other proof transfer to that draft.
+
+**Distribution connection:** the original generated-density pairing requires
+regularity of f_T E[tilde X|T]; the weighted-density extension requires the matrix
+`H(t)=f_T(t) E[tilde X tilde X'|T=t]` to have square-integrable weak derivatives.
+This is an explicit additional condition, not a consequence of X independent of
+eta. No matrix inversion or pointwise rank of H is required. Indeed H gamma=t q,
+where q=(g,p_X'). The buffered zero-trace spline basis permits integration by
+parts without assuming the true H vanishes at the outer endpoints. Included a
+banded-Gram inverse argument establishing local projection rates from stated
+full-basis approximation properties; no false global endpoint rate is used.
+
+**Completed steps:** derived the outcome coefficient expansion from exact
+normal equations, separating mean-zero structural error from sieve bias;
+proved Riesz convergence, density/EIV expansions, coefficient and derivative
+rates, nuisance-product bounds, and centered evaluation remainders. Combined
+all three gamma loadings before forming the variance. The intercept loading
+cancels, providing a sign check. Pointwise linearization at the true threshold,
+criterion consistency, and uniform curvature consistency establish the
+optimizer CLT; no unsupported substitution of a random threshold into a
+pointwise CLT is used. For s=3, K,L of order n^(11/60) satisfy the displayed
+undersmoothing and remainder conditions. These are sufficient, not optimal,
+rate and moment assumptions.
+
+**Checks:** `latexmk -pdf -interaction=nonstopmode -halt-on-error this_week.tex`
+and the equivalent command for `differing_slopes.tex` succeed. Weekly output is
+22 pages with no undefined references, duplicate labels, or horizontal overflow;
+visually inspected the affected pages. Older draft has unrelated pre-existing
+layout warnings; the corrected inequality renders correctly. A synthetic
+finite-Gram algebra check of the representer identity agreed to about 1e-14;
+this is an algebra diagnostic, not an empirical result. Rational-exponent
+checks confirm the displayed key remainder powers are negative at 11/60.
+
+**Still separate:** moved evaluation/outcome-fitting memberships, estimated
+endpoints and their joint covariance, verification of the sufficient conditions
+for the actual basis/DGP, and bootstrap validity. Updated the manuscript task
+board accordingly. Existing simulation results were not altered or rerun.
+
+— Codex
+
 ## 2026-09-28 — Chile retention pre-screen: alpha-only vs differing slopes (Claude)
 
 New adapter `experiments/datasets/chile_retention/adapter.py`, for the 2017 decision
