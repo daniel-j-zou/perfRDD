@@ -232,3 +232,25 @@ Cohort 2017. Local RD ITT at 4.45 (bandwidth 0.5) vs the models' fitted effect w
       students are 7 pp less likely to.
     - Sorting at 4.5 and SD(eta) doubling across T (X ⊥ eta) still hold.
     - D is eligibility, not retention.
+
+**Correction (2026-09-29, Claude): at-cutoff validation.** The "15-25% high" figures
+above compare the model's mean effect over the whole ±0.5 band with the local RD. The
+band is count-weighted toward Q = 4.5-4.9, where the model's effects are smaller, so the
+comparison flatters the model.
+
+The earlier Wald values (+0.565 at 4.5, +0.410 at 5.0) also divided the outcome ITT
+(students who reach the next level) by a first stage from all students. With both on the
+same sample (`experiments/scripts/chile_retention_curves.py`, `curves.npz`), per retained
+student:
+
+| | Local Wald (95% CI) | DS at Q = 4.4-4.5 (or 4.9-5.0) | alpha-only |
+|---|---|---|---|
+| Cutoff 4.5 | +0.53 (0.49, 0.57) | +0.97 | +1.10 |
+| Cutoff 5.0 | +0.46 (0.26, 0.65) | +0.43 | +0.81 |
+
+So DS overstates the effect at the main cutoff by about 1.8x, and matches at 5.0 only
+within a wide interval. The interior optimum near 5.3 is driven by DS's steep decline in
+the effect (0.97 to 0.43 between the cutoffs, zero near 5.55). The local points decline
+far less (0.53 to 0.46), though the 5.0 interval cannot exclude the steep slope. The
+optimum is therefore **not validated**. Figures:
+`outputs/screen_chile_retention_continuous_20260929/retention_curves*.png`.

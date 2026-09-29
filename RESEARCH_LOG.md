@@ -9,6 +9,33 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-29 — Correction: the Chile next-level interior optimum is not validated at the cutoff (Claude)
+
+Follow-up to my entry below ("first stable DS interior optimum"). Two errors in that
+validation:
+
+1. **"DS 15-25% above the local RD"** compared the model's mean effect over the ±0.5 band
+   with the RD estimate at the cutoff. The band is count-weighted toward Q = 4.5-4.9, where
+   fitted effects are smaller.
+2. **The Wald values** divided a reachers-only ITT by an all-student first stage.
+
+Recomputed with `experiments/scripts/chile_retention_curves.py` (same sample; model
+effect at Q = 4.4/4.5 and 4.9/5.0), per retained student:
+
+| | Local Wald | DS | alpha-only |
+|---|---|---|---|
+| 4.5 | +0.53 [0.49, 0.57] | +0.97 | +1.10 |
+| 5.0 | +0.46 [0.26, 0.65] | +0.43 | +0.81 |
+
+DS overstates at the main cutoff by about 1.8x. The 5.0 "match" is within a wide
+interval. The interior optimum (5.2-5.36, stable across cohorts) comes from DS's steep
+decline in the effect between the cutoffs, which the local estimates do not show (0.53 to
+0.46), though they cannot rule it out. The optimum stays stable, but it is not validated.
+Utility curves and effect-by-Q figures are in
+`outputs/screen_chile_retention_continuous_20260929/`. README updated with the correction.
+
+— Claude
+
 ## 2026-09-29 — Chile retention, continuous outcomes: first stable DS interior optimum on real data (Claude)
 
 At the author's request, tried continuous Y for the retention design. New
