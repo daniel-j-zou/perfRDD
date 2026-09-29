@@ -9,6 +9,40 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-29 — Differing-slopes proof reading order clarified (Codex)
+
+At the author's request, revised `differing_slopes.tex` §4.3 and Appendix 2
+to make the CLT structure human-readable: oracle sampling terms; deterministic
+spline bias and centered/product remainders; first-order error-in-variables;
+moving memberships and estimated endpoints; then the fixed-threshold CLT and
+curvature conversion. Exact decompositions and motivation now precede algebra.
+
+The outcome normal equations explain the joint alpha/beta representer and its
+within-fit covariance. Scalar and weighted density projection identities explain
+the centered index averages and the different weighted moment requirements.
+The ten-fold draft is preserved: no import of the weekly note's shared-gamma
+variance, no new assumptions, and no change to empirical results or the frozen
+prelim. Fixed a column-vector transpose, omitted estimator summation brackets,
+the non-boundary source count, and the DS superscript on a variance loading.
+
+**Status qualification:** this is an exposition revision, not completion of the
+fully feasible differing-slopes theorem. Weighted coefficient/product remainder
+checks and feasible criterion/curvature control still need the corresponding
+verification; outer-fitting membership negligibility remains high-level in DS5.
+The document now makes these caveats explicit rather than implying that plain
+Riesz convergence proves the whole expansion. The task-board readability item
+is closed without closing the remaining theory work.
+
+**Verification/provenance:** manuscript source commit `c354bc0`, changelog commit
+`0e55ea9`. `latexmk -pdf -interaction=nonstopmode -halt-on-error
+differing_slopes.tex` succeeds (39 pages); no undefined references, duplicate
+labels, or horizontal overflow. Reviewed rendered main-roadmap, appendix-proof,
+regularity-remarks, and taxi-table pages. Existing class-level vertical-box/font
+warnings remain. `git diff --check` passes. Local review PDF:
+`outputs/ds-proof-readability-20260929/differing_slopes.pdf` under the project root.
+
+— Codex
+
 ## 2026-09-29 — Correction: the Chile next-level interior optimum is not validated at the cutoff (Claude)
 
 Follow-up to my entry below ("first stable DS interior optimum"). Two errors in that
