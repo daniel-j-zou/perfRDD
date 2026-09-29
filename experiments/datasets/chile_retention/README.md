@@ -176,3 +176,59 @@ effect for students within 0.5 of the cutoff; both are intent-to-treat quantitie
   boundary; the maintained X ⊥ eta assumption fails; the global fits are not validated
   at the cutoff; and the cutoff shows sorting. The heaping and sorting may still serve as
   evidence for the performative-threshold direction.
+
+## Continuous outcomes (2026-09-29)
+
+`build_continuous(year)` has the same sample and X as `build_cohort` plus four outcomes:
+- next-year attendance (%);
+- the average two years later;
+- the average in the next grade level the first time it is reached (the same curriculum
+  for both groups, but observed only for students who reach it);
+- the first PAES reading/math-1 average, 2023-2025, for grade levels 6-7. Test takers
+  only; PAES files are read from `../chile_admission/data/raw/`.
+
+Loaders: `load_attendance_next`, `load_gpa_two_years`, `load_gpa_next_level`,
+`load_paes`, and the robustness loaders `load_gpa_next_level_donut`, `_2016`, `_2015`.
+Outputs: `outputs/screen_chile_retention_continuous_20260929/`.
+
+Differencing grades does not help:
+- Y minus this year's average gives exactly the same local and global estimates, because
+  Q is continuous at the cutoff and is absorbed by b(eta) + X'beta.
+- Y minus last year's average only nets out the sorting jump in prior grades.
+
+The real issue is that held-back students repeat material, which is why the
+same-grade-level outcome is included.
+
+Cohort 2017. Local RD ITT at 4.45 (bandwidth 0.5) vs the models' fitted effect within
+0.5 of the cutoff:
+
+| Y | Local ITT (SE) | alpha-only near / optimum | DS near / optimum [share of window treated] | DS gain over better boundary |
+|---|---|---|---|---|
+| Next-year attendance | +0.79 (0.16) | -0.58 / treat none | -0.72 / treat all | - (wrong sign in both) |
+| Average two years later | +0.122 (0.009) | +0.29 / treat all | +0.21 / 5.60 [89%] | 0.004 (flat) |
+| Average in the next grade level | +0.219 (0.008) | +0.39 / treat all | +0.27 / **5.34 [74%]** | **0.026** |
+| PAES (levels 6-7) | +4.6 (3.4) | +49 / treat all | +48 / 4.93 [45%] | 6.6 points |
+
+- **PAES:** the interior optimum comes from a model that overstates the local effect about
+  10x, so it is not credible. Eligibility also raises test-taking by +0.032 (0.010).
+- **Average in the next grade level is the one credible candidate.**
+  - DS interior optimum at 5.34 (treat Q <= 5.3). Stable: donut 5.36; 2016 cohort 5.31;
+    2015 cohort 5.20.
+  - Gain over retaining the whole window: 0.022-0.045 grade points per window student.
+    Gain over the deployed cutoff: 0.19 vs 0.08 in 2017.
+  - DS near-cutoff effect is +0.27 / +0.23 / +0.23 (2017/2016/2015) vs local
+    +0.219 / +0.199 / +0.197: 15-25% high, the closest agreement in any real dataset.
+    alpha-only is about 1.7x high.
+  - By prior-average tercile near the cutoff, DS gives +0.31 / +0.24 / +0.26 vs local
+    +0.21 / +0.20 / +0.21.
+  - **Second-cutoff check.** At the 5.0 cutoff (two failed subjects) the local Wald is
+    +0.410 per retained student (first stage 0.036). DS near Q = 4.95 implies +0.409 per
+    retained student, scaling by the 4.5 first stage (0.388). alpha-only implies +0.82.
+    This is suggestive only: the compliers differ between the two cutoffs.
+  - **Caveats:**
+    - c = 0 ignores the cost of an extra school year, so any positive cost moves the
+      optimum down.
+    - The outcome is observed only for students who reach the next grade by t+2; held-back
+      students are 7 pp less likely to.
+    - Sorting at 4.5 and SD(eta) doubling across T (X ⊥ eta) still hold.
+    - D is eligibility, not retention.

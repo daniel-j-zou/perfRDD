@@ -74,6 +74,13 @@ PREVIOUS = {
     "nhanes_lunch_subsidized": (float("nan"), float("nan")),
     "nhanes_lunch_days": (float("nan"), float("nan")),
     "nhanes_lunch_bmi": (float("nan"), float("nan")),
+    "chile_retention_attendance_next": (float("nan"), float("nan")),
+    "chile_retention_gpa_two_years": (float("nan"), float("nan")),
+    "chile_retention_gpa_next_level": (float("nan"), float("nan")),
+    "chile_retention_paes": (float("nan"), float("nan")),
+    "chile_retention_gpa_next_level_donut": (float("nan"), float("nan")),
+    "chile_retention_gpa_next_level_2016": (float("nan"), float("nan")),
+    "chile_retention_gpa_next_level_2015": (float("nan"), float("nan")),
 }
 
 
@@ -136,6 +143,13 @@ DATASETS = {
     "nhanes_lunch_subsidized": (_loader("nhanes_lunch", "load_subsidized"), "below"),
     "nhanes_lunch_days": (_loader("nhanes_lunch", "load_lunch_days"), "below"),
     "nhanes_lunch_bmi": (_loader("nhanes_lunch", "load_bmi"), "below"),
+    "chile_retention_attendance_next": (_loader("chile_retention", "load_attendance_next"), "below"),
+    "chile_retention_gpa_two_years": (_loader("chile_retention", "load_gpa_two_years"), "below"),
+    "chile_retention_gpa_next_level": (_loader("chile_retention", "load_gpa_next_level"), "below"),
+    "chile_retention_paes": (_loader("chile_retention", "load_paes"), "below"),
+    "chile_retention_gpa_next_level_donut": (_loader("chile_retention", "load_gpa_next_level_donut"), "below"),
+    "chile_retention_gpa_next_level_2016": (_loader("chile_retention", "load_gpa_next_level_2016"), "below"),
+    "chile_retention_gpa_next_level_2015": (_loader("chile_retention", "load_gpa_next_level_2015"), "below"),
 }
 
 

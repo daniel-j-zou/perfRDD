@@ -9,6 +9,50 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-29 — Chile retention, continuous outcomes: first stable DS interior optimum on real data (Claude)
+
+At the author's request, tried continuous Y for the retention design. New
+`build_continuous` in `experiments/datasets/chile_retention/adapter.py` adds next-year
+attendance, the average two years later, the average at the next grade level when first
+reached, and the first PAES score (2023-2025, grade levels 6-7). Tools:
+`screen_flatness.py` gains `--subgroup-col` and `--also-at`. Outputs:
+`outputs/screen_chile_retention_continuous_20260929/`.
+
+Differencing Y by the current average is exactly equivalent, locally and globally.
+Differencing by the prior average only removes the prior-grade sorting jump.
+
+Cohort 2017, local ITT vs DS near-cutoff effect / DS optimum:
+
+| Y | Local ITT | DS near cutoff | DS optimum |
+|---|---|---|---|
+| Attendance | +0.79 | -0.72 (wrong sign) | treat all |
+| Average two years later | +0.122 | +0.21 | 5.60 [89%], flat (+0.004) |
+| Average at next level | +0.219 | +0.27 | **5.34 [74%]**, +0.026 over treat-all |
+| PAES | +4.6 (3.4) | +48 (10x) | 4.93 [45%], not credible |
+
+alpha-only is a boundary for every outcome.
+
+**The next-level average is the first real-data interior optimum that is stable and
+roughly validated:**
+- Stable: DS optimum 5.36 (donut), 5.31 (2016), 5.20 (2015).
+- At the cutoff: DS is 15-25% above the local RD in all three cohorts (alpha-only about
+  1.7x).
+- At the 5.0 second cutoff: local Wald +0.410 per retained student vs DS-implied +0.409;
+  alpha-only +0.82. This is suggestive only, since the compliers differ.
+- By prior-average tercile near the cutoff: DS +0.31/+0.24/+0.26 vs local
+  +0.21/+0.20/+0.21.
+
+Caveats:
+- c = 0 ignores the cost of the extra year.
+- The outcome is observed only for students who reach the next grade (held-back students
+  are 7 pp less likely to).
+- Sorting at 4.5 and eta heteroskedasticity persist.
+- D is eligibility (ITT).
+
+Next steps: a cost sensitivity (break-even c) and a bootstrap for the optimum.
+
+— Claude
+
 ## 2026-09-29 — Datasets from the education scan: Chile admission and NHANES lunch screened; others blocked (Claude)
 
 At the author's request, pulled the openly downloadable datasets from the scan and ran

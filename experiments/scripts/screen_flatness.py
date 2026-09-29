@@ -11,11 +11,26 @@ utility is. Two validation diagnostics are added:
   * mean and SD of eta by decile of the fitted index T (X independent of eta implies a
     flat mean and a constant SD).
 
-    PYTHONPATH=. python experiments/scripts/screen_flatness.py OUT.json NAME [NAME ...] [--near H]
+    PYTHONPATH=. python experiments/scripts/screen_flatness.py OUT.json NAME [NAME ...] [--near H] [--subgroup-col J]
+
+--also-at V also reports the mean fitted effect for units within H of Q = V (e.g. a
+second institutional cutoff with its own local RD).
+--subgroup-col J also reports the mean fitted effect near the cutoff within terciles
+(among near-cutoff units) of covariate column J, to compare with local subgroup RDs.
 """
 import json, sys
 
 NEAR = 0.5
+SUBCOL = None
+ALSO_AT = None
+if "--also-at" in sys.argv:
+    k = sys.argv.index("--also-at")
+    ALSO_AT = float(sys.argv[k + 1])
+    del sys.argv[k:k + 2]
+if "--subgroup-col" in sys.argv:
+    k = sys.argv.index("--subgroup-col")
+    SUBCOL = int(sys.argv[k + 1])
+    del sys.argv[k:k + 2]
 if "--near" in sys.argv:
     k = sys.argv.index("--near")
     NEAR = float(sys.argv[k + 1])
@@ -62,6 +77,15 @@ for name in sys.argv[2:]:
         res[label] = {
             "mean_effect_window": float(eff[iw].mean()),
             "mean_effect_near_cutoff": float(eff[near].mean()),
+            **({"mean_effect_near_also_at": float(eff[np.abs(Qs - sign * ALSO_AT) < NEAR].mean()),
+                "n_near_also_at": int((np.abs(Qs - sign * ALSO_AT) < NEAR).sum())}
+               if ALSO_AT is not None else {}),
+            **({"near_effect_by_tercile": (lambda xs, t: {
+                "low": float(eff[near][xs <= t[0]].mean()),
+                "mid": float(eff[near][(xs > t[0]) & (xs <= t[1])].mean()),
+                "high": float(eff[near][xs > t[1]].mean())})(
+                    X[near, SUBCOL], np.quantile(X[near, SUBCOL], [1 / 3, 2 / 3]))}
+               if SUBCOL is not None else {}),
             "share_effect_negative_window": float((eff[iw] < 0).mean()),
             "effect_q10_q90_window": [float(v) for v in np.quantile(eff[iw], [0.1, 0.9])],
             # utilities per window student, relative to treating no one in the window
