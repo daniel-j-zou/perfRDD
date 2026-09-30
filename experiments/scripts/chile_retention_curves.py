@@ -8,7 +8,7 @@ Compute (same steps as ``screen_flatness.py``):
     5.0 cutoffs (per retained student; delta-method SE ignoring the first-stage error).
 
     PYTHONPATH=. python experiments/scripts/chile_retention_curves.py compute OUT.npz
-    PYTHONPATH=. python experiments/scripts/chile_retention_curves.py plot OUT.npz FIG.png
+    PYTHONPATH=. python experiments/scripts/chile_retention_curves.py plot OUT.npz FIG.png [--ds-only]
 """
 from __future__ import annotations
 
@@ -92,7 +92,7 @@ def compute(out: str) -> None:
     print(f"[wrote] {out}")
 
 
-def plot(npz: str, fig_path: str) -> None:
+def plot(npz: str, fig_path: str, ds_only: bool = False) -> None:
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -189,7 +189,7 @@ def plot(npz: str, fig_path: str) -> None:
         b.spines[side].set_visible(False)
     fs45 = float(r["wald|4.45"][2])
     for model, color, name in (("alpha_only", ao, "original (alpha only)"),
-                               ("differing_slopes", ds, "differing slopes")):
+                               ("differing_slopes", ds, "differing slopes"))[ds_only:]:
         qv, m = r[f"2017|{model}|effect_q"], r[f"2017|{model}|effect_mean"]
         keep2 = (qv >= 3.6) & (qv <= 6.2) & np.isfinite(m)
         b.plot(qv[keep2], m[keep2] / fs45, color=color, linewidth=2, label=name)
@@ -218,4 +218,4 @@ if __name__ == "__main__":
     if sys.argv[1] == "compute":
         compute(sys.argv[2])
     else:
-        plot(sys.argv[2], sys.argv[3])
+        plot(sys.argv[2], sys.argv[3], "--ds-only" in sys.argv)

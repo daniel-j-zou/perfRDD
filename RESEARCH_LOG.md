@@ -9,6 +9,39 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Retention: who drops out, and a lower-grade restriction (Claude)
+
+**Dropping out** (2017 cohort, eligible = average <= 4.4; ad hoc trace over all 2018-2025
+records, any status or track):
+
+| | Eligible | Others |
+|---|---|---|
+| No school record in 2018 or 2019 (left the system) | 3.4% | 0.4% |
+| ... never returns by 2025 | 2.1% | 0.3% |
+| ... returns 2020-2025 | 1.4% | 0.1% |
+| Enrolled 2018, no record 2019 (excl. graduates) | 7.3% | 0.7% |
+| Enrolled but no completed year in 2018-2019 | 6.3% | 0.4% |
+
+- Grade 7+ in 2017: secondary completed by 2025 for 72% of eligible vs 96% of others.
+- Most of the 46% missing next-level outcome among eligible students comes from being held
+  back again, not from leaving school.
+
+**Lower grades** (author's suggestion; standard DS only, no reweighting per author):
+- New loaders `load_gpa_next_level_grades2to6` / `_grades2to4`.
+- Grades 2-4: 83% of eligible vs 99% of others are observed, and 94% of eligible complete
+  2018.
+
+| Sample | DS phi-hat | DS vs local at 4.5 (ITT) | Local Wald at 4.5 / 5.0 | First stage at 4.5 | Window |
+|---|---|---|---|---|---|
+| Grades 2-6 | 5.24 [65%] | 0.44 vs 0.22 (2.0x) | 0.66 / 0.63 | 0.33 | 1.0% |
+| Grades 2-4 | 5.18 [60%] | 0.51 vs 0.16 (3.1x) | 0.83 / 0.54 | 0.20 | 0.4% |
+
+Less selection, but a worse fit at the cutoff, a weaker treatment and a tiny window. The
+note is not updated (author: only if the results are good). Outputs:
+`outputs/retention_lower_grades_20260930/`.
+
+— Claude
+
 ## 2026-09-30 — Explicit CLT summands and visible Step 3 relabeling (Codex)
 
 At the author's request, relabeled the visible generated-index subsections as

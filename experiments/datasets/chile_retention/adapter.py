@@ -264,7 +264,8 @@ def build_continuous(year: int = 2017) -> pd.DataFrame:
 
 
 def _sample(y_col: str, name: str, year: int, long_run: bool = False,
-            donut: bool = False, att_min: float | None = None) -> RDDSample:
+            donut: bool = False, att_min: float | None = None,
+            levels: tuple | None = None) -> RDDSample:
     if long_run == "continuous":
         df = build_continuous(year)
     else:
@@ -273,6 +274,8 @@ def _sample(y_col: str, name: str, year: int, long_run: bool = False,
         df = df[df.Q.round(1) != 4.5]
     if att_min is not None:            # drop the attendance route to retention
         df = df[df.att >= att_min]
+    if levels is not None:             # restrict grade levels (2-8 primary, 9-11 secondary)
+        df = df[df.grade_level.between(*levels)]
     df = df[df[y_col].notna()]
     return RDDSample(
         Q=df.Q.to_numpy(float),
@@ -356,3 +359,15 @@ def load_att_2018_all(year: int = 2017) -> RDDSample:
 def load_promotions_2yr(year: int = 2017) -> RDDSample:
     """Defined for every student: promotions in 2018-2019 (0-2), 0 for leavers."""
     return _sample("promotions_2yr", "chile_retention_promotions_2yr", year, long_run="continuous")
+
+
+def load_gpa_next_level_grades2to6(year: int = 2017) -> RDDSample:
+    """As load_gpa_next_level, primary grades 2-6 only (little dropping out)."""
+    return _sample("gpa_next_level", "chile_retention_gpa_next_level_grades2to6", year,
+                   long_run="continuous", levels=(2, 6))
+
+
+def load_gpa_next_level_grades2to4(year: int = 2017) -> RDDSample:
+    """As load_gpa_next_level, primary grades 2-4 only."""
+    return _sample("gpa_next_level", "chile_retention_gpa_next_level_grades2to4", year,
+                   long_run="continuous", levels=(2, 4))

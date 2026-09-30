@@ -11,7 +11,7 @@ Below-cutoff designs are mirrored for fitting; eta is reported in the original d
 (Q minus its prediction).
 
     PYTHONPATH=. python experiments/scripts/ds_curve_check.py compute OUT_DIR NAME [NAME ...]
-    PYTHONPATH=. python experiments/scripts/ds_curve_check.py plot OUT_DIR NAME [NAME ...]
+    PYTHONPATH=. python experiments/scripts/ds_curve_check.py plot OUT_DIR NAME [NAME ...] [--ds-only]
 """
 from __future__ import annotations
 
@@ -126,7 +126,7 @@ def compute(out_dir: Path, names):
         print(f"[done] {name}: DS phi {res['differing_slopes']['phi_opt']:.3f}", flush=True)
 
 
-def plot(out_dir: Path, names):
+def plot(out_dir: Path, names, ds_only: bool = False):
     import matplotlib
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
@@ -160,7 +160,7 @@ def plot(out_dir: Path, names):
         ax.axvspan(lo_w, hi_w, color=band, alpha=0.6, lw=0, label="trim window")
         order = np.argsort(a["eta_grid_orig"])
         for model, color, lab in (("alpha_only", ao, "original: alpha(eta)"),
-                                  ("differing_slopes", ds, "DS: a(eta) at mean X")):
+                                  ("differing_slopes", ds, "DS: a(eta) at mean X"))[ds_only:]:
             ax.plot(a["eta_grid_orig"][order], a[f"{model}_alpha"][order], color=color, lw=2, label=lab)
         ax.axhline(0, color=base, lw=1)
         ax.set_title(f"{title}\nfitted effect by latent type")
@@ -171,7 +171,7 @@ def plot(out_dir: Path, names):
         # U(phi)
         ax = axes[row, 1]
         phi = a["phi"]
-        for model, color, lab in (("alpha_only", ao, "original"), ("differing_slopes", ds, "DS")):
+        for model, color, lab in (("alpha_only", ao, "original"), ("differing_slopes", ds, "DS"))[ds_only:]:
             U = a[f"{model}_U"]
             ref = U[np.argmin(phi)] if r["cutoff"] < np.median(phi) or True else 0.0
             ax.plot(phi, U - ref, color=color, lw=2, label=lab)
@@ -208,5 +208,10 @@ def plot(out_dir: Path, names):
 
 
 if __name__ == "__main__":
-    mode, out, names = sys.argv[1], Path(sys.argv[2]), sys.argv[3:]
-    (compute if mode == "compute" else plot)(out, names)
+    ds_only = "--ds-only" in sys.argv
+    args = [a for a in sys.argv[1:] if a != "--ds-only"]
+    mode, out, names = args[0], Path(args[1]), args[2:]
+    if mode == "compute":
+        compute(out, names)
+    else:
+        plot(out, names, ds_only)
