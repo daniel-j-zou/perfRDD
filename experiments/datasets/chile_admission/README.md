@@ -60,3 +60,38 @@ Commands:
   its SD, and leaves the global effects nearly unchanged (+0.13/+0.15, +0.07/+0.06,
   +0.17/+0.18). So the gap is not covariate nonlinearity. It is consistent with the
   additive outcome model failing for a bounded outcome.
+
+## Continuous outcomes (2026-09-29)
+
+`build_continuous()` has the same sample and X, plus outcomes from the 2024/2025
+enrollment files:
+- `sel_2024` / `sel_2025`: selectivity of the enrolled program, the leave-one-out mean Q
+  of the program's first-year 2024 enrollees (programs with at least 10 such peers).
+  Enrolled students only.
+- `acred_2024` / `acred_2025`: the institution's accreditation years, 0 if not enrolled.
+- `duration_2024`: program duration in semesters, 0 if not enrolled.
+
+Outputs: `outputs/screen_chile_admission_continuous_20260929/`. "At cutoff" is the models'
+mean fitted effect for |Q - 458| < 5.
+
+| Y | Local ITT (SE) | By NEM tercile | alpha-only at cutoff | DS at cutoff | DS optimum [share of window] |
+|---|---|---|---|---|---|
+| sel_2024 | +9.8 (2.0) | +7.4 / +14.2 / +6.9 | -13.4 | -7.5 | 470 [69%] |
+| sel_2025 | +4.6 (1.8) | +3.0 / +8.7 / +1.7 | -15.3 | -9.7 | 482 [63%] |
+| acred_2024 | +0.155 (0.074) | +0.14 / +0.03 / +0.32 | -0.07 | -0.00 | 455 [71%] |
+| acred_2025 | -0.162 (0.072) | -0.24 / -0.17 / -0.02 | +0.21 | +0.12 | treat none (bnd) |
+| duration_2024 | +0.52 (0.10) | +0.43 / +0.41 / +0.78 | +0.84 | +0.94 | treat all (bnd) |
+
+- alpha-only is a boundary everywhere and gets the sign of the cutoff effect wrong for
+  four of the five outcomes.
+- DS gives interior optima close to the deployed 458 for selectivity and 2024
+  accreditation. Taken at face value, today's cutoff is about right: U at the optimum
+  beats the deployed cutoff by 0.07 selectivity points and 0.0001 accreditation years.
+- But DS also misses the sign or size at the cutoff (selectivity -7.5 vs +9.8;
+  accreditation 2024 about 0 vs +0.16; 2025 +0.12 vs -0.16). Its NEM gradient near the
+  cutoff (-21 / -5 / +5 for selectivity) does not match the local one (+7 / +14 / +7).
+  None of these optima is validated.
+- Substantively, the local estimates show a short-run gain and a longer-run loss.
+  Eligibility moves students into more selective, longer, better-accredited programs in
+  2024, but by 2025 the accreditation-weighted enrollment falls (-0.16), concentrated in
+  low-NEM students. That is a mismatch/dropout pattern.

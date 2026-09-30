@@ -82,6 +82,11 @@ PREVIOUS = {
     "chile_retention_gpa_next_level_2016": (float("nan"), float("nan")),
     "chile_retention_gpa_next_level_2015": (float("nan"), float("nan")),
     "chile_retention_gpa_next_level_att85": (float("nan"), float("nan")),
+    "chile_admission_sel_2024": (float("nan"), float("nan")),
+    "chile_admission_sel_2025": (float("nan"), float("nan")),
+    "chile_admission_acred_2024": (float("nan"), float("nan")),
+    "chile_admission_acred_2025": (float("nan"), float("nan")),
+    "chile_admission_duration_2024": (float("nan"), float("nan")),
 }
 
 
@@ -152,6 +157,11 @@ DATASETS = {
     "chile_retention_gpa_next_level_2016": (_loader("chile_retention", "load_gpa_next_level_2016"), "below"),
     "chile_retention_gpa_next_level_2015": (_loader("chile_retention", "load_gpa_next_level_2015"), "below"),
     "chile_retention_gpa_next_level_att85": (_loader("chile_retention", "load_gpa_next_level_att85"), "below"),
+    "chile_admission_sel_2024": (_loader("chile_admission", "load_sel_2024"), "above"),
+    "chile_admission_sel_2025": (_loader("chile_admission", "load_sel_2025"), "above"),
+    "chile_admission_acred_2024": (_loader("chile_admission", "load_acred_2024"), "above"),
+    "chile_admission_acred_2025": (_loader("chile_admission", "load_acred_2025"), "above"),
+    "chile_admission_duration_2024": (_loader("chile_admission", "load_duration_2024"), "above"),
 }
 
 

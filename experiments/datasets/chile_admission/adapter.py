@@ -41,6 +41,8 @@ X_COLS = ["nem", "ranking", "top10", "public", "private", "technical", "nonregul
 # NEM interacted with the technical track (X may contain any fixed transformations).
 FLEX_COLS = X_COLS + ["nem2", "nem3", "ranking2", "ranking3", "nem_x_ranking", "nem_x_technical"]
 
+CONTINUOUS = ("sel_2024", "sel_2025", "acred_2024", "acred_2025", "duration_2024")
+
 SCORES = RAW / "PAES-2024-Inscritos-Puntajes" / "A_INSCRITOS_PUNTAJES_PAES_2024_PUB_MRUN.csv"
 SOCIO = RAW / "PAES-2024-Socioeconomicos" / "B_SOCIOECONOMICO_DOMICILIO_PAES_2024_PUB_MRUN.csv"
 
@@ -110,6 +112,62 @@ def build() -> pd.DataFrame:
     return out
 
 
+def _programs(year: int) -> pd.DataFrame:
+    """One undergraduate enrollment per student in `year` (first-year row preferred):
+    program code, institution accreditation years and total program duration."""
+    f = next((RAW / f"Matricula-Ed-Superior-{year}").glob("*.csv"))
+    m = pd.read_csv(f, sep=";", dtype=str,
+                    usecols=["mrun", "codigo_unico", "anio_ing_carr_ori", "nivel_global",
+                             "acre_inst_anio", "dur_total_carr"])
+    m = m[m.nivel_global == "Pregrado"].assign(
+        mrun=lambda d: _num(d.mrun), first=lambda d: (d.anio_ing_carr_ori == str(year)).astype(int),
+        acred=lambda d: _num(d.acre_inst_anio).fillna(0.0), dur=lambda d: _num(d.dur_total_carr))
+    m = m.dropna(subset=["mrun"]).sort_values(["mrun", "first"], ascending=[True, False])
+    return m.drop_duplicates("mrun").set_index("mrun")[["codigo_unico", "first", "acred", "dur"]]
+
+
+def build_continuous() -> pd.DataFrame:
+    """build()'s sample plus continuous outcomes.
+
+    sel_2024 / sel_2025  selectivity of the program enrolled in that year: mean Q of the
+                         other 2024 registrants enrolled in it as first-year students in
+                         2024 (leave-one-out; programs with < 10 such peers -> missing).
+                         Missing if not enrolled (conditional outcome).
+    acred_2024 / acred_2025  accreditation years (0-7) of the institution enrolled in;
+                         0 if not enrolled or not accredited (unconditional).
+    duration_2024        total program duration in semesters; 0 if not enrolled.
+    """
+    cache = PROCESSED / "admission_2024_continuous.csv.gz"
+    if cache.exists():
+        return pd.read_csv(cache)
+    base = build()
+    s = pd.read_csv(SCORES, sep=";", dtype=str, encoding="utf-8-sig",
+                    usecols=["MRUN", "PROMEDIO_CM_MAX", "PTJE_NEM"])
+    s["MRUN"] = _num(s.MRUN)
+    s = s[s.MRUN.notna() & ~s.MRUN.duplicated(keep=False)]
+    s = s[(_num(s.PROMEDIO_CM_MAX) > 0) & (_num(s.PTJE_NEM) > 0)]
+    mrun = s.MRUN.astype(np.int64).to_numpy()
+    if len(mrun) != len(base):
+        raise RuntimeError("sample mismatch with build()")
+    df = base.assign(mrun=mrun)
+    p24, p25 = _programs(2024), _programs(2025)
+    df = df.join(p24.add_suffix("_24"), on="mrun").join(p25.add_suffix("_25"), on="mrun")
+    peers = df[df.first_24 == 1].groupby("codigo_unico_24").Q.agg(["sum", "count"])
+    tot = df.codigo_unico_24.map(peers["sum"])
+    cnt = df.codigo_unico_24.map(peers["count"])
+    own = np.where(df.first_24 == 1, df.Q, 0.0)
+    loo_cnt = cnt - (df.first_24 == 1)
+    df["sel_2024"] = np.where(loo_cnt >= 10, (tot - own) / loo_cnt, np.nan)
+    prog_mean = (peers["sum"] / peers["count"]).where(peers["count"] >= 10)
+    df["sel_2025"] = df.codigo_unico_25.map(prog_mean)
+    df["acred_2024"] = df.acred_24.fillna(0.0)
+    df["acred_2025"] = df.acred_25.fillna(0.0)
+    df["duration_2024"] = df.dur_24.fillna(0.0)
+    out = df.drop(columns=[c for c in df.columns if c.endswith(("_24", "_25"))] + ["mrun"])
+    out.to_csv(cache, index=False)
+    return out
+
+
 def _flex(df: pd.DataFrame) -> pd.DataFrame:
     z = lambda v: (v - v.mean()) / v.std()
     n, r = z(df.nem), z(df.ranking)
@@ -118,7 +176,8 @@ def _flex(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def _sample(y_col: str, flex: bool = False) -> RDDSample:
-    df = build()
+    df = build_continuous() if y_col in CONTINUOUS else build()
+    df = df[df[y_col].notna()]
     cols = FLEX_COLS if flex else X_COLS
     if flex:
         df = _flex(df)
@@ -159,3 +218,23 @@ def load_any_2025_flex() -> RDDSample:
 
 def load_univ_2025_flex() -> RDDSample:
     return _sample("univ_2025", flex=True)
+
+
+def load_sel_2024() -> RDDSample:
+    return _sample("sel_2024")
+
+
+def load_sel_2025() -> RDDSample:
+    return _sample("sel_2025")
+
+
+def load_acred_2024() -> RDDSample:
+    return _sample("acred_2024")
+
+
+def load_acred_2025() -> RDDSample:
+    return _sample("acred_2025")
+
+
+def load_duration_2024() -> RDDSample:
+    return _sample("duration_2024")

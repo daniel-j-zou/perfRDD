@@ -9,6 +9,43 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-29 — Chile admission continuous outcomes; Chile data-access note (Claude)
+
+At the author's request:
+- **Continuous outcomes for the PAES 2024 cutoff** (Q >= 458): program selectivity in
+  2024/2025 (leave-one-out peer mean Q, enrollees only), institution accreditation years
+  in 2024/2025 (0 if not enrolled), and program duration in 2024. Built with
+  `build_continuous()` in `experiments/datasets/chile_admission/adapter.py`.
+- **Access routes:** documented in `experiments/datasets/CHILE_DATA_ACCESS.md`.
+
+Local ITT at 458:
+- selectivity 2024 +9.8 (2.0); 2025 +4.6 (1.8);
+- accreditation 2024 +0.155 (0.074); 2025 -0.162 (0.072);
+- duration +0.52 (0.10).
+
+This is a short-run gain and a year-later loss concentrated in low-NEM students
+(mismatch).
+
+Global fits:
+- alpha-only is a boundary for every outcome, with the wrong sign at the cutoff for four
+  of five.
+- DS has interior optima near the deployed cutoff for selectivity (470, 482) and 2024
+  accreditation (455). But at the cutoff it gets the sign wrong for selectivity (-7.5 vs
+  +9.8) and misses accreditation (about 0 vs +0.155). Its NEM gradient contradicts the
+  local subgroups. Not validated.
+
+The pattern across all Chile designs holds: the global fits do not reproduce the cutoff
+evidence.
+
+Data access (details in the note):
+- DEMRE's open portal has PSU-era files (2004/2008-2027) with a DEMRE-only `ID_aux`, not
+  MRUN.
+- MRUN-linked PSU data: request via solicituddatos@demre.cl.
+- SIMCE student-level scores, subject grades, CAE awards and program earnings: Ley 20.285
+  requests (20 business days, plus 10).
+
+— Claude
+
 ## 2026-09-29 — Differing-slopes proof reading order clarified (Codex)
 
 At the author's request, revised `differing_slopes.tex` §4.3 and Appendix 2
