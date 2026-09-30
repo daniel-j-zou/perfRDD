@@ -9,6 +9,16 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Follow-up: Step 3c update rebased over concurrent Overleaf edit (Codex)
+
+The Overleaf push advanced while the Step 3c goal clarification was being
+published. Rebased onto the concurrent commit, preserving its deletion of the
+alpha-note goal, recompiled the merged source, and pushed the resulting source
+as `0260d9d` with changelog `29863b1`. The Step 3c text and proof derivation
+are unchanged from the logged clarification; only the source hash changed.
+
+— Codex
+
 ## 2026-09-30 — Clarify Step 3c's two consistency uses (Codex)
 
 Replaced Step 3c's goal in `this_week.tex` with the author's approved explanation:
