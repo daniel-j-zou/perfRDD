@@ -9,6 +9,22 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Weekly Step 3c retained for later formal lemma (Codex)
+
+At the author's request, commented out the Step 3c generated-index
+spline-consistency calculation in the weekly note while preserving its full
+source text. The task board now records that, when this material moves to
+`differing_slopes.tex`, it should become a formal lemma with explicit assumptions,
+conclusion, and proof. Step 3b and Step 3d remain visible in the weekly PDF;
+no derivation was deleted or changed.
+
+Manuscript source `3ec5b0e`, changelog `7f73071`; the latter includes the
+source hash. The rebased source compiles as a 12-page weekly note with no
+undefined references, duplicate labels or horizontal overflow; `git diff --check`
+passes. Main manuscript and frozen prelim were not edited.
+
+— Codex
+
 ## 2026-09-30 — Follow-up: Step 3c update rebased over concurrent Overleaf edit (Codex)
 
 The Overleaf push advanced while the Step 3c goal clarification was being
