@@ -9,6 +9,31 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Retention: why the next-level outcome is missing; correction (Claude)
+
+Script: `experiments/scripts/chile_retention_missing_outcome.py`. Y = the average in grade
+L+1 the first time the student has a final (promoted/retained) record there in the
+regular track, in 2018 or 2019. 94% of eligible students were retained in 2017, so they
+must repeat in 2018 and then complete L+1 in 2019. Shares of students (2017 cohort):
+
+| Reason Y is missing | All: elig. | All: others | 2-6: elig. | 2-4: elig. |
+|---|---|---|---|---|
+| Observed | 54.1% | 98.1% | 73.2% | 82.7% |
+| Moved to adult / special / other track | 13.9% | 0.6% | 2.0% | 0.0% |
+| Held back again in 2018 | 13.6% | 0.1% | 12.1% | 8.5% |
+| Withdrew (no final grade in 2018 or 2019) | 12.1% | 0.7% | 6.8% | 4.6% |
+| No record at all (left the system) | 5.6% | 0.5% | 4.0% | 3.0% |
+| Other (other level, duplicate records) | 0.7% | 0.0% | 2.0% | 1.1% |
+
+- **Correction** to the entry "Retention: who drops out, and a lower-grade restriction"
+  below: being held back again is not "most" of the 46% missing among eligible
+  students. It is about 30%, as large as moving to adult education. Withdrawing or
+  leaving is about 38%.
+- In grades 2-4, being held back again is half of the 17% missing, and adult education
+  plays no role.
+- The note's Data paragraph lists leaving, withdrawing and being held back again, but not
+  moving to adult education. That is 14% of eligible students in the full sample.
+
 ## 2026-09-30 — Retention: three samples with the same tuning; note updated (Claude)
 
 At the author's request, all grades, primary grades 2-6 and grades 2-4 are refit with the
