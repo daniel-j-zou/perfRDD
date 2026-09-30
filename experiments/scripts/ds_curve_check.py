@@ -44,7 +44,7 @@ def _fit(Qs, X, Y, eta, D, info, interact, rng, lam=None):
     return c[-nb:], beta2, lam
 
 
-def _setup(name, eps=S.EPS, dknots=0):
+def _setup(name, eps=S.EPS, dknots=0, outer=(0.5, 99.5)):
     loader, direction = S.DATASETS[name]
     Q, X, Y, thr = loader()
     ok = np.isfinite(Q) & np.isfinite(Y) & np.isfinite(X).all(axis=1)
@@ -56,7 +56,8 @@ def _setup(name, eps=S.EPS, dknots=0):
     eta = Qs - Xd @ gamma
     T = Qs - eta
     l0, u0 = thr_s - np.quantile(T, 1 - eps), thr_s - np.quantile(T, eps)
-    lo, hi = np.percentile(eta, 0.5), np.percentile(eta, 99.5)
+    lo, hi = np.percentile(eta, outer[0]), np.percentile(eta, outer[1])
+    unclipped = (min(l0, u0), max(l0, u0))
     l0, u0 = max(min(l0, u0), lo), min(max(l0, u0), hi)
     D = (Qs >= thr_s).astype(float)
     kn = max(4, int(round(int(D.sum()) ** (1 / 5)))) + 1 + dknots
@@ -65,7 +66,7 @@ def _setup(name, eps=S.EPS, dknots=0):
     tails = fit_weighted_tails(T, X, tuple(np.quantile(T, S.DENSITY_QUANTILES)))
     win = ((eta >= l0) & (eta <= u0)).astype(float)
     return dict(Q=Q, X=X, Y=Y, thr=thr, sign=sign, Qs=Qs, thr_s=thr_s, eta=eta, T=T,
-                l0=l0, u0=u0, lo=lo, hi=hi, D=D, kn=kn, info=info, grid=grid,
+                l0=l0, u0=u0, lo=lo, hi=hi, D=D, unclipped=unclipped, kn=kn, info=info, grid=grid,
                 tails=tails, win=win)
 
 

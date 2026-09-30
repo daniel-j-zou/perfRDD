@@ -9,6 +9,36 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Retention application: outcome selection, knot count, trim-window truncation (Claude)
+
+Follow-ups to the retention write-up (manuscript `f477f60`, changelog `63fd1ec`).
+
+1. **Selected outcome (the main caveat).** The 2017 cohort has 2,167,129 students.
+   38,229 (1.8%) are eligible (average <= 4.4); averages have mean 5.76, SD 0.62. The
+   next-level average is observed for 54% of eligible students against 98% of others:
+   70% at 4.4, 58% at 4.2, 51% at 4.0, 31% at 3.5, and 82% at 4.5. Only 52% of
+   eligible and retained students reach and complete the next grade by 2019. The effect
+   is therefore likely biased upward, especially far below the cutoff. This could drive
+   the fitted decline behind the 5.34 maximizer. The note's earlier "7 points" was the
+   local jump only.
+2. **Knots: keep 8** (new `experiments/scripts/ds_knots_check.py`). Holdout MSE is
+   0.12228-0.12229 for 8/12/16/24/32 knots. In the window a(eta) is essentially
+   unchanged; more knots only add wiggles. phi-hat is 5.34/5.33/5.32/5.30/5.28.
+3. **The trim window runs past the eta support.** The unclipped eps = 0.10 window
+   reaches eta = -1.97 on the original scale, beyond the 0.5th percentile (-1.10). It
+   still does at eps 0.15/0.20/0.25. The implementation truncates the window at the
+   spline support edge, so the theory's margin condition fails. The alpha-hat spike at
+   the edge is an artifact: 0.32, 0.20 or -0.03 for supports 0.5-99.5 / 0.1-99.9 /
+   0.05-99.95%. phi-hat is 5.34/5.34/5.37 across those supports and 5.32/5.30/5.30 for
+   eps 0.15/0.20/0.25 (fixed ridge 0.1). `ds_curve_check._setup` gained an `outer`
+   argument.
+
+The author's Overleaf edits (e234bc4, 8b4441a) trimmed §1.1 and the TODO box; the
+resolution kept them. Note that master has an undefined `eq:week-estimator` reference in
+Simulations, left by 8b4441a's removal of the utility-maximization subsection.
+
+— Claude
+
 ## 2026-09-29 — Retention application written into this_week.tex §1.1 (Claude)
 
 At the author's request, wrote up the Chile grade-retention differing-slopes application
@@ -4302,3 +4332,12 @@ writing a summary; no incomplete output is used in the manuscript. The
 completed 50-by-199 pilot remains the verified bootstrap result. A larger
 replication should be rerun on the cluster or with a more efficient estimator
 implementation before making publication-grade coverage claims.
+
+## 2026-09-30 — Relocate nonlinear simulation to differing-slopes draft (Codex)
+
+The focused nonlinear outcome-flexibility simulation is now treated as part of
+the final differing-slopes numerical study rather than the temporary weekly
+note. The moved section keeps the quadratic $\alpha(\eta)$ and $b(\eta)$ DGP,
+the linear/quadratic/spline outcome fits, and the verified 50-by-199 percentile
+bootstrap table. The older linear-DGP simulation remains in the final draft's
+pre-existing numerical-study material and was not changed by this relocation.
