@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Clarify Step 3c's two consistency uses (Codex)
+
+Replaced Step 3c's goal in `this_week.tex` with the author's approved explanation:
+function consistency transfers Step 3b's population-averaged expansion to the
+actual evaluation sample; derivative consistency allows replacement of the fitted
+derivative by the true derivative in Step 3d. Derivation unchanged. Preserved
+concurrent author edits, including deletion of the alpha-note goal.
+
+Source `34c99d8`, changelog `ecdf902`; task board updated. Verified with
+`latexmk -pdf -interaction=nonstopmode -halt-on-error this_week.tex` and
+`git diff --check`. No main-manuscript or prelim edits.
+
+— Codex
+
 ## 2026-09-30 — Weekly proof uses n observations per split (Codex)
 
 Author permits all splits to have size n. Implemented in `this_week.tex`:
