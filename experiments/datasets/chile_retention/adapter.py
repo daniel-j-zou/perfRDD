@@ -192,6 +192,7 @@ def _first_paes() -> pd.Series:
 def build_continuous(year: int = 2017) -> pd.DataFrame:
     """build_cohort's sample and covariates plus continuous outcomes.
 
+    att              attendance (%) in `year` itself (for the >= 85% restriction);
     attendance_next  attendance (%) in year+1, students completing year+1;
     gpa_two_years    average in year+2 (any grade);
     gpa_next_level   average in grade level+1 the first time it is reached (year+1 if
@@ -235,6 +236,7 @@ def build_continuous(year: int = 2017) -> pd.DataFrame:
         "private": (now.COD_DEPE2 == 3).astype(float).to_numpy(),
         "rural": (now.RURAL_RBD == 1).astype(float).to_numpy(),
         "retained": (now.SIT_FIN == "R").astype(float).to_numpy(),
+        "att": now.ASISTENCIA.to_numpy(),
         "next_gpa": g1.to_numpy(),
         "attendance_next": now.N1_ASISTENCIA.where(g1.notna()).to_numpy(),
         "gpa_two_years": g2.to_numpy(),
@@ -249,13 +251,15 @@ def build_continuous(year: int = 2017) -> pd.DataFrame:
 
 
 def _sample(y_col: str, name: str, year: int, long_run: bool = False,
-            donut: bool = False) -> RDDSample:
+            donut: bool = False, att_min: float | None = None) -> RDDSample:
     if long_run == "continuous":
         df = build_continuous(year)
     else:
         df = build_long_run(year) if long_run else build_cohort(year)
     if donut:
         df = df[df.Q.round(1) != 4.5]
+    if att_min is not None:            # drop the attendance route to retention
+        df = df[df.att >= att_min]
     df = df[df[y_col].notna()]
     return RDDSample(
         Q=df.Q.to_numpy(float),
@@ -323,3 +327,9 @@ def load_gpa_next_level_2016() -> RDDSample:
 
 def load_gpa_next_level_2015() -> RDDSample:
     return load_gpa_next_level(2015)
+
+
+def load_gpa_next_level_att85(year: int = 2017) -> RDDSample:
+    """As load_gpa_next_level, students with attendance >= 85% in `year`."""
+    return _sample("gpa_next_level", "chile_retention_gpa_next_level_att85", year,
+                   long_run="continuous", att_min=85.0)

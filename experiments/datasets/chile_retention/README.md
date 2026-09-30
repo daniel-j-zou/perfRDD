@@ -254,3 +254,17 @@ the effect (0.97 to 0.43 between the cutoffs, zero near 5.55). The local points 
 far less (0.53 to 0.46), though the 5.0 interval cannot exclude the steep slope. The
 optimum is therefore **not validated**. Figures:
 `outputs/screen_chile_retention_continuous_20260929/retention_curves*.png`.
+
+**Restricting to one failed subject is not possible with public data** (2026-09-29).
+Subject grades are not in the files. The closest observable restriction drops the
+attendance route to retention: attendance >= 85% in the decision year
+(`load_gpa_next_level_att85`, 90% of students). It changes almost nothing:
+- Retained share: 0.84 at 4.4 and 0.40 at 4.5 (vs 0.85 and 0.45 below 85% attendance).
+- Local Wald: +0.50 [0.46, 0.55] at 4.5 and +0.46 [0.25, 0.66] at 5.0.
+- DS optimum: 5.34 [73%].
+- DS per retained at Q = 4.4/4.5: 0.93, still about 1.85x the local estimate; at
+  4.9/5.0: 0.47.
+
+The fuzziness at the cutoff comes from the unobserved failed-subject count. Just below
+4.5, the promoted 16% failed no subject. From 4.5 to 5.0, the retained 9-40% failed two
+or more. Attendance is not the source.

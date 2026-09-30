@@ -81,6 +81,7 @@ PREVIOUS = {
     "chile_retention_gpa_next_level_donut": (float("nan"), float("nan")),
     "chile_retention_gpa_next_level_2016": (float("nan"), float("nan")),
     "chile_retention_gpa_next_level_2015": (float("nan"), float("nan")),
+    "chile_retention_gpa_next_level_att85": (float("nan"), float("nan")),
 }
 
 
@@ -150,6 +151,7 @@ DATASETS = {
     "chile_retention_gpa_next_level_donut": (_loader("chile_retention", "load_gpa_next_level_donut"), "below"),
     "chile_retention_gpa_next_level_2016": (_loader("chile_retention", "load_gpa_next_level_2016"), "below"),
     "chile_retention_gpa_next_level_2015": (_loader("chile_retention", "load_gpa_next_level_2015"), "below"),
+    "chile_retention_gpa_next_level_att85": (_loader("chile_retention", "load_gpa_next_level_att85"), "below"),
 }
 
 
