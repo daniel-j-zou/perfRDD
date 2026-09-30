@@ -9,6 +9,39 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Retention: three samples with the same tuning; note updated (Claude)
+
+At the author's request, all grades, primary grades 2-6 and grades 2-4 are refit with the
+same hyperparameters: eps 0.10, 8 interior knots, ridge 0.1, eta support 0.5-99.5%,
+c = 0, standard DS with no reweighting. Script: `experiments/scripts/retention_settings.py`.
+Outputs: `../outputs/retention_settings_20260930/` (settings.json, retention_settings.png).
+
+| | All grades | Grades 2-6 | Grades 2-4 |
+|---|---|---|---|
+| n with Y observed (eligible) | 2,108,770 (20,699) | 1,195,288 (8,817) | 733,087 (4,524) |
+| Y observed: eligible / others | 54% / 98% | 73% / 99% | 83% / 99% |
+| Trim window (eta-hat; share) | [-1.10,-0.68]; 2.6% | [-1.06,-0.81]; 1.0% | [-1.08,-0.94]; 0.4% |
+| phi-hat [window treated] | 5.34 [74%] | 5.23 [65%] | 5.15 [58%] |
+| Gain vs deployed / vs treat window | 0.106 / 0.026 | 0.083 / 0.037 | 0.071 / 0.052 |
+| beta2: prior average / grade level | -0.28 / -0.14 | -0.27 / -0.13 | -0.27 / -0.10 |
+| First stage at 4.5 | 0.41 | 0.33 | 0.19 |
+| ITT at 4.5: local RD (SE) vs model | 0.22 (0.008) vs 0.38 | 0.22 (0.013) vs 0.44 | 0.16 (0.019) vs 0.50 |
+
+- These match the earlier same-hyperparameter runs. The 2-6 and 2-4 rows in the entry
+  below (5.24 / 5.18) used rule-based knots.
+- Window: upper end = 4.45 - Q_0.1(T-hat), with Q_0.1(T-hat) = 5.13 / 5.26 / 5.39. The
+  lower end (-1.97 unclipped, all grades) is cut at the 0.5th percentile of eta-hat.
+- Interior maximizer: alpha-hat > 0 across the window, and X'beta2 makes the mean fitted
+  effect of window students cross zero. All grades, by Q (alpha / X'beta2 / total):
+  4.4: 0.17 / 0.27 / 0.44; 5.2: 0.16 / -0.11 / 0.05; 5.4: 0.15 / -0.20 / -0.04.
+  The total crosses zero between 5.2 and 5.4 (grades 2-6) and between 5.0 and 5.2
+  (grades 2-4), consistent with phi-hat.
+- The author asked for the note to be updated with the three settings. Manuscript commit
+  7675bc8 (changelog f8c238c) adds a table, the 3x2 figure and short paragraphs on the
+  window size and the interior maximizer.
+- The note still references `tab:week-retention-robust` three times, but that table was
+  removed on Overleaf. This is left for the author.
+
 ## 2026-09-30 — Retention: who drops out, and a lower-grade restriction (Claude)
 
 **Dropping out** (2017 cohort, eligible = average <= 4.4; ad hoc trace over all 2018-2025
