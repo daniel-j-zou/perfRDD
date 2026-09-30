@@ -9,6 +9,14 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Retention: missing-outcome table added to the note (Claude)
+
+Follow-up to "Retention: why the next-level outcome is missing; correction" below. At the
+author's request, the breakdown is now Table `tab:week-retention-missing` in
+`this_week.tex` (manuscript 4990dbf, changelog cade4e5). The Data paragraph now includes
+adult or special education among the reasons. The script takes an optional JSON path;
+exact shares are in `../outputs/retention_missing_20260930/missing.json`.
+
 ## 2026-09-30 — Retention: why the next-level outcome is missing; correction (Claude)
 
 Script: `experiments/scripts/chile_retention_missing_outcome.py`. Y = the average in grade

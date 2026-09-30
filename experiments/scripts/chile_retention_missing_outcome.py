@@ -5,8 +5,10 @@ the student's 2018 (and, where needed, 2019) records in the raw files, all statu
 held back again, moved to an adult/special/other track, withdrew without a final grade,
 no record at all, or other. Reported for all grades, grades 2-6 and grades 2-4.
 
-    PYTHONPATH=. python experiments/scripts/chile_retention_missing_outcome.py
+    PYTHONPATH=. python experiments/scripts/chile_retention_missing_outcome.py [OUT.json]
 """
+import json
+import sys
 import numpy as np
 import pandas as pd
 
@@ -84,6 +86,7 @@ reason[m & at_L & (s18 == "P")] = "retained 2017; promoted 2018; 2019: " + sit19
 reason[m & ~at_L] = "retained 2017; 2018: " + sit18[m & ~at_L]
 reason[observed] = "observed"
 
+summary = {}
 for lab, sub in [("All grades", np.ones(len(now), bool)),
                  ("Grades 2-6", L.between(2, 6).to_numpy()),
                  ("Grades 2-4", L.between(2, 4).to_numpy())]:
@@ -105,3 +108,9 @@ for lab, sub in [("All grades", np.ones(len(now), bool)),
     g = pd.DataFrame({"eligible": grp[d.elig].value_counts(normalize=True),
                       "others": grp[~d.elig].value_counts(normalize=True)}).fillna(0)
     print("  condensed:\n" + g.sort_values("eligible", ascending=False).to_string(float_format="{:.4f}".format))
+    summary[lab] = {"n_eligible": int(d.elig.sum()), "n_others": int((~d.elig).sum()),
+                    "eligible": g.eligible.to_dict(), "others": g.others.to_dict()}
+
+if len(sys.argv) > 1:
+    with open(sys.argv[1], "w") as f:
+        json.dump(summary, f, indent=1)
