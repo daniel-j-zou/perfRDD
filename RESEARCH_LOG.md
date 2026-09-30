@@ -9,6 +9,25 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Weekly proof uses n observations per split (Codex)
+
+Author permits all splits to have size n. Implemented in `this_week.tex`:
+four independent OLS/outcome/distribution/evaluation splits, each of size n;
+total size is 4n. All empirical averages and conditional-variance/remainder
+bounds now use the same n. For the root-n normalization, the final variance is
+the sum of four fold contributions with no inverse allocation proportions.
+The three shared-OLS loadings are still combined before computing their variance.
+This is a notational/equal-allocation specialization, not full-sample reuse.
+
+Preserved the author's concurrent removal of two goal statements. The empirical
+application, main manuscript and frozen prelim were not changed. Task board closed.
+Manuscript source `62f6db7`, changelog `b9c4e91`. Verification:
+`latexmk -pdf -interaction=nonstopmode -halt-on-error this_week.tex` succeeds
+(13 pages); no undefined references, duplicate labels or horizontal overflow;
+`git diff --check` passes.
+
+— Codex
+
 ## 2026-09-30 — Goal-first weekly proof exposition (Codex)
 
 Author writing preference: start each proof step by stating its goal, explaining
