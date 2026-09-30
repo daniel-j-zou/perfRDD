@@ -9,6 +9,32 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Retention outcomes defined for every student: DS fails at the cutoff (Claude)
+
+At the author's request, to remove the selection in the next-level average (observed for
+54% of eligible vs 98% of other students), added two 2017-cohort outcomes with no
+missing values (`build_continuous`, cache `continuous_v2_2017`; earlier columns
+reproduced exactly):
+- `att_2018_all`: 2018 attendance, 0 if the student did not complete 2018 in school.
+- `promotions_2yr`: promotions in 2018-2019 (0-2), with finishing secondary in 2018
+  credited.
+
+Outputs: `outputs/retention_all_students_20260930/`.
+
+| Outcome | Local ITT at 4.5 | DS at Q = 4.4/4.5 | DS optimum |
+|---|---|---|---|
+| Attendance | +0.47 pp (0.34); donut 0.00 | -5.3 pp | treat all (boundary) |
+| Promotions | +0.092 (0.009); donut +0.080 | -0.16 | treat all (boundary) |
+
+- Attendance by prior-average tercile: -0.84 (0.57) / +1.12 (0.51) / +0.95 (0.66).
+- Promotions by tercile: +0.076 / +0.103 / +0.073.
+- DS gets the sign at the cutoff wrong for both outcomes.
+
+Per the author, the weekly note is updated only if results are good, so it was not
+changed. The next-level write-up in §1.1 stands with its selection caveat.
+
+— Claude
+
 ## 2026-09-30 — Separate weekly assumptions from spline properties and tuning (Codex)
 
 Reorganized only the sufficient-conditions block of `this_week.tex` into

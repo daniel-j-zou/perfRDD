@@ -197,11 +197,16 @@ def build_continuous(year: int = 2017) -> pd.DataFrame:
     gpa_two_years    average in year+2 (any grade);
     gpa_next_level   average in grade level+1 the first time it is reached (year+1 if
                      promoted, year+2 if retained and then promoted), else missing;
+    att_2018_all     attendance (%) in year+1, 0 if the student did not complete year+1
+                     in school (left, withdrew or not enrolled): defined for everyone;
+    promotions_2yr   number of promotions in year+1 and year+2 (0-2), 0 for leavers;
+                     finishing secondary in year+1 counts as a promotion in year+2;
+                     defined for everyone;
     paes_first       first valid PAES reading/math-1 average, 2023-2025 (PAES scale),
                      only for grade levels 6-7 in `year` (on time 2023-2024, one year
                      later if retained); missing if never taken.
     """
-    cache = PROCESSED / f"continuous_{year}.csv.gz"
+    cache = PROCESSED / f"continuous_v2_{year}.csv.gz"
     if cache.exists():
         return pd.read_csv(cache)
     now, prior, n1, n2 = (_read_year(y) for y in (year, year - 1, year + 1, year + 2))
@@ -217,7 +222,10 @@ def build_continuous(year: int = 2017) -> pd.DataFrame:
 
     now["LVL"] = level(now)
     for tag, d in (("N1_", n1), ("N2_", n2)):
-        d = d.assign(LVL=level(d))[["LVL", "PROM_GRAL", "ASISTENCIA"]].add_prefix(tag)
+        final = ((d.COD_ENSE.isin(YOUTH_SECONDARY) & (d.COD_GRADO == 4))
+                 | (d.COD_ENSE.isin(ADULT_SECONDARY) & (d.COD_GRADO >= 3)))
+        d = d.assign(LVL=level(d), FINAL=final.astype(float))[
+            ["LVL", "PROM_GRAL", "ASISTENCIA", "SIT_FIN", "FINAL"]].add_prefix(tag)
         now = now.join(d, how="left")
     paes = _first_paes()
     now = now.join(paes, how="left")
@@ -243,6 +251,11 @@ def build_continuous(year: int = 2017) -> pd.DataFrame:
         "gpa_next_level": np.where(now.N1_LVL == now.LVL + 1, g1,
                                    np.where(now.N2_LVL == now.LVL + 1, g2, np.nan)),
         "paes_first": now.paes_first.where(now.LVL.isin([6, 7])).to_numpy(),
+        # Defined for every student (no missing values):
+        "att_2018_all": now.N1_ASISTENCIA.where(g1.notna(), 0.0).fillna(0.0).to_numpy(),
+        "promotions_2yr": ((now.N1_SIT_FIN == "P").astype(float)
+                           + ((now.N2_SIT_FIN == "P")
+                              | ((now.N1_SIT_FIN == "P") & (now.N1_FINAL == 1))).astype(float)).to_numpy(),
     })
     out["overage"] = (out.age - out.groupby("grade_level").age.transform("median")).fillna(0.0)
     PROCESSED.mkdir(parents=True, exist_ok=True)
@@ -333,3 +346,13 @@ def load_gpa_next_level_att85(year: int = 2017) -> RDDSample:
     """As load_gpa_next_level, students with attendance >= 85% in `year`."""
     return _sample("gpa_next_level", "chile_retention_gpa_next_level_att85", year,
                    long_run="continuous", att_min=85.0)
+
+
+def load_att_2018_all(year: int = 2017) -> RDDSample:
+    """Defined for every student: 2018 attendance, 0 if not completing 2018 in school."""
+    return _sample("att_2018_all", "chile_retention_att_2018_all", year, long_run="continuous")
+
+
+def load_promotions_2yr(year: int = 2017) -> RDDSample:
+    """Defined for every student: promotions in 2018-2019 (0-2), 0 for leavers."""
+    return _sample("promotions_2yr", "chile_retention_promotions_2yr", year, long_run="continuous")
