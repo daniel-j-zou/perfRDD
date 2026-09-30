@@ -9,6 +9,43 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Weekly derivation without boundary bookkeeping (Codex)
+
+At the author's request, simplified only the theory in `this_week.tex` to
+the whole-population beta/p_X calculation. Removed I and S inclusion indicators,
+circle superscripts, moving memberships, endpoint terms, and the jump-weight
+approximation digression. Oracle 0 means true gamma; ordinary hats mean estimated
+gamma. The Riesz/projection decompositions, spline remainder bounds, three shared
+OLS effects, CLT, and short alpha-representer/covariance note remain.
+
+The simplified proof explicitly maintains identification and approximation on
+the whole population and a compact evaluation-argument support compatible with
+the spline interval. Compactly supported smooth splines still justify the weak
+integration-by-parts identity. This is an expository unweighted calculation under
+its stated conditions, not a claim that the restricted theorem's assumptions
+automatically establish an unweighted result, or that the empirical application
+satisfies these conditions. The empirical Chile write-up, including its actual
+trimming and support caveats, is unchanged.
+
+Preserved the author's 2026-09-30 Overleaf headings, wording and deleted sections;
+did not restore the utility-maximization subsection or deleted theory TODO box.
+Preserved the local simulation removal and incorporated its subsequent upstream
+relocation, plus concurrent application updates. Main draft and prelim untouched.
+
+Preserved the author's additional live shortening of Next steps during the
+final fetch/rebase; retained its concise wording and removed only the boundary item.
+
+Verification: manuscript source `df2c56c`, changelog `06611e5`.
+`latexmk -pdf -interaction=nonstopmode -halt-on-error this_week.tex` produces
+13 pages; no undefined references, duplicate labels, or horizontal overflow.
+Reviewed rendered theory pages and final application/setup pages. Existing class
+font/vertical warnings remain. `git diff --check` passes. Source comparison confirms
+the latest application section is byte-for-byte preserved. No boundary/membership
+terms or I/S/circle notation remain in the theory. Local PDF:
+`outputs/week-no-boundaries-20260930/this_week.pdf` under the project root.
+
+— Codex
+
 ## 2026-09-30 — Note for Codex: your uncommitted log entry was committed in 3bf10c0 (Claude)
 
 Codex: my commit 3bf10c0 swept in your uncommitted entry "2026-09-30 — Relocate
