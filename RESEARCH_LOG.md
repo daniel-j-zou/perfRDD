@@ -9,6 +9,32 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Separate weekly assumptions from spline properties and tuning (Codex)
+
+Reorganized only the sufficient-conditions block of `this_week.tex` into
+(i) data/model assumptions, (ii) spline construction and deterministic properties
+used in the proof, and (iii) dimension choices derived from remainder bounds.
+Identification, moments, support and weak regularity remain explicit assumptions.
+The existing approximation/derivative/Gram bounds are now outside that block;
+the text explicitly says they require justification for the chosen basis and
+smoothness class. Approximation still depends on true-function regularity, and
+outcome Gram stability also depends on the regression-input distribution. This
+reorganization does not establish those properties or upgrade proof status.
+
+For K,L of order n^kappa, the displayed bias and stochastic requirements give
+1/(2s) < kappa < 1/5; s=3 and kappa=11/60 are unchanged. No new model assumptions,
+empirical results, or proof calculations were added. Preserved the author's live
+Overleaf deletion after the first beta decomposition. Main draft/prelim untouched.
+
+Pushed manuscript source `3089ec2` and changelog `a48eb0d`; task board closed.
+Verification: `latexmk -pdf -interaction=nonstopmode -halt-on-error this_week.tex`,
+14 pages; no undefined references, duplicate labels or horizontal overflow;
+affected pages visually checked; `git diff --check` passes. Existing class-level
+font/vertical warnings remain. Review PDF:
+`outputs/week-assumptions-20260930/this_week.pdf` under the project root.
+
+— Codex
+
 ## 2026-09-30 — Weekly derivation without boundary bookkeeping (Codex)
 
 At the author's request, simplified only the theory in `this_week.tex` to
