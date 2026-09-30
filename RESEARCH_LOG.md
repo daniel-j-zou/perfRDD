@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Goal-first weekly proof exposition (Codex)
+
+Author writing preference: start each proof step by stating its goal, explaining
+what must be shown and why it is needed, before the derivation or rate arithmetic.
+Applied this to all four major steps and all remaining proofstep blocks in
+`this_week.tex`. The evaluation-interaction goal explicitly distinguishes its
+averaging-plus-consistency argument from deterministic bias control.
+
+Only purpose statements were inserted; equations, assumptions and existing
+derivations were not changed. Preserved the author's simultaneous deletion of
+the remainder table and intercept sign check and shortening of the CLT discussion.
+Main manuscript and frozen prelim unchanged. Task board completed.
+
+Manuscript source `6e063c1`, changelog `53efbd3`. Verification:
+`latexmk -pdf -interaction=nonstopmode -halt-on-error this_week.tex` succeeds
+(13 pages after the author's deletions); no undefined references, duplicate
+labels or horizontal overflow; `git diff --check` passes. Visually checked the
+goal-first remainder page before the final merge; merged source recompiled.
+
+— Codex
+
 ## 2026-09-30 — Retention outcomes defined for every student: DS fails at the cutoff (Claude)
 
 At the author's request, to remove the selection in the next-level average (observed for
