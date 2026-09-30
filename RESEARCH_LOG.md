@@ -35,6 +35,23 @@ changed. The next-level write-up in §1.1 stands with its selection caveat.
 
 — Claude
 
+## 2026-09-30 — Weekly oracle notation matches original proof (Codex)
+
+At the author's request, replaced the oracle superscript 0 in `this_week.tex`
+with circle, matching `prefRDD.tex`'s true-input convention. Hats still denote
+sample estimation; circle means true gamma and hence true eta,T, not absence of
+sampling or spline approximation error. Kept the weekly decomposition and its
+deterministic approximants unchanged (these were not relabeled as population
+least-squares projections). Preserved all current Overleaf edits, including the
+author's latest shortening of the conditions block. No theory changes.
+
+Manuscript source `f28d66f`, changelog `60e9371`; task board completed.
+Verification: `latexmk -pdf -interaction=nonstopmode -halt-on-error this_week.tex`
+succeeds; no undefined references, duplicate labels or horizontal overflow;
+`git diff --check` passes. Main draft and frozen prelim untouched.
+
+— Codex
+
 ## 2026-09-30 — Separate weekly assumptions from spline properties and tuning (Codex)
 
 Reorganized only the sufficient-conditions block of `this_week.tex` into
