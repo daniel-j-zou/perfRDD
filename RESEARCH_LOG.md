@@ -9,6 +9,38 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-29 — DS curve check: the Chile retention next-level maximizer is the usable one (Claude)
+
+At the author's request, checked whether the DS alpha(eta) and U_J(phi) curves are
+sensible and give a usable interior maximizer. New script
+`experiments/scripts/ds_curve_check.py` covers alpha(eta) on a grid, U curves, and the DS
+maximizer under trim eps 0.05/0.20, knots -2/+2, and fixed ridge 0.1/1/10/30. Outputs and
+figure: `outputs/ds_curve_check_20260929/`.
+
+**Retention, average at the next grade level (2017): usable.**
+- DS a(eta) at mean X is positive and smooth in the window (+0.1 to +0.3).
+- The interior comes from beta2: -0.28 per SD of prior average and -0.14 per SD of grade
+  level. It does not come from spline edge behaviour.
+- U_J is single-peaked at 5.34. It beats the deployed cutoff by 0.11 and the plateau by
+  0.03 grade points per window student. alpha-only is monotone to treat-all.
+- The maximizer is interior under every setting: 5.30-5.35 across eps and knots;
+  5.34/5.18/5.03/4.99 for ridge 0.1/1/10/30. It is also stable across cohorts
+  (5.20-5.36), the donut (5.36) and attendance >= 85% (5.34).
+- Caveats already logged: at the 4.5 cutoff DS overstates the local effect about 1.8x
+  (it matches at 5.0 within the CI); c = 0; the outcome is selected (students who reach
+  the next level); D is ITT; eta is heteroskedastic.
+
+**Admission (selectivity 2024/2025, accreditation 2024): not usable.**
+- The interior (455-491) is stable to eps and knots but collapses to treat-none at ridge
+  >= 1 (selectivity) or >= 10 (accreditation). CV picks the smallest grid value, 0.1.
+- The peak is shallow (0.07 selectivity points over the deployed cutoff).
+- The negative effects that create it sit where the trim window is clipped at the
+  0.5th-percentile edge of the eta support, where a(eta) bends sharply.
+- Selectivity is conditional on enrollment, so it mixes composition with individual
+  effects.
+
+— Claude
+
 ## 2026-09-29 — Weekly note focused on beta2 and p_X (Codex)
 
 The author requested the same motivation-first proof strategy as the main
@@ -42,7 +74,6 @@ separate worktrees. Review PDF is in the project-root local directory
 `outputs/weekly-focused-proof-20260929/this_week.pdf`.
 
 — Codex
-
 ## 2026-09-29 — Chile admission continuous outcomes; Chile data-access note (Claude)
 
 At the author's request:
