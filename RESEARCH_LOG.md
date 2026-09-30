@@ -9,6 +9,26 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Explicit CLT summands and visible Step 3 relabeling (Codex)
+
+At the author's request, relabeled the visible generated-index subsections as
+3a outcome fit, 3b density fit, and 3c evaluation argument. Step 3c's commented
+consistency material remains hidden and is labeled as a future lemma.
+
+Step 4 now redefines every limiting summand before the CLT: the outcome term
+`B_phi'varphi_beta2`, evaluation term `beta2'p_X(phi-eta)-theta_phi`,
+distribution term `(beta2'X)r_phi(T)-theta_phi`, and shared-OLS term
+`A_phi'varphi_gamma`, along with all loadings and influence functions. The
+linearization and variance formula use these named summands directly.
+
+Preserved concurrent author edits to the Step 3 title and goal and the shorter
+3b/3c goal wording. Source `c329825`, changelog `5a8de8e`; task board updated.
+The 13-page note compiles without undefined references, duplicate labels or
+horizontal overflow; `git diff --check` passes. Main draft and frozen prelim
+untouched.
+
+— Codex
+
 ## 2026-09-30 — Step 3 explicitly consists of generated-index corrections (Codex)
 
 At the author's request, clarified the visible Step 3 exposition in
