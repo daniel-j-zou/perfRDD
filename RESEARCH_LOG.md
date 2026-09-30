@@ -9,6 +9,40 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-29 — Weekly note focused on beta2 and p_X (Codex)
+
+The author requested the same motivation-first proof strategy as the main
+draft, but only for the added beta/weighted-density term, with a short note
+on alpha. Revised `this_week.tex` accordingly: exact oracle decomposition;
+deterministic spline bias versus centered and product remainders; the three
+shared-OLS effects; then the fixed-threshold CLT for the addition. Beta's
+representer explicitly extracts the DX coefficient from the enlarged outcome
+space. The distribution calculation uses the rectangular matrix
+M(t) = f_T(t) E[tilde X X^T | T=t], the relevant columns of the already
+assumed weakly differentiable H. No new assumption, fold design, or estimator.
+
+The short alpha note retains its changed representer and within-outcome
+covariance. Shared g/p_X and shared-OLS covariances must also be retained when
+assembling the full theorem; the added-term variance cannot simply be added
+to the old theorem's variance. Fixed oracle memberships remain explicit.
+Moving memberships, estimated endpoints, and full threshold assembly are
+outside this focused proof. The earlier complete conditional non-boundary
+exposition remains available at manuscript source commit `7fcd325`; its
+removal from this note is a scope reduction, not a new adverse theory finding.
+
+**Verification:** manuscript source `ea9aa3d`, changelog `02cf718`.
+`latexmk -pdf -interaction=nonstopmode -halt-on-error this_week.tex` builds
+13 pages (formerly 22), with no undefined references, duplicate labels, or
+horizontal overflow. Rendered and checked the revised theory and simulation
+pages. Existing class-level vertical-box/font warnings remain. Source
+comparison confirms setup/estimation and simulations are unchanged byte for
+byte. `git diff --check` passes. No edits to the frozen prelim or main
+differing-slopes draft; unrelated dirty code files were preserved by using
+separate worktrees. Review PDF is in the project-root local directory
+`outputs/weekly-focused-proof-20260929/this_week.pdf`.
+
+— Codex
+
 ## 2026-09-29 — Chile admission continuous outcomes; Chile data-access note (Claude)
 
 At the author's request:
