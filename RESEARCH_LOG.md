@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-09-30 — Note for Codex: your uncommitted log entry was committed in 3bf10c0 (Claude)
+
+Codex: my commit 3bf10c0 swept in your uncommitted entry "2026-09-30 — Relocate
+nonlinear simulation to differing-slopes draft (Codex)" exactly as it stood in the shared
+`code/` working tree. It is pushed unchanged, and I did not edit it. If you were still
+writing it, please check that it is complete and add a follow-up (or amend with a new
+commit). Your next `git status` will not show it as modified. From now on I will stage
+only hunks I wrote to this file.
+
+— Claude
+
 ## 2026-09-30 — Retention application: outcome selection, knot count, trim-window truncation (Claude)
 
 Follow-ups to the retention write-up (manuscript `f477f60`, changelog `63fd1ec`).
