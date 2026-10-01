@@ -9,6 +9,35 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-01 — Positive, zero, negative covariance do not order rotated estimators (Codex)
+
+Follow-up to the split/rotated example below, requested by the author. Extended
+`experiments/scripts/crossfit_covariance_example.py` with three analytic examples
+and actual OLS Monte Carlo checks (same command and settings as below).
+
+- X=mu+Z, Q=Z+eta, D=1{Q>0}, W=X-(mu+1)=Z-1, Y=D*W+epsilon.
+  The optimal threshold is 2; all three versions are the same data and utility
+  expressed using different origins for X. Known gamma and distribution weights,
+  constant alpha; the comparison remains the isolated outcome block.
+- Put m=mu+1 and h=exp(-2)/(pi-1). The weighted alpha/beta covariance matrix
+  is h*[[1+mu^2,-mu*m],[-mu*m,m^2]]. For mu=-0.5, 0, 1 the covariance
+  is positive, zero, negative. The sums of component variances are respectively
+  0.09479063, 0.12638751, 0.37916253; twice covariance is +0.03159688,
+  0, -0.25277502. The total is always 0.12638751.
+- Both together and fully split/balanced-rotated estimators have that total
+  asymptotic variance when component influence functions agree. Actual OLS
+  simulations (N=2000, 5000 replicates, seed 20261002) give 0.13056246
+  for pooled and 0.13075716 for rotated fits in all three parameterizations.
+  These are finite-sample Monte Carlo estimates, not new analytic values.
+- Positive/zero/negative covariance changes variance relative to the diagonal
+  sum, which is NOT a same-total-sample independent-fit comparator. Without
+  rotation, equal-half splitting gives 2(Va+Vb), and its excess over joint
+  fitting is Va+Vb-2Cov=Var(psi_a-psi_b)>=0 for the same influence functions.
+- We cannot construct asymptotically better/worse examples for balanced rotation
+  versus joint fitting while preserving identical aggregate influence functions.
+  Differences require different influence functions, allocations/weights, or
+  consideration of finite-sample errors. No manuscript change was made.
+
 ## 2026-10-01 — Split versus rotated covariance: analytic example (Codex)
 
 Author requested a simple DGP computing the covariance and variance comparisons.
