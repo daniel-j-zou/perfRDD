@@ -50,6 +50,53 @@ def contrast(x, d, y):
     return fits[1] - fits[0]
 
 
+def covariance_sign_examples(reps, n, seed):
+    """Vary covariance without changing the underlying utility or information.
+
+    X=mu+Z, Q=Z+eta, W=X-(mu+1)=Z-1, Y=D*W+epsilon.
+    The deployed threshold remains zero; the optimal threshold is phi=2.
+    There E[X|Q=2]=mu+1=m. Put h=exp(-2)/(pi-1). The outcome
+    component covariance is h*[[1+mu^2,-mu*m],[-mu*m,m^2]].
+    Its total is always 2h. Covariance's sign depends on the coordinate origin;
+    the variance of the actual joint estimator does not.
+    """
+    result = []
+    f = math.exp(-1) / (2 * math.sqrt(math.pi))
+    h = math.exp(-2) / (math.pi - 1)
+    for mu in (-0.5, 0., 1.):
+        rng = np.random.default_rng(seed)
+        m = mu + 1
+        covariance = h * np.array([[1+mu*mu, -mu*m], [-mu*m, m*m]])
+        estimates = np.empty((reps, 3))
+        components = np.empty((reps, 2))
+        for r in range(reps):
+            z, eta, eps = rng.normal(size=(3, n))
+            x = mu + z
+            d = (z + eta > 0).astype(int)
+            y = d * (z - 1) + eps
+            pooled = contrast(x, d, y)
+            ca = contrast(x[:n//2], d[:n//2], y[:n//2])
+            cb = contrast(x[n//2:], d[n//2:], y[n//2:])
+            first = f * (ca[0] + m*cb[1])
+            second = f * (cb[0] + m*ca[1])
+            estimates[r] = (f*(pooled[0]+m*pooled[1]), first, (first+second)/2)
+            components[r] = f * np.array([pooled[0]+m, m*(pooled[1]-1)])
+        result.append({
+            'mu': mu, 'optimal_phi': 2,
+            'analytic_component_covariance': covariance.tolist(),
+            'monte_carlo_component_covariance': (n*np.cov(components, rowvar=False)).tolist(),
+            'diagonal_sum_not_a_fixed_budget_comparator': float(np.trace(covariance)),
+            'analytic_variances_together_unrotated_rotated': [
+                float(covariance.sum()), float(2*np.trace(covariance)),
+                float(covariance.sum()),
+            ],
+            'monte_carlo_variances_together_unrotated_rotated': (
+                n*np.var(estimates, axis=0, ddof=1)
+            ).tolist(),
+        })
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--reps', type=int, default=5000)
@@ -108,6 +155,9 @@ def main():
     ).tolist()
     result['distribution_rotation_identity_max_abs_error'] = float(
         np.max(np.abs(distribution[:, 0] - distribution[:, 2]))
+    )
+    result['positive_zero_negative_covariance_examples'] = covariance_sign_examples(
+        args.reps, n, args.seed+1
     )
     print(json.dumps(result, indent=2))
 
