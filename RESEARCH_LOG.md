@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-01 — Concise shared-gamma note added to weekly manuscript (Codex)
+
+At the author's request, added one short paragraph at the end of Step 4 in
+`this_week.tex`, titled "Sharing gamma under balanced cross-fitting." It states
+the fixed-total-N four/six-block variance equivalence conditional on identical
+limiting summands and negligible remainders, and retains all covariances after
+rotation. Author edits preserved. No change to the full theorem or prelim.
+
+Manuscript source commit `c36b3e2`; changelog `33c2e5c`. Task board updated.
+Checked with `latexmk -pdf -interaction=nonstopmode -halt-on-error this_week.tex`
+and visual inspection of page 13. PDF remains 13 pages. The same pre-existing
+three references to the missing `tab:week-retention-robust` are unresolved;
+no new undefined references or horizontal overflows were introduced.
+
 ## 2026-10-01 — Careful audit: six separate-gamma roles versus four shared-gamma roles (Codex)
 
 Author requested rechecking the claim of equal cross-fitted asymptotic variance.
