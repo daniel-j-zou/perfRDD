@@ -9,6 +9,49 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-01 — Careful audit: six separate-gamma roles versus four shared-gamma roles (Codex)
+
+Author requested rechecking the claim of equal cross-fitted asymptotic variance.
+Confirmed as a conditional first-order equivalence, not an already completed
+theorem for the full hard-trimmed estimator.
+
+- Let every equal fold have N/K observations, K=4 or 6 fixed. Average all K
+  cyclic role assignments. Each observation then appears once in each role,
+  with coefficient (1/K)/(N/K)=1/N. Six roles carry psi_o, psi_rho, psi_U,
+  Ao'varphi_gamma, Arho'varphi_gamma, AU'varphi_gamma. Four roles carry the
+  first three and (Ao+Arho+AU)'varphi_gamma. Both pooled leading terms are
+  exactly P_N[psi_o+psi_rho+psi_U+(Ao+Arho+AU)'varphi_gamma]. This holds for
+  different four/six partitions of the same observations.
+- Finitely many per-rotation o_p((N/K)^(-1/2)) remainders average to
+  o_p(N^(-1/2)); no independence between rotations is required. Therefore the
+  estimators differ by o_p(N^(-1/2)) IF both schemes have these expansions,
+  identical limiting functions/loadings, common target, negligible approximation
+  bias, finite moments, and genuinely balanced observation weights.
+- Sharing gamma does not invalidate conditional independence of the three
+  held-out samples given the independent OLS training sample. Mixed nuisance
+  terms must still satisfy the spline-amplified remainder bounds. The weekly
+  note explicitly uses a shared gamma, adds all its loadings, and notes that
+  the beta-times-density product bound does not require independent errors.
+- The rotated variance is Var(the entire summed influence function), including
+  covariance of gamma with outcome/distribution/evaluation contributions on
+  the same observation. It is NOT the sum of four independent-fold variances.
+- Numerical audit: run `python3 experiments/scripts/audit_four_six_role_rotation.py`.
+  With deliberately correlated Gaussian influences, analytic fixed-assignment
+  variances are 34 (four roles) and 63 (six); both rotated variances are 18.5.
+  Incorrectly summing four marginal variances gives 8.5. Across 20,000 exact
+  Gaussian mean simulations (N=1200), both rotated expressions agree with the
+  common pooled expression to 1.67e-16. This verifies weights and covariance
+  bookkeeping, not a spline-estimator theorem.
+- Manuscript status checked against origin/master: this_week.tex proves/discusses
+  the fixed-phi beta2/p_X addition with four size-n folds and leaves full alpha/g,
+  consistency and curvature to next steps; a supporting feasible-fit consistency
+  argument is retained in a commented block. differing_slopes.tex still states
+  the ten-block hard-trimmed fixed-partition theorem and labels rotations as
+  implementation diagnostics. Thus the conditional equivalence should not be
+  advertised as an established full threshold theorem. The threshold conclusion
+  additionally needs the local score expansion, consistency, common nonzero
+  curvature and any estimated-boundary contributions. No manuscript edits made.
+
 ## 2026-10-01 — Positive, zero, negative covariance do not order rotated estimators (Codex)
 
 Follow-up to the split/rotated example below, requested by the author. Extended
