@@ -9,6 +9,42 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-01 — Prelim simulation precision gap traced to fixed versus rotated roles (Codex)
+
+Author asked whether the approximately eleven-fold gap on the prelim slide is
+explained by the role-rotation discussion. Read-only review of the frozen deck;
+no manuscript edits.
+
+- `prelim/slides.tex`, frame "Role rotation restores precision in the baseline
+  simulation", reports pooled total-n MSE, not a directly proved variance ratio:
+  461.08 fixed eight-block, 43.20 role-rotated, 42.58 full-sample.
+- Recomputed from `experiments/runs/fixed_rotated_full_spline_20260915/summary.json`:
+  pooled N*MSE 461.08220455 / 43.20233226 / 42.57821541; ratios 10.672623
+  and 10.829064. Pooled N*sample variance 459.77594608 / 41.76445503 /
+  42.51803997; bias is a small part of the gap. The sample variance uses ddof=1,
+  whereas MSE uses the replication count, explaining their small bookkeeping
+  difference after subtracting bias squared.
+- The saved run uses spline density, 200 replicates at total N=10000,20000,
+  40000,80000, equal one-eighth blocks. `hard_trim_crossfit_regularization.py`
+  constructs the same fully decoupled fit in each of eight cyclic rotations,
+  then pools held-out criteria before maximizing. Every physical block serves
+  each role. Both fixed and rotated assignments use five OLS fits (three main
+  plus two endpoint fits); this is not a shared-gamma versus separate-gamma
+  comparison.
+- Conditional on valid common expansions, the fixed design has threshold
+  variance 8*sum_j Var(psi_j)/H^2, versus Var(sum_j psi_j)/H^2 after rotation.
+  Here the eight psi_j include each endpoint's joint quantile/OLS score.
+  The factor is eight only if aggregate cross-role covariance is zero.
+  Negative aggregate covariance and finite-sample effects can make it larger.
+  This explains the mechanism, without assigning the observed 10.67 ratio to
+  particular uncomputed covariance terms.
+- Important scope: `hard_trim_spline_density_variance.py` assigns the full-sample
+  43.32611 benchmark to the rotated row but explicitly says cross-rotation
+  covariance is not included. Its `honest_split` calculation uses legacy unequal
+  fractions and a shared main gamma, not the current fixed eight-block design.
+  Thus neither number supplies a complete analytic decomposition of the slide's
+  fixed-versus-rotated gap; the slide results remain numerical evidence.
+
 ## 2026-10-01 — Concise shared-gamma note added to weekly manuscript (Codex)
 
 At the author's request, added one short paragraph at the end of Step 4 in
