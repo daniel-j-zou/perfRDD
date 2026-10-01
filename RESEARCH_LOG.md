@@ -9,6 +9,58 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-01 - Mukherjee-Banerjee-Ritov: cross-fitting checked, no fixed-versus-rotated issue (Claude)
+
+Author asked whether MBR (Bernoulli 2026; `manuscript/Papers/`) share our
+fixed-versus-rotated variance problem. Read the main text and supplement
+Sections 1.1 and 2 (proof of Theorem 2.8). Script
+`experiments/scripts/mbr_crossfit_check.py` (commit below), outputs
+`experiments/runs/mbr_crossfit_check_{paper,excluded}`.
+
+**Structure.** D1 gives gamma-hat (OLS), D2 gives b'-hat (spline PLM), D3
+estimates alpha from the stacked regression (2.7), in which gamma-hat - gamma_0
+is a coefficient on b'-hat(eta-hat) Z and is re-estimated from D3's own
+Q - Z gamma-hat = -Z delta + eta. Hence the D1 first-stage error is removed on
+D3, and b'-hat enters only through the product (b' - b'-hat)(gamma-hat - gamma_0).
+Supplement eq. (1.1) and Steps 1-4: alpha-hat - alpha_0 = (3/n) sum_{D3}
+e1' Omega^{-1} phi_i + o_p(n^{-1/2}), a leading term in D3 only. Theorem 2.8:
+single split N(0, 3V), three-way rotation N(0, V), V = e1' Omega_tau^{-1}
+Omega*_tau Omega_tau^{-1} e1. The factor is exactly the number of folds because
+there is one first-order role. Our eight-block design has eight first-order
+roles with correlated influence functions (ratio 10.62, not 8).
+
+**Numerical check** (2,000 replications, K = 6, tau = 1):
+- Paper's Section 4.1 design: V = 3.9475 (they never compute it). N Var at
+  n = 5000 / 20000: single 11.94 / 12.21 (3V = 11.84); rotated 4.00 / 3.86;
+  no split 3.94 / 3.87; ratio 2.99 / 3.16; correlations between the three rotated
+  estimates within +-0.04. RMSE 0.0283 (rotated) and 0.0281 (no split) reproduce
+  their 0.02853 and 0.02877 (their n*MSE 4.07).
+- Their design does not exercise the first-stage correction: a naive plug-in
+  (no b'Z column, no second equation) has the same variance there and R^2 of the
+  estimate on the D1 first-stage error is at most 0.007.
+- "Excluded" design (X = Z_1 only, b = eta + eta^3/3): V = 3.0772. MBR single
+  9.22 / 9.64 (3V = 9.23), rotated 3.15 / 3.16, no split 3.12 / 3.14, R^2 on the
+  first-stage error 0.004 / 0.001. Naive plug-in: R^2 0.37 / 0.39, single 11.8,
+  rotated 3.9-4.0. Its ratio is still about 3 with uncorrelated rotations, because
+  the first-stage influence (in eta) is uncorrelated with the final-stage
+  influence (in eps).
+
+**Proof notes** (minor, do not affect the result). Their simulations standardize
+by the Monte Carlo SD, so they test normality only, not the variance formula.
+Step 4 bounds the spline-error term using W_1 - G as if conditionally centered,
+but W_1 contains b'-hat while G is built from b'; the omitted piece is
+sqrt(n) K^{-3} sup|b'-hat - b'|, which needs a rate for b'-hat when
+n^{1/8} << K < n^{1/6} (fillable). Two displayed bounds have typos (a missing
+square; sup|b'-hat - b| where the spline error of b is meant). The
+high-dimensional theorem is single-split only (their Remark 3.13).
+
+**Implication for us.** A fixed split costs exactly K times the rotated variance
+only when all first-order information sits in one fold. An orthogonal score for
+the threshold (plug-in score plus the Riesz correction terms, all evaluated on
+the evaluation fold) would give that structure.
+
+-- Claude
+
 ## 2026-10-01 - Analytic eight-role variance decomposition for the baseline split (Claude)
 
 Assigned in `this_week.tex` Next steps (manuscript ab15074). New script
