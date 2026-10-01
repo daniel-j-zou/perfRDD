@@ -9,6 +9,19 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-01 — Variance-gap calculation added to weekly note (Codex)
+
+Follow-up to the simulation audit above. Added the fixed-versus-rotated
+influence variance calculation and the empirical implied covariance diagnostic
+to `this_week.tex` Step 4. Manuscript source push is `8c045a0` (the initial
+source edit was `c1f2a14`, followed by the changelog hash correction); the
+corresponding changelog entry is in the Overleaf repository.
+
+The note reports the slide's pooled total-N MSE values (461.08, 43.20,
+42.58), ratios (10.67, 10.83), the eight-fold benchmark, and the implied
+negative aggregate covariance. It explicitly labels this as simulation
+evidence; the full theorem still covers only the fixed decoupled split.
+
 ## 2026-10-01 — Prelim simulation precision gap traced to fixed versus rotated roles (Codex)
 
 Author asked whether the approximately eleven-fold gap on the prelim slide is
