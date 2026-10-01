@@ -9,6 +9,38 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-01 — Split versus rotated covariance: analytic example (Codex)
+
+Author requested a simple DGP computing the covariance and variance comparisons.
+Script/source commit: `experiments/scripts/crossfit_covariance_example.py`, `995af1d`.
+Run `python3 experiments/scripts/crossfit_covariance_example.py` (NumPy only).
+
+- Independent standard Gaussian Z, eta, epsilon; X=1+Z, T=X-1, Q=T+eta,
+  D=1{Q>0}, W=-1+X, Y=D*W+epsilon. Gamma is known; alpha is constant.
+  Fit the stacked parametric outcome regression on (1,X,D,DX). U(phi)=f_Q(phi)
+  has its unique maximum at zero. This isolates covariance; it is not a test of
+  the nonparametric spline/EIV/hard-boundary theorem.
+- Holding distribution weights known, the outcome contributions to -U'(0) have
+  covariance matrix [[2,-1],[-1,1]]/(pi-1). Under sqrt(total N) scaling the
+  variances are: together 0.466942, fully split without rotation 2.801653,
+  fully split with balanced two-way rotation 0.466942. With N=2000, 5000
+  replicates, seed 20261001, actual OLS simulations give 0.464040, 2.807634,
+  0.463768 respectively.
+- For the distribution contributions, psi_g=-(k(Z)-f),
+  psi_p=(1+Z)k(Z)-f, with k the standard normal density and f=1/(2sqrt(pi)).
+  Their variances/covariance are 0.01231068, 0.04294006, -0.01231068.
+  The corresponding together / unrotated split / rotated split variances are
+  0.03062938 / 0.11050148 / 0.03062938. Simulating the exact influence averages
+  gives 0.03053856 / 0.11221261 / 0.03053856; no spline was fit in this check.
+- Correction to the earlier conversation: independent components within each
+  rotation do NOT make rotations independent. Balanced rotation restores the
+  within-observation covariance. Provided the influence functions agree, full
+  splitting and joint-within-block fitting can have the same first-order variance.
+  There is no universal efficiency ordering for arbitrary different estimators.
+  Separating alpha and beta here means separate full regressions, retaining alpha
+  from one and beta from the other; it does not omit nuisance regressors.
+- No manuscript or methodology change was requested or made.
+
 ## 2026-09-30 — Retention: missing-outcome table added to the note (Claude)
 
 Follow-up to "Retention: why the next-level outcome is missing; correction" below. At the
