@@ -9,6 +9,56 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-01 - Analytic eight-role variance decomposition for the baseline split (Claude)
+
+Assigned in `this_week.tex` Next steps (manuscript ab15074). New script
+`experiments/scripts/eight_role_variance_decomposition.py` and test
+`experiments/tests/test_eight_role_variance.py` (code 9d8f393); output
+`experiments/runs/fixed_rotated_full_spline_20260915/eight_role_variance.json`.
+
+**Influence functions at phi* = 0.7313, H = U'' = -0.072018** (Gaussian DGP of
+`hard_trim_gaussian_baseline.py`; F(e) = (e - 0.25) g(phi* - e), I = 1{|e| <= z},
+z = q_0.9 = 1.2816; phi_gamma = X~ eta since Sigma = I):
+gamma_alpha: -(A_a0 + A_aT T) eta; gamma_g: -(A_g0 + A_gT T) eta; gamma_U: a_U eta;
+boundary_l: -b_l{(0.9 - 1{T<=z})/g(z) + (1 + zT) eta};
+boundary_u: +b_u{(0.1 - 1{T<=-z})/g(z) + (1 - zT) eta};
+outcome: -r_alpha(D, eta, T) u_Y; density: -r_g(T); utility: -I(eta) F(eta).
+Loadings: a_U = 0.072018 (= -H), b_l = -0.014143, b_u = 0.062076,
+A_a0 = 0.220255, A_aT = 0.063276, A_g0 = -0.072018 (= H), A_gT = -0.082182.
+A_alpha was checked by finite differences on a 3,000,000-row spline PLM:
+0.22073 and 0.06298.
+
+**Variances** (Var psi; 8 Var/H^2): gamma_alpha 0.052516 (81.0); gamma_g
+0.011941 (18.4); gamma_U 0.005187 (8.0); boundary_l 0.001113 (1.7); boundary_u
+0.021442 (33.1); outcome 0.169977 (262.2); density 0.020159 (31.1); utility
+0.018462 (28.5). S = 0.300798.
+
+**Results.** Fixed eight-block N Var = 8S/H^2 = 463.96. Rotated (and full-sample)
+N Var = Var(sum psi)/H^2 = 0.226524/H^2 = 43.675. Ratio 10.623. Simulation
+(pooled N*Var / N*MSE): 459.78 / 461.08 fixed, 41.76 / 43.20 rotated,
+42.52 / 42.58 full sample, ratio 10.67. Agreement is within Monte Carlo error.
+
+**Source of the excess over 8.** C = -0.074274. The five first-stage
+contributions (three OLS roles 0.069643 plus the endpoint blocks' own OLS terms
+0.010711) total 0.080354 in the fixed split. On pooling they sum to
+(net intercept coefficient) eta + kappa T eta; the intercept coefficient
+-A_a0 - A_g0 + a_U - b_l + b_u is exactly zero by location invariance, and
+kappa = -(A_aT + A_gT + z(b_l + b_u)) = -0.042523, so only kappa^2 = 0.001808
+remains (change -0.078546). The functions of T contribute +0.004272 (density
+with lower-endpoint quantile score, and the two quantile scores). The outcome
+score is uncorrelated with all other roles.
+
+**Correction to an earlier benchmark.** `hard_trim_spline_density_variance.py`
+reports 43.326 for the full sample and sets the shared first-stage term to zero.
+The first-stage loadings do not cancel completely: the main-block slope loadings
+sum to 0.0189 and the endpoint OLS terms add -0.0614, leaving kappa^2/H^2 = 0.349.
+The corrected benchmark is 43.675. I did not change that script.
+
+`this_week.tex` Step 4 now carries this calculation (manuscript commit cf4d7c5,
+changelog 0c485df; push to Overleaf pending at the time of writing).
+
+-- Claude
+
 ## 2026-10-01 — Variance-gap calculation added to weekly note (Codex)
 
 Follow-up to the simulation audit above. Added the fixed-versus-rotated
