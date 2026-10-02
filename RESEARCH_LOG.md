@@ -9,6 +9,50 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-02 - A shared first stage gives an exact fold-count multiple: four roles, 4x (Claude)
+
+Question from the author: can the fixed-split variance be an exact multiple of
+the rotated variance, as Mukherjee--Banerjee--Ritov get exactly 3?
+
+The ratio fixed/rotated equals (number of folds) x S / (S + C), where S is the
+sum of the per-role influence variances and C is the net covariance between
+roles evaluated on the same observation. It is exactly the fold count if and
+only if C = 0. In the eight-role baseline C = -0.0743 (S = 0.3008), so the
+ratio is 10.62. All of C comes from the five roles that carry a first-stage
+error (three separate gamma fits and two endpoint fits): their eta-loadings
+are perfectly correlated, and location invariance forces the intercept parts
+to cancel only when the same observations serve every role. So exact 8x is
+not attainable with those eight roles; no reweighting changes that.
+
+An exact multiple is attainable by sharing one first-stage fit. Four equal
+folds: (gamma) one OLS fit used by all later folds; (outcome) spline PLM;
+(index) spline density of T-hat and both trim endpoints as T-hat quantiles;
+(utility) evaluation and argmax. The four influence functions are
+kappa*T*eta, -r_alpha*u_Y, the T-block score, and -I*F, which are mutually
+uncorrelated under X independent of eta with exogenous outcome error, and
+their sum is the same full-sample influence function as before. Prediction:
+N Var = 4V for one fixed assignment and V after rotation, V = 43.675.
+
+Simulation (`experiments/scripts/four_role_shared_gamma_check.py`, Gaussian
+hard-trim baseline, 1000 replications, N = total sample size):
+
+| N | fixed four-role N Var | rotated N Var | ratio |
+|---|---|---|---|
+| 20000 | 175.2 | 42.37 | 4.14 |
+| 40000 | 173.5 | 40.12 | 4.32 |
+| 80000 | 175.8 | 43.29 | 4.06 |
+
+Predicted 174.7 and 43.67; Monte Carlo standard error is about 4.5% per
+variance. The fixed four-role split is 2.65 times more precise than the fixed
+eight-role split (464.0) at the same total sample size, and the rotated
+variance is unchanged.
+
+Not done: nothing in the manuscript changed. The four-role split reuses one
+gamma-hat across the outcome, index and utility folds, which is the reuse the
+eight-role design was built to avoid in the proof; the conditional argument
+(condition on the gamma fold, then on the outcome and index folds) should go
+through but has not been written.
+
 ## 2026-10-01 - Mukherjee-Banerjee-Ritov: cross-fitting checked, no fixed-versus-rotated issue (Claude)
 
 Author asked whether MBR (Bernoulli 2026; `manuscript/Papers/`) share our
