@@ -9,6 +9,40 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-05 - A fifth fold for the trim endpoints: little proof gain, larger fixed-split variance (Claude)
+
+Question from the author: is the proof easier with five splits, the extra one
+for the endpoints?
+
+Proof. Only marginally. With the endpoints on the index fold, the one new step
+is a joint CLT for the density score and the two quantile-indicator scores on
+the same fold (Cramer-Wold with the existing Lyapunov bound; the covariance
+converges because the sieve representer converges in L2). A fifth fold removes
+that step and keeps the boundary lemma and the additive boundary variance of
+the trimmed theorem close to their present wording. It does not remove the
+shared-gamma loading sum, and the two endpoints on one fold are still
+correlated with each other. No nuisance fit depends on the endpoints in either
+design, so no remainder bound changes.
+
+Variance. In the Gaussian baseline the endpoint score has variance 0.012415
+and twice its covariance with the density score is 0.003702, so
+S_5 = 0.222822 and the fixed five-role N Var is 5 S_5 / H^2 = 214.8, against
+174.7 with four roles; the rotated variance is unchanged at 43.67. The ratio
+is 4.92, not 5: the endpoint and density scores are both functions of T and
+are correlated on the same observation.
+
+Simulation (`four_role_shared_gamma_check.py --design five`, 1000
+replications):
+
+| N | fixed five-role N Var | rotated | ratio |
+|---|---|---|---|
+| 20000 | 220.0 | 41.44 | 5.31 |
+| 40000 | 208.6 | 40.39 | 5.16 |
+| 80000 | 222.2 | 43.12 | 5.15 |
+
+The fixed-split level agrees with 214.8 (Monte Carlo s.e. about 4.5%). The
+ratio has s.e. about 0.3, so the simulation cannot separate 4.92 from 5.
+
 ## 2026-10-05 - Differing slopes: the same four roles suffice, and the 4x multiple holds (Claude)
 
 Question from the author: does the four-role shared-first-stage design extend

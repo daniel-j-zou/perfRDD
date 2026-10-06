@@ -17,6 +17,12 @@ prediction is therefore N Var = 4 V for one fixed assignment and V after
 rotating the four roles, with V = Var(sum psi) / H^2 = 43.675 from
 ``eight_role_variance_decomposition.py``.
 
+``--design five`` moves the two trim endpoints to a fifth fold (still using
+the shared gamma_hat).  The endpoint score and the density score are both
+functions of T and are correlated on the same observation, so that design
+does not give an exact multiple: the prediction is 5 S_5 / H^2 = 214.8 for a
+fixed assignment (ratio 4.92), with the rotated variance unchanged.
+
 Run:
     python -m experiments.scripts.four_role_shared_gamma_check --reps 400 --workers 8
 """
@@ -28,6 +34,7 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import numpy as np
+from scipy.stats import norm
 
 from experiments.methods.perfrdd import _eval_basis
 from experiments.scripts.eight_role_variance_decomposition import decomposition
@@ -47,6 +54,10 @@ from experiments.scripts.hard_trim_gaussian_baseline import (
 )
 
 ROLES = ("gamma", "outcome", "index", "utility")
+DESIGNS = {
+    "four": ROLES,
+    "five": ("gamma", "outcome", "index", "endpoint", "utility"),
+}
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = ROOT / "runs" / "four_role_shared_gamma_check"
 
@@ -57,7 +68,9 @@ def component(data, folds) -> EvaluationComponent:
     fit = _fit_spline_plm(data, folds["outcome"], eta_hat, NUISANCE_SUPPORT)
     T_index = _predict_T(data.X[folds["index"]], gamma)
     density = _fit_T_density(T_index, "spline")
-    l_hat, u_hat = _boundaries_from_T(T_index)
+    # Without a separate endpoint fold the endpoints share the index fold.
+    endpoint_fold = folds.get("endpoint", folds["index"])
+    l_hat, u_hat = _boundaries_from_T(_predict_T(data.X[endpoint_fold], gamma))
     eta_eval = eta_hat[folds["utility"]]
     weights = ((eta_eval >= l_hat) & (eta_eval <= u_hat)).astype(float)
     effect = _eval_basis(eta_eval, fit.info) @ fit.omega_treat
@@ -65,14 +78,36 @@ def component(data, folds) -> EvaluationComponent:
                                treatment_effect=effect, T_density=density)
 
 
+def predicted_variances(design: str) -> dict:
+    """Fixed-split and rotated N Var from the analytic role scores."""
+    result = decomposition()
+    total = float(np.sum(result["score_covariance"]))
+    H2 = result["truth"]["hard_curvature"] ** 2
+    if design == "four":
+        diagonal = total
+    else:
+        # Separate endpoint fold: drop the density-endpoint covariance.
+        q = result["loadings"]
+        variances = dict(zip(result["roles"], np.diag(result["score_covariance"])))
+        z = float(norm.ppf(0.9))
+        gz2 = float(norm.pdf(z)) ** 2
+        kappa = -(q["A_alpha_T"] + q["A_g_T"] + z * (q["b_l"] + q["b_u"]))
+        endpoint = ((q["b_l"] ** 2 + q["b_u"] ** 2) * 0.09 - 2 * q["b_l"] * q["b_u"] * 0.01) / gz2
+        diagonal = (kappa ** 2 + variances["outcome"] + variances["density"]
+                    + endpoint + variances["utility"])
+    k = len(DESIGNS[design])
+    return {"rotated": total / H2, "fixed": k * diagonal / H2}
+
+
 def replicate(task):
-    n, seed = task
+    n, seed, design = task
+    roles = DESIGNS[design]
     data = generate_data(n, seed)
     rng = np.random.default_rng(seed + 31_000_003)
-    blocks = np.array_split(rng.permutation(n), len(ROLES))
+    blocks = np.array_split(rng.permutation(n), len(roles))
     parts = []
-    for shift in range(len(ROLES)):
-        folds = {role: blocks[(k + shift) % len(ROLES)] for k, role in enumerate(ROLES)}
+    for shift in range(len(roles)):
+        folds = {role: blocks[(k + shift) % len(roles)] for k, role in enumerate(roles)}
         parts.append(component(data, folds))
     fixed = _maximize_components([parts[0]])[0]
     rotated = _maximize_components(parts)[0]
@@ -85,14 +120,18 @@ def main(argv=None) -> None:
     parser.add_argument("--reps", type=int, default=400)
     parser.add_argument("--seed", type=int, default=20261002)
     parser.add_argument("--workers", type=int, default=8)
-    parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    parser.add_argument("--design", choices=sorted(DESIGNS), default="four")
+    parser.add_argument("--out", type=Path, default=None)
     args = parser.parse_args(argv)
     target = population_truth()["hard_phi_star"]
-    V = decomposition()["threshold_variance"]["rotated_or_full_sample"]
-    result = {"prediction": {"rotated": V, "fixed_four_role": 4.0 * V}, "cells": {}}
-    print(f"prediction: fixed four-role N Var = 4 V = {4 * V:.2f}; rotated = V = {V:.2f}")
+    out = args.out or (DEFAULT_OUT if args.design == "four"
+                       else DEFAULT_OUT.with_name(f"{args.design}_role_shared_gamma_check"))
+    prediction = predicted_variances(args.design)
+    result = {"design": args.design, "prediction": prediction, "cells": {}}
+    print(f"prediction ({args.design} roles): fixed N Var = {prediction['fixed']:.2f}; "
+          f"rotated = {prediction['rotated']:.2f}")
     for n in args.n:
-        tasks = [(n, args.seed + 104_729 * n + r) for r in range(args.reps)]
+        tasks = [(n, args.seed + 104_729 * n + r, args.design) for r in range(args.reps)]
         with ProcessPoolExecutor(args.workers) as pool:
             draws = np.array(list(pool.map(replicate, tasks, chunksize=4)))
         err = draws - target
@@ -108,9 +147,9 @@ def main(argv=None) -> None:
         print(f"N={n}: fixed N Var = {cell['n_var_fixed']:.1f} (MSE {cell['n_mse_fixed']:.1f}); "
               f"rotated = {cell['n_var_rotated']:.2f} (MSE {cell['n_mse_rotated']:.2f}); "
               f"ratio = {cell['ratio']:.2f}; MC s.e. ~ {100 * cell['relative_mc_se']:.0f}% each")
-    args.out.mkdir(parents=True, exist_ok=True)
-    (args.out / "summary.json").write_text(json.dumps(result, indent=2) + "\n")
-    print(f"[wrote] {args.out / 'summary.json'}")
+    out.mkdir(parents=True, exist_ok=True)
+    (out / "summary.json").write_text(json.dumps(result, indent=2) + "\n")
+    print(f"[wrote] {out / 'summary.json'}")
 
 
 if __name__ == "__main__":
