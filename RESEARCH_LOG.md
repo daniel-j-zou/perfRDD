@@ -9,6 +9,70 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-06 - Hard-trimmed differing-slopes four-role influence terms and covariance cancellation (Codex)
+
+Author requested extending the four-role argument and showing the zero
+cross-role covariances. Derived the joint influence terms below; this is a
+conditional assembly using the augmented outcome and weighted-density block
+expansions, not a new claim that every primitive feasible-trimming remainder
+has been discharged. Manuscript and frozen prelim are unchanged.
+
+Use X independent of eta, centered eta, T = gamma' Xtilde with an OLS
+intercept, and u = Y-b(eta)-D alpha(eta)-X' beta1-D X' beta2 with
+E[u | X,eta] = 0. At the differing-slopes trimmed optimum phi*, set
+I(e)=1[l<=e<=u], F(e)=(alpha(e)-c)g(phi*-e)+beta2' p_X(phi*-e),
+B=E[I p_X(phi*-eta)], and b_v=F(v)f_eta(v). Here u as an endpoint is
+distinct from the outcome residual. All expressions use the DS optimum,
+not the old common-slope optimum.
+
+The joint outcome representer r_o, zero-extended outside the fixed outcome
+window J, represents the functional
+L_o(v_b(eta)+D v_alpha(eta)+X'v_1+D X'v_2)
+= E[I g(phi*-eta) v_alpha(eta)] + B'v_2
+in the augmented outcome space with inner product E[1_J h1 h2]. It is
+not the old common-slope representer. Write
+r0(t)=I(phi*-t)(alpha(phi*-t)-c)f_eta(phi*-t),
+r1(t)=I(phi*-t)f_eta(phi*-t),
+z_p(T)=(p-1[T<=q_p])/g(q_p), and m_p=E[Xtilde|T=q_p].
+The four centered contributions are
+psi_U=-I F,
+psi_o=-r_o u,
+psi_T=-r0(T)-(beta2'X)r1(T)-b_l z_(1-eps)(T)+b_u z_eps(T),
+psi_gamma=Abar' Sigma_Xtilde^{-1} Xtilde eta.
+
+For explicit loading bookkeeping let xi=b'(eta)+D alpha'(eta),
+h(t)=g(t)E[Xtilde|T=t], and M(t)=g(t)E[Xtilde X'|T=t]. Then
+Aev=E[Xtilde]{E[I F']+b_l-b_u},
+Ao=E[r_o xi Xtilde],
+Arho=-integral h' r0 - integral M' beta2 r1,
+and Abar=Aev-Ao-Arho-b_l m_(1-eps)+b_u m_eps.
+The weak integrals use the buffered zero-outer-trace sieve and include the
+effect of internal jumps without differentiating the limiting weights
+pointwise. Moving endpoints have the same signs as the common-slope case,
+but b_l,b_u now use the full differing-slopes F.
+
+The Riesz identity tested at xi gives Ao,0=E[I alpha' g]. The first row
+of h is g and of M is p_X', where the latter prime denotes transpose, so
+Arho,0=-E[I{(alpha-c)g'(phi*-eta)+beta2' p_X'(phi*-eta)}]. Hence
+Aev,0=Ao,0+Arho,0+b_l-b_u, and m_p,0=1 gives Abar,0=0 exactly.
+Equivalently psi_gamma=Abar_X' Var(X)^{-1}(X-E[X]) eta.
+
+All six cross-role covariances now vanish: three involving psi_o vanish by
+conditioning on X,eta; psi_U versus psi_T vanishes by X independent of eta;
+psi_gamma versus psi_T vanishes by E[eta|X]=0; and psi_gamma versus psi_U
+vanishes by the centered-X formula and independence. The alpha/beta2
+covariance within psi_o and g/p_X/quantile covariances within psi_T do NOT
+vanish in general and must be retained in their combined variances.
+
+Conditional on the four block remainders being o_p(n^-1/2), finite influence
+variances, and the usual consistency/curvature reduction, the fixed split
+at N=4n has asymptotic variance 4 sum Var(psi_a)/H^2; complete cyclic
+rotation has sum Var(psi_a)/H^2. No further fold is needed. Required
+extension ingredients are the maintained augmented rank and joint outcome
+Riesz theory, weighted density moment/weak-derivative bounds, and the
+feasible outcome outer-selection condition; covariance cancellation alone
+does not prove those ingredients or full-sample reuse.
+
 ## 2026-10-06 - Review of the weekly four-role split (Codex)
 
 Reviewed `this_week.tex` on Overleaf `origin/master` at `7c2cbb5`, especially
