@@ -9,6 +9,45 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-05 - Differing slopes: the same four roles suffice, and the 4x multiple holds (Claude)
+
+Question from the author: does the four-role shared-first-stage design extend
+to the differing-slopes setting, and how many splits does it need?
+
+Four, the same ones (gamma, outcome, index, utility). The differing-slopes
+utility U_J adds a term to each role's score but creates no new role:
+beta2-hat comes from the same stacked outcome fit as alpha-hat, and p_X-hat
+from the same T-fold as g-hat. This is already the split used in the weekly
+note's differing-slopes derivation (four folds of size n, one shared OLS fit).
+
+Clean multiple. With one shared gamma-hat the four scores are mutually
+uncorrelated on the same observation under X independent of eta and
+E[u_Y | X, eta] = 0: the index score is a function of X, the utility score a
+function of eta, the outcome score is conditionally centred, and
+Cov(gamma score, utility score) is proportional to the intercept loading,
+which is zero by location invariance of the criterion. Hence
+N Var(fixed) = 4 N Var(rotated) = 4 N Var(full sample).
+
+Simulation (`experiments/scripts/differing_slopes_four_role_check.py`;
+baseline scenario of `differing_slopes_full_pipeline.py`, linear outcome fit,
+spline g and p_X, estimated trim endpoints; 1000 replications):
+
+| N | fixed N Var | rotated | full sample | fixed/rotated | fixed/full |
+|---|---|---|---|---|---|
+| 8000 | 17.53 | 4.52 | 4.31 | 3.88 | 4.07 |
+| 16000 | 17.32 | 4.22 | 4.25 | 4.11 | 4.08 |
+| 32000 | 17.40 | 4.38 | 4.37 | 3.98 | 3.98 |
+
+Monte Carlo standard error is about 4.5% per variance (6% per ratio); biases
+are below 0.002 in absolute value in every cell.
+
+Limits. The outcome fit here is the pipeline's correctly specified linear
+fit, not the theorem's spline fit, and no analytic variance was computed for
+this design, so only the ratio is checked, not the level. The multiple relies
+on X independent of eta; where that fails (it fails on the taxi data) the
+index and utility scores are correlated and the ratio need not be 4, although
+the sum-then-variance formula still applies.
+
 ## 2026-10-02 - A shared first stage gives an exact fold-count multiple: four roles, 4x (Claude)
 
 Question from the author: can the fixed-split variance be an exact multiple of
