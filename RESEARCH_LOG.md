@@ -9,6 +9,56 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-06 - Review of the weekly four-role split (Codex)
+
+Reviewed `this_week.tex` on Overleaf `origin/master` at `7c2cbb5`, especially
+Section 5, against the inherited prelim block expansions. No manuscript or
+prelim edits were made. The shared off-fold OLS construction, joint index-fold
+density/quantile score, endpoint signs, and addition of finitely many rotated
+expansions are sound conditional on the stated block assumptions. Fitted
+nuisances are dependent through gamma; the *oracle leading fold averages* are
+independent. These are different assertions.
+
+The zero intercept loading also follows directly from the outcome Riesz
+identity: its intercept component gives
+`A_alpha,0 = E[I alpha' g]`, while
+`A_g,0 = -E[I (alpha-c) g']`. Inserting these in the displayed Abar cancels
+the evaluation derivative and both endpoint loadings. Together with
+X independent of eta and conditional outcome mean zero, this verifies the
+same-observation zero cross-role covariances and the exact fourfold
+fixed/rotated variance ratio. It does not prove full-sample reuse.
+
+Qualifications for a future author-authorized revision:
+- The new proposition states a rate for K but defines the density fit with L.
+  Explicitly adopt L comparable to K with the same admissible growth window,
+  and inherit the buffered, zero-outer-trace cubic density sieve. R1--R6 alone
+  do not specify that estimator construction. These are implementation/theorem
+  specifications, not new population restrictions.
+- With unbounded T and the displayed finite-window integrated density,
+  omitted upper-tail mass shifts the utility by a phi-independent constant.
+  Literal criterion-level R5 consistency to the full-survival U need not hold.
+  State consistency of utility differences (or up to that constant), or restore
+  a tail constant. The score and optimizer arguments are unchanged. This issue
+  is inherited from the prelim convention, not caused by the new split.
+- The notation E[X r_g'(T)] near the loading definitions must mean the weak
+  pairing including endpoint masses, not the almost-everywhere derivative.
+  The displayed definition -integral h' r_g is the correct one.
+- The sentence that separate first stages make the fixed/rotated ratio exceed
+  the number of folds is DGP-specific, not general: the ratio is k S/(S+C),
+  with C the summed cross-role covariances. The 10.62 numerical example is
+  valid but does not establish that direction universally.
+- R5 retains the outcome outer-selection remainder assumption. The trimmed
+  differing-slopes joint expansion remains explicitly unfinished in Section
+  5.6; the simulations are not its proof. Failure of X independent of eta
+  also threatens the factorized utility identification, not only the exact
+  variance multiple.
+
+Validation: `python3 -m unittest experiments.tests.test_four_role_shared_gamma
+experiments.tests.test_four_role_rotation_average
+experiments.tests.test_eight_role_variance` passed all six tests. Re-evaluated
+the existing analytic decomposition; did not rerun the large Monte Carlo
+experiments or audit the external literature comparison in this review.
+
 ## 2026-10-06 - Code wording on rotation updated; prelim stays frozen (Claude)
 
 Author decision: update the code comment that called role rotation an
