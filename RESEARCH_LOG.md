@@ -9,6 +9,54 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-06 - Mukherjee-Banerjee-Ritov re-read: our split matches their structure; rotation is covered (Claude)
+
+Author request: re-read the paper and supplement and check whether our
+approach and splitting are consistent with what they implement.
+
+What they implement (main paper Section 2.1; supplement Section 1.1). Three
+folds in a chain. D1: OLS gamma-hat. D2: spline estimate of b' using eta-hat
+from the D1 fit. D3: the final stacked regression, which includes the
+regressor b-hat'(eta-hat) Z and the first-stage equation, so that
+gamma-hat - gamma_0 is re-estimated on D3. The leading term of the estimator
+"only depends on the observations in D3", giving N(0, 3V) for one assignment.
+They then rotate the three roles and average the three estimates, which are
+asymptotically independent, giving N(0, V). The no-split estimator is only
+conjectured (Section 4.3 simulation). The same design appears in Wibisono et
+al. and in the paper's own sketch for heterogeneous alpha(eta) (Section 6.1).
+
+Consistent with our four-role split:
+- one first-stage fit feeds every later fold (theirs: D1 into D2 and D3);
+- one assignment costs a factor equal to the number of folds;
+- rotation removes the factor; full-sample reuse is unproved in both.
+The eight-role split, with a separate first-stage fit per block, has no
+counterpart in their design.
+
+Different mechanism. Their factor is exact because the final-fold regression
+absorbs the first-stage error, so all first-order noise is on one fold. Ours
+is exact because each fold carries a first-order score and the four scores
+are uncorrelated. They need a derivative fold (b'); our point estimator does
+not, but our variance needs the summed first-stage loading.
+
+Correction of my 2026-10-05 statement. I wrote in the note that the rotated
+limit was not proved because fold-by-fold conditioning fails under rotation.
+That was wrong. Their rotated result is obtained by adding the per-rotation
+expansions, and the same works here: each rotation is a valid four-role
+split, Proposition 1 gives its expansion, and the four expansions add to the
+all-observation average of the summed score. No independence between
+rotations is needed. `this_week.tex` now has this as Corollary 2 (manuscript
+commits 9e94879, 7c2cbb5). The same addition applied to the prelim's theorem
+covers the eight-role rotation (43.68); the prelim and the code comment in
+`hard_trim_crossfit_regularization.py` still describe rotation as an
+implementation diagnostic.
+
+Check (`experiments/scripts/four_role_rotation_average_check.py`, N = 40000,
+1000 replications): single rotations have N Var 170.3, 178.1, 179.6, 169.6
+(predicted 174.7); pairwise correlations between rotations lie in
+[-0.05, 0.02]; N Var is 43.44 for the average of the four estimates and 43.14
+for the pooled-criterion maximizer (predicted 43.67), with correlation 0.9991
+between the two.
+
 ## 2026-10-05 - Four-role CLT proof written into this_week.tex (Claude)
 
 Author request. Manuscript commits 893bbfc (note) and 37fef67 (changelog,
