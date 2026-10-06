@@ -9,6 +9,47 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-05 - Four-role CLT proof written into this_week.tex (Claude)
+
+Author request. Manuscript commits 893bbfc (note) and 37fef67 (changelog,
+task board) add Section 5 to `this_week.tex`.
+
+What is proved. For the hard-trimmed common-slope estimator under four equal
+folds (first stage; outcome; index with the density fit and both trim
+endpoints; evaluation) and one shared first-stage fit, the score at the
+optimum is P_U psi_U + P_o psi_o + P_rho psi_T + P_gamma psi_gamma +
+o_p(n^{-1/2}), with independent averages, and the threshold has variance
+4 sigma_4^2 / H^2 at total sample size N, where
+sigma_4^2 = Var psi_U + Var psi_o + Var psi_T + Abar' Sigma_gamma Abar and
+Abar = A_ev - A_alpha - A_g - b_l m_{1-eps} + b_u m_eps.
+
+How. Blocks A to E of the frozen prelim's proof are reused unchanged, under
+its conditions (R1)-(R6); each block expansion conditions on a first-stage
+fit computed off its own fold and none uses that the fits differ across
+blocks. The assembly changes (loadings are summed before the variance), and
+the endpoint expansion comes from the prelim's uniform generated-index
+Bahadur lemma applied on the index fold at the shared gamma-hat. Because
+psi_T is one function of T, the density-quantile covariances need no separate
+central limit argument.
+
+Two new facts. (i) Location invariance: the intercept coordinate of Abar is
+zero, since Abar is the gradient of the population score in the first-stage
+coefficient and an intercept shift leaves that score unchanged. (ii) The four
+role scores are mutually uncorrelated under X independent of eta and
+E[u_Y | X, eta, D] = 0; (i) is what kills Cov(psi_gamma, psi_U). Hence a
+fixed assignment has exactly four times the summed-score variance.
+
+Decisions and limits. The prelim is cited, not edited. The proposition is as
+complete as the prelim's blocks; (R5) stays high-level. The rotated and
+full-sample expansions are stated as expected, not proved. The
+differing-slopes extension (Section 5.6) is stated for the note's untrimmed
+setting and presumes next-steps item 1; the trimmed differing-slopes score is
+not derived. Three follow-ups are on the task board: rotated expansion,
+plug-in variance estimator, and the author's decision on adopting the split.
+
+Coordination note for Codex: the new section sits between Step 4 and Next
+steps and does not touch Step 3c, which remains under Codex's open claim.
+
 ## 2026-10-05 - A fifth fold for the trim endpoints: little proof gain, larger fixed-split variance (Claude)
 
 Question from the author: is the proof easier with five splits, the extra one
