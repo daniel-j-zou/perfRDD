@@ -121,9 +121,11 @@ def make_role_rotated_folds(
     A single call returns a valid theorem-facing split.  Across rotations,
     every physical block serves every role exactly once.  The partition itself
     is held fixed so that the comparison changes only role assignment, not the
-    random sample split.  The rotated estimator remains an implementation
-    diagnostic: averaging the eight criteria introduces cross-rotation
-    covariance that is not covered by the single-split CLT.
+    random sample split.  Each rotation satisfies the single-split CLT, and the
+    eight linear expansions add, so the pooled-criterion estimator has
+    first-order variance Var(sum of role scores) / H^2 (manuscript
+    ``this_week.tex``, complete-role-rotation corollary).  The rotations share
+    observations, so this is not the fixed-split variance divided by eight.
     """
     names = tuple(THEORY_FOLD_FRACTIONS)
     if not 0 <= int(rotation) < len(names):

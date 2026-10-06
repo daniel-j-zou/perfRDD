@@ -212,8 +212,8 @@ def calculate_limiting_variance() -> Dict[str, Any]:
                 full_score_variance / curvature_squared
             ),
             "note": (
-                "Role rotation uses the same per-role first-order benchmark; "
-                "cross-rotation covariance is not included."
+                "The per-rotation expansions add, so role rotation has the "
+                "summed-score variance, the same benchmark as full-sample reuse."
             ),
         },
         "honest_split": {

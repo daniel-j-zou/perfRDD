@@ -282,8 +282,8 @@ def calculate_variance_benchmarks() -> Dict[str, Any]:
         "rotated_8block": {
             "threshold_asymptotic_variance": full_threshold_variance,
             "note": (
-                "Role rotation uses the same per-role first-order benchmark, "
-                "but its cross-rotation covariance is not included."
+                "The per-rotation expansions add, so role rotation has the "
+                "summed-score variance, the same benchmark as full-sample reuse."
             ),
         },
         "honest_split": {

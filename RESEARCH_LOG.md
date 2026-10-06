@@ -9,6 +9,37 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-06 - Code wording on rotation updated; prelim stays frozen (Claude)
+
+Author decision: update the code comment that called role rotation an
+implementation diagnostic outside the single-split CLT, and leave
+`prelim/prelim.tex` frozen.
+
+Changed, wording only (no numerical output changes):
+- `experiments/scripts/hard_trim_crossfit_regularization.py`, docstring of
+  `make_role_rotated_folds`: each rotation satisfies the single-split CLT and
+  the eight expansions add, so the pooled-criterion estimator has first-order
+  variance Var(sum of role scores) / H^2; this is not the fixed-split
+  variance divided by eight.
+- The `note` strings for `rotated_8block` in
+  `hard_trim_asymptotic_variance.py` and
+  `hard_trim_spline_density_variance.py`, which said cross-rotation covariance
+  was "not included", now say rotation has the summed-score variance, the
+  same benchmark as full-sample reuse.
+
+Not changed:
+- `prelim/prelim.tex` (frozen by author decision) still says only the fixed
+  assignment is covered.
+- `experiments/datasets/simulations/THEOREM_DECOUPLED_HARD_TRIM_20260915.md`,
+  a dated record, still calls rotation an implementation diagnostic; read it
+  together with this entry.
+- The full-sample benchmark in `hard_trim_spline_density_variance.py` still
+  omits the kappa^2 first-stage term (43.326 instead of 43.675), as logged on
+  2026-10-01.
+
+Tests: the three modules compile and their test modules, with the four-role
+and eight-role tests, pass (13 tests).
+
 ## 2026-10-06 - Mukherjee-Banerjee-Ritov re-read: our split matches their structure; rotation is covered (Claude)
 
 Author request: re-read the paper and supplement and check whether our
