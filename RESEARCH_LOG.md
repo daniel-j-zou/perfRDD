@@ -9,6 +9,45 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-06 - Read-through of this_week.tex and differing_slopes.tex; target mismatch in the DS baseline (Claude)
+
+Author asked for a check of the differing-slopes derivation, a read-through
+of `this_week.tex`, and an assessment of the references in the
+`differing_slopes.tex` introduction. Manuscript commit 7a6632c and its
+follow-up.
+
+Verified by hand: the utility formula and derivative, the product
+decomposition, the exact pairing, the three-piece split of the integrated
+density error, the beta2 representer, the signs of the three first-stage
+loadings, and the assembly. Verified by hand and by quadrature: phi* =
+0.731292, H = -0.072018, a_U, b_l, b_u, A_gT, Var(psi_U) = 0.0185,
+Var(psi_g) = 0.0202, Var(psi_T) = 0.0363, every row of the eight-role table,
+464.0, 43.68, 10.62, the -0.035 average rotation correlation, 174.7, 214.8.
+
+Finding 1 (conditions, now fixed in the note). The differing-slopes
+derivation never stated its K, L range or the smoothness index s, and
+assumed only two derivatives of p_X. Two derivatives need L >> n^(1/4) for
+the bias while Step 3b's quadratic remainder needs L << n^(1/5). Three
+derivatives with n^(1/6) << K, L << n^(1/5) are consistent, and match (DS3).
+The Step 3b integration by parts needs the zero-trace basis.
+
+Finding 2 (open). `differing_slopes.tex` Section 5 displays a design with
+beta2 = (0.4, -0.25, 0.15) but quotes the common-slope target. With
+X ~ N(0, I_3) and gamma_X = (1,1,1)/sqrt(3), p_X(t) = gamma_X t g(t), so the
+supported score gains 0.3/sqrt(3) * E[I (phi - eta) g(phi - eta)].
+Quadrature gives phi* = 0.545103 and U'' = -0.107534 for the displayed
+design. The table rows labelled ten blocks are the eight-role common-slope
+results. Recorded in the section's to-do box; numbers in the text are
+unchanged until the DS runner is rerun.
+
+Finding 3. The rotated variances 43.4 and 43.1 quoted in the note at
+N = 40000 come from `four_role_rotation_average_check.py`; the table's 40.1
+comes from `four_role_shared_gamma_check.py`. Different runs, both within
+Monte Carlo error of 43.68. The text now says so.
+
+References: fifteen entries added to `references.bib`, each checked against
+Crossref. Not verified: no claim that the literature review is exhaustive.
+
 ## 2026-10-06 - Hard-trimmed differing-slopes four-role influence terms and covariance cancellation (Codex)
 
 Author requested extending the four-role argument and showing the zero
