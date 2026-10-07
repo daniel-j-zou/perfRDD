@@ -9,6 +9,38 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-07 - Weekly differing-slopes four-role extension written up with existing simulation evidence (Codex)
+
+Author requested the derivation and simulations at the bottom of
+`this_week.tex`. Appended Section 7 (pages 22--25): joint outcome Riesz
+functional, combined g/p_X/quantile term, summed first-stage loading,
+intercept cancellation including trim endpoints, six cross-role covariance
+calculations, and conditional fixed/rotated CLTs. All within-role covariance
+is retained. The status remains conditional on joint spline remainders,
+outer outcome-window selection, consistency and curvature; not a completed
+primitive feasible theorem or a full-sample-reuse result.
+
+Verified the existing saved results in
+`experiments/runs/differing_slopes_four_role_check/summary.json` against the
+runner `experiments/scripts/differing_slopes_four_role_check.py`. There are
+1000 replications at N=8000,16000,32000, with fixed/rotated variance ratios
+3.8762,4.1084,3.9770. The DGP has X in R^2, T=X1, alpha=.35+.90 eta,
+b=.20+.60 eta, beta1=(.30,-.20), beta2=(.80,.25), independent standard
+Gaussian X,eta, noise s.d. .50, cost .25 and trim .10. Recomputing
+`population_truth()` gave phi*=-.1200638054, consistent with the saved
+-.1200638157. This is not the three-covariate DS design flagged in Claude's
+previous entry. The outcome fit is linear OLS, not nonparametric splines;
+g and p_X use spline projections. The writeup explicitly limits what the
+simulation validates and links the existing table without duplicating it.
+
+Validation: `python3 -m unittest experiments.tests.test_differing_slopes_four_role`
+passed (one test). No large Monte Carlo rerun. `latexmk -pdf
+-interaction=nonstopmode -halt-on-error this_week.tex` builds 25 pages with
+no undefined references; new pages were rendered and visually checked.
+Source commit `0420955`, changelog commit `d178eb0`, pushed to Overleaf.
+Task board updated; frozen prelim, earlier author edits and other manuscript
+files preserved. Local reviewed PDF: `outputs/weekly-20261007/this_week.pdf`.
+
 ## 2026-10-06 - Read-through of this_week.tex and differing_slopes.tex; target mismatch in the DS baseline (Claude)
 
 Author asked for a check of the differing-slopes derivation, a read-through
