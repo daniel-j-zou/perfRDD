@@ -9,6 +9,25 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-07 - Section 7 table is simulation-only (Codex)
+
+Per author request, replaced the theoretical ten-versus-four table at the
+end of `this_week.tex` with only the verified differing-slopes simulation
+results. The table reports fixed four-fold, rotated four-fold, and full-sample
+`N Var(phi-hat)` plus fixed/rotated and fixed/full ratios for N=8000, 16000,
+32000: (17.53, 4.52, 4.31, 3.88, 4.07), (17.32, 4.22, 4.25, 4.11,
+4.08), and (17.40, 4.38, 4.37, 3.98, 3.98). It explicitly says the run
+uses linear outcome OLS, spline g/p_X, estimated first stage/endpoints, and
+has no matched ten-fold simulation. No theoretical table or unverified
+ten-fold numerical comparison remains.
+
+The latest Overleaf edits were preserved, including the author's deletion of
+the previous provenance/TODO block. Source commit `37920d5` pushed to
+Overleaf; task board and changelog updated. The 25-page note compiles with no
+undefined references or overfull horizontal boxes; final table rendered and
+visually checked. Saved numbers match
+`experiments/runs/differing_slopes_four_role_check/summary.json`.
+
 ## 2026-10-07 - Final Section 7 ten/four comparison table (Codex)
 
 Expanded and moved the opening fold-allocation table to the end of Section 7
