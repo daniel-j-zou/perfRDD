@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-07 - Concise ten-versus-four split explanation (Codex)
+
+At the author's request, Section 7 of `this_week.tex` now opens with a
+compact comparison to the actual ten-role partition in `differing_slopes.tex`:
+four first-stage source folds, four main folds, and two endpoint folds with
+their own OLS fits become one shared first-stage fold, outcome, joint index
+with endpoints, and evaluation. Conditional on the shared source fold,
+regression and evaluation remain independent; the first-stage uncertainty
+is retained through the sum of signed loadings. This does not assume the
+unconditional fitted nuisances are independent. No methodology changes.
+Manuscript commits `011a18d`, `42fa552`, `718291a` pushed to Overleaf;
+task board updated. Compiled 25 pages without undefined references or
+overfull horizontal boxes and visually checked the affected pages.
+
 ## 2026-10-07 - Weekly differing-slopes four-role extension written up with existing simulation evidence (Codex)
 
 Author requested the derivation and simulations at the bottom of
