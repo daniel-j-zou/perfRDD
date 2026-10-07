@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-07 - Final Section 7 ten/four comparison table (Codex)
+
+Expanded and moved the opening fold-allocation table to the end of Section 7
+in `this_week.tex` at the author's request. Table 6 distinguishes six OLS
+fits in the original ten-role construction from one shared fit in four roles,
+and compares the conditional N-scaled variance formulas: fixed k S_k/H^2,
+rotated (S_k+C_k)/H^2, with C_4=0 under the section's assumptions. The notes
+retain within-role covariance and explain that equal summed influence
+functions imply equal rotated variances. No new numerical claim or theorem.
+Preserved the latest author deletion of the provenance paragraph and TODO.
+Manuscript source `051252c`, changelog `acf8669`; task board updated.
+Compiled 26 pages without undefined references or overfull horizontal boxes,
+and visually checked the new table and revised opening.
+
 ## 2026-10-07 - Concise ten-versus-four split explanation (Codex)
 
 At the author's request, Section 7 of `this_week.tex` now opens with a
