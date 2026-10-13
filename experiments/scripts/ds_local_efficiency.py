@@ -111,6 +111,16 @@ DESIGNS: Dict[str, Design] = {
         sigma_arm=(0.5, 0.5), cost=2.25, eta_law=("mixture", 0.8),
         note="paper design with eta an equal two-normal mixture (lam = 0.8)",
     ),
+    # The paper design with smaller outcome noise (largest gain in the sensitivity grid).
+    "paper_lownoise": Design(
+        name="paper_lownoise",
+        sigma_x=(1.0, 1.0, 1.0), gamma0=0.0,
+        gamma_x=tuple(np.ones(3) / np.sqrt(3.0)), sigma_eta=1.0,
+        a_coef=(2.0, 1.0), b_coef=(0.0, 0.0, 0.5),
+        beta1=(0.3, -0.2, 0.1), beta2=(0.4, -0.25, 0.15),
+        sigma_arm=(0.25, 0.25), cost=2.25,
+        note="paper design with sigma_0 = sigma_1 = 0.25",
+    ),
     # The paper design with heteroskedastic arms, sigma_d(eta) = 0.5 exp(eta / 2).
     "paper_hetero": Design(
         name="paper_hetero",

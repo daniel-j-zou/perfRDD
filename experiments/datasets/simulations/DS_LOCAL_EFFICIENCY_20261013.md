@@ -98,6 +98,20 @@ The stacked first stage still beats OLS for the slopes and in a fixed assignment
 rotated average loses through the within-observation covariance between the outcome score
 and the outcome rows of the first-stage score, which is zero only under (H).
 
+Weighted estimators (weights 1/sigma_D^2(eta)), rotated:
+
+| kappa | paper | w_ols (weighted outcome, OLS first stage) | w_stacked (both weighted) = bound |
+|---|---|---|---|
+| 0 | 31.09 | 31.09 | 28.02 |
+| 0.5 | 31.35 | 34.90 | 29.87 |
+| 1 | 34.65 | 41.18 | 33.58 |
+| 1.5 | 41.76 | 50.55 | 39.59 |
+
+Weighting only the outcome fit hurts, because the weighted outcome loading is larger:
+Abar^w_X = (-0.275, -0.220, -0.254) at kappa = 1, against (-0.191, -0.135, -0.169)
+unweighted. The identity Abar^w_X = Abar_X + E[S_J r_out R_xi^w] was checked numerically
+(equal to 5 decimals).
+
 ## Simulation (`python -m experiments.scripts.ds_local_efficiency_sim --design <d> --n 16000 32000 --reps 1000 --workers 8`)
 
 1000 replications per cell, so each N Var has a Monte Carlo s.e. of about 4.5%. Both

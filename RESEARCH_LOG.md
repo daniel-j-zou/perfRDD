@@ -9,6 +9,66 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-13 - Local efficiency follow-up: weighting for heteroskedastic arms (Claude)
+
+Follow-up to my entry "Local efficiency at Gaussian eta" below. New subsection
+"Dropping (H): weighting both folds" in `../manuscript/this_week.tex` §4, a
+weighted-outcome lemma, and a figure (manuscript 7e698f5, changelog 2f975e4). Still
+exploratory; nothing in the paper changes.
+
+**Findings** (population calculations, `ds_local_efficiency_hetero.py`; paper design,
+sigma_d^2(eta) = 0.25 exp(kappa eta)):
+
+1. **Weighted bound.** Under (H'), Var(R_Y | D, X, eta) = sigma_D^2(eta), the
+   efficient influence function is
+   psi_U + psi_T - sigma^-2 R_Y r^w_out + Abar^w_X' I_w^{-1} S^w_eff:
+   - r^w_out represents L_out in the inner product E[S_J m1 m2 / sigma^2];
+   - R^w_xi is the residual in that inner product;
+   - Abar^w = Abar + A_out - A^w_out is the summed loading of the weighted plug-in.
+
+   The identity Abar^w_X = Abar_X + E[S_J r_out R^w_xi] was checked numerically (5
+   decimals at kappa = 0.5 and 1). It is attained by weighting both the outcome
+   fold's regression and the stacked first stage's outcome rows by
+   1/sigma_hat_D^2(eta_hat), with the adaptive score rows for non-Gaussian eta.
+2. **Weighting only part of the estimator hurts.** Rotated variances
+   (paper / unweighted stacked / weighted outcome with OLS first stage / both
+   weighted = bound):
+
+   | kappa | paper | unweighted stacked | weighted outcome, OLS | both weighted (bound) |
+   |---|---|---|---|---|
+   | 0.5 | 31.35 | 30.75 | 34.90 | 29.87 |
+   | 1 | 34.65 | 36.79 | 41.18 | 33.58 |
+   | 1.5 | 41.76 | 46.82 | 50.55 | 39.59 |
+
+   - The unweighted stacked first stage is worse than the paper's from kappa of
+     about 0.6. Its slopes are still better than OLS (0.57 of OLS at kappa = 1),
+     but a within-observation covariance between the outcome score and the
+     first-stage outcome rows (2 Cov 0.026, 0.051, 0.076) enters the rotated
+     variance.
+   - The weighted outcome fit with OLS is worse because its first-stage loading is
+     larger: Abar^w_X = (-0.275, -0.220, -0.254) against (-0.191, -0.135, -0.169)
+     at kappa = 1.
+3. **Weighted outcome block.** With weights fitted on a disjoint part of the
+   outcome fold and converging to some limit sigma_bar^2, the paper's Steps 1a-3a
+   hold in the sigma_bar-weighted inner product. The estimator is valid for any
+   limit and efficient when sigma_bar^2 = sigma^2. The implementation fits a
+   six-function spline variance on the same fold, so it gets approximate weights
+   and ignores the same-fold dependence.
+4. **Wording correction** to the first entry and the first notebook version: the
+   unweighted stacked estimator falls behind the paper's from kappa of about 0.6,
+   not 1 (`ds_local_efficiency_figure.py` grid).
+
+**Simulation checks still running:** the first-stage convergence check, the adaptive
+first stage under mixture eta, the four weighted and unweighted estimators under
+kappa = 1, and the low-noise design. Results will follow in another entry.
+
+**Files** (`code/experiments/scripts/`):
+- `ds_local_efficiency_hetero.py` (weighted estimators added)
+- `ds_local_efficiency_weighted_sim.py`
+- `ds_local_efficiency_figure.py`
+- designs `paper_hetero` and `paper_lownoise` in `ds_local_efficiency.py`
+- `../datasets/simulations/DS_LOCAL_EFFICIENCY_20261013.md` updated
+
 ## 2026-10-13 - Local efficiency at Gaussian eta: bound, efficient first stage, numbers (Claude)
 
 The author asked whether a "Level B" efficiency claim is possible: local

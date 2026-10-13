@@ -11,7 +11,9 @@ rotated N-scaled threshold variances are compared:
   constant weights 1/sbar_d^2 (efficient only under H).  Under heteroskedasticity
   its first-stage and outcome scores are correlated, and the rotated variance
   includes that covariance;
-* ``bound``: the efficiency bound of M_J.  Its outcome term is
+* ``weighted_ols``: outcome fit weighted by 1/sigma_D^2(eta), OLS first stage;
+* ``bound``: the efficiency bound of M_J, attained by the outcome fit and the
+  stacked first-stage outcome rows both weighted by 1/sigma_D^2(eta).  Its outcome term is
   -sigma^{-2} R_Y r^w, where r^w represents L_out in the weighted inner product
   E[S_J m1 m2 / sigma^2]; on arm d,
       r^w = s_d I0 g(phi* - eta) sigma_d^2(eta) / pi_d(eta) + (X - m_d)'k_d,
@@ -105,10 +107,13 @@ def hetero_variances(pop: Population, kappa: float) -> dict:
     cov_o_g = float(Ginv_A @ cov_ls)
     stacked = (common + var_o_paper + var_g_ls + 2.0 * cov_o_g) / H2
     I_w = V_X / pop.var_eta + Jw
-    c = AX + cross_bound
+    c = AX + cross_bound          # = Abar_X of the weighted plug-in
     bound = (common + var_o_bound + float(c @ np.linalg.solve(I_w, c))) / H2
+    # weighted outcome fit with the OLS first stage
+    weighted_ols = (common + var_o_bound + pop.var_eta * float(c @ np.linalg.solve(V_X, c))) / H2
     slope_cov = np.linalg.solve(G_ls, np.linalg.solve(G_ls, var_psiw).T)
     return {"kappa": kappa, "paper": paper, "stacked": stacked, "bound": bound,
+            "weighted_ols": weighted_ols, "weighted_stacked": bound,
             "fixed_paper": 4 * paper,
             "fixed_stacked": 4 * (common + var_o_paper + var_g_ls) / H2,
             "two_cov_outcome_first_stage": 2.0 * cov_o_g,
@@ -127,8 +132,8 @@ def main(argv=None) -> None:
     rows = [hetero_variances(pop, k) for k in args.kappa]
     for r in rows:
         print(f"kappa={r['kappa']:.2f}: paper={r['paper']:.3f} stacked={r['stacked']:.3f} "
-              f"bound={r['bound']:.3f} (gain stacked {100 * r['gain_stacked']:.1f}%, "
-              f"bound {100 * r['gain_bound']:.1f}%)")
+              f"weighted+OLS={r['weighted_ols']:.3f} weighted+stacked=bound={r['bound']:.3f} "
+              f"(gain stacked {100 * r['gain_stacked']:.1f}%, bound {100 * r['gain_bound']:.1f}%)")
     args.out.mkdir(parents=True, exist_ok=True)
     (args.out / f"hetero_{args.design}.json").write_text(json.dumps(rows, indent=2) + "\n")
 
