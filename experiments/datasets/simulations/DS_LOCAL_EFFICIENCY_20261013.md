@@ -23,6 +23,8 @@ Environment: `/Users/zoudj/miniconda3/envs/srsd/bin/python`, run from `code/`.
   - beta1 = (0.3, -0.2, 0.1), beta2 = (0.4, -0.25, 0.15).
   - sigma_0 = sigma_1 = 0.5, c = 2.25, eps = 0.1.
   - J = [-1.75, 1.75], T support [-3, 3], Phi = [-1.5, 1.5].
+- **paper_lownoise**: paper_baseline with sigma_0 = sigma_1 = 0.25.
+- **paper_hetero**: paper_baseline with sigma_d^2(eta) = 0.25 exp(kappa eta), kappa = 1.
 - **ds_linear**: the earlier four-role DS check design.
   - X ~ N(0, I_2), T = X1, eta ~ N(0, 1).
   - b = 0.2 + 0.6 eta, a = 0.35 + 0.9 eta.
@@ -141,6 +143,67 @@ Here J_Y = 0. The stacked first stage is asymptotically equivalent to OLS, but i
 slopes are noisier in finite samples, because the outcome rows carry spurious
 information through the estimated c_d'. The threshold is unaffected because its
 first-stage loading is negligible in this design.
+
+**paper_lownoise** (sigma = 0.25; `ds_local_efficiency_sim.py`, N = 32000, 1000 reps)
+
+| | rotated OLS | rotated stacked | paired diff | fixed OLS | fixed stacked | slopes OLS | slopes stacked |
+|---|---|---|---|---|---|---|---|
+| simulation | 16.51 | 11.45 | 5.06 | 65.37 | 43.40 | 1.007 | 0.178 |
+| prediction | 16.94 | 11.55 | 5.39 | 67.76 | 46.20 | 1.000 | 0.167 |
+
+The OLS and stacked estimators have correlation 0.81.
+
+**paper_hetero** (kappa = 1; `ds_local_efficiency_weighted_sim.py`, N = 32000, 1000 reps;
+`--oracle` adds true-variance weights; the same seeds, so the paper and fitted rows
+coincide across the two runs)
+
+| estimator | rotated N Var | prediction | fixed | bias |
+|---|---|---|---|---|
+| paper (OLS first stage) | 34.96 | 34.65 | 134.6 | +0.0023 |
+| stacked, unweighted | 37.60 | 36.79 | 128.7 | +0.0022 |
+| weighted outcome, OLS first stage | 42.16 | 41.18 | 157.3 | +0.0031 |
+| both weighted, fitted variance (6-function spline, same fold) | 36.85 | 33.58 | 139.6 | +0.0026 |
+| both weighted, true variance | 34.25 | 33.58 | 126.0 | +0.0023 |
+
+Paired (paper minus variant):
+- stacked: -2.63 (prediction -2.14);
+- weighted outcome with OLS: -7.20 (prediction -6.53);
+- both weighted with fitted variance: -1.89;
+- both weighted with true variance: +0.71 (prediction +1.07).
+
+The theory holds with the true weights. With fitted weights, the cost of estimating a
+variance that spans a 33-fold range on J (about 8%) exceeds the 3% gain at this N.
+
+## First-stage convergence (`python -m experiments.scripts.ds_local_efficiency_fs_check --m 4000 16000 64000 --reps 1000`)
+
+m Var of the slopes on a sample of size m, averaged over coordinates; limits in parentheses.
+
+| eta | m | OLS | stacked (LS rows) | adaptive |
+|---|---|---|---|---|
+| Gaussian | 4000 | 1.022 | 0.495 | 0.514 |
+| Gaussian | 16000 | 0.951 | 0.456 | 0.466 |
+| Gaussian | 64000 | 1.020 | 0.428 | 0.435 |
+| Gaussian | limit | (1.000) | (0.432) | (0.432) |
+| t5 | 4000 | 1.007 | 0.528 | 0.479 |
+| t5 | 16000 | 1.016 | 0.477 | 0.433 |
+| t5 | 64000 | 0.953 | 0.443 | 0.401 |
+| t5 | limit | (1.000) | (0.463) | (0.413) |
+| mixture | 4000 | 0.975 | 0.457 | 0.408 |
+| mixture | 16000 | 0.968 | 0.413 | 0.363 |
+| mixture | 64000 | 0.996 | 0.419 | 0.360 |
+| mixture | limit | (1.000) | (0.406) | (0.339) |
+
+**paper_mix, adaptive first stage** (`ds_local_efficiency_adaptive_sim.py`, N = 32000,
+1000 reps; same data and folds)
+
+| first stage | rotated N Var | prediction | slopes m Var (m = 8000) | slope limit |
+|---|---|---|---|---|
+| OLS | 22.88 | 23.58 | 0.985 | 1.000 |
+| stacked, LS rows | 20.55 | 21.45 | 0.429 | 0.406 |
+| adaptive | 20.16 | 20.90 | 0.372 | 0.339 |
+
+Paired differences: OLS minus adaptive 2.72 (prediction 2.68); stacked minus adaptive
+0.39 (prediction 0.56).
 
 ## Mukherjee et al. Theorem 2.10 (`python -m experiments.scripts.mbr_efficiency_check`)
 

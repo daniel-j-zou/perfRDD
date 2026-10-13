@@ -7,6 +7,7 @@ from dataclasses import replace
 import numpy as np
 
 from experiments.scripts.ds_local_efficiency import DESIGNS, Population
+from experiments.scripts.ds_local_efficiency_hetero import hetero_variances
 
 
 class LocalEfficiencyPopulationTest(unittest.TestCase):
@@ -46,6 +47,26 @@ class LocalEfficiencyPopulationTest(unittest.TestCase):
         res = Population(DESIGNS["ds_linear"]).decomposition()
         self.assertTrue(np.allclose(res["J_Y"], 0.0, atol=1e-10))
         self.assertAlmostEqual(res["efficiency_gain"], 0.0, places=8)
+
+    def test_hetero_reduces_to_homoskedastic(self):
+        pop = Population(DESIGNS["paper_baseline"])
+        res = pop.decomposition()
+        het = hetero_variances(pop, 0.0)
+        self.assertAlmostEqual(het["paper"], res["V_rotated_ols"], places=6)
+        self.assertAlmostEqual(het["stacked"], res["V_rotated_eff"], places=6)
+        self.assertAlmostEqual(het["bound"], res["V_rotated_eff"], places=6)
+        self.assertAlmostEqual(het["weighted_ols"], res["V_rotated_ols"], places=6)
+
+    def test_bound_below_every_estimator_under_heteroskedasticity(self):
+        pop = Population(DESIGNS["paper_baseline"])
+        for kappa in (0.5, 1.0, 1.5):
+            het = hetero_variances(pop, kappa)
+            for key in ("paper", "stacked", "weighted_ols"):
+                self.assertLessEqual(het["bound"], het[key] + 1e-9, (kappa, key))
+
+    def test_heteroskedastic_design_guard(self):
+        with self.assertRaises(ValueError):
+            Population(DESIGNS["paper_hetero"])
 
 
 if __name__ == "__main__":

@@ -9,6 +9,68 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-13 - Local efficiency follow-up: simulation checks (Claude)
+
+Follow-up to my two "Local efficiency" entries below. The notebook section "Local
+efficiency at Gaussian residuals" in `../manuscript/this_week.tex` now has the
+simulation checks (manuscript ca730ff, changelog 44093d0). The board item "Author:
+adopt the efficient first stage?" now states the trade-off (8cc1c28). Still
+exploratory; nothing in the paper changes.
+
+**Findings.** All use the paper design unless stated, 1000 replications, and N Var of
+the rotated threshold (Monte Carlo s.e. about 4.5%).
+
+1. **First-stage convergence** (`ds_local_efficiency_fs_check.py`, first stage only).
+   The stacked (least-squares score rows) and adaptive slope variances are within 6%
+   of their limits at m = 64000. At m = 4000 they are 12-20% above.
+
+   | eta | stacked, m = 64000 | limit | adaptive, m = 64000 | limit |
+   |---|---|---|---|---|
+   | Gaussian | 0.428 | 0.432 | 0.435 | 0.432 |
+   | t5 | 0.443 | 0.463 | 0.401 | 0.413 |
+   | mixture | 0.419 | 0.406 | 0.360 | 0.339 |
+
+   OLS is within 5% of its limit, 1.000, in every cell.
+2. **Adaptive pipeline** (`ds_local_efficiency_adaptive_sim.py`, mixture eta,
+   N = 32000). Rotated N Var is 22.88, 20.55 and 20.16 for the OLS, least-squares
+   stacked and adaptive first stages, against predictions of 23.58, 21.45 and 20.90.
+   Paired differences: OLS minus adaptive 2.72 (prediction 2.68); stacked minus
+   adaptive 0.39 (prediction 0.56).
+3. **Low noise** (paper_lownoise, sigma = 0.25, N = 32000). Rotated N Var is 16.51
+   with OLS and 11.45 stacked, against 16.94 and 11.55: a 31% cut, against a
+   predicted 32%.
+4. **Heteroskedastic arms** (paper_hetero, kappa = 1, N = 32000,
+   `ds_local_efficiency_weighted_sim.py` with and without `--oracle`; same seeds).
+
+   | estimator | rotated N Var | prediction |
+   |---|---|---|
+   | paper (OLS first stage) | 34.96 | 34.65 |
+   | stacked, unweighted | 37.60 | 36.79 |
+   | weighted outcome, OLS first stage | 42.16 | 41.18 |
+   | both weighted, fitted variance | 36.85 | 33.58 (bound) |
+   | both weighted, true variance | 34.25 | 33.58 (bound) |
+
+   - The two partly weighted estimators lose to the paper's, as predicted. Paired
+     differences are -2.63 and -7.20, against predictions of -2.14 and -6.53.
+   - With the true variance function, the fully weighted estimator is within Monte
+     Carlo error of the bound. Paired +0.71, against a predicted +1.07.
+   - With the fitted variance function (a six-function spline on the same fold) it
+     is worse than the paper's. Paired -1.89. The variance spans a 33-fold range on
+     J. The cause is not isolated: candidates are the same-fold fit, the spline
+     approximation, or a slow rate. A cross-fitted variance and larger N are
+     untested.
+5. **Reading.** Under (H) the stacked first stage gave the predicted gain in every
+   check. Under heteroskedastic arms the bound is attained with the true weights.
+   It is not attained with the current fitted weights at N = 32000. The unweighted
+   stacked version should not be used there.
+
+**Files** (`code/experiments/`):
+- `scripts/ds_local_efficiency_weighted_sim.py`: `OracleVariance` and `--oracle`.
+- `tests/test_ds_local_efficiency.py`: three heteroskedastic tests (9 in all; they
+  pass).
+- `datasets/simulations/DS_LOCAL_EFFICIENCY_20261013.md`: all tables, including the
+  convergence, adaptive, low-noise and heteroskedastic simulations.
+
 ## 2026-10-13 - Primitive conditions for (DS1), (DS5) derived; sketched proof steps written out (Claude)
 
 At the author's request ("theoretical desiderata not yet proven"), new §5
