@@ -9,6 +9,59 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-13 - Four-role theory moved into the paper; debiased score drafted (Claude)
+
+At the author's request, the four-role and differing-slopes theory moved
+from `this_week.tex` into `differing_slopes.tex` (manuscript e7c934a). The
+port also completes Codex's stale claim "Recast weekly Step 3c as a formal
+lemma" (since 2026-09-30), folded in at the author's request.
+
+Paper changes:
+- §3 now uses four roles: first stage, outcome, index (g, rho_X and both
+  endpoints), and evaluation.
+- §4.4 states Theorem 1 (fixed assignment, variance 4 sigma_DS^2/H^2),
+  Corollary 1 (uncorrelated role scores) and Corollary 2 (the average of the
+  four rotated thresholds and the pooled-criterion maximizer, variance
+  sigma_DS^2/H^2).
+- Appendix 2 is rewritten for one shared first stage.
+- Appendix 5 carries the two four-role simulation tables, with the existing
+  numbers.
+- The conditions are tightened to what the weekly derivation used:
+  E|X~|^8 + E eta^4, bounded conditional outcome variance, a weighted
+  conditional fourth moment on T, and uniform consistency of a-hat and
+  a-hat' in (DS5).
+
+Independent check: a reviewer agent compared the port with the weekly
+derivations and found no sign or algebra errors, including in the
+location-invariance cancellation. It flagged a missing condition (a-hat,
+a-hat' for the evaluation step), overstated proof-status wording,
+contradictory bootstrap wording, leftover ten-role prose and notation
+clashes; all were fixed before the push. Still sketched, as listed in the
+paper's proof-status box:
+- the evaluation interaction for the outcome and scalar-density fits;
+- Step 3a for the whole joint outcome functional;
+- the matrix version of the Block E integration by parts.
+
+The paper compiles to 44 pages with no undefined references or overfull
+lines; the new pages were rendered and inspected.
+
+`this_week.tex` now holds a pointer section and a new derivation of a
+debiased evaluation score. The score adds the estimated outcome, index and
+first-stage scores to the evaluation average.
+- Neyman orthogonality is proved by a channel-by-channel calculation. The
+  first-stage channels cancel by the definition of A-bar.
+- The expansion, which puts all four terms on the evaluation fold, is
+  conditional on product-rate conditions.
+- With the evaluation-fold Gram matrix, the first-stage correction equals
+  A-bar'(gamma-hat_U - gamma-hat) exactly. This is the mechanism by which
+  Mukherjee et al. re-estimate gamma on their final fold.
+- Predicted single-split variance in the common-slope baseline: 87.4 for a
+  half split, against 174.7 for the fixed four-role plug-in. Both give 43.68
+  after cross-fitting or rotation. This is not yet simulated.
+
+The paper keeps the plug-in estimator; adopting the score is the author's
+decision.
+
 ## 2026-10-13 - New tracked scope document, reviewed weekly (Claude)
 
 At the author's request, `PROJECT_SCOPE.md` now holds the agreed scope and
