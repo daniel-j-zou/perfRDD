@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-13 - Paper: consistency stated with the fixed-support criterion (Claude)
+
+At the author's request, fixed the statement error found while deriving (DS5)
+(`this_week.tex` §5). The plug-in criterion uses fixed-support densities on
+`T`, so it estimates U_eps^T, the supported utility with Gbar and H_X
+integrated only up to the top of `T`. It differs from U_eps by the phi-free
+constant Gbar(t_bar) E[(a(eta)-c) I0] + beta2' H_X(t_bar) P(I0 = 1). That
+constant is nonzero whenever T has support above t_bar, as in every Gaussian
+design.
+- §3 of `differing_slopes.tex` now defines U_eps^T and the constant.
+- (DS5), the feasible-consistency lemma and the Block A proof now claim
+  sup |U-hat - U_eps^T| -> 0, not sup |U-hat - U_eps| -> 0.
+- The derivative conditions and the argmax conclusion are unchanged.
+
+The paper compiles to 44 pages with no undefined references or overfull
+lines (manuscript ebf3990). The other correction on the port task, the fixed
+computational grid in Appendix 1, is still open.
+
 ## 2026-10-13 - Local efficiency follow-up: why fitted variance weights lost (Claude)
 
 Follow-up to my entry "Local efficiency follow-up: simulation checks" below. That entry
