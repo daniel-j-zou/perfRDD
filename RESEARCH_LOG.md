@@ -9,6 +9,87 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-13 - Proof simplifications for differing_slopes.tex: checks (Claude)
+
+At the author's request, a review of the proof of Theorem 1 in
+`differing_slopes.tex` (upstream after a591181) proposed simplifications, and
+the author asked that they be checked before choosing which to integrate.
+Nothing in the paper or the notebook changes. All numbers are in
+`experiments/datasets/simulations/DS_SIMPLIFICATION_CHECKS_20261013.md`. Script:
+`experiments/scripts/ds_simplification_checks.py` (closed-form quadrature for
+Gaussian-mixture X, so the checks do not rely on the sieve expansions they
+test). Tests: `experiments/tests/test_ds_simplification_checks.py` (8, pass).
+An independent reviewer agent re-derived claims 1 to 4 by hand and found no
+wrong formula or sign; its additions are included below.
+
+1. **Condition on the first-stage fold.** Given delta = gamma_hat - gamma, the
+   index-fold fit has conditional mean exactly the spline projection of the
+   weighted density of the shifted index. So every first-stage loading is the
+   derivative of a population map. Agreement with finite differences:
+   - density block, finite L: 4e-12 (paper design) and 6e-12 (Gaussian-mixture
+     X), L = 8 to 96, full and zero-trace bases;
+   - index-fold map, densities and quantiles: 5e-12 to 1e-11;
+   - evaluation-fold map: 1e-12 to 6e-12, equal to A_U.
+
+   With the full clamped basis the code uses, the paper's Taylor coefficient
+   differs by a boundary term, 1.2e-3 at L = 8 and 7e-7 at L = 96; it vanishes
+   only with the zero-trace basis. The second-order remainder over |delta|^2 is
+   0.10 to 0.14 for every L, so the K^{5/2}/n remainder does not arise.
+
+   The route removes Step 3b's Taylor expansion, Block E, the zero-trace
+   construction, the sketched matrix Block E, most of Block C and Step 3c, and
+   the need for uniform consistency of a_hat'. It needs two conditions the
+   paper lacks:
+   - (C1) differentiability of the shifted weighted density in delta, into L2
+     of the density interval up to its ends (the notebook's (A5) suffices);
+   - (C2) the conditional fourth-moment bound on a neighbourhood of the
+     interval.
+2. **Merged density block.** A_g + A_rho equals the merged loading to 1e-16.
+   The code already fits g and rho_X on one basis.
+3. **Arm-wise outcome fit and closed-form representer.**
+   - The stacked and arm-wise fits agree to 2e-13.
+   - The Riesz identity of the arm-wise representer holds by Monte Carlo (3e6
+     draws, 16 directions): max |z| 1.55 for Gaussian X, 1.48 for
+     Gaussian-mixture X.
+   - The sieve loading converges to the closed form (1e-12 at K = 64).
+4. **Centering.**
+   - Shifting X leaves the estimator unchanged to 1e-14 when g and rho_X share
+     a basis. With separate bases, phi_hat moves by 1 to 5% of a standard
+     deviation.
+   - Abar_X is identical with raw and centred X (1e-15).
+   - The evaluation-fold slope loading is zero when E X = 0.
+5. **Population-LS centering of the outcome expansion.** The bias equals
+   <r, m_bar_K - m> to all digits shown.
+6. **Rate range.** n^{1/7} << K << n^{1/4} and n^{1/8} << L << n^{1/4} follow
+   from the remainder list in the summary, provided:
+   - three lemmas are rewritten: Lemma 3a's approximation pieces; Step 2's
+     O(K^{-3}) bound; and dropping a_hat' from (DS5);
+   - g and rho_X are C^3 on the whole density interval.
+
+   Least-favourable bias slopes: density -4.2 and -4.3; outcome -4.1.
+   K >> n^{1/8} is suggested by the numerics but not established. This is a
+   derivation, not a written proof.
+
+   End-to-end simulation (paper design, 1000 reps, N = 16k to 64k): spline dimensions
+   up to n^{0.30} for K and for L (beyond n^{1/4}) give the same rotated N Var
+   as the paper's rule, within Monte Carlo error of 31.09 (30.2 to 33.7). Every
+   configuration, the paper's included, has a small positive sqrt(N) bias
+   (+0.5 to +0.8, about 3 s.e.; 0.0023 in phi at N = 64,000) that does not
+   depend on K or L. These N cannot tell O(1/n) from a constant. This is a
+   property of the current estimator, left open.
+7. **Conditions.**
+   - E||X~||^8 is used only for the notebook's max-displacement step; fourth
+     moments suffice for K << n^{1/4}.
+   - (Q1)-(Q2) imply (Q1m)-(Q2m).
+   - (DS3) and (DS4) repeat the rho_X smoothness clause.
+   - (DS4)'s m_eta clause is automatic under X independent of eta.
+   - Appendix 3 cites (I2) and (I3), which are defined only in the prelim.
+8. **Role scores as pathwise derivatives.** Under a shift in the law of X,
+   d/dt U_eps'(phi*) = E[psi_T S] to 4e-13.
+
+**Author decision pending:** which simplifications to integrate (board item
+added).
+
 ## 2026-10-13 - Local efficiency follow-up: the stacked first stage needs no internal split (Claude)
 
 Follow-up to my entry "Local efficiency follow-up: why fitted variance weights lost"
