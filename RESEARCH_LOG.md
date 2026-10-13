@@ -9,6 +9,61 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-12 - Methodology decisions and prior-work check (Claude)
+
+Second Q&A round with the author, a follow-up to the scope entry below.
+These are author decisions unless marked as a finding.
+
+Methodology:
+- Density step: keep the spline series estimators of g and rho_X. The
+  pairwise empirical-tail route (`../manuscript/pairwise_theory.tex`) is not
+  used.
+- Rotated estimator: the average of the four per-rotation thresholds
+  (argmax, then average). This changes the current draft, which pools the
+  four criteria and takes one argmax. The rotated corollary must be stated
+  for the average.
+- Tuning: spline sizes are chosen by cross-validation over a grid
+  restricted to the theorem's rate range, so the theorem covers the choice.
+- Trimming: present phi*_eps as the optimum for the supported population.
+  Add a remark relating it to phi*, and show sensitivity to eps in the
+  application.
+
+Theory:
+- Interior optimum: state it as a single-crossing condition on the
+  effective marginal net benefit a(eta) - c + beta2' E(X | T = phi - eta)
+  over the trim window, verified in examples.
+- (DS5) uniform consistency of U-hat, U-hat' and U-hat'' must be derived
+  from primitives, not assumed.
+- Asymptotics: pointwise, for a fixed DGP and fixed eps.
+
+Prior work:
+- MBR 2026: the paper builds on it, with the same Q decomposition and the
+  same ideas, but a larger target (the threshold, plus differing slopes)
+  that needs more machinery.
+- Finding (read from arXiv 2504.17126, v1): Wibisono et al. allow a
+  nonparametric effect alpha0(X, eta), with baseline X'beta0 + l(eta) and
+  Q = Z'gamma0 + eta. They assume only E(eta | Z) = 0, not X independent
+  of eta, and target the ATT at the fixed cutoff (the title says ATE),
+  using differencing, matching and a three-way split. They do not choose
+  thresholds. So effects that vary with X are not new to this paper.
+  Author position: our setting is harder, because counterfactual cutoffs
+  require X independent of eta and an effect linear in X. The paper will
+  not discuss their differencing estimator.
+- Simulation baselines: our estimator against the truth, plus an oracle
+  with known nuisances. No common-slope or local-RD benchmark. No remark
+  explaining the root-n rate relative to threshold-learning work.
+
+Literature search (delegated, then spot-checked on arXiv and Crossref):
+the closest work found is Zhang, Ben-Michael & Imai (arXiv 2208.13323),
+Eckles, Ignatiadis, Wager & Wu (Biometrika 2025,
+doi:10.1093/biomet/asaf003), Ben-Michael, Greiner, Imai & Jiang (JASA 2025,
+doi:10.1080/01621459.2025.2489135), Carneiro, Heckman & Vytlacil
+(Econometrica 2010, doi:10.3982/ECTA7089) and Crippa (arXiv 2404.11767). No
+paper found combines point identification of an optimal cutoff with root-n
+inference for it. The author does not yet know these papers, so their
+positioning and any bibliography additions are deferred until the author
+has reviewed them. Nothing was added to `references.bib`.
+
 ## 2026-10-12 - Paper scope consensus with the author (Claude)
 
 In a Q&A session the author settled the project's scope. These are author
