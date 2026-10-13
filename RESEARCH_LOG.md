@@ -9,6 +9,64 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-13 - Debiased evaluation score: CLT proof, spline rates, simulations (Claude)
+
+At the author's request (check the spline rates for the debiased score, theory
+first and then simulations; complete the proof; keep it in `this_week.tex`),
+`manuscript/this_week.tex` section 3 replaces the earlier conditional draft
+(manuscript 625a3aa).
+
+**Theory (written proof; not yet independently re-checked).**
+- Theorem: the approximate root of the debiased score, single split or k-fold
+  cross-fitting, differing slopes, satisfies
+  `phi_DR - phi* = -H^{-1} P_E mu_0 + o_p(n^{-1/2})`, variance
+  `sigma_DS^2 / H^2` after cross-fitting, under (A1)-(A7) with
+  `n^{1/12} << K, L, M << n^{1/4}`. The proof uses only
+  `KL, ML >> n^{1/6}`, `L << min(K, M)^3` and `K, L, M << n^{1/4}`.
+  Deterministic dimensions; a data-driven choice is not covered.
+- What makes it work: the outcome representer has a closed form under
+  `X indep eta` (Lemma 1), and the density representers are exact, so no
+  projection residual of a jumping representer meets an approximation error.
+  Every training fit, including `gamma_hat`, comes from one sample.
+- Plug-in comparison (new): with a full cubic density basis, Shadrin's
+  sup-norm stability plus duality gives `||r - P_K r||_{L1} <= C/K` for the
+  jumping representer, so the density-block bias is `O(L^{-4})` and
+  `L >> n^{1/8}` suffices. The outcome block gives `K^{-7/2}` by Cauchy-Schwarz,
+  so `K >> n^{1/7}`. The paper's `n^{1/6} << K, L` is therefore stronger than
+  needed. Changing the paper is the author's decision.
+- Steps written most briefly, to expand first: uniform-in-d bounds in
+  Lemma 9(b)-(c) and the maximal inequalities in Lemma 10(ii)-(iii).
+
+**Correction.** The earlier draft credited debiasing with a smaller
+single-split variance. That is wrong: the gain over the fixed four-role
+plug-in comes from fitting every nuisance on one training sample. With shared
+training the plug-in is better on a single split (67.7 against 174.7 for four
+folds); after cross-fitting both reach 43.68.
+
+**Simulations** (common slopes only; summary in
+`experiments/datasets/simulations/DEBIASED_SCORE_CHECK_20261013.md`):
+- Baseline, 500 reps, N = 20,000 and 40,000: every N Var within two Monte
+  Carlo SEs of its prediction (largest gap -12%, `pi4f_one` at 20,000).
+- Nonlinear design, coarse (single cubic) or default outcome fit: no
+  detectable bias for either estimator; this design does not separate them.
+- Baseline with a coarse density basis for g (300 reps, three Newton
+  steps, closed-form representer). With L = 6 the cross-fitted plug-in has
+  sqrt(N) bias +18.2 (se 0.33) at N = 20,000 and +35.7 (0.37) at 80,000, a
+  fixed bias of about 0.13 in phi. With L = 8 the values are +2.4 (0.34) and
+  +3.7 (0.38). The debiased estimator stays within two SEs of zero in every
+  cell: +0.65 (0.35) and 0.00 (0.39) for L = 6, +0.66 (0.35) and -0.02 (0.39)
+  for L = 8. This is the exact-representer cancellation. A fixed L is outside
+  the theorem, so the theorem does not predict its variance. The debiased
+  N Var is 37.1-45.3, within two Monte Carlo SEs of 43.7.
+
+**Not covered.** The central-difference loading used in the simulations; a
+weighted analogue of the L1 projection bound; the paper's zero-outer-trace
+density basis; differing-slopes simulations.
+
+Also fixed in the paper: Appendix 5 now states `phi*_eps = -0.119770`
+(adaptive quadrature); the saved runs used -0.120064, which shifts their bias
+by 2.9e-4 and leaves the reported variances unchanged.
+
 ## 2026-10-13 - Local efficiency follow-up: weighting for heteroskedastic arms (Claude)
 
 Follow-up to my entry "Local efficiency at Gaussian eta" below. New subsection
