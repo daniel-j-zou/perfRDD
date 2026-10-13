@@ -142,6 +142,13 @@ application, and other candidate datasets. Nonparametric first stage or outcome 
   changes since "Covers decisions up to". It lists the proposed changes to this file for
   the author. After the author confirms, it applies them, updates both dates at the top,
   and commits and pushes. If nothing changed, it updates only "Last reviewed".
+- **Tools (Claude):** both skills live in the workspace's `.claude/skills/`, which is not
+  tracked in git.
+  - `/perfrdd-start` briefs a new session from this file.
+  - `/perfrdd-scope-review` runs the weekly review as a question-and-answer session with
+    the author.
+  - A desktop-app scheduled task, `perfrdd-weekly-scope-review`, starts the review every
+    Monday at about 9:00. It runs only while the app is open, or on its next launch.
 - **Authority:** only the author's decisions change this file. An agent's own findings go
   to the research log and are listed under "Open questions" until the author decides.
 
