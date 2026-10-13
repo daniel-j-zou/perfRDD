@@ -9,6 +9,47 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-12 - Paper scope consensus with the author (Claude)
+
+In a Q&A session the author settled the project's scope. These are author
+decisions, not verified results; they supersede earlier open items where
+they conflict.
+
+- Deliverable: a journal submission, written to *Biometrika* style (venue
+  not final). Paper of record: `../manuscript/differing_slopes.tex`. The
+  theory must be complete; full proofs may go in the supplement.
+- "Performative RDD" is a legacy name only; this paper is non-performative.
+- Model: differing slopes is the model, common slope a special case. The
+  maintained assumptions stay: X independent of eta, linear score index,
+  effect linear in X. The trimming level epsilon is fixed and user-chosen.
+- New requirement: a proposition giving simple sufficient conditions for a
+  unique interior optimum of the trimmed DS utility. It extends the
+  common-slope, untrimmed result in `../manuscript/goodstuff.tex`
+  ("Uniqueness of the maximizer").
+- Split: the paper adopts the four-role split with one shared first stage
+  (closes the open author decision). Both the fixed-assignment theorem and
+  the rotated corollary are stated. Full-sample reuse is a simulation remark
+  only.
+- Inference: bootstrap, supported by coverage simulations; no bootstrap
+  validity theorem. The analytic four-role variance is kept only as a
+  simulation cross-check.
+- Simulations to close: four-role DS with the spline outcome fit; rerun the
+  displayed DS design with its own optimum (Finding 2, 2026-10-06);
+  bootstrap coverage for the rotated four-role estimator; a nonlinear
+  alpha, b design.
+- Application: NYC taxi only, to show the method working (estimate and
+  bootstrap CI), not a policy claim. Discrete Q, online/adaptive thresholds,
+  Chile retention and other datasets are parked as future extensions.
+- Main contribution: the package (threshold as estimand, DS correction,
+  trimmed generated-regressor theory); no single piece leads.
+- Direction is set by the advisors (Banerjee, Ritov).
+- Workflow: `this_week.tex` is the working notebook. Verified, approved
+  results are ported into `differing_slopes.tex`. Claude is the main agent;
+  the author assigns tasks per request.
+
+The task board (`../manuscript/TODO.md`, section "Paper scope consensus")
+lists the resulting open tasks.
+
 ## 2026-10-07 - Section 7 table is simulation-only (Codex)
 
 Per author request, replaced the theoretical ten-versus-four table at the
