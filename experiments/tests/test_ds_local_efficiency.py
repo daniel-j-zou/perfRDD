@@ -8,6 +8,7 @@ import numpy as np
 
 from experiments.scripts.ds_local_efficiency import DESIGNS, Population
 from experiments.scripts.ds_local_efficiency_hetero import hetero_variances
+from experiments.scripts.ds_local_efficiency_weight_diag import _gamma_qmle
 
 
 class LocalEfficiencyPopulationTest(unittest.TestCase):
@@ -67,6 +68,15 @@ class LocalEfficiencyPopulationTest(unittest.TestCase):
     def test_heteroskedastic_design_guard(self):
         with self.assertRaises(ValueError):
             Population(DESIGNS["paper_hetero"])
+
+    def test_gamma_qmle_recovers_log_quadratic_variance(self):
+        rng = np.random.default_rng(3)
+        e = rng.uniform(-1.75, 1.75, 20000)
+        B = np.column_stack((np.ones_like(e), e, e ** 2))
+        theta = np.array([np.log(0.25), 1.0, 0.0])
+        y = np.exp(B @ theta) * rng.standard_normal(len(e)) ** 2
+        est = _gamma_qmle(B, y)
+        self.assertTrue(np.allclose(est, theta, atol=0.05), est)
 
 
 if __name__ == "__main__":

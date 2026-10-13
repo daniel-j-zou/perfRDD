@@ -9,6 +9,74 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-13 - Local efficiency follow-up: why fitted variance weights lost (Claude)
+
+Follow-up to my entry "Local efficiency follow-up: simulation checks" below. That entry
+left open why the fully weighted estimator attained the bound with the true variance
+function but lost to the paper's estimator with the fitted one. This entry resolves it.
+The notebook ("Dropping (H): weighting both folds" in `../manuscript/this_week.tex`) has
+a new diagnostic table, a remark and updated conclusions (manuscript 30d8e67,
+changelog 0163592). The board's trade-off note is updated (fcf71a4). Still exploratory;
+nothing in the paper changes.
+
+**Findings** (`ds_local_efficiency_weight_diag.py`; paper_hetero with kappa overridden;
+N = 32000 and 1000 reps unless stated; same seeds as before, so the earlier rows
+reproduce exactly).
+
+1. **The loss is all in the first stage.** At kappa = 1 the rotated N Var is:
+   - 34.24 with the true variance in the first stage and the fitted one in the outcome
+     fold, against 34.25 with true variances in both;
+   - 36.85 with the fitted variance in the first stage and the true one in the outcome
+     fold, the same as fitted in both.
+
+   The pattern is the same at kappa = 0.5 and 1.5. The first-stage slopes' m Var is
+   0.545 with fitted weights, against 0.429 with true ones.
+2. **Cause.** The weighted first stage refitted its six-function variance spline on
+   each third of the first-stage fold, about 2700 points. The arms are sparse at
+   opposite ends of J:
+   - such a third has about 12 arm-0 points with eta in [1.25, 1.75], and as few arm-1
+     points at the lower end;
+   - in 40 fits of that size, the fitted arm-0 variance at eta = 1.75 was at most
+     about 1% of the truth in a tenth of them (`--fit-check`).
+
+   So a few weights were up to about 100 times too large. The loss shrinks with N:
+   35.34 against 34.71 at N = 64000.
+3. **Fix: fit the first-stage variance once on the whole first-stage fold.** Rotated
+   N Var:
+
+   | variance | k=0 | k=0.5 | k=1 | k=1.5 |
+   |---|---|---|---|---|
+   | true variance | 27.85 | 30.19 | 34.25 | 40.46 |
+   | LS spline, whole fold | 28.04 | 30.35 | 34.44 | 40.61 |
+   | log-link spline (Gamma QMLE), whole fold | 28.07 | 30.39 | 34.40 | 40.53 |
+   | log-quadratic, whole fold | 27.98 | 30.29 | 34.34 | 40.51 |
+   | paper's estimator | 30.46 | 31.15 | 34.96 | 42.68 |
+
+   - Every whole-fold variant is within 1% of the true-variance value, and below the
+     paper's estimator at every kappa.
+   - What matters is the fitting sample: the log link adds little.
+   - At kappa = 0, where weights are not needed, fitted weights cost under 1%.
+4. **Theory: no sample splitting needed for the variance.** For a variance model of
+   fixed dimension, twice differentiable in its parameter theta, with
+   theta_hat - theta_bar = O_p(n^-1/2), the weighted-outcome lemma holds without its
+   disjoint-sample condition. The score change is
+   (theta_hat - theta_bar)' P_n[w_dot r_K R_Y] + O_p(|theta_hat - theta_bar|^2),
+   which is O_p(1/n) whatever the dependence. A growing spline basis gets a crude
+   O_p(p^2/n).
+5. **Reading for the open decision.** In this design family, the fully weighted
+   estimator with a whole-fold variance fit was never worse than the paper's
+   estimator, matched the true-weight version, and lost under 1% under homoskedastic
+   arms. The unweighted stacked first stage loses to the paper's estimator from kappa
+   of about 0.6 (population values). This covers one design family (variance
+   0.25 exp(kappa eta), shared shape across arms) at N = 32000.
+
+**Files** (`code/experiments/`):
+- `scripts/ds_local_efficiency_weight_diag.py`: the diagnostic, with `--kappa` and
+  `--fit-check`.
+- `tests/test_ds_local_efficiency.py`: Gamma QMLE recovery test (10 tests in all;
+  they pass).
+- `datasets/simulations/DS_LOCAL_EFFICIENCY_20261013.md`: diagnostic tables.
+
 ## 2026-10-13 - Local efficiency follow-up: simulation checks (Claude)
 
 Follow-up to my two "Local efficiency" entries below. The notebook section "Local

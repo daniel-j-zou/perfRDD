@@ -174,6 +174,45 @@ Paired (paper minus variant):
 The theory holds with the true weights. With fitted weights, the cost of estimating a
 variance that spans a 33-fold range on J (about 8%) exceeds the 3% gain at this N.
 
+**Where the fitted weights lose** (`ds_local_efficiency_weight_diag.py`, 1000 reps, same
+seeds as the weighted simulation, so the paper, fitted and true-variance rows at
+kappa = 1 reproduce it). The design is paper_hetero with `--kappa` overriding kappa.
+Rotated N Var:
+
+| variant | k=0 | k=0.5 | k=1 | k=1.5 | k=1, N=64000 |
+|---|---|---|---|---|---|
+| paper, population | 31.09 | 31.35 | 34.65 | 41.76 | 34.65 |
+| bound | 28.02 | 29.87 | 33.58 | 39.59 | 33.58 |
+| paper | 30.46 | 31.15 | 34.96 | 42.68 | 35.53 |
+| true variance, both folds | 27.85 | 30.19 | 34.25 | 40.46 | 34.71 |
+| true in first stage only | 27.97 | 30.25 | 34.24 | 40.57 | 34.66 |
+| true in outcome fold only | 28.36 | 31.18 | 36.85 | 44.59 | 35.43 |
+| fitted, refitted on each third (w_fit) | 28.45 | 31.21 | 36.85 | 44.47 | 35.34 |
+| LS spline, whole first-stage fold | 28.04 | 30.35 | 34.44 | 40.61 | not run |
+| log-link spline (Gamma QMLE), whole fold | 28.07 | 30.39 | 34.40 | 40.53 | 34.74 |
+| log-quadratic (Gamma QMLE), whole fold | 27.98 | 30.29 | 34.34 | 40.51 | 34.70 |
+
+First-stage slopes, m Var (m = N/4) at kappa = 1, N = 32000:
+
+| OLS | refitted on each third | true variance | log-link spline | log-quadratic | LS spline, whole fold |
+|---|---|---|---|---|---|
+| 1.007 | 0.545 | 0.429 | 0.431 | 0.430 | 0.436 |
+
+At N = 64000 the refitted-on-each-third value is 0.461, against 0.422 with the true
+variance.
+
+- **Where the loss is.** All of it is in the first stage. With the true variance in
+  the first stage only, the result matches true variance in both folds. With the true
+  variance in the outcome fold only, it matches the fitted version.
+- **Why** (`--fit-check`, 40 samples). The arms are sparse at opposite ends of J.
+  - Arm 0 has about 37 points with eta in [1.25, 1.75] per 8000-point fold, and about
+    12 per third.
+  - On 2667 points the least-squares spline's fitted/true ratio at eta = 1.75, arm 0,
+    has a 10% quantile of 0.01. On 8000 points it is 0.32.
+  - Log-quadratic: 0.48 on 2667 points and 0.79 on 8000.
+- **Fix.** Fit the first-stage variance once, on the whole first-stage fold. Every
+  whole-fold variant is within 1% of the true-variance value at every kappa.
+
 ## First-stage convergence (`python -m experiments.scripts.ds_local_efficiency_fs_check --m 4000 16000 64000 --reps 1000`)
 
 m Var of the slopes on a sample of size m, averaged over coordinates; limits in parentheses.
