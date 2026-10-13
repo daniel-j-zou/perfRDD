@@ -5,6 +5,9 @@ instruction files should point here rather than maintain competing versions.
 
 ## Shared sources of truth
 
+- `PROJECT_SCOPE.md` is the current agreed scope and methodology of the paper, reviewed
+  weekly with the author. Read it first, and run its drift check: tell the author if it
+  is stale, missing a recorded decision, or contradicted by the planned work.
 - `RESEARCH_LOG.md` records verified findings and methodological decisions.
 - `../manuscript/TODO.md` records current tasks, ownership, and completion status.
 - `../manuscript/CHANGELOG.md` is the human-readable edit trail of the paper: one entry
@@ -17,7 +20,8 @@ instruction files should point here rather than maintain competing versions.
 
 ## Starting and handing off work
 
-1. Read the newest entries in `RESEARCH_LOG.md` and the current manuscript task board.
+1. Read `PROJECT_SCOPE.md`, the newest entries in `RESEARCH_LOG.md`, and the current
+   manuscript task board.
 2. Fetch the affected repository and inspect its branch, upstream divergence, and working
    tree. Preserve unrelated local changes; a dirty tree is not permission to rewrite them.
 3. Record meaningful verified findings and decisions at the top of `RESEARCH_LOG.md`,

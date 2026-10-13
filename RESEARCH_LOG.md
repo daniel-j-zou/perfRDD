@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-13 - New tracked scope document, reviewed weekly (Claude)
+
+At the author's request, `PROJECT_SCOPE.md` now holds the agreed scope and
+methodology in one place. It condenses the three 2026-10-12 decision entries
+below and lists the open questions. Every agent reads it first: pointers
+are in `COLLABORATION.md`, `CLAUDE.md` here, and the workspace-level
+`CLAUDE.md` and `AGENTS.md`.
+
+Update rule: when the author changes a decision, the agent edits the scope
+file, adds a decision-history row and writes the log entry, all in one
+commit. A weekly review lists the changes since "Covers decisions up to"
+for the author's confirmation. Only author decisions change the file.
+
+Drift check (author request): at session start, each agent tells the author
+if the review is more than 7 days old, if a newer log entry records an
+unreflected author decision, or if the planned or recent work conflicts
+with the file.
+
 ## 2026-10-12 - Why MBR's nuisance folds add no variance, unlike our four roles (Claude)
 
 The author asked why every role in our four-role split adds a term to the

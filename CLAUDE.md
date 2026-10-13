@@ -1,6 +1,7 @@
 # Coordination
 Two agents (Claude + Codex) share this workspace. Follow the canonical tracked protocol
-in `COLLABORATION.md`. Read `RESEARCH_LOG.md` and `../manuscript/TODO.md` before starting.
+in `COLLABORATION.md`. Read `PROJECT_SCOPE.md`, `RESEARCH_LOG.md` and `../manuscript/TODO.md`
+before starting.
 
 # Permissions
 Allow running Python scripts and tests without asking for confirmation. Use Python at /Users/zoudj/miniconda3/envs/srsd/bin/python.
