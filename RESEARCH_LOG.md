@@ -9,6 +9,30 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-13 - Paper: grid argmax condition in Appendix 1 (Claude)
+
+At the author's request, fixed the second correction found while deriving
+(DS5) (`this_week.tex` §5). Appendix 1 of `differing_slopes.tex` allowed
+"a prespecified fine grid" for the argmax. A grid of fixed mesh does not
+preserve the CLT, because the best grid point can sit up to h_n/2 from the
+exact maximizer.
+
+Appendix 1 now requires mesh h_n = o(n^-1/2) near phi*_eps, or local
+refinement of the best grid point, and gives the argument:
+- the grid maximizer is consistent;
+- U-hat'(phi-hat) = 0;
+- by (DS1) and (DS5), -U-hat'' >= kappa0/2 near the optimum with
+  probability tending to one;
+- so (kappa0/4)(phi_grid - phi-hat)^2 <= h_n^2 sup|U-hat''| / 8, hence
+  |phi_grid - phi-hat| = O_p(h_n).
+
+No reported result changes. The scripts behind the paper's tables use a
+bounded scalar optimizer (`hard_trim_crossfit_regularization._maximize_components`
+for the four-role checks, `differing_slopes_nonlinear_outcome.py`) or an
+81-point grid refined by one (`differing_slopes_full_pipeline._maximize`).
+Manuscript a591181; the paper compiles to 45 pages with no undefined
+references or overfull lines.
+
 ## 2026-10-13 - Paper: consistency stated with the fixed-support criterion (Claude)
 
 At the author's request, fixed the statement error found while deriving (DS5)
