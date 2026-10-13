@@ -213,6 +213,52 @@ variance.
 - **Fix.** Fit the first-stage variance once, on the whole first-stage fold. Every
   whole-fold variant is within 1% of the true-variance value at every kappa.
 
+**Single pass against the three-part split** (`ds_local_efficiency_single_pass.py`, 1000
+reps). The single pass runs the pilot OLS, the derivative fit and the stacked
+regression all on the whole first-stage fold, with no internal split. The seeds are
+those of the earlier runs, so the paper and three-part rows reproduce them: seed
+20261013 for the homoskedastic designs and 20261016 for paper_hetero. Weighted
+versions fit the variance once on the first-stage fold (least-squares spline), and
+the outcome fold uses the weighted fit.
+
+| design | N | paper | 3-part | single | 3-part, weighted | single, weighted | bound |
+|---|---|---|---|---|---|---|---|
+| paper_baseline | 16000 | 33.27 | 29.92 | 29.40 | 29.97 | 29.54 | 28.02 |
+| paper_baseline | 32000 | 30.49 | 27.94 | 27.56 | 28.11 | 27.77 | 28.02 |
+| paper_lownoise | 32000 | 16.51 | 11.45 | 11.30 | 11.50 | 11.37 | 11.55 |
+| ds_linear | 32000 | 4.84 | 4.83 | 4.83 | 4.84 | 4.84 | 4.56 |
+| paper_hetero (kappa = 1) | 32000 | 34.96 | 37.60 | 36.98 | 34.44 | 34.02 | 33.58 |
+
+The table reports rotated N Var. For paper_hetero, the unweighted stacked prediction is
+36.79.
+
+Slopes, m Var on one fold (m = N/4), unweighted versions:
+
+| design | N | 3-part | single | limit |
+|---|---|---|---|---|
+| paper_baseline | 16000 | 0.506 | 0.462 | 0.432 |
+| paper_baseline | 32000 | 0.474 | 0.445 | 0.432 |
+| paper_lownoise | 32000 | 0.178 | 0.169 | 0.167 |
+| ds_linear | 32000 | 1.115 | 1.070 | 1.000 |
+
+The weighted versions at paper_hetero: 0.436 for the three-part split and 0.409 for
+the single pass.
+
+First stage alone (`--fs-only`, paper_baseline, sample size m, limit 0.432):
+
+| m | OLS | 3-part | single | 3-part, weighted | single, weighted |
+|---|---|---|---|---|---|
+| 4000 | 1.023 | 0.500 | 0.457 | 0.510 | 0.476 |
+| 16000 | 0.952 | 0.455 | 0.448 | 0.457 | 0.449 |
+| 64000 | 1.022 | 0.431 | 0.428 | 0.431 | 0.429 |
+
+- The single pass is never worse than the three-part split.
+- Its rotated variance is 1-2% lower where stacking gains, and equal in the linear
+  design.
+- corr(single, 3-part) is 0.986-0.995.
+- Mean slope errors are at most 3.4e-4 in absolute value, the same order as OLS's (3.0e-4
+  in the linear design).
+
 ## First-stage convergence (`python -m experiments.scripts.ds_local_efficiency_fs_check --m 4000 16000 64000 --reps 1000`)
 
 m Var of the slopes on a sample of size m, averaged over coordinates; limits in parentheses.

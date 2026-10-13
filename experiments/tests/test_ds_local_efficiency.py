@@ -8,6 +8,8 @@ import numpy as np
 
 from experiments.scripts.ds_local_efficiency import DESIGNS, Population
 from experiments.scripts.ds_local_efficiency_hetero import hetero_variances
+from experiments.scripts.ds_local_efficiency_sim import efficient_first_stage, generate
+from experiments.scripts.ds_local_efficiency_single_pass import single_pass_first_stage
 from experiments.scripts.ds_local_efficiency_weight_diag import _gamma_qmle
 
 
@@ -77,6 +79,16 @@ class LocalEfficiencyPopulationTest(unittest.TestCase):
         y = np.exp(B @ theta) * rng.standard_normal(len(e)) ** 2
         est = _gamma_qmle(B, y)
         self.assertTrue(np.allclose(est, theta, atol=0.05), est)
+
+    def test_single_pass_agrees_with_three_part_first_stage(self):
+        design = DESIGNS["paper_baseline"]
+        s = generate(design, 24000, 11)
+        idx = np.arange(24000)
+        g1 = single_pass_first_stage(s, idx, design.J)
+        g3 = efficient_first_stage(s, idx, design.J, np.random.default_rng(1))
+        gx = np.asarray(design.gamma_x)
+        self.assertTrue(np.allclose(g1[1:], gx, atol=0.03), g1)
+        self.assertTrue(np.allclose(g1[1:], g3[1:], atol=0.02), (g1, g3))
 
 
 if __name__ == "__main__":

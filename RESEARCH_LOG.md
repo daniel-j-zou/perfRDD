@@ -9,6 +9,65 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-13 - Local efficiency follow-up: the stacked first stage needs no internal split (Claude)
+
+Follow-up to my entry "Local efficiency follow-up: why fitted variance weights lost"
+below. At the author's request I tested a simpler stacked first stage. Mukherjee et
+al.'s three-part split (pilot OLS, derivative fit, stacked regression, rotated and
+averaged) is replaced by a single pass: the three steps on the whole first-stage fold.
+The notebook (`../manuscript/this_week.tex`) has a new remark "Single pass" in "An
+efficient first stage", a simulation table, and an updated conclusions bullet
+(manuscript 1ba13d8, changelog 9bde150). The board note is updated (b3bee45). Still
+exploratory; nothing in the paper changes.
+
+**Findings** (`ds_local_efficiency_single_pass.py`, 1000 reps; the same seeds and
+folds as the earlier runs, whose paper and three-part rows reproduce exactly).
+
+1. **The single pass is never worse.** Rotated N Var:
+
+   | design | N | paper | 3-part | single | bound |
+   |---|---|---|---|---|---|
+   | paper_baseline | 16000 | 33.27 | 29.92 | 29.40 | 28.02 |
+   | paper_baseline | 32000 | 30.49 | 27.94 | 27.56 | 28.02 |
+   | paper_lownoise | 32000 | 16.51 | 11.45 | 11.30 | 11.55 |
+   | ds_linear | 32000 | 4.84 | 4.83 | 4.83 | 4.56 |
+   | paper_hetero, weighted | 32000 | 34.96 | 34.44 | 34.02 | 33.58 |
+
+   - The heteroskedastic row's weighted versions fit the variance once on the
+     first-stage fold.
+   - The unweighted single pass at paper_hetero is 36.98, against 37.60 for the
+     three-part split and a prediction of 36.79, so it still loses to the paper's
+     estimator, as predicted.
+   - corr(single, 3-part) is 0.986-0.995.
+2. **Faster first-stage convergence.** The single pass's derivative fit and stacked
+   regression each use three times the data of one part.
+   - Slope m Var in the paper design: 0.462 against 0.506 at N = 16000, and 0.445
+     against 0.474 at N = 32000 (limit 0.432).
+   - First stage alone: 0.457, 0.448 and 0.428 at m = 4000, 16000 and 64000, against
+     0.500, 0.455 and 0.431.
+   - No bias: mean slope errors are of the same order as OLS's.
+3. **Theory.** The efficient-first-stage lemma holds for the single pass under the
+   same conditions.
+   - Only the noise step (R4) used the independence of c_hat' from the stacking
+     sample's noise.
+   - With the same sample, the extra term is a quadratic form in the outcome noise.
+     Its mean is O(K^2/n) and its s.d. is O(K^(3/2)/n), from the B-spline derivative
+     and Gram bounds.
+   - Both are o(n^-1/2) when K^2/sqrt(n) -> 0, which condition (E) already needs.
+   - The other remainders follow from Cauchy-Schwarz without independence.
+4. **Methodology if adopted.**
+   - The paper's four folds and rotation are unchanged.
+   - The first-stage fold runs one extra regression: Q rows plus the window's Y rows,
+     with the regressor -c_hat_D'(eta_hat) X, weighted by a variance fitted once on
+     the fold if the arms may be heteroskedastic.
+   - In the weighted version the outcome fold also uses those weights.
+
+**Files** (`code/experiments/`):
+- `scripts/ds_local_efficiency_single_pass.py`: the comparison, with `--fs-only`.
+- `tests/test_ds_local_efficiency.py`: single pass against the three-part split (11
+  tests in all; they pass).
+- `datasets/simulations/DS_LOCAL_EFFICIENCY_20261013.md`: tables.
+
 ## 2026-10-13 - Paper: grid argmax condition in Appendix 1 (Claude)
 
 At the author's request, fixed the second correction found while deriving
