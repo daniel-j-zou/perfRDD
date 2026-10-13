@@ -9,6 +9,135 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-13 - Primitive conditions for (DS1), (DS5) derived; sketched proof steps written out (Claude)
+
+At the author's request ("theoretical desiderata not yet proven"), new §5
+of `this_week.tex` (manuscript d1f8c59). Nothing in `differing_slopes.tex`
+changes until the author approves a port.
+
+Identification and curvature (DS1):
+- U_eps'(phi) = -p_eps(phi) tau_eps(phi), with
+  tau_eps(phi) = E(W - c | Q = phi, l0 <= eta <= u0), the average over the
+  margin of a(eta) - c + beta2' E(X | T = phi - eta). (DS1) holds when
+  tau_eps has one interior zero with positive slope, and then
+  U'' = -p_eps tau_eps'.
+- tau_eps' has an exact formula with three channels: C_a (latent type,
+  governed by g), C_lambda (index, governed by f_eta) and a hard-trim term
+  B_eps.
+- Theorem (aligned heterogeneity), sufficient conditions:
+  - g log-concave on the argument set, and f_eta log-concave on the window
+    when lambda(t) = beta2' E(X | T = t) is nonconstant;
+  - a and lambda nondecreasing, one of them strictly;
+  - a sign change of tau_eps on Phi.
+  Then tau_eps' >= C_a + B_eps > 0, the optimum is unique and interior with
+  curvature, and it is global over R under the same conditions on R. The
+  common slope recovers `goodstuff.tex` with the trim. Both of the paper's
+  designs satisfy the theorem.
+- The f_eta condition is needed. Counterexample: bimodal f_eta, constant a,
+  lambda(t) = t. Then tau_eps'(0) = -0.121 and there are two equal local
+  maxima at +-0.585.
+- Opposing heterogeneity (lambda decreasing): a quantitative sufficient
+  condition, and an exact Gaussian-index formula
+  tau' = s_beta + Cov(a(eta) - s_beta eta, eta)/sigma_T^2.
+  - Finding: with Gaussian T and the trim, tau_eps' tends to s_beta < 0 at
+    extreme cutoffs, so the supported criterion has extra critical points
+    even when Cov(W, Q) > 0.
+  - Example: the interior maximum is at -0.963 (U = 0.0822), with local
+    minima at -2.47 and 3.97 and a treat-all limit of 0.0800.
+  - Consequence: Phi must exclude the far critical points.
+- Trimmed against untrimmed optimum, exactly:
+  phi*_eps - phi* = {(1-pi)/pi} tau_out / tau_eps'. The sign of the gap is
+  the sign of tau_out. Displayed design: gap 0.1189, bound 0.1195.
+  d phi*_eps / d eps also has a closed form (1.707 in the displayed design).
+- The stacked-regression lower bound follows from nonsingular half-space
+  second moments of X~ on both sides of every {T = phi0 - e}, e in J. With
+  f_eta bounded on J, the sieve Gram matrices are well conditioned. The
+  constant is small when J extends far past the window (1.1e-3 on
+  [-1.7, 1.7] and 1.9e-4 on [-2.2, 2.2] in the check design).
+
+Consistency (DS5), sketched steps, misspecification:
+- Outcome fit at generated residuals:
+  - ||theta-hat - theta_K|| = O_p(sqrt(K/n) + K^-3);
+  - sup|a-hat - a| = O_p(K/sqrt n + K^-5/2);
+  - sup|a-hat' - a'| = O_p(K^2/sqrt n + K^-3/2), which needs K << n^{1/4};
+  - Gram error O_p(K^{3/2}/sqrt n).
+- The outer-region crossing changes theta-hat by
+  O_p(K^{1/2} n^{-3/4} + K^{3/2}/n + K^-2 n^-1/2). The strict-margin support
+  condition is not needed.
+- (DS5) follows from the other conditions, plus:
+  - (F): f_eta bounded below on J;
+  - a and b in C^3 near J;
+  - h = E(X~ | T) f_T absolutely continuous with h' in L2. Block E already
+    uses this, but (DS4) lists it only for h_rho.
+- Also written out:
+  - Step 3a, giving the loading A_out;
+  - the evaluation interaction;
+  - feasible products;
+  - the matrix Block E;
+  - a finite-grid data-driven (K, L);
+  - a grid argmax with mesh o(n^-1/2);
+  - a consistent plug-in check of (DS1').
+- Pseudo-target: with an effect nonlinear in X, phi-hat converges to the
+  maximizer of the pseudo-utility built from the stacked projection
+  m-dagger of E(Y | D, eta, X). This is not "the linear projection of the
+  effect", and the target depends on the outcome model.
+  - Quadratic design: the true optimum is 0.4844. The pipeline's
+    linear-in-eta model gives 0.4080, matching the simulated value of about
+    0.405. The theorem's spline-in-eta model gives 0.4707.
+  - A CLT around the pseudo-target is not proved.
+
+Paper statements to correct at the port:
+- (DS5) and the feasible-consistency lemma claim sup|U-hat - U_eps| -> 0.
+  The limit is U_eps^T, which differs from U_eps by a constant that does
+  not depend on phi; the argmax and derivatives are unaffected.
+- Gauss-Hermite truncation: three older population-truth routines apply
+  the hard trim indicator at Gauss-Hermite nodes
+  (`differing_slopes_full_pipeline.py`,
+  `differing_slopes_nonlinear_outcome.py`, `differing_slopes_simulation.py`).
+  Correct values by quadrature:
+  - four-role check design: -0.1197699 (U'' = -0.21803), not -0.120064.
+    Appendix 5 was corrected independently in manuscript 625a3aa; the saved
+    runs and the 2026-10-07 entries still use the old value;
+  - the same design with beta2 = 0: -0.31924, not -0.33929;
+  - quadratic design: 0.4844, not 0.4955;
+  - nonlinear alpha, b design: 0.15214, not 0.15934. The §5 bootstrap
+    table's biases shift by about +0.007, and its coverages refer to the
+    wrong target.
+
+  The N Var tables are unaffected. The common-slope baseline (0.7312917,
+  -0.0720181) and the displayed design (0.5451028, -0.1075335) are confirmed.
+
+Verification:
+- `experiments/scripts/ds_identification_check.py` (400-node Gauss-Legendre
+  on the window, four designs plus the counterexample):
+  - the two derivative forms match finite differences to 4e-10;
+  - the representation matches to 6e-6;
+  - the curvature agrees to four decimals;
+  - the eps-derivative agrees to 1e-7.
+  Tests are in `experiments/tests/test_ds_identification.py` (5 tests, all
+  pass).
+- `experiments/scripts/ds_outcome_fit_consistency.py`: 200 replications per
+  n, n = 4k to 256k, J = [-1.7, 1.7]. On the window:
+  - sup|a-hat - a| falls from 0.166 to 0.031;
+  - sup|a-hat' - a'| falls from 0.91 to 0.26;
+  - |beta2-hat - beta2| falls from 0.048 to 0.0056 (the sqrt n rate);
+  - sqrt n times the outer-crossing effect falls from 0.018 to 0.0075.
+- `experiments/scripts/ds_misspecification_target.py`: projections on 2e7
+  draws.
+- Two independent reviewer agents checked the proofs. The first found no
+  fatal error and listed gaps, all addressed: missing hypotheses, the
+  outer-crossing evaluation term, a margin in the (DS5) proof, qualifiers in
+  the opposing case, and notation. The second checked the later additions.
+  It reproduced the four corrected targets and the true quadratic-design
+  optimum independently, and it found further gaps, all fixed:
+  - a moment condition in the pseudo-target proposition that excluded its
+    own example;
+  - the outer crossing as a further change under misspecification;
+  - a display that was false as written (the conclusion held);
+  - an overclaim in the diagnostic;
+  - neighbourhood continuity for the eps-derivative.
+  No fatal error was found.
+
 ## 2026-10-13 - Debiased evaluation score: CLT proof, spline rates, simulations (Claude)
 
 At the author's request (check the spline rates for the debiased score, theory
