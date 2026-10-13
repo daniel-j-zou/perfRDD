@@ -9,6 +9,157 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-13 - Local efficiency at Gaussian eta: bound, efficient first stage, numbers (Claude)
+
+The author asked whether a "Level B" efficiency claim is possible: local
+efficiency at Gaussian eta with a and b nonparametric. This is exploratory work in
+`../manuscript/this_week.tex`, new section "Local efficiency at Gaussian residuals"
+(manuscript 1bcbe2f, changelog e6323f5). Nothing in the paper changes. Scope file not changed:
+it still says the paper makes no efficiency claim, and adopting this is an open
+author decision.
+
+**Correction.** In chat on 2026-10-13 I told the author the first-stage share was
+under 1% and the gains were probably small. That came from the common-slope
+baseline. For the differing-slopes estimator it is wrong: in the paper's
+displayed design the OLS first stage is 23% of the variance, and the efficient
+first stage cuts the threshold variance by 9.9%.
+
+**Model.** M_J: the outcome restriction is imposed on the fitting window J only.
+X is independent of eta, and the laws of X and eta and the conditional law of R_Y
+are otherwise free. Efficiency is local: the bound of M_J, evaluated at laws
+satisfying (G) and (H), neither of which is part of the model.
+- (G): eta is Gaussian.
+- (H): Var(R_Y | D = d, X, eta) = sigma_d^2 on J.
+
+The target depends on f_eta and on the law of X, so assuming Gaussian eta as part
+of the model would lower the bound. That is why Mukherjee et al.'s framing (normal
+errors in the model) does not carry over.
+
+**Findings.**
+1. **Gradient.** The paper's four-role summed score is a gradient of phi*_eps in
+   M_J, without (G) or (H). The location-invariance lemma is exactly the gradient
+   identity in the intercept direction.
+2. **Efficient influence function (under H).** It is the paper's, with the OLS slope
+   influence replaced by I_gamma^{-1} S_eff:
+   - I_gamma = I_eta Var(X) + J_Y;
+   - J_Y = E[S_J R_xi R_xi' / sigma_D^2];
+   - R_xi is the arm-wise residual of xi_DS X from {w_d(eta) + X'k_d} on J.
+
+   The other three role scores are already efficient. The paper's gap is
+   H^{-2} Abar_X' {var_eta Var(X)^{-1} - I_gamma^{-1}} Abar_X. It is zero when J_Y = 0,
+   for example when a and b are linear. Then the paper's estimator is already
+   locally efficient (Level A).
+3. **Efficient first stage.** Mukherjee et al.'s stacked regression, run inside
+   I_gamma:
+   - three internal parts: pilot OLS, an arm-wise spline fit for c_d' (where
+     xi = D a' + b', as in their Section 6.1), and stacked WLS of the score rows
+     and the outcome rows linearized in Delta = gamma - gamma_pilot;
+   - the three results averaged.
+
+   Lemma: the slope expansion has influence G_w^{-1} psi_w, with every remainder
+   bounded. It needs (E), uniform consistency of c_d' on J, which (DS5) already
+   asks for a'. Theorem: the four-role estimator with this first stage is valid
+   in M_J under the paper's conditions plus (E). Under (H) the role scores stay
+   uncorrelated. At (G) and (H) the rotated average attains the bound (local
+   efficiency).
+4. **Dropping (G).** An adaptive version replaces the LS score rows with an
+   estimated location score: kernel rho_hat from the pilot residuals (Bickel 1982).
+   Under (E') it attains the bound for any eta law with finite Fisher information.
+   Only (H) remains.
+5. **Population numbers** (`ds_local_efficiency.py`, Gaussian X, 1-D quadrature),
+   paper displayed design (b = eta^2/2):
+   - V_OLS = 31.09 and V_eff = 28.02, a gain of 9.9%;
+   - first-stage share 23%;
+   - diag J_Y = 1.43 against 1 from the score equation, so the efficient slope
+     variance is 0.43 of OLS.
+
+   Linear design: gain 0. Sensitivity of the gain:
+   - 32% at sigma = 0.25 and 1.3% at sigma = 1;
+   - 7% to 17% as J widens from +-1.5 to +-3.5;
+   - 0 for linear b.
+
+   Non-Gaussian eta (variance 1), as OLS / LS-stacked / adaptive (bound):
+   - t5: 36.04 / 32.71 / 32.06;
+   - two-normal mixture: 23.58 / 21.45 / 20.90.
+6. **Why differing slopes makes the first stage matter.** At beta2 = 0 in the same
+   design, the DS estimator's first-stage term is 0.138 (34% share), against
+   0.0018 (0.8%) for the common-slope estimator. A first-stage error shifts the
+   arm-wise X slopes, which cancel in a_hat under a common slope but move
+   beta2_hat under differing slopes. The same comparison prices the DX block at
+   beta2 = 0: rotated variance 78.4 against 43.7.
+7. **Checks.**
+   - The intercept of Abar is zero to machine precision.
+   - At beta2 = 0 the module reproduces the 2026-10-01 common-slope decomposition
+     (phi* 0.731292, H -0.0720, b_l, b_u, Var psi_U 0.0185, Var psi_T 0.0363).
+   - A Monte Carlo least-squares projection on generic bases (4e5 draws, no closed
+     forms) gives diag I_gamma 2.40-2.44 against 2.43, and Var(Pi psi_gamma) 0.0473
+     against 0.0479.
+8. **Simulation** (`ds_local_efficiency_sim.py`, 1000 reps, the same data and folds
+   for both first stages). Paper design, rotated N Var:
+
+   | N | OLS | stacked | paired difference |
+   |---|---|---|---|
+   | 16000 | 33.27 | 29.92 | 3.36 |
+   | 32000 | 30.49 | 27.94 | 2.55 (MC s.e. about 0.6) |
+   | prediction | 31.09 | 28.02 | 3.07 |
+
+   - Fixed assignment at N=32000: OLS 119.4 (prediction 124.4) and stacked 106.8
+     (prediction 112.1). At N=16000 both are 13-16% high (finite sample).
+   - Stacked slope variance: 0.506 and 0.474 against a limit of 0.432, converging
+     slowly.
+
+   Linear design (J_Y = 0): rotated 4.61/4.62 (N=16000) and 4.84/4.83 (N=32000)
+   against 4.56; fixed 18.25 against 18.24. With nothing to gain, the stacked first
+   stage costs slope precision in finite samples (m Var 1.16, then 1.11, against
+   OLS 1.02, then 1.04), but not threshold precision here.
+9. **Heteroskedasticity breaks the rotated gain**
+   (`ds_local_efficiency_hetero.py`). With sigma_d^2(eta) = 0.25 exp(kappa eta), the
+   stacked first stage (arm-constant weights) still beats OLS on the slopes and in a
+   fixed assignment. The rotated average, however, has a positive within-observation
+   covariance between the outcome score and the first-stage outcome rows, zero only
+   under (H). Rotated variances (paper / stacked / bound):
+   - kappa = 0.5: 31.35 / 30.75 / 29.87;
+   - kappa = 1: 34.65 / 36.79 / 33.58;
+   - kappa = 1.5: 41.76 / 46.82 / 39.59.
+
+   So without (H) the stacked first stage needs estimated variance weights in both the
+   outcome fold and the first stage, which is not implemented.
+10. **Mukherjee et al. Theorem 2.10** (follow-up to my 2026-10-12 entry, which said
+   the sandwich collapses under Gaussian homoskedastic errors). It also needs
+   Var eta = Var eps (OLS stacking weights both rows equally), Gaussian eta (the
+   bound uses I_eta), and tau -> infinity (estimator Omega_tau, bound Omega).
+   `mbr_efficiency_check.py`, X = Z ~ N(0,1), b = eta^3/3:
+   - all three variances equal 12.43 only for eta ~ N(0,1) with Var eps = 1;
+   - eta ~ N(0,4): OLS 16.72 against a bound of 16.53;
+   - truncation at 1.5 sd: 13.25 against 12.43.
+11. **Target of the DS check design.** The target of the four-role DS check design
+    (T = X1, linear a and b) is phi* = -0.1197699. The value -0.120064 in
+    `differing_slopes_full_pipeline.population_truth` is a Gauss-Hermite artifact
+    of the hard trim indicator. Variances are unaffected; bias and MSE shift by
+    2.9e-4. Theory 1 (the session that owns that text) will correct Appendix 5 of
+    the paper.
+
+**Still open / not done.**
+- Within-arm heteroskedasticity needs a weighted outcome fit and representer (finding 9).
+- A window growing with n (the global model) is not attempted.
+- The paper's own open items, (DS5) and the unique interior optimum, are inherited.
+
+**Author decision needed:** adopt the stacked first stage and state local
+efficiency, mention it as a remark, or keep OLS.
+
+**Files** (`code/experiments/`):
+- `scripts/ds_local_efficiency.py`
+- `scripts/ds_local_efficiency_sim.py`
+- `scripts/ds_local_efficiency_adaptive_sim.py`
+- `scripts/ds_local_efficiency_fs_check.py`
+- `scripts/ds_local_efficiency_hetero.py`
+- `scripts/mbr_efficiency_check.py`
+- `tests/test_ds_local_efficiency.py` (6 tests, pass)
+- `datasets/simulations/DS_LOCAL_EFFICIENCY_20261013.md` (all numbers)
+
+The simulation checks of the adaptive first stage and of the heteroskedastic case
+are not in this entry.
+
 ## 2026-10-13 - Four-role theory moved into the paper; debiased score drafted (Claude)
 
 At the author's request, the four-role and differing-slopes theory moved
