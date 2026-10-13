@@ -62,6 +62,29 @@ first-stage scores to the evaluation average.
 The paper keeps the plug-in estimator; adopting the score is the author's
 decision.
 
+## 2026-10-13 - Weekly scope review (Claude)
+
+First scheduled run of the review, a few hours after `PROJECT_SCOPE.md` was
+written. No new log decisions or task-board changes since then; drift check
+clear.
+
+Decisions (author): every section of `PROJECT_SCOPE.md` confirmed unchanged
+(goal, model and theory, estimator/inference/simulations, application and
+how we work). No line of the scope file changes; "Last reviewed" already
+reads 2026-10-13.
+
+Still open:
+- Positioning against the five closest papers: pending until the author
+  reads the reading brief.
+- Debiased evaluation score: kept open.
+- Using the outcome equation's information about gamma: kept open.
+
+Priorities for the week: not decided yet; the author will set them later.
+Candidates are the four simulation gaps in the scope file, the (DS5)
+derivation and the interior-optimum proposition.
+
+Next review: 2026-10-20.
+
 ## 2026-10-13 - New tracked scope document, reviewed weekly (Claude)
 
 At the author's request, `PROJECT_SCOPE.md` now holds the agreed scope and
