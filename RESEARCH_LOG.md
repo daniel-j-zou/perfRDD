@@ -9,6 +9,57 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-12 - Why MBR's nuisance folds add no variance, unlike our four roles (Claude)
+
+The author asked why every role in our four-role split adds a term to the
+asymptotic variance, while in Mukherjee, Banerjee & Ritov (Bernoulli 2026)
+it does not. Checked against the paper and supplement in
+`../manuscript/Papers/`.
+
+Finding. MBR's variance also has two parts, outcome noise and first stage:
+Omega*_tau has a sigma^2(eta) block and a var(eta) cov(Z) block, and the
+influence function in Remark 2.9 has an eps term and a Z eta term. Both
+parts are evaluated on D3, the final fold. D3's stacked regression (2.7)
+re-estimates every first-order quantity:
+- alpha and beta, and b again by splines (they call this re-estimation
+  critical).
+- The first-stage deviation delta = gamma-hat - gamma0, through the rows
+  Q - Z gamma-hat = -Z delta + eta on D3.
+D1's gamma-hat is then only an expansion point, leaving
+R1 = (eta-hat - eta)^2 b''/2. D2's b-hat' only builds the regressor
+b-hat'(eta-hat) Z, leaving R2 = (b' - b-hat')(eta-hat - eta). Both are
+second order. Supplement Section 1.1, Step 2, has the linear term on D3
+only: 3x the variance for one fold, 1x after averaging the rotations.
+
+Our plug-in uses alpha-hat, g-hat, l-hat, u-hat and gamma-hat directly in
+the evaluation average, not inside products. So each fit's sampling error
+is first order on its own fold (this_week.tex Proposition 1). This is not
+an error. Fixed = 4 sigma_4^2 and rotated = sigma_4^2 (174.7 vs 43.68 in
+the Gaussian baseline), the same k-fold pattern as MBR. After rotation,
+each observation contributes psi_U + psi_o + psi_T + psi_gamma, the full
+influence function. The saved simulations agree: rotated vs full-sample
+N Var are 4.52/4.31, 4.22/4.25 and 4.38/4.37.
+
+To put all terms on one fold: (a) a debiased evaluation score that adds,
+on the evaluation fold, the estimated influence terms of the outcome,
+density, endpoint and first-stage fits. The first-stage term
+A-hat' Sigma-hat^{-1} X~_i eta-hat_i is MBR's re-estimation of gamma to
+first order. Nuisance errors then enter only through products; the
+rotated variance is unchanged. (b) A partial version: estimate gamma and
+the trim quantiles on the evaluation fold. Neither is proved; both would
+change the methodology, so the author decides.
+
+MBR "efficient" version: Theorem 2.10 (Gaussian homoskedastic eps)
+collapses the sandwich to tau^2 e1' Omega^{-1} e1. In the bound (supplement
+3.16), the gamma block of the information is Sigma_Z (I_eta + E b'(eta)^2),
+where I_eta is the location Fisher information of eta's density, displayed
+with tau^2 = I_eta = 1. Least squares on the Q rows uses 1/var(eta), which
+matches I_eta only for Gaussian eta. Remark 2.11 (WLS by 1/sigma(eta) and
+1/sigma_eta) is asserted efficient without a proof. Remark 3.1: the b'^2
+term vanishes for linear b. Implication for us: OLS of Q on X~ alone
+ignores the outcome equation's information about gamma, which MBR's
+stacked fit uses. We claim no efficiency, so this is optional.
+
 ## 2026-10-12 - Methodology decisions and prior-work check (Claude)
 
 Second Q&A round with the author, a follow-up to the scope entry below.
