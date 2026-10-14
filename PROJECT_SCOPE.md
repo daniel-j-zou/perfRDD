@@ -30,14 +30,17 @@ decision history at the end. How to change this file is described in "Updating t
 
 - **Score:** Q = gamma' X~ + eta, a linear index plus a latent residual. X is independent of
   eta.
-- **Effect:** W has mean a(eta) + X' beta2, so differing slopes is the model and common
-  slope is a special case. The effect is linear in X.
+- **Effect:** given (X, eta), W has mean alpha(eta) + X' beta2. X is centered, so
+  alpha(eta) = E(W | eta), the average effect at latent type eta. Differing slopes is the
+  model and common slope is a special case. The effect is linear in X.
+- **Notation:** alpha, not a, is the treatment-effect function, in the paper and the
+  notebook.
 - **Target:** the hard-trimmed utility maximizer phi*_eps. The trim level eps is fixed and
   chosen by the user. Present phi*_eps as the optimal cutoff for the population the data
   supports. Add a remark relating it to phi*, and show sensitivity to eps in the
   application.
 - **Interior optimum:** state a proposition with simple sufficient conditions, as a
-  single-crossing condition on a(eta) - c + beta2' E(X | T = phi - eta) over the trim
+  single-crossing condition on alpha(eta) - c + beta2' E(X | T = phi - eta) over the trim
   window. It extends "Uniqueness of the maximizer" in `../manuscript/goodstuff.tex`.
 
 ## Estimator
@@ -172,6 +175,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-10-14 | Treatment-effect function written alpha, with alpha(eta) = E(W \| eta) for centered X | Log: "Notation: the treatment effect is alpha(eta) = E(W \| eta)" |
 | 2026-10-12 | Debiased-score alternative noted as an open question; plug-in kept for now | Log: "Why MBR's nuisance folds add no variance" |
 | 2026-10-12 | Spline densities, constrained CV, rotated average, (DS5) derived, fixed eps framing, single-crossing interior optimum, oracle-only comparison, Wibisono position | Log: "Methodology decisions and prior-work check" |
 | 2026-10-12 | Journal target, `differing_slopes.tex` as the paper, four roles, bootstrap, taxi only, side projects parked | Log: "Paper scope consensus with the author" |

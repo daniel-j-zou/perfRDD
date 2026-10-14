@@ -9,6 +9,38 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-14 - Notation: the treatment effect is alpha(eta) = E(W | eta) (Claude)
+
+Author decision: the treatment-effect function is written alpha, not a, and
+alpha(eta) = E(W | eta). Before this, `differing_slopes.tex` and parts of
+`this_week.tex` wrote a(eta), the effect at X = 0; the prelim and the older
+notebook sections wrote alpha. With centered X, X independent of eta and
+E(R_W | X, eta) = 0, the two coincide, so no result changes. Log entries
+before this one write a.
+
+- **Notebook** (manuscript 74fd7c6): every a that denotes the treatment
+  effect is now alpha. That includes estimates, derivatives, spline
+  approximants, perturbation directions and the pseudo-target, plus C_alpha,
+  alpha_min, v_alpha, E_alpha and ell_{alpha,K}. The local vectors alpha(e),
+  beta(e) in the identification lower-bound proof became zeta_0(e),
+  zeta_1(e).
+- **Paper** (manuscript f5f5e74): the same rename. §2 now states E(X) = 0
+  where X is introduced and derives alpha(eta) = E(W | eta) from the model.
+  "Recovered by setting beta2 = 0 and a = alpha" now reads "the same-slope
+  model is the special case beta2 = 0".
+- **Kept as a:** the index coefficient (the paper's Block D, H_{a,q} and
+  F(a,q); the notebook's (A5) and shift lemmas, F(a,t), a' X~ and
+  ||a - gamma||); the minimization variable in the OLS definitions; the
+  interval endpoint in Block E; and the coefficients a_0, a_1 of a linear
+  alpha in the designs.
+- **Board, scope and changelog:** the two board lines that wrote a, and the
+  scope file's Effect and Interior-optimum lines, now write alpha; the scope
+  file gains a Notation line and a decision-history row. Changelog entries:
+  8d64c39 and a1b820e. Both documents compile, with no undefined references
+  and no new overfull lines.
+
+Variable names in `experiments/` scripts are unchanged.
+
 ## 2026-10-14 - Score redesign explored on taxi and GPA (Claude)
 
 The author shared an advisor's note, "Two-Level Treatments under Endogenous
