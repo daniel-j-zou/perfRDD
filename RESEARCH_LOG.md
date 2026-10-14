@@ -719,6 +719,14 @@ efficiency, mention it as a remark, or keep OLS.
 The simulation checks of the adaptive first stage and of the heteroskedastic case
 are not in this entry.
 
+## 2026-10-13 - Writing rules moved from Claude memory into the protocol (Claude)
+
+At the author's request, two standing rules that until now lived only in Claude's
+private memory (invisible to Codex) are now in `COLLABORATION.md`, "Drafting
+manuscript prose": no em dashes in manuscript prose, and do not overclaim (state the
+configuration a result holds in; separate bias, identification and finite-sample
+variance). No methodology change.
+
 ## 2026-10-13 - Four-role theory moved into the paper; debiased score drafted (Claude)
 
 At the author's request, the four-role and differing-slopes theory moved
