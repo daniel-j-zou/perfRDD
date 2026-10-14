@@ -9,6 +9,71 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-14 - Score redesign explored on taxi and GPA (Claude)
+
+The author shared an advisor's note, "Two-Level Treatments under Endogenous
+Score Assignment" (2026-10-13), as a possible next paper. It covers three arms
+(two active treatments and a reference arm) assigned by two cutoffs on one
+score, and a policy that also chooses the score direction,
+S = lambda'X + kappa*eta. At the author's request I compared it with the current
+paper and tried score redesign on the two existing applications. This is
+exploratory work for a possible follow-up paper. Nothing in
+`differing_slopes.tex` or `PROJECT_SCOPE.md` changes.
+
+**Notes from the comparison** (my reading, not checked further):
+- Its Model A is our differing-slopes model with one effect per active arm, and
+  its identification result is our arm-wise outcome fit.
+- With the score fixed at Q, the two-cutoff value splits as
+  E[(v1 - v2) 1{Q < phi_L}] + E[v2 1{Q < phi_R}], two copies of our one-cutoff
+  problem.
+- The note's "hybrid rule" (a new rule on a well-supported region, the
+  historical rule elsewhere) has phi*_eps as its optimal cutoff: its value
+  differs from U_eps by a phi-free term. This may serve the planned remark
+  relating phi*_eps to phi*.
+- The note identifies its model without X independent of eta. My reading is
+  that independence is what makes the cutoff root-n estimable (the score
+  density becomes a convolution of the densities of T and eta), not what
+  identifies the policy value. Conjecture: the same device could make the
+  whole redesigned score root-n estimable. This bears on the scope file's
+  Wibisono position; that is the author's call.
+- Closed form, displayed design, untrimmed, under its own linear effect: the
+  deployed cutoff attains 0.206, the best cutoff on Q 0.221, and the best
+  linear score 0.331. So the best cutoff gets 67% of the attainable value
+  (corr(Q, effect) = 0.74).
+
+**Findings on the data** (`experiments/scripts/score_redesign_explore.py`;
+summary in `experiments/datasets/simulations/SCORE_REDESIGN_EXPLORE_20261014.md`).
+The differing-slopes fit is that of `taxi_differing_slopes.py`. Rules are
+compared on the hard-trim window, selected with one half's outcome model and
+evaluated with the other's. All values are model predictions and point
+estimates.
+1. **Taxi** (restricted VTS, c = 0): redesign adds almost nothing.
+   - The best cutoff ($12.90, as before) raises tips by $0.0162 per ride in the
+     window. The best linear score and the model optimum (any rule shape) both
+     give $0.0167, so the cutoff captures 97% of the attainable gain.
+   - The best direction is essentially Q's. The only stable tilt lowers the
+     fare cutoff by about $0.08-0.10 per later hour of the day.
+   - Reading: the menu effect is a function of the fare level, so the fare is
+     already the right score.
+2. **GPA** (Lindo et al., nextGPA, a post-treatment selected outcome): with
+   c = 0 the effect is predicted positive for 96% of the window, so treating
+   the whole window is optimal and a cutoff does it.
+   - With an illustrative cost at the median predicted effect, the best cutoff
+     gets 39% of the model's attainable gain (it treats no one) and the best
+     score 87%. The effect runs against the score: its correlation with the
+     distance below the cutoff is -0.28 in the window.
+   - Caveats: the selected rules are not monotone in GPA; their covariate
+     weights and beta2 change between the two halves; switched students sit a
+     median 1.0 (90th percentile 2.2) standardized-X units from any
+     historically treated student with the same eta; and dropout selects the
+     outcome.
+3. **Reading.** Score redesign is unnecessary in taxi and weakly supported in
+   GPA. A follow-up paper needs an application where the score is plausibly
+   misaligned with the benefit and the formula can change. The share of the
+   attainable gain captured by the best cutoff is a cheap alignment diagnostic.
+
+Tests: `experiments/tests/test_score_redesign_explore.py` (3, pass).
+
 ## 2026-10-13 - Proof simplifications for differing_slopes.tex: checks (Claude)
 
 At the author's request, a review of the proof of Theorem 1 in
