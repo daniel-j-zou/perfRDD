@@ -9,6 +9,68 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-14 - The small positive sqrt(N) bias: second-order argmax bias plus density spline bias (Claude)
+
+At the author's request, investigated the bias reported in "Proof
+simplifications for differing_slopes.tex: checks" (2026-10-13): +0.84, +0.52
+and +0.58 in sqrt(N) units at N = 16k, 32k and 64k, paper design. Write-up:
+`this_week.tex` §6 (manuscript 58b2953).
+
+Finding: it is not a failure of Theorem 1. It has two parts.
+- **Second-order argmax bias, of order 1/N.** A formal second-order expansion
+  gives the following biases, with Psi = U-hat'(phi*):
+  - fixed assignment, and the average of the four rotated argmaxes (the
+    paper's estimator): -E Psi/H + 4B/N;
+  - argmax of the averaged criterion: -E Psi/H + B/N;
+  - (4 pooled - average)/3: -E Psi/H.
+
+  Here B = d sigma^2/d phi / (2H^2) - U''' sigma^2/(2H^3), with
+  sigma^2(phi) the summed role-score variance. Two facts give this:
+  Cov(psi_q, d psi_q/d phi) = (1/2) d Var psi_q / d phi, and all cross-role
+  terms vanish. The latter uses Abar_0(phi) = 0 at every phi.
+
+  In the paper design B = 21.6:
+  - sigma^2 = 0.3595 and d sigma^2/d phi = 0.212, mostly the first-stage
+    score (0.239);
+  - U''' = 0.0858 and H = -0.1075;
+  - B splits as 9.2 from the variance slope and 12.4 from the third
+    derivative.
+- **Score part, of order L^-3.** The density fit's spline bias. Quadrature
+  gives +0.071 at L = 9, -0.018 at L = 12 and -0.005 at L = 15, in sqrt(N)
+  units.
+
+Simulation: `experiments/scripts/ds_bias_decomposition.py`, 2000 replications
+per N, the paper's estimator as implemented in `ds_local_efficiency_sim.py`.
+In each rotation, each of the first stage, outcome fit, densities and
+endpoints is estimated or replaced by its truth (16 combinations).
+- Paired checks, with each replication's own score term removed:
+  - average minus score: 0.703 (0.016) and 0.345 (0.007), against 4B/sqrt N
+    of 0.682 and 0.341;
+  - pooled minus score: 0.172 (0.008) and 0.084 (0.004), against 0.171 and
+    0.085;
+  - combination minus score: -0.005 (0.009) and -0.002 (0.004).
+- Raw sqrt(N) biases at 16k and 64k:
+  - average: 0.89 and 0.41;
+  - pooled: 0.36 and 0.15;
+  - combination: 0.19 and 0.06;
+  - all nuisances true: 0.02 and -0.02.
+- N Var: average 33.0 and 30.3, pooled 31.7 and 30.1, combination 31.5 and
+  30.0. No first-order variance cost.
+- Score part by source: only the density fit stands out, at +0.12 (0.045) at
+  16k and -0.01 at 64k, which agrees with the quadrature spline bias.
+- A run at N = 256k was stopped unfinished, because the machine was
+  overloaded and the paired checks were already decisive.
+
+An independent reviewer agent re-derived the expansion and reproduced every
+number. Its corrections are included: remainder orders, centred off-phi*
+scores, the sieve caveat for the index role's derivative score (worth at
+most about 0.3 in B = 21.6), and the hedge that this is a formal expansion,
+not a theorem.
+
+**Author decision pending:** whether to keep the average of the four
+thresholds (decided 2026-10-12), or switch to the pooled-criterion argmax or
+the combination. Board item added.
+
 ## 2026-10-14 - Notation: the treatment effect is alpha(eta) = E(W | eta) (Claude)
 
 Author decision: the treatment-effect function is written alpha, not a, and
