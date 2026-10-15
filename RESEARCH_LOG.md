@@ -9,6 +9,66 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-15 - Uniqueness theorem re-checked; log-concavity is sufficient, not necessary (Claude)
+
+At the author's request, a second full check of `this_week.tex` §5:
+Proposition 4 (U_eps' = -p_eps tau_eps), Lemma 16 (tau_eps' = C_a + C_lambda +
+B_eps) and Theorem 3 (aligned heterogeneity). Manuscript e16abff.
+
+Proof check:
+- Every step holds: both derivative routes, the Chebyshev signs, both
+  strictness cases, the bound behind (A4), the global claim, and the example
+  numbers (-0.121 < 0 < 0.321 in the check design).
+- Three presentation gaps, now fixed:
+  - Proposition 4(ii) differentiated p_eps, but the proposition only assumes
+    g continuous. The curvature at the zero needs only continuity of p_eps,
+    since tau_eps vanishes there.
+  - The closing "Hence" sentence also needs p_eps to be C^1 near the zero for
+    the curvature band; this holds when g is C^1 near V_Phi.
+  - Theorem 3, and its restatement in §8.1, now list E|W| < infinity, which
+    Proposition 4 uses.
+- Possible sharpening, not made: (A1) asks for log-concave f_eta whenever
+  beta2 != 0. It is needed only when lambda is nonconstant on V_Phi.
+
+Stress test, `experiments/scripts/ds_uniqueness_stress.py`, part 1 (four
+non-Gaussian designs: Gumbel, logistic and exponential-power densities,
+nonlinear a and lambda, one common-slope design with bimodal f_eta):
+- form B of tau_eps' matches finite differences to 1e-9;
+- U_eps' = -p_eps tau_eps matches to 1e-6;
+- tau_eps' >= C_a + B_eps > 0 on every grid point of Phi, with one zero;
+- U_eps''(phi*) = -p_eps tau_eps' agrees with finite differences to 1e-5.
+
+Is log-concavity necessary? (part 2 of the same script)
+- Not for a given design.
+  - Student-t3 T is log-concave only on [-sqrt 3, sqrt 3], and V_Phi is
+    [-4.28, 4.28]. With the paper's window and Phi = [-3, 3], tau_eps' dips to
+    -0.048, yet tau_eps has one zero: uniqueness survives even though tau_eps
+    is not monotone.
+  - Bimodal f_eta = 0.5 N(-0.7, 0.5^2) + 0.5 N(0.7, 0.5^2) with Gaussian T
+    (sd 1) and lambda(t) = t: tau_eps' >= 0.58. The exact Gaussian condition
+    is Var of eta on the margin <= sigma_T^2; here the maximum is 0.42.
+- In the worst case, yes.
+  - If log g is strictly convex at an interior point of V_Phi, a Gaussian
+    f_eta of small variance and a linear a give tau_eps' < 0 there. The
+    symmetric statement holds for f_eta with a Gaussian g of small variance
+    and a linear lambda. This is the classical fact that the location family
+    g(phi - e) has a monotone likelihood ratio only when g is log-concave.
+  - Numerically: the same bimodal f_eta with T sd 0.3 gives tau_eps'(0) =
+    -0.117 and two tied maxima at +-0.564.
+  - A bimodal index, g = 0.5 N(-1, 0.4^2) + 0.5 N(1, 0.4^2), as a strong
+    binary covariate in the score would produce, breaks the common-slope
+    model too. With a(e) = e, c = 0 and eta ~ N(0, 0.3^2):
+    tau_eps'(0) = -1.08, and there are two tied maxima at +-0.999
+    (U = 0.03591).
+  - Heavy tails: a t3 index with concentrated eta gives a second critical
+    point at large phi, and the interior local maximum (U = -9.3e-5) is beaten
+    by the boundary of Phi (-6.4e-5).
+- Summary: log-concavity of g (and of f_eta when lambda is not constant) is
+  the weakest shape condition on that density alone that works for every
+  monotone effect and every distribution of the other component. A given
+  design can satisfy uniqueness without it. Then (A4) together with a direct
+  check of tau_eps (the plug-in diagnostic) is the practical test.
+
 ## 2026-10-15 - Taxi: nine-way comparison of score and effect specifications (Claude)
 
 Follow-up to "Taxi application with the four-role estimator" below. Write-up:
