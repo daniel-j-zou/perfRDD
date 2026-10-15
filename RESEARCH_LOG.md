@@ -9,6 +9,86 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-15 - Taxi application with the four-role estimator (Claude)
+
+At the author's request: review the taxi data for the paper, then build a
+paper-ready example with the paper's estimator. Write-up: `this_week.tex` §7
+(manuscript 59ef28f; changelog a9eacdc). Code: `experiments/scripts/taxi_four_role.py`, figure
+script `taxi_four_role_figures.py`, tests `test_taxi_four_role.py` (4, pass),
+summary `experiments/datasets/taxi/FOUR_ROLE_APPLICATION.md`.
+
+**Review of the existing taxi work (before this entry).**
+- The paper's $12.6 and the scripts' $12.66–12.72 come from a full-sample
+  ridge diagnostic (`taxi_differing_slopes.py`), not the four-role estimator.
+  The paper's §6 mixes the full VTS sample (n = 1,528,292) with the
+  restricted $5–$25 sample (541k), reports residual-only numbers ($5.3) as the
+  headline, uses CMT rides inside an estimate ($10.9), and has no committed
+  generator for `taxi_diffslopes.png` or `taxi_menu_crossover.png`.
+- A first four-role run on the restricted sample (exploratory probe) gave $11.31 (bootstrap
+  95% [$10.96, $11.74], 100 draws) but moved with the outcome-fitting region
+  J ($11.14–$13.32) and with eps ($10.86–$13.17). Causes: the upper trim
+  endpoint lay beyond the observed residuals, and Z independent of eta fails
+  (R^2 of eta-hat on rich covariate functions 0.15; its sd rises from 0.96 to
+  1.70 across distance deciles).
+
+**Author decisions (2026-10-15).** Drop the $5–$25 fare restriction for the
+main sample and keep the restricted sample for a comparison subsection; add
+distance curvature and hour indicators to the covariates; iterate to a
+reasonable, justifiable specification.
+
+**Specification search.** Criteria fixed before estimates, none using the
+value of phi-hat or the CMT benchmarks: (C1) Z independent of eta
+diagnostics, (C2) stability in J, (C3) agreement with the own-score objective,
+(C4) overlap and rank, (C5) a single-peaked criterion. Runs (full sample, eps
+= 0.10 unless stated):
+- dollars, 4 linear controls: C1 fails (R^2(eta) 0.165, spread ratio 2.36);
+  phi-hat $11.58–11.79, own-score $12.50.
+- dollars or log, flexible Z also in the D*X block: beta2 not identified
+  (coefficients of order 50, three local maxima, implied gains of 44 cents).
+- log, 4 linear controls: C1 fails (R^2(eta^2) 0.55).
+- Box–Cox lambda in {0, 1/4, 1/2, 3/4, 1} with flexible Z (36 columns) in the
+  score and baseline, effect linear in distance: C1 is best at lambda 0.4–0.5
+  (spread ratio 1.21, R^2(eta^2) 0.019 at 1/2); dollars 2.30 / 0.062, log 1.91
+  / 0.054. At eps = 0.10 the estimate moves with J's lower margin for lambda
+  >= 1/2 (dollars $9.76–12.29; 1/2 $11.67–12.73) but not at 1/4 or 0
+  ($12.58–12.86; $12.45–12.67).
+- A baseline linear in distance, hour, weekend and group (instead of Z):
+  stable but lower ($10.4–11.2), and it fits the untreated rides worse (RSS
+  543,999 vs 541,833 at lambda = 1/2; hour residual means up to 12.6 vs 2.2
+  cents).
+- The scale was set by C1 alone: lambda = 1/2. With eps <= 0.05 both trim
+  endpoints fall outside the observed residuals, so the window is J itself
+  (central 99% of eta-hat); eps = 0.05 was taken as the widest supported
+  population. The script caps both endpoints at J.
+
+The search used exploratory scripts that are not committed. Every number
+reported below for the chosen specification and its robustness comes from the
+committed `taxi_four_role.py` (commands in `FOUR_ROLE_APPLICATION.md`).
+
+**Main result** (n = 633,616; 11.0% treated; 205 fares $2.50–$148.90).
+phi-hat = $12.80: show the percentage menu from $12.90. Rotations
+$12.38–$13.33; pooled $12.82; own-score same cell; beta2 = 0.46 per sd of
+distance; gain over $15: 0.55 cents per ride; window 99.0% of rides.
+Bootstrap (199 full re-estimation draws, rides iid): 95% [$12.23, $13.19],
+sd $0.24, all draws interior and below $15, 181 of 199 in the $12.90 or
+$13.30 cell; gain band 0.37–0.80 cents; marginal effect at $15 +19 cents
+(16–23). Residual-only
+model: lower boundary of Phi.
+
+**Robustness** (eps = 0.05): fold seeds $12.78–12.89; J tails 0.25–2%
+$12.97–13.19; lambda 1/4 $13.06, log $12.96; quadratic effect in distance
+$12.30; eps 0.075 $12.82, 0.10 $12.20, 0.125 $7.70 (population shrinks to the
+slowest 23%); linear baseline $11.11; restricted sample $8.21 (rotations
+$6.00–10.34, beta2 0.18), and with a quadratic effect the boundary.
+Benchmarks (not used for selection): menu arithmetic $12; CMT-minus-VTS
+crossing near $12.8 on the restricted population.
+
+**Open.** (1) Author: adopt this specification and port §7 into the paper's
+§6. (2) Theory: the specification uses different covariates in the
+score/baseline and the effect, and a spline-transformed continuous coordinate
+in the quantile lemma; both need short extensions. (3) Driver-clustered
+inference is not possible with the public data.
+
 ## 2026-10-14 - The small positive sqrt(N) bias: second-order argmax bias plus density spline bias (Claude)
 
 At the author's request, investigated the bias reported in "Proof

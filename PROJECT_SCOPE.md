@@ -87,6 +87,9 @@ decision history at the end. How to change this file is described in "Updating t
 
 - NYC taxi tip menus only. The purpose is to show the method working, with an estimate and a
   bootstrap CI, not to make a policy claim. More datasets may be added later if needed.
+- **Sample:** January 2009 VTS credit-card rides with the Haggag–Paci restrictions except
+  their $5–$25 fare range, which selects on the running variable. The restricted sample is
+  kept for a comparison subsection.
 
 ## Positioning
 
@@ -132,6 +135,11 @@ application, and other candidate datasets. Nonparametric first stage or outcome 
 - Whether to pursue the debiased evaluation score.
 - Whether to use the outcome equation's information about gamma, as Mukherjee et al.'s
   stacked fit does. This is optional; we make no efficiency claim.
+- Whether to adopt the taxi specification of 2026-10-15 (`this_week.tex` §7) and port it to
+  the paper's §6: a square-root fare score with flexible covariates, an effect linear in
+  distance, and eps = 0.05, giving $12.80 (bootstrap 95% [$12.23, $13.19]). It needs two
+  short theory extensions: different covariates in the score and the effect, and the
+  quantile lemma with a coordinate entering through spline columns.
 
 ## Updating this file
 
@@ -175,6 +183,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-10-15 | Taxi main sample without the $5–$25 fare range; the restricted sample as a comparison | Log: "Taxi application with the four-role estimator" |
 | 2026-10-14 | Treatment-effect function written alpha, with alpha(eta) = E(W \| eta) for centered X | Log: "Notation: the treatment effect is alpha(eta) = E(W \| eta)" |
 | 2026-10-12 | Debiased-score alternative noted as an open question; plug-in kept for now | Log: "Why MBR's nuisance folds add no variance" |
 | 2026-10-12 | Spline densities, constrained CV, rotated average, (DS5) derived, fixed eps framing, single-crossing interior optimum, oracle-only comparison, Wibisono position | Log: "Methodology decisions and prior-work check" |
