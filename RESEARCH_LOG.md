@@ -9,6 +9,125 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-15 - Taxi: nine-way comparison of score and effect specifications (Claude)
+
+Follow-up to "Taxi application with the four-role estimator" below. Write-up:
+`this_week.tex` §7, which now holds only this comparison (manuscript 5457283;
+changelog cee4e1b). Code: `experiments/scripts/taxi_four_role_grid.py`; results in the
+ignored `experiments/runs/taxi_four_role_grid/summary.json`.
+
+**Author decisions (2026-10-15).**
+- The treatment effect is nonlinear in eta and linear in the covariates: no
+  splines or other functions of distance in the D*X block.
+- eta should carry meaning.
+- Compare nine specifications: three score covariate sets crossed with three
+  linear parts of the effect.
+  - Score: fare in dollars. The author asked for sqrt(2.5 + 2 distance) as the
+    second score; on the dollar scale that is linear distance, so the author chose
+    distance + log distance instead.
+  - Covariates: the group-ride indicator is kept.
+- Bootstrap: 20 draws; 90% interval = estimate +- 1.645 sd.
+- Keep figures of alpha(eta) and U with bands, and the distribution of phi-hat, for
+  all nine.
+
+**Design change (margin fix).** With the window equal to J, the window had no
+margin inside the outcome-fitting region. The grid uses:
+- J = the central 99.5% of eta-hat;
+- the window capped at the central 99%.
+
+On the square-root scale this moved phi-hat from $12.80 to about $13.05.
+
+**Effect on all score covariates (D*Z), checked and rejected.**
+- Setup: square-root score; effect on distance and all 36 Z columns.
+- Estimates:
+  - phi-hat $10.97, pooled $13.74;
+  - rotations $6.20–13.96;
+  - fold seeds $9.09–12.36;
+  - J tails $7.41–13.60.
+- Held-out MSE (model fitted on a random half of J):
+  - all rides 0.8612 vs 0.8623;
+  - treated rides 3.452 vs 3.460.
+- Cause: no treated ride in J is shorter than about 2.3 miles. Two log-distance
+  spline columns are therefore zero on every treated ride, and their D
+  interactions are exactly collinear with the treated intercept (share of
+  variance left 4.6e-26).
+- The run is outside the author's model (an effect nonlinear in distance). It was
+  stopped at the author's request before its bootstrap finished.
+
+**What eta means.** Meter: $2.50 plus $0.40 per fifth of a mile or per two minutes
+of slow travel.
+- Distance + log distance (with the indicators): $1.98 per mile and $0.98 per log
+  unit of distance. eta is the time charge beyond what is typical for the trip's
+  length and hour.
+- Linear distance: $2.26 per mile, which absorbs part of the time charge.
+
+Diagnostics of eta-hat (dollar scale):
+
+| score | R^2(eta-hat) | decile means | R^2(eta-hat^2) | spread ratio |
+|---|---:|---|---:|---:|
+| S1 distance | 0.092 | -0.58 to 0.49 | 0.066 | 2.38 |
+| S2 distance + log distance | 0.026 | -0.12 to 0.19 | 0.064 | 2.30 |
+| S3 spline in log distance | 0.005 | -0.04 to 0.04 | 0.062 | 2.30 |
+
+On the square-root scale, R^2(eta-hat) is:
+- 0.470 for linear distance;
+- 0.530 for log distance;
+- 0.073 for sqrt(2.5 + 2d);
+- 0.030 for sqrt(2.5 + 2d) + log d;
+- 0.002 for the spline.
+
+**Results.** Common settings:
+- n = 633,616 rides, eps = 0.05, Phi = [$6, $24];
+- every score includes the hour, day, weekday-hour x weekend and group indicators;
+- E2 is distance, passengers, hour and day, linear.
+
+Columns:
+- 90% CI: from 20 draws;
+- own: the cell chosen by the own-score check;
+- share left: the variance share of D x distance left after partialling;
+- dMSE: held-out MSE relative to the common slope, all and treated rides.
+
+| spec | phi-hat | cell | 90% CI | rotations | own | share left | dMSE all / treated |
+|---|---:|---:|---|---|---:|---:|---|
+| S1-E1 | 11.87 | 12.10 | 11.36–12.38 | 11.56–12.08 | 12.10 | 0.126 | -1.88% / -3.15% |
+| S1-E2 | 11.86 | 12.10 | 11.34–12.37 | 11.52–12.07 | 12.10 | 0.126 | -1.90% / -3.21% |
+| S2-E1 | 11.76 | 12.10 | 11.36–12.17 | 11.33–12.13 | 12.10 | 0.047 | -0.65% / -0.67% |
+| S2-E2 | 11.75 | 12.10 | 11.34–12.17 | 11.29–12.13 | 12.10 | 0.047 | -0.65% / -0.66% |
+| S3-E1 | 13.02 | 13.30 | 12.36–13.68 | 12.51–13.77 | 12.90 | 0.005 | -0.05% / +0.08% |
+| S3-E2 | 13.02 | 13.30 | 12.37–13.67 | 12.55–13.78 | 12.90 | 0.005 | -0.06% / +0.06% |
+| S1/S2/S3-E3 | 6.00 | boundary | all draws $6 | 6.00 | boundary | – | – |
+
+- **All six interior specifications:** the pooled argmax is within $0.10 of
+  phi-hat, the criterion has one maximum, and $15 lies above the 90% interval.
+- **Gain over $15:** 0.76, 1.22 and 0.35 cents per ride for S1, S2 and S3 with E1.
+- **Common slope:** claims 21, 11 and 9 cents per ride.
+
+**Findings.**
+- **E1 and E2 agree within one cent.** The extra coefficients are small:
+  passengers 0.01, hour 0.04 and day -0.03 dollars per sd, against 0.35–0.45 for
+  distance. The extra columns are well identified (88–93% of their variance left),
+  so the effect simply does not vary with passengers, hour or day.
+- **The common slope selects the boundary in every draw.** alpha-hat(eta) > 0 at
+  every eta, so the effect estimated on long treated rides is applied to short
+  rides. On a $6 ride the percentage menu suggests $1.20–1.80, below the fixed
+  $2–4.
+- **S3 is $1.15–1.26 above S1 and S2,** and its interval does not overlap S2's.
+  The U curves are flat near the top, so a small change in the extrapolated
+  effect moves the argmax.
+  - S3's flexible distance baseline leaves only 0.5% of the variance of
+    D x distance.
+  - Under S3 the held-out fit does not distinguish E1 from the common slope.
+  - Under S3 the own-score check selects one cell lower.
+- **All dollar-scale scores fail Z independent of eta in spread** (ratio 2.3).
+  The square-root scale fixed the spread but loses eta's dollar meaning.
+
+**Open.**
+- Author: choose among the nine. Suggested: S2-E1, $11.76, cell $12.10, 90%
+  [$11.36, $12.17].
+- The theory extensions noted below still apply: different covariates in the score
+  and the effect; under S2 and S3, distance entering the score through several
+  columns.
+
 ## 2026-10-15 - Taxi application with the four-role estimator (Claude)
 
 At the author's request: review the taxi data for the paper, then build a

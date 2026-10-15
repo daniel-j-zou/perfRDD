@@ -127,24 +127,43 @@ def _standardize(M):
     return (M - M.mean(0)) / M.std(0)
 
 
-def score_covariates(df: pd.DataFrame) -> np.ndarray:
+def score_covariates(df: pd.DataFrame, kind: str = "spline") -> np.ndarray:
+    """Distance terms (``kind``) plus hour, day-of-week, weekday-hour x weekend and
+    group-ride indicators.  ``linear``: distance; ``distlog``: distance and log
+    distance (the meter's $2/mile plus a time charge growing with log distance);
+    ``spline``: cubic B-spline in log distance with knots at the quintiles."""
     d = df["Trip_Distance"].to_numpy(float)
     hr = np.floor(df["hour_of_day"].to_numpy(float)).astype(int)
     dow = df["day_of_week"].to_numpy(float)
-    spline = _bspline_cols(np.log(d), [0.2, 0.4, 0.6, 0.8])
+    if kind == "linear":
+        dist = d[:, None]
+    elif kind == "distlog":
+        dist = np.column_stack((d, np.log(d)))
+    elif kind == "spline":
+        dist = _bspline_cols(np.log(d), [0.2, 0.4, 0.6, 0.8])
+    else:
+        raise ValueError(kind)
     hours = np.column_stack([hr == h for h in range(7, 20)]).astype(float)   # base 6am
     days = np.column_stack([dow == k for k in range(1, 7)]).astype(float)    # base Monday
     weekend_hours = hours[:, :9] * (dow >= 5)[:, None]   # 16-19h occur only on weekends
     group = (df["Passenger_Count"].to_numpy(float) >= 2).astype(float)
-    return _standardize(np.column_stack([spline, hours, days, weekend_hours, group]))
+    return _standardize(np.column_stack([dist, hours, days, weekend_hours, group]))
 
 
 def effect_covariates(df: pd.DataFrame, kind: str = "distance") -> np.ndarray:
     d = df["Trip_Distance"].to_numpy(float)
     if kind == "distance":
         return _standardize(d)
+    if kind == "none":                      # common slope: placeholder, not used
+        return _standardize(d)
     if kind == "distance2":                 # robustness: curvature in distance
         return _standardize(np.column_stack((d, d ** 2)))
+    if kind == "controls":                  # comparison: all four controls, entering linearly
+        return _standardize(np.column_stack((
+            d, df["Passenger_Count"].to_numpy(float), df["hour_of_day"].to_numpy(float),
+            df["day_of_week"].to_numpy(float))))
+    if kind == "distance+Z":                # outside the model: effect nonlinear in distance
+        return _standardize(np.column_stack((d, score_covariates(df))))
     raise ValueError(kind)
 
 
@@ -181,10 +200,10 @@ class Data:
 
 
 def make_data(df: pd.DataFrame, lam: float, effect: str = "distance",
-              baseline: str = "flexible") -> Data:
+              baseline: str = "flexible", score: str = "spline") -> Data:
     fare = df["Fare_Amt"].to_numpy(float)
     Zb = None if baseline == "flexible" else linear_baseline_covariates(df)
-    return Data(boxcox(fare, lam), score_covariates(df), effect_covariates(df, effect),
+    return Data(boxcox(fare, lam), score_covariates(df, score), effect_covariates(df, effect),
                 df["Tip_Amt"].to_numpy(float), fare, lam, Zb)
 
 
@@ -199,6 +218,7 @@ class Design:
     policy: tuple
     cost: float = 0.0
     effect: bool = True
+    window: tuple | None = None    # fixed caps on the trim window, inside J
 
 
 def _xt(Z):
@@ -206,8 +226,12 @@ def _xt(Z):
 
 
 def make_design(data: Data, eps: float, margin_sd: float = 0.7, effect: bool = True,
-                tail: float = 0.005) -> Design:
-    """Fixed nuisance region, density interval and policy set, from (Q, Z) only."""
+                tail: float = 0.005, window_tail: float | None = None) -> Design:
+    """Fixed nuisance region, density interval and policy set, from (Q, Z) only.
+
+    With ``window_tail`` the trim window is also capped at the central
+    1 - 2*window_tail of the residuals, strictly inside J (which excludes only
+    ``tail`` in each direction), as the theorem's margin condition requires."""
     g = np.linalg.lstsq(_xt(data.Z), data.Q, rcond=None)[0]
     T = _xt(data.Z) @ g
     eta = data.Q - T
@@ -220,8 +244,11 @@ def make_design(data: Data, eps: float, margin_sd: float = 0.7, effect: bool = T
     tlo, thi = np.quantile(T, [0.0005, 0.9995])
     T_support = (float(min(tlo, policy[0] - J[1]) - pad),
                  float(max(thi, policy[1] - max(l0, J[0])) + pad))
+    window = None
+    if window_tail is not None:
+        window = (float(np.quantile(eta, window_tail)), float(np.quantile(eta, 1 - window_tail)))
     return Design(J=J, eps=eps, phi0=phi0, T_support=T_support, policy=policy,
-                  effect=effect)
+                  effect=effect, window=window)
 
 
 # ----------------------------------------------------------------------------- estimator
@@ -264,6 +291,7 @@ class Rotation:
     value: Callable          # U-hat(phi), per ride in the evaluation fold
     marginal: Callable       # tau-hat(phi) = -U-hat'(phi) / p-hat(phi)
     own: Callable            # own-score objective (does not use Z independent of eta)
+    alpha: Callable          # fitted alpha(eta), the effect at average covariates
     beta2: np.ndarray
     window: tuple
     window_share: float
@@ -275,10 +303,11 @@ def rotation(data: Data, design: Design, folds: dict) -> Rotation:
     fit = outcome_fit(data, eta, folds["outcome"], design)
     T_idx = _xt(data.Z[folds["index"]]) @ g
     tails = fit_weighted_tails(T_idx, data.X[folds["index"]], design.T_support)
-    # Trim endpoints from the index fold; an endpoint beyond the fixed region J is
-    # inactive (no residuals there to fit), and the window stops at J's edge.
-    l_hat = max(design.phi0 - float(np.quantile(T_idx, 1 - design.eps)), design.J[0])
-    u_hat = min(design.phi0 - float(np.quantile(T_idx, design.eps)), design.J[1])
+    # Trim endpoints from the index fold; an endpoint beyond the caps (no residuals
+    # there to fit) is inactive, and the window stops at the cap.
+    caps = design.window if design.window is not None else design.J
+    l_hat = max(design.phi0 - float(np.quantile(T_idx, 1 - design.eps)), caps[0])
+    u_hat = min(design.phi0 - float(np.quantile(T_idx, design.eps)), caps[1])
     U = folds["utility"]
     e_all = eta[U]
     inside = (e_all >= l_hat) & (e_all <= u_hat)
@@ -302,7 +331,7 @@ def rotation(data: Data, design: Design, folds: dict) -> Rotation:
     def own(phi):
         return float(np.mean(inside * effect_all * (data.Q[U] >= phi)))
 
-    return Rotation(value, marginal, own, b2, (l_hat, u_hat), float(inside.mean()))
+    return Rotation(value, marginal, own, fit.alpha, b2, (l_hat, u_hat), float(inside.mean()))
 
 
 def _argmax(f, lo, hi, m=181):
@@ -316,7 +345,8 @@ def _argmax(f, lo, hi, m=181):
     return float(res.x), bool(k in (0, m - 1)), n_local
 
 
-def four_role(data: Data, design: Design, seed: int, curves: np.ndarray | None = None) -> dict:
+def four_role(data: Data, design: Design, seed: int, curves: np.ndarray | None = None,
+              grid_points: int = 181, alpha_grid: np.ndarray | None = None) -> dict:
     """Fixed-fold four-role estimator, rotated over the four roles."""
     blocks = np.array_split(np.random.default_rng(seed).permutation(len(data.Q)), 4)
     rots, phis = [], []
@@ -324,9 +354,9 @@ def four_role(data: Data, design: Design, seed: int, curves: np.ndarray | None =
         folds = {r: blocks[(j + k) % 4] for j, r in enumerate(ROLES)}
         rot = rotation(data, design, folds)
         rots.append(rot)
-        phis.append(_argmax(rot.value, *design.policy)[0])
+        phis.append(_argmax(rot.value, *design.policy, m=grid_points)[0])
     pooled = lambda x: float(np.mean([r.value(x) for r in rots]))
-    phi_pool, at_bound, n_local = _argmax(pooled, *design.policy)
+    phi_pool, at_bound, n_local = _argmax(pooled, *design.policy, m=grid_points)
     phi_avg = float(np.mean(phis))
     out = {
         "phi_avg": phi_avg, "phi_pooled": phi_pool, "phi_rotations": phis,
@@ -336,6 +366,8 @@ def four_role(data: Data, design: Design, seed: int, curves: np.ndarray | None =
         "window": np.mean([r.window for r in rots], axis=0).tolist(),
         "window_share": float(np.mean([r.window_share for r in rots])),
     }
+    if alpha_grid is not None:
+        out["alpha"] = np.mean([r.alpha(alpha_grid) for r in rots], axis=0)
     if curves is not None:
         out["U"] = np.array([pooled(x) for x in curves]) - pooled(design.phi0)
         out["tau"] = np.array([np.mean([r.marginal(x) for r in rots]) for x in curves])
@@ -354,6 +386,58 @@ def fare_cell(phi_dollars, fares):
     """Smallest observed fare treated by the rule fare >= phi."""
     above = np.unique(fares)[np.unique(fares) >= phi_dollars - 1e-9]
     return float(above.min()) if above.size else float("inf")
+
+
+# ----------------------------------------------------------------------------- effect block
+
+def effect_diagnostics(data: Data, design: Design, seed: int) -> dict:
+    """How well the D*X block is identified, and whether it predicts held-out tips.
+
+    Identification: each column of D*X is regressed on the other outcome regressors
+    (arm-wise splines in eta and the baseline covariates) within J; the share of its
+    variance left over and the smallest eigenvalue of the correlation matrix of the
+    residuals measure how much separate variation the effect block has.
+    Prediction: the outcome model is fitted on a random half and evaluated on the
+    other half (rides in J), overall and among treated rides.
+    """
+    g = np.linalg.lstsq(_xt(data.Z), data.Q, rcond=None)[0]
+    eta = data.Q - _xt(data.Z) @ g
+    inJ = np.flatnonzero((eta >= design.J[0]) & (eta <= design.J[1]))
+    D = data.D[inJ]
+    info = _basis_params(max(3, int(round(min(D.sum(), len(D) - D.sum()) ** (11 / 60)))),
+                         design.J)
+    B = BSpline.design_matrix(np.clip(eta[inJ], info["lo"], info["hi"]), info["t"],
+                              info["degree"]).toarray()
+    nuis = np.column_stack(((1 - D)[:, None] * B, D[:, None] * B, data.baseline[inJ]))
+    if not design.effect:
+        rng = np.random.default_rng(seed + 99)
+        half = rng.random(len(inJ)) < 0.5
+        fit = np.linalg.lstsq(nuis[half], data.Y[inJ][half], rcond=None)[0]
+        err = data.Y[inJ][~half] - nuis[~half] @ fit
+        return {"n_effect_columns": 0, "holdout_mse": float(np.mean(err ** 2)),
+                "holdout_mse_treated": float(np.mean(err[D[~half] == 1] ** 2)),
+                "holdout_n": int((~half).sum())}
+    eff = D[:, None] * data.X[inJ]
+    coef = np.linalg.lstsq(nuis, eff, rcond=None)[0]
+    resid = eff - nuis @ coef
+    left = resid.var(0) / eff.var(0)
+    corr = np.corrcoef(resid, rowvar=False) if resid.shape[1] > 1 else np.ones((1, 1))
+    eig = np.linalg.eigvalsh(np.atleast_2d(corr))
+    # held-out prediction
+    rng = np.random.default_rng(seed + 99)
+    half = rng.random(len(inJ)) < 0.5
+    A = np.column_stack((nuis, eff))
+    fit = np.linalg.lstsq(A[half], data.Y[inJ][half], rcond=None)[0]
+    err = data.Y[inJ][~half] - A[~half] @ fit
+    treated = D[~half] == 1
+    return {"n_effect_columns": int(data.X.shape[1]),
+            "min_share_left_after_partialling": float(left.min()),
+            "median_share_left_after_partialling": float(np.median(left)),
+            "min_eigenvalue_residual_correlation": float(eig.min()),
+            "condition_number_residual_correlation": float(eig.max() / max(eig.min(), 1e-300)),
+            "holdout_mse": float(np.mean(err ** 2)),
+            "holdout_mse_treated": float(np.mean(err[treated] ** 2)),
+            "holdout_n": int((~half).sum())}
 
 
 # ----------------------------------------------------------------------------- bootstrap
@@ -402,7 +486,9 @@ def run(sample, lam, eps, boot, workers, seed, out_dir, extras=True, effect="dis
         "curves": {"fare": grid_d.tolist(), "U_minus_U15": main["U"].tolist(),
                    "tau": main["tau"].tolist()},
     }
-    print(json.dumps(res["estimate"], indent=1), f"[{time.time() - t0:.0f}s]", flush=True)
+    res["effect_diagnostics"] = effect_diagnostics(data, design, seed)
+    print(json.dumps({**res["estimate"], **res["effect_diagnostics"]}, indent=1),
+          f"[{time.time() - t0:.0f}s]", flush=True)
     if extras:
         alpha_only = four_role(data, make_design(data, eps, effect=False), seed)
         res["alpha_only"] = {"phi_dollars": dollars(alpha_only["phi_avg"], lam),
@@ -470,7 +556,8 @@ def main(argv=None):
     ap.add_argument("--boot", type=int, default=0)
     ap.add_argument("--workers", type=int, default=4)
     ap.add_argument("--seed", type=int, default=1)
-    ap.add_argument("--effect", choices=("distance", "distance2"), default="distance")
+    ap.add_argument("--effect", choices=("distance", "distance2", "controls", "distance+Z"),
+                    default="distance")
     ap.add_argument("--baseline", choices=("flexible", "linear"), default="flexible")
     ap.add_argument("--no-extras", action="store_true")
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)

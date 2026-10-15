@@ -3,11 +3,53 @@
 The paper's estimator (`differing_slopes.tex` §3: OLS first stage, stacked spline
 outcome fit on a fixed region J, spline g and rho_X on the index fold, quantile trim
 endpoints, average of the four rotated thresholds) applied to the January 2009 VTS
-taxi data. Write-up with figure and tables: `manuscript/this_week.tex` §7. Script:
-`experiments/scripts/taxi_four_role.py`; figure: `taxi_four_role_figures.py`; tests:
+taxi data. Script: `experiments/scripts/taxi_four_role.py`; tests:
 `experiments/tests/test_taxi_four_role.py`.
 
-## Specification
+## Current: nine-way comparison (`this_week.tex` §7)
+
+At the author's request, §7 compares nine specifications. The author's model: the
+effect is nonlinear in eta and linear in the covariates, and eta should carry meaning.
+- Score: the fare in dollars, with one of three distance terms:
+  - S1: distance;
+  - S2: distance and log distance;
+  - S3: a cubic B-spline in log distance.
+
+  Each also has hour, day-of-week, weekday-hour x weekend and group-ride indicators;
+  the untreated baseline uses the same covariates.
+- Effect: W = alpha(eta) + X'beta2, with X one of:
+  - E1: distance;
+  - E2: distance, passengers, hour and day, linear;
+  - E3: none (common slope).
+- Settings: eps = 0.05; J = central 99.5% of eta-hat; window capped at the central
+  99%; 20 bootstrap draws; 90% interval = estimate +- 1.645 sd.
+
+| spec | phi-hat | cell | 90% interval |
+|---|---:|---:|---|
+| S1-E1 / S1-E2 | 11.87 / 11.86 | 12.10 | 11.36–12.38 |
+| S2-E1 / S2-E2 | 11.76 / 11.75 | 12.10 | 11.36–12.17 |
+| S3-E1 / S3-E2 | 13.02 / 13.02 | 13.30 | 12.36–13.68 |
+| any score, E3 | 6.00 | boundary | all draws $6 |
+
+Under S2 the first stage recovers the meter ($1.98 per mile), so eta is the time
+charge beyond what is typical for the trip's length and hour. The suggested main
+specification is S2-E1; the author has not chosen yet. Reasons and diagnostics: the
+research log, "Taxi: nine-way comparison of score and effect specifications".
+
+```bash
+python -m experiments.scripts.taxi_four_role_grid --boot 20 --workers 6   # about 27 min
+```
+
+Outputs go to the ignored `experiments/runs/taxi_four_role_grid/`:
+- `summary.json`;
+- `alpha_by_spec.png`;
+- `U_by_spec.png`;
+- `phi_draws.png`;
+- `tau_by_spec.png`.
+
+## Earlier version: square-root score (superseded in §7; manuscript 59ef28f)
+
+### Specification
 
 | piece | choice | why |
 |---|---|---|
@@ -19,7 +61,7 @@ taxi data. Write-up with figure and tables: `manuscript/this_week.tex` §7. Scri
 | design | J, density interval, Phi = [$6, $24] fixed from (Q, Z) before outcomes; outcome knots n_eff^(11/60) | as in the simulations |
 | inference | full re-estimation bootstrap over rides, 199 draws, percentile | no driver identifiers in the public file, so rides are treated as independent |
 
-## Result
+### Result
 
 phi-hat = **$12.80**, i.e. show the percentage menu from **$12.90** (fares lie on a
 $0.40 grid). Rotations $12.38–$13.33; pooled-criterion argmax $12.82; own-score
@@ -29,7 +71,7 @@ the deployed $15: 0.55 cents per ride (band 0.37–0.80); at $15 the marginal
 rides would tip 19 cents more under the percentage menu (band 16–23). Residual-only model (beta2 = 0): lower boundary
 of Phi (treat every ride).
 
-## Robustness (eps = 0.05 unless stated)
+### Robustness (eps = 0.05 unless stated)
 
 | variation | phi-hat | cell |
 |---|---:|---:|
@@ -49,7 +91,7 @@ Larger eps shrinks the population to the slowest rides (53% of rides at 0.10, 23
 Truncating fares at $25 removes the long treated rides that identify the distance
 slope of the effect (beta2 0.46 -> 0.18; sign flips with a quadratic term).
 
-## Reproduce
+### Reproduce
 
 ```bash
 python -m experiments.scripts.taxi_four_role --boot 199 --workers 5     # main + extras

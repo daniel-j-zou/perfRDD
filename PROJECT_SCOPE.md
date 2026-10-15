@@ -90,6 +90,9 @@ decision history at the end. How to change this file is described in "Updating t
 - **Sample:** January 2009 VTS credit-card rides with the Haggag–Paci restrictions except
   their $5–$25 fare range, which selects on the running variable. The restricted sample is
   kept for a comparison subsection.
+- **Taxi model:** the treatment effect is nonlinear in eta and linear in the covariates (no
+  functions of distance in the D*X block), and eta should carry meaning. The candidates are
+  the nine specifications compared in `this_week.tex` §7 (fare in dollars).
 
 ## Positioning
 
@@ -135,11 +138,12 @@ application, and other candidate datasets. Nonparametric first stage or outcome 
 - Whether to pursue the debiased evaluation score.
 - Whether to use the outcome equation's information about gamma, as Mukherjee et al.'s
   stacked fit does. This is optional; we make no efficiency claim.
-- Whether to adopt the taxi specification of 2026-10-15 (`this_week.tex` §7) and port it to
-  the paper's §6: a square-root fare score with flexible covariates, an effect linear in
-  distance, and eps = 0.05, giving $12.80 (bootstrap 95% [$12.23, $13.19]). It needs two
-  short theory extensions: different covariates in the score and the effect, and the
-  quantile lemma with a coordinate entering through spline columns.
+- Which of the nine taxi specifications in `this_week.tex` §7 to adopt and port to the
+  paper's §6. Suggested: a score with distance and log distance, and the effect linear in
+  distance. It gives $11.76 (cell $12.10, 90% [$11.36, $12.17], 20 draws). The spline score
+  gives the $13.30 cell, and the common slope always selects the $6 boundary. Two short
+  theory extensions are needed: different covariates in the score and the effect, and the
+  quantile lemma with distance entering the score through several columns.
 
 ## Updating this file
 
@@ -183,6 +187,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-10-15 | Taxi effect nonlinear in eta and linear in covariates; eta must carry meaning; nine-way comparison in `this_week.tex` §7 | Log: "Taxi: nine-way comparison of score and effect specifications" |
 | 2026-10-15 | Taxi main sample without the $5–$25 fare range; the restricted sample as a comparison | Log: "Taxi application with the four-role estimator" |
 | 2026-10-14 | Treatment-effect function written alpha, with alpha(eta) = E(W \| eta) for centered X | Log: "Notation: the treatment effect is alpha(eta) = E(W \| eta)" |
 | 2026-10-12 | Debiased-score alternative noted as an open question; plug-in kept for now | Log: "Why MBR's nuisance folds add no variance" |
