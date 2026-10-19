@@ -38,6 +38,14 @@ The original data is governed by the AEJ replication terms; see
 - `general/` — legacy GPA-specific analysis scripts and notebooks. New
   per-dataset analysis should go in `analysis/` or `notes/`.
 
+## Four-role estimator (2026-10-19)
+
+`../../scripts/gpa_four_role.py` runs the paper's four-role differing-slopes estimator
+(shared with the taxi application) on graduation, persistence, credits and the selected
+nextGPA. Every specification is at a policy boundary. With the effect linear in the
+high-school grade, the marginal effect crosses zero in the wrong direction, an interior
+minimum of the value. See the research log, "GPA with the four-role estimator".
+
 ## Outcome-selection warning
 
 Academic probation affects whether students continue at the university, so

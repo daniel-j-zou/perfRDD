@@ -9,6 +9,110 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-19 - GPA with the four-role estimator: still a boundary; differing slopes reverses the crossing (Claude)
+
+At the author's request, another attempt on the GPA data (Lindo, Sanders and
+Oreopoulos 2010). The question was whether differing slopes, or the techniques from
+the taxi application, give a reasonable interior cutoff. This is exploratory: the
+scope file keeps taxi as the only application, and nothing in it changes.
+
+Code: `experiments/scripts/gpa_four_role.py`. It reuses the taxi four-role estimator
+with a mirrored score (probation is below the cutoff). Results are in the ignored
+`experiments/runs/gpa_four_role/`; the figure is `tau_U_boot.png`.
+
+**Setup.**
+- Sample: all 44,362 students, 16.1% on probation.
+- Score: GPA minus the campus cutoff.
+- Score covariates:
+  - `lso`: the eight covariates, linear;
+  - `flex`: a high-school-grade spline plus indicators for credits, age, cohort,
+    campus, sex, birthplace and language.
+
+  The baseline uses the same covariates.
+- Effect: common slope; linear in HS grade; or linear in all eight covariates.
+- eps = 0.1. Policy set c in [-0.6, 0.6], probation if GPA - cutoff <= c (as in the
+  earlier GPA work). Cost 0.
+- Outcomes:
+  - graduation within 6, 5 and 4 years;
+  - fall registration in year 2;
+  - not leaving voluntarily;
+  - credits earned in year 2;
+  - nextGPA, a selected diagnostic.
+
+  The graduation variables are missing only for late cohorts (gradin6: entrants
+  1996–99), never by treatment, so they are full-population outcomes on those cohorts.
+
+**Design finding.** The arms overlap in eta only over a limited range:
+- the score index has a short range (R^2 0.39), so no student with eta-hat below
+  -0.30 is on probation;
+- few students far below their predicted GPA are off probation: 7 controls against
+  634 treated in the top knot interval.
+
+J and the trim window are therefore capped at the 0.25% and 0.5% tails of eta among
+the treated (below) and the untreated (above). This uses only D, which is a function of
+the score. The upper cap binds: the window is eta in about [0.17, 1.26], 30–34% of
+students, all underperforming their background.
+
+**Score diagnostics.**
+- flex: R^2(eta-hat) 0.001, against 0.023 for lso.
+- The spread of eta-hat falls with HS grade (ratio 1.40–1.46): the GPA ceiling.
+- A logit scale between the GPA floor and ceiling lowers the ratio only to 1.30–1.38.
+
+**Results.** The pooled argmax of all 42 screen specifications is at a boundary.
+For staying with the HS-grade effect, the rotations split between the two edges, so
+their average is -0.30. The boundary also holds for:
+- the logit scale;
+- eps = 0.05 and 0.2;
+- all 20 bootstrap draws of each of the eight main specs.
+
+| outcome | cutoff | gain over the deployed cutoff (window) |
+|---|---|---|
+| graduation, return, staying, credits | lower edge, c = -0.6 | grad6 +1.1 pp, return +0.8 pp, credits +0.03 |
+| nextGPA (selected) | upper edge | +0.025 |
+
+The own-score check agrees in every case.
+
+**Why there is no interior maximum.**
+- **Common slope.** tau is sign-definite over the whole policy range: negative for
+  every full-population outcome and positive for nextGPA. So U is monotone.
+  - grad6 tau: -0.17 at c = -0.6, -0.10 at 0, -0.07 at 0.6.
+- **Effect linear in HS grade.** beta2 > 0: 0.12 per sd for grad6 and 0.29 for credits.
+  tau rises with c and crosses zero: grad6 near c = +0.3, credits near +0.5. For
+  return2, tau stays negative, but its band includes zero at +0.6.
+  - The crossing goes the wrong way. Students added at higher cutoffs are hurt less or
+    helped, so U has an interior minimum.
+  - Shifting tau by a cost moves the crossing but cannot turn it into a maximum.
+  - The positive tau at c > 0.3 is an extrapolation to students never on probation,
+    carried by the linear HS slope.
+- **Check against the RD split** (local linear, h = 0.6, triangular kernel).
+  - At the real cutoff, probation hurts students at or above the HS median more:
+    - grad6 -0.143 (se 0.058) against +0.003 (0.031) below the median;
+    - return2 -0.135 against -0.074;
+    - credits -0.36 against -0.17.
+  - The model's implied effects at the cutoff (|dist| <= 0.1) match this. For grad6
+    the HS-grade slope gives -0.135 against -0.040, and the common slope -0.261 against
+    -0.035.
+  - The pattern runs mostly through alpha(eta). High-HS students at the cutoff have
+    eta-hat near 1.1 (big underperformers), against 0.4 for low-HS students, and
+    alpha(eta) falls in eta.
+  - nextGPA is the exception: the RD gives a smaller effect for high-HS students
+    (+0.14 against +0.25), and neither model reproduces that.
+
+**Reading.**
+- On every full-population outcome, the data say to lower the probation cutoff to
+  the edge of the range considered. Only the selected nextGPA says the opposite.
+- The differing-slopes model reveals that the heterogeneity runs against the score: the
+  single-crossing condition behind the interior optimum fails in the opposite
+  direction. This agrees with the 2026-10-14 finding that the effect runs against the
+  score.
+- An interior result would need either:
+  - a rule in GPA and HS grade together (score redesign, outside the paper); or
+  - a welfare weight between nextGPA and persistence chosen after seeing results,
+    which the 2026-08-31 audit flagged as tuning.
+
+Suggested use, the author's call: not an interior example. At most, a short contrast
+where the method correctly reports a boundary and differing slopes shows why.
+
 ## 2026-10-15 - Uniqueness theorem re-checked; log-concavity is sufficient, not necessary (Claude)
 
 At the author's request, a second full check of `this_week.tex` §5:
