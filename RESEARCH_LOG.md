@@ -9,6 +9,95 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-19 - Paper brought up to date: identification and consistency theory ported (Claude)
+
+At the author's request, `differing_slopes.tex` now matches the current research,
+without efficiency or debiasing, and with the proofs of the unique maximum and the
+other support results. Manuscript f07b0d9; changelog eec0e78.
+
+**Author decisions (2026-10-19).**
+- Port `this_week.tex` §5 into the paper (approval of the pending port).
+- No efficiency claim and no debiased score in the paper. The OLS first stage and
+  the plug-in estimator stay; the notebook sections stay as a record.
+- Keep the average of the four rotated thresholds, and add a remark on its
+  second-order bias with the pooled and combined alternatives.
+- §6 (taxi) is left for a separate pass, after the choice of specification.
+- §5: correct the Gauss-Hermite targets and use the four-role runs that already
+  exist; the bootstrap-coverage, nonlinear-design and oracle reruns stay open.
+
+**What changed in the paper.**
+- New §2.4 "A unique interior optimum": the marginal net effect tau_eps, Proposition 1
+  (U_eps' = -p_eps tau_eps), the three-channel derivative, Proposition 2 (aligned
+  heterogeneity, (A1)-(A4)), the common-slope, counterexample and opposing-case
+  pointers, and Remark 1 (trimmed against untrimmed optimum, eps-sensitivity).
+- §4.1: (DS1) is now (i) overlap and support, (ii) nonsingular half-space moments,
+  (iii) single crossing of tau_eps. (DS3) adds alpha, b in C^3 near J and
+  c_f <= f_eta <= C_f on J. (DS4) adds the condition on h = E(X~|T) f_T. (DS5) now
+  names the sieve and rate condition. The old high-level (DS5), uniform consistency
+  of the feasible criterion, is gone.
+- §4.2: Proposition 3 (feasible criterion and derivative consistency, plus
+  consistency of phi-hat) replaces the old identification and consistency lemmas;
+  Remark 2 (plotting tau-hat as a check of single crossing).
+- §4.3 proof-status box and §4.4 Remark 3 (second-order bias of the rotated
+  estimators: average and fixed b + 4B/n, pooled b + B/n, combination b; formal).
+- §5 rewritten: the displayed design at its own optimum (0.545103, H = -0.107534,
+  sigma^2/H^2 = 31.09), Table 1 from `ds_bias_decomposition.py` (2000 reps,
+  n = 16k and 64k), the 32k run of `ds_local_efficiency_sim.py`, and the bias
+  decomposition. §5.3 table recomputed against the correct target 0.15214 from
+  the saved percentile intervals (`outputs/differing_slopes_nonlinear_bootstrap_spline_20260923{,_n6400}`):
+  linear fit coverage 0.92/0.94/0.86/0.68 (was 0.92/0.90/0.82/0.56), quadratic
+  0.96/0.96/0.98/0.94, spline 0.96/0.94/0.96/0.94. The conclusion is unchanged.
+- §6.5: quadratic-design target corrected to 0.4844 (pseudo-target 0.408). The
+  rest of §6 is untouched.
+- Appendix 1: (DS1)/(DS5) references updated; data-driven spline sizes over a
+  fixed finite grid. Appendix 2: identification inequality derived (Lemma C2),
+  evaluation interaction and feasible products written out, Step 3a via Lemmas C4
+  and C5, Steps 3c and 4 and the proof of Theorem 1 cite the new results.
+  Appendix 3: identification proofs (Lemma C1, Proposition 2, Corollary C1, the
+  f_eta counterexample, log-concavity necessity, Proposition C1 opposing,
+  Proposition C2 and Corollary C2 trimmed/untrimmed and eps, numerical checks);
+  Lemma C2 half-space bound, Lemma C3 outcome fit, Lemma C4 outer crossing,
+  Lemma C5 generated inputs, Block A as the proof of Proposition 3; matrix
+  Block E; Proposition C4 pseudo-target; rewritten regularity remarks.
+  Appendix 4 targets corrected; Appendix 5 labels the ten-block runs as
+  common-slope.
+- The same-slope MLR uniqueness proof and its dangling (I2)/(I3) references are
+  replaced by the new proofs. No other proof simplification from the 2026-10-13
+  checks was applied; that choice stays with the author.
+- `this_week.tex` "Moved to the paper" now points to the port.
+
+**Checks.**
+- The ported blocks were copied from `this_week.tex` (manuscript e16abff) by
+  script, with label renames and asserted phrase replacements, then patched in at
+  asserted anchors.
+- Targets recomputed independently by adaptive quadrature: 0.152143 (nonlinear),
+  0.545103 (displayed), -0.119770 (check design).
+- The paper compiles to 58 pages with no undefined references or overfull lines;
+  the notebook compiles.
+- An independent referee agent traced every hypothesis of Theorem 1 and
+  Corollaries 1-2 to (DS1)-(DS7), found the chain complete and the port faithful,
+  re-derived Propositions 1-2, the opposing formula, the untrimmed identity and
+  the eps-derivative (1.707), and checked every §5 number. Its fixes are applied:
+  Phi defined as a fixed compact interval; (DS1)(i) asks only for a buffer around
+  V_Phi (the §5 design violated the old J-based wording); smoothness regions
+  named; uniqueness described as imposed through single crossing, which also rules
+  out other critical points in Phi; phi-circle in Proposition 1; Lemma C5 for a
+  general representer; second derivatives in Step 3c; density-lemma hypotheses;
+  the min of tau' in Proposition C2 taken between the optima; Remark 3 wording and
+  its formal assumptions; stale ten-block and block-letter text; §5 table label
+  and oracle standard error.
+
+**Proof map.** Interactive DAG of the conditions, lemmas and propositions behind
+Theorem 1, with what each dependency supplies:
+https://claude.ai/artifact/Hh38uXzQUXsFJZ7eKBGJUq (labels and pages read from
+the compiled paper).
+
+**Still open.** §6 taxi port (spec choice); bootstrap coverage for the rotated
+estimator, four-role nonlinear design and oracle arm; Gauss-Hermite routines in
+three scripts; constrained cross-validation; proof simplifications; author
+review of the ported proofs; stale board claims on the frozen prelim (Codex) and
+on parked dataset search (Claude).
+
 ## 2026-10-19 - GPA with the four-role estimator: still a boundary; differing slopes reverses the crossing (Claude)
 
 At the author's request, another attempt on the GPA data (Lindo, Sanders and

@@ -42,6 +42,8 @@ decision history at the end. How to change this file is described in "Updating t
 - **Interior optimum:** state a proposition with simple sufficient conditions, as a
   single-crossing condition on alpha(eta) - c + beta2' E(X | T = phi - eta) over the trim
   window. It extends "Uniqueness of the maximizer" in `../manuscript/goodstuff.tex`.
+  Done (2026-10-19): Proposition 2 of the paper, with (DS1)(iii) as the
+  single-crossing condition.
 
 ## Estimator
 
@@ -49,21 +51,24 @@ decision history at the end. How to change this file is described in "Updating t
   and trim endpoints), and evaluation.
 - **Fixed and rotated:** the paper states a theorem for one fixed assignment and a
   corollary for the rotated estimator. The rotated estimator is the average of the four
-  per-rotation thresholds.
+  per-rotation thresholds. The paper keeps the average and adds a remark on its
+  second-order bias, with the pooled and combined alternatives (2026-10-19).
 - **Nuisances:**
   - spline series estimates of g and rho_X (the pairwise empirical-tail route is not used);
   - a stacked spline outcome regression;
   - an ordinary-least-squares first stage.
 - **Spline sizes:** chosen by cross-validation over a grid inside the theorem's rate range.
 - **Full-sample reuse:** a simulation remark only, with no theory.
-- **Open alternative:** a debiased evaluation score that would put all influence terms on
-  one fold, like Mukherjee et al. Claude recommends keeping the plug-in estimator; the
-  author has not decided.
+- **No efficiency or debiasing in the paper** (2026-10-19): the paper keeps the plug-in
+  estimator with the OLS first stage and makes no efficiency claim. The debiased
+  evaluation score and the efficient first stage stay in the notebook as a record.
 
 ## Theory
 
 - **Rigor:** the theory must be complete. Condition (DS5), uniform consistency of U-hat and
   its first two derivatives, is derived from primitive assumptions, not assumed.
+  Done (2026-10-19): Proposition 3 of the paper; in the paper (DS5) now names the
+  sieve and rate condition.
 - **Asymptotics:** pointwise, for a fixed data-generating process and a fixed eps.
 - **Boundary optima** (always treat or never treat) are outside the CLT.
 
@@ -135,9 +140,7 @@ application, and other candidate datasets. Nonparametric first stage or outcome 
 
 - Positioning against the five closest papers, and which of them to cite (see the reading
   brief).
-- Whether to pursue the debiased evaluation score.
-- Whether to use the outcome equation's information about gamma, as Mukherjee et al.'s
-  stacked fit does. This is optional; we make no efficiency claim.
+- Which of the checked proof simplifications (log 2026-10-13) to integrate.
 - Which of the nine taxi specifications in `this_week.tex` §7 to adopt and port to the
   paper's §6. Suggested: a score with distance and log distance, and the effect linear in
   distance. It gives $11.76 (cell $12.10, 90% [$11.36, $12.17], 20 draws). The spline score
@@ -187,6 +190,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-10-19 | Notebook §5 theory ported into the paper; no efficiency or debiasing in the paper; rotated average kept with a second-order-bias remark; §6 taxi port deferred | Log: "Paper brought up to date: identification and consistency theory ported" |
 | 2026-10-15 | Taxi effect nonlinear in eta and linear in covariates; eta must carry meaning; nine-way comparison in `this_week.tex` §7 | Log: "Taxi: nine-way comparison of score and effect specifications" |
 | 2026-10-15 | Taxi main sample without the $5–$25 fare range; the restricted sample as a comparison | Log: "Taxi application with the four-role estimator" |
 | 2026-10-14 | Treatment-effect function written alpha, with alpha(eta) = E(W \| eta) for centered X | Log: "Notation: the treatment effect is alpha(eta) = E(W \| eta)" |
