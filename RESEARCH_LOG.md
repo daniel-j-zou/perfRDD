@@ -9,6 +9,34 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-19 - Protocol: answer in chat unless asked to write; name the result before editing math; check the source first (Claude)
+
+At the author's request, after a review of how the author has been using Claude (Claude
+Code `/insights` over 24 sessions, 2026-08-22 to 2026-10-19), `COLLABORATION.md` has a
+new section, "Answering versus acting", for both agents:
+- Answer questions in chat. Write into files, or tell other sessions, only when asked.
+- Before editing math, name the result, file and section meant. Several results have
+  overlapping step lists, and their numbers change as sections move.
+- Check new or changed proof steps, and claims about cited papers, against the paper
+  itself, with a review by an agent that did not write them, before they go into the
+  notebook, the paper or code. Take status from the scope file, the log and the board.
+
+**Why.** The review found three recurring problems: writing into the notebook when the
+author wanted an answer in chat, editing the steps of a different result from the one
+the author meant, and a claim about Mukherjee et al. that reached the note, a code
+docstring and the variance scripts before it was checked against the paper.
+
+**Claude-only tooling** (in the workspace's untracked `.claude/`; Codex is unaffected):
+- `.claude/skills/proof-review/`: the review procedure. Reviewer agents check logic and
+  conditions, citations against `manuscript/Papers/`, notation and numerics; findings
+  are reported in chat, and fixes are applied only on request.
+- `.claude/hooks/tex_check.py`: at the end of a Claude turn that edited a `.tex`
+  document, compiles it with latexmk into a temporary directory. If the build fails,
+  Claude is asked once to fix it before finishing. Edits made through shell commands
+  are not seen.
+
+No scope, methodology or task change.
+
 ## 2026-10-19 - Paper brought up to date: identification and consistency theory ported (Claude)
 
 At the author's request, `differing_slopes.tex` now matches the current research,

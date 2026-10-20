@@ -31,6 +31,25 @@ instruction files should point here rather than maintain competing versions.
    the research log together.
 5. Report reproducible commands, inputs, outputs, and commit identifiers when relevant.
 
+## Answering versus acting
+
+- **Answer in chat unless asked to write.** When the author asks a question or says
+  "explain", "tell me" or "give me X in detail", answer in the conversation. Do not edit
+  the notebook, the paper or other files, and do not notify other sessions about it,
+  until the author says to write it up, add it or push it. If the wanted output is
+  unclear, ask in one line first: "Answer here, or write it into <file>?"
+- **Name the object before editing math.** When a request points at "steps 1 and 2",
+  "the proof", "the theorem" or "the split", first state in one line which result, file
+  and section you take it to mean, then proceed. Several results have overlapping step
+  lists (the unique-maximum result, the notebook's proof sketches, the trimmed-estimator
+  CLT, the four-role split), and their numbers change as sections move. If unsure, ask.
+- **Check against the source before writing it down.** Before a new or changed proof
+  step, or a claim about a cited paper, goes into the notebook, the paper or code, check
+  it against the paper itself (`../manuscript/Papers/`, text copies in
+  `../work/papers_txt/`) and have it reviewed by an agent that did not write it. Take
+  project status from `PROJECT_SCOPE.md`, the newest log entries and the task board,
+  not from memory or older TODO notes.
+
 ## Git and publication policy
 
 - After completing and verifying an authorized task, commit and push the affected
