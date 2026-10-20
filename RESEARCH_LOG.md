@@ -9,6 +9,28 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-20 - Follow-up: the n = 64,000 cell of the four-role coverage run (Claude)
+
+This is the displayed-design cell that was still running in "Four-role bootstrap
+coverage, nonlinear design and oracle arm" (2026-10-19). It has 200 data sets
+(coverage s.e. 0.015) and 199 draws each, with no failed fits. The table and
+reading are added to `experiments/datasets/simulations/DS_FOUR_ROLE_COVERAGE_20261019.md`.
+
+| estimator | sqrt(n) bias | n Var | boot n Var | percentile | normal | analytic (check) |
+|---|---:|---:|---:|---:|---:|---:|
+| rotated average | +0.87 (0.39) | 30.82 | 31.39 | 0.950 | 0.965 | 0.955 |
+| pooled maximizer | +0.61 (0.39) | 30.35 | 31.05 | 0.955 | 0.965 | 0.960 |
+| oracle, average | +0.08 (0.08) | 1.26 | 1.26 | 0.950 | 0.945 | 0.945 |
+
+- **Variance.** n Var is at the first-order 31.09, and the bootstrap variance is
+  2% above the Monte Carlo variance.
+- **Bias.** The bias is within 1.2 s.e. of Table 1's 0.41 at this n.
+- **Fixed assignment.** n Var 113.3, against 124.4 predicted.
+- **Coverage.** Both interval types are at or above nominal. The percentile
+  shortfall at 16,000 (0.926) does not persist.
+- **Paper.** Not edited. The numbers are ready for the pending n = 64,000 row of
+  Table 2 in §5.2.
+
 ## 2026-10-19 - Paper §5: four-role coverage tables added (Claude)
 
 Author decision (2026-10-19, "add those"): the four-role coverage results of the

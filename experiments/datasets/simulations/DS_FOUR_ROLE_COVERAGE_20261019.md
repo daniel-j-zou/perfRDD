@@ -86,11 +86,15 @@ Columns:
 | 16,000 | rotated average | +0.83 (0.26) | 34.29 | 33.68 | 0.926 | 0.942 | 0.934 | 0.1758 |
 | 16,000 | pooled maximizer | +0.27 (0.26) | 32.98 | 32.12 | 0.924 | 0.938 | 0.936 | 0.1717 |
 | 16,000 | oracle, average | -0.00 (0.05) | 1.28 | 1.25 | 0.936 | 0.946 | 0.942 | 0.0339 |
+| 64,000 | rotated average | +0.87 (0.39) | 30.82 | 31.39 | 0.950 | 0.965 | 0.955 | 0.0846 |
+| 64,000 | pooled maximizer | +0.61 (0.39) | 30.35 | 31.05 | 0.955 | 0.965 | 0.960 | 0.0841 |
+| 64,000 | oracle, average | +0.08 (0.08) | 1.26 | 1.26 | 0.950 | 0.945 | 0.945 | 0.0170 |
 
-There are 500 data sets per cell at `n = 4,000` and `16,000`, each
-with 199 bootstrap draws and no failed fits. The coverage s.e. is about 0.010
-at 500 data sets. The fixed assignment has `n Var` 171.3 and 138.7 at
-4,000 and 16,000, against 124.4 predicted.
+There are 500 data sets per cell at `n = 4,000` and `16,000`, and 200 at
+`64,000` (added 2026-10-20). Each has 199 bootstrap draws, with no failed fits.
+The coverage s.e. is about 0.010 at 500 data sets and 0.015 at 200. The fixed
+assignment has `n Var` 171.3, 138.7 and 113.3 at the three sizes, against 124.4
+predicted.
 
 ## Results: nonlinear design
 
@@ -132,25 +136,25 @@ stopped at 300. Each data set has 199 draws, with no failed fits.
 
 - **Oracle arm.** The oracle has coverage within Monte Carlo noise of 95% for
   every interval type, and `n Var` 1.18 to 1.28 against 1.256.
-- **Bias.** The rotated average has `sqrt(n)` bias +1.76 at 4,000 and +0.83 at
-  16,000. That is a halving per fourfold `n`, as a bias of order `1/n` should
-  show. The 16,000 value matches the paper's Table 1 (0.89, 2,000 data sets).
-  The pooled maximizer's bias is about a third as large (0.54 and 0.27).
-- **Bootstrap variance.** It is 16% above the Monte Carlo variance at 4,000 and
-  2% below at 16,000.
-- **Normal intervals.** Coverage 0.950 and 0.942 for the rotated average.
-- **Percentile intervals.** Coverage 0.956 and 0.926. Most of the shortfall at
+- **Bias.** The rotated average has `sqrt(n)` bias +1.76 at 4,000, +0.83 at
+  16,000 and +0.87 (s.e. 0.39) at 64,000. From 4,000 to 16,000 it halves, as a
+  bias of order `1/n` should. The 16,000 value matches the paper's Table 1
+  (0.89, 2,000 data sets). The 64,000 value is within 1.2 s.e. of Table 1's
+  0.41. The pooled maximizer's bias is smaller (0.54, 0.27, 0.61).
+- **Bootstrap variance.** It is 16% above the Monte Carlo variance at 4,000, 2%
+  below at 16,000 and 2% above at 64,000. At 64,000 the Monte Carlo `n Var`
+  is 30.82, against 31.09 predicted.
+- **Normal intervals.** Coverage 0.950, 0.942 and 0.965 for the rotated average.
+- **Percentile intervals.** Coverage 0.956, 0.926 and 0.950. Most of the shortfall at
   16,000 comes from using 199 draws. With numpy's default interpolation, the
   2.5% and 97.5% points of 199 normal draws are on average 1.915 s.d. from the
   centre. So even an exact normal bootstrap has percentile coverage 0.940, and
   normal-interval coverage 0.948 (200,000 simulated intervals). 0.926 is about
   1.4 Monte Carlo s.e. below 0.940, and the oracle shows the same pattern
   (0.936 against 0.946).
-- **Analytic check.** The interval with the first-order variance covers 0.930
-  and 0.934. It ignores the bias, and at these `n` the Monte Carlo variance is
-  above 31.09.
-- **`n = 64,000`.** A cell with 200 data sets is still running, more slowly because it shares the
-  CPU with another session's job. It will be added to this file in a follow-up.
+- **Analytic check.** The interval with the first-order variance covers 0.930,
+  0.934 and 0.955. It ignores the bias, and at the two smaller `n` the Monte
+  Carlo variance is above 31.09.
 
 **Nonlinear design.**
 
