@@ -9,6 +9,36 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-20 - How the target and the estimate move with eps: simulations and taxi (Claude)
+
+At the author's request: "it would be a good idea to talk about how the estimator
+changes with epsilon. The simulations and taxi are a good place to do this", then
+"run the estimator changing with epsilon thing". Code fb2312f; paper §5.3
+"Sensitivity to the trim level" (manuscript 8e9ee1d). Summaries:
+`experiments/datasets/simulations/DS_EPS_SENSITIVITY_20261020.md` and
+`experiments/datasets/taxi/EPS_SENSITIVITY_20261020.md`.
+
+**Simulations** (displayed design; Phi = [-1, 1.5] and T = [-3.5, 3.5] so (DS1)(i)
+holds for eps = 0.05-0.25; one split per data set across eps; 2000 data sets at
+n = 16,000, 1000 at 64,000):
+- phi*_eps rises from 0.470 to 0.886, against the untrimmed 0.4262. The central
+  difference at 0.10 is 1.706, matching Corollary C2's 1.707.
+- -H falls from 0.137 to 0.037 and V from 20.1 to 143.3: here a smaller eps is better
+  for both the target's distance from the untrimmed optimum and the precision.
+- The rotated average tracks the target at every eps. n Var / V is 1.07-1.16 at 16k
+  and 0.95-0.96 at 64k. The sqrt(n) bias is at most 1.24 at 64k (0.11 sd).
+- Paired steps between neighbouring eps match the target steps (0.0461 against
+  0.0451 for 0.10 -> 0.125 at 64k), with about a fifth of the level's sd.
+
+**Taxi** (nine-way setup, effect E1, scores S1-S3, eps = 0.05-0.20):
+- Only the lower trim endpoint moves; the upper one is set by the 99% cap.
+- For eps <= 0.075 at least 94% of rides stay in the window, and each score moves by
+  at most $0.35. S2 is $11.75-11.76 (bootstrap sd 0.25-0.26) up to 0.10.
+- At eps >= 0.125 fewer than 20% of rides remain. S2 falls to $9.30, and S3 reaches
+  the $6 edge of the policy set.
+- In the stable range, S2 against S3 matters more than eps.
+- §6 is unchanged, pending the taxi specification.
+
 ## 2026-10-20 - Follow-up: the n = 64,000 cell of the four-role coverage run (Claude)
 
 This is the displayed-design cell that was still running in "Four-role bootstrap
