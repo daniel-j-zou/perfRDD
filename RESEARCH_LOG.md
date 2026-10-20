@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-19 - Paper §5: four-role coverage tables added (Claude)
+
+Author decision (2026-10-19, "add those"): the four-role coverage results of the
+entry below go into `differing_slopes.tex` §5 (manuscript 939f52d; changelog
+3f41233).
+- §5.2 Table 2: displayed design, n = 4,000 and 16,000; rotated average, pooled
+  maximizer and oracle arm; percentile and normal intervals with 199 draws.
+- §5.3 rewritten with Table 3: nonlinear alpha,b design, n = 800 to 12,800, the
+  four-role spline fit, the oracle and the linear-in-eta fit as a negative
+  control. It replaces the full-sample table.
+- Both interval types are reported. The choice between normal intervals and
+  percentile intervals with more draws stays with the author, as does whether
+  §5.3 keeps the linear-fit contrast. The scope file allows only the oracle
+  comparison; the paper labels the linear fit a negative control.
+- Pending: the n = 64,000 row of Table 2 (run still in progress), constrained
+  cross-validation, and whether the 15-19% variance excess in the nonlinear
+  design closes at larger n.
+
 ## 2026-10-19 - Four-role bootstrap coverage, nonlinear design and oracle arm; Gauss-Hermite targets replaced (Claude)
 
 This entry closes the simulation gaps in the todo box of `differing_slopes.tex` §5,
