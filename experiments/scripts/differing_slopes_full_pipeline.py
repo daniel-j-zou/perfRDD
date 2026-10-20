@@ -39,9 +39,9 @@ from typing import Any, Iterable, Protocol, Sequence
 
 import numpy as np
 from scipy.optimize import minimize_scalar
-from scipy.special import roots_hermitenorm
 from scipy.stats import norm
 
+from experiments.methods.trimmed_quadrature import trimmed_normal_mean
 from experiments.methods.weighted_tails import WeightedTails, fit_weighted_tails
 
 
@@ -112,13 +112,6 @@ class Sample:
     cluster_id: np.ndarray
 
 
-def _quadrature(dgp: DGP, n_nodes: int = 240) -> tuple[np.ndarray, np.ndarray]:
-    nodes, weights = roots_hermitenorm(n_nodes)
-    return np.asarray(nodes, dtype=float), np.asarray(weights, dtype=float) / np.sqrt(
-        2.0 * np.pi
-    )
-
-
 def _true_integrand(phi: float, eta: np.ndarray, dgp: DGP) -> np.ndarray:
     """Conditional expected utility, including the optional quadratic term.
 
@@ -138,10 +131,9 @@ def _true_integrand(phi: float, eta: np.ndarray, dgp: DGP) -> np.ndarray:
 
 
 def population_utility(phi: float, dgp: DGP = DEFAULT_DGP) -> float:
-    eta, weights = _quadrature(dgp)
+    """Hard-trimmed population utility by adaptive quadrature on the trim window."""
     lo, hi = dgp.trim_bounds
-    keep = (eta >= lo) & (eta <= hi)
-    return float(np.sum(weights * keep * _true_integrand(phi, eta, dgp)))
+    return trimmed_normal_mean(lambda eta: _true_integrand(phi, eta, dgp), lo, hi)
 
 
 def population_truth(dgp: DGP = DEFAULT_DGP) -> dict[str, float]:

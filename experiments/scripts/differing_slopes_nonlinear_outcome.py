@@ -18,10 +18,10 @@ from typing import Any, Iterable, Sequence
 
 import numpy as np
 from scipy.optimize import minimize_scalar
-from scipy.special import roots_hermitenorm
 from scipy.stats import norm
 
 from experiments.methods.spline_density import _basis_info, evaluate_basis_zero_outside
+from experiments.methods.trimmed_quadrature import trimmed_normal_mean
 from experiments.methods.weighted_tails import fit_weighted_tails, uj_utility
 
 
@@ -71,20 +71,19 @@ def baseline(eta: np.ndarray, dgp: DGP) -> np.ndarray:
 
 
 def population_truth(dgp: DGP) -> float:
-    nodes, weights = roots_hermitenorm(320)
-    eta = np.asarray(nodes, dtype=float)
-    weights = np.asarray(weights, dtype=float) / np.sqrt(2.0 * np.pi)
+    """Hard-trimmed target by adaptive quadrature on the trim window."""
     lo, hi = dgp.trim_bounds
-    keep = (eta >= lo) & (eta <= hi)
     gamma = dgp.gamma_array
     sigma_t = float(np.linalg.norm(gamma))
     beta2 = np.asarray(dgp.beta2)
 
     def utility(phi: float) -> float:
-        z = (float(phi) - eta) / sigma_t
-        value = (alpha(eta, dgp) - dgp.cost) * norm.sf(z)
-        value = value + float(beta2 @ gamma) / sigma_t * norm.pdf(z)
-        return float(np.sum(weights * keep * value))
+        def integrand(eta: np.ndarray) -> np.ndarray:
+            z = (float(phi) - eta) / sigma_t
+            value = (alpha(eta, dgp) - dgp.cost) * norm.sf(z)
+            return value + float(beta2 @ gamma) / sigma_t * norm.pdf(z)
+
+        return trimmed_normal_mean(integrand, lo, hi)
 
     result = minimize_scalar(
         lambda value: -utility(value),

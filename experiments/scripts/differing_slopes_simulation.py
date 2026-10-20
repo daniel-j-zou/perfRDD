@@ -44,9 +44,9 @@ from typing import Any, Iterable, Sequence
 
 import numpy as np
 from scipy.optimize import minimize_scalar
-from scipy.special import roots_hermitenorm
 from scipy.stats import norm
 
+from experiments.methods.trimmed_quadrature import trimmed_normal_mean
 from experiments.methods.weighted_tails import (
     WeightedTails,
     density_influence,
@@ -105,12 +105,6 @@ SCENARIOS = {
 }
 
 
-def _quadrature(dgp: DGP, n_nodes: int = 240) -> tuple[np.ndarray, np.ndarray]:
-    """Return nodes/weights for expectations under eta ~ N(0, 1)."""
-    nodes, weights = roots_hermitenorm(n_nodes)
-    return np.asarray(nodes, dtype=float), np.asarray(weights, dtype=float) / np.sqrt(2.0 * np.pi)
-
-
 def _utility_integrand(
     phi: float, eta: np.ndarray, dgp: DGP, *, include_beta2: bool,
 ) -> np.ndarray:
@@ -126,13 +120,11 @@ def _utility_integrand(
 
 
 def population_utility(phi: float, dgp: DGP = DEFAULT_DGP, *, include_beta2: bool = True) -> float:
-    """Evaluate the hard-trimmed population utility by Gaussian quadrature."""
-    eta, weights = _quadrature(dgp)
+    """Evaluate the hard-trimmed population utility by adaptive quadrature on the trim window."""
     lo, hi = dgp.trim_bounds
-    keep = (eta >= lo) & (eta <= hi)
-    return float(np.sum(weights * keep * _utility_integrand(
-        phi, eta, dgp, include_beta2=include_beta2,
-    )))
+    return trimmed_normal_mean(
+        lambda eta: _utility_integrand(phi, eta, dgp, include_beta2=include_beta2), lo, hi,
+    )
 
 
 def population_truth(dgp: DGP = DEFAULT_DGP, *, include_beta2: bool = True) -> dict[str, float]:

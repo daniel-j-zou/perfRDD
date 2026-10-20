@@ -9,6 +9,99 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-19 - Four-role bootstrap coverage, nonlinear design and oracle arm; Gauss-Hermite targets replaced (Claude)
+
+This entry closes the simulation gaps in the todo box of `differing_slopes.tex` §5,
+at the request of the session that ported the theory. The paper text is unchanged;
+the tables await the author's approval.
+
+- Full tables: `experiments/datasets/simulations/DS_FOUR_ROLE_COVERAGE_20261019.md`.
+- Code: `experiments/scripts/ds_four_role_coverage.py`; tests:
+  `experiments/tests/test_ds_four_role_coverage.py`.
+
+**Setup.**
+- **Estimator.** The paper's four-role estimator with the fits of
+  `ds_local_efficiency_sim.py`: OLS first stage; spline outcome fit on
+  J = [-1.75, 1.75]; spline g and rho_X on T = [-3, 3]; Phi = [-1.5, 1.5].
+  Both designs use these windows, so (DS1)(i) holds. The old §5.3 runs used
+  Phi = [-3, 3] and full-sample fits.
+- **Recorded.** The average of the four rotated thresholds, the pooled-criterion
+  maximizer, and an oracle arm on the same folds with every nuisance true.
+- **Bootstrap.** Full re-estimation (resample n, re-split, re-fit), 199 draws, 95%
+  percentile and normal intervals. The analytic variance is a check only.
+- **Replications.** 500 data sets per cell; 300 at nonlinear n = 12,800, where the
+  run was stopped early because the CPU was shared.
+
+**Displayed design** (target 0.545103, first-order n Var 31.09, oracle 1.256).
+Rotated average:
+
+| n | sqrt(n) bias | n Var | boot n Var | percentile | normal | oracle percentile / normal |
+|---:|---:|---:|---:|---:|---:|---:|
+| 4,000 | +1.76 (0.27) | 36.3 | 42.2 | 0.956 | 0.950 | 0.954 / 0.960 |
+| 16,000 | +0.83 (0.26) | 34.3 | 33.7 | 0.926 | 0.942 | 0.936 / 0.946 |
+
+The pooled maximizer: bias +0.54 and +0.27; percentile 0.948 and 0.924; normal
+0.968 and 0.938. A 64,000 cell (200 data sets) is still running.
+
+**Nonlinear alpha, b design** (target 0.152143, first-order n Var 4.73). Rotated
+average, with the supplementary linear-in-eta outcome fit:
+
+| n | n Var | percentile | normal | linear fit: percentile |
+|---:|---:|---:|---:|---:|
+| 800 | 43.8 | 1.000 | 0.950 | 0.904 |
+| 1,600 | 14.0 | 0.988 | 0.962 | 0.896 |
+| 3,200 | 5.49 | 0.946 | 0.956 | 0.788 |
+| 6,400 | 5.45 | 0.944 | 0.938 | 0.692 |
+| 12,800 | 5.63 | 0.920 | 0.943 | 0.337 |
+
+**Findings.**
+- **Normal intervals.** Coverage 0.938 to 0.956 once the estimator is near its
+  first-order behaviour: displayed n >= 4,000, nonlinear n >= 3,200.
+- **Percentile intervals.** Coverage 0.920 to 0.956. With 199 draws and numpy's
+  default interpolation, even an exact normal bootstrap has percentile coverage
+  0.940 (normal 0.948), so most of the shortfall is the number of draws.
+- **Small samples, nonlinear design.** At n <= 1,600 the four-role estimator is
+  pre-asymptotic, because each nuisance is fitted on a quarter of the sample.
+  - n Var is 9 and 3 times first order; the pooled maximizer is at the edge of Phi
+    in 12% of data sets at 800.
+  - The bootstrap intervals over-cover.
+  - The old full-sample spline fit covered from n = 800.
+- **Bootstrap variance.** It is 16% above the Monte Carlo variance at displayed
+  n = 4,000 and within 2% at 16,000.
+  - A within-block bootstrap, which keeps the split, gives a larger variance still
+    (53.3 against 45.7 on the same 40 data sets).
+  - So copies of one observation in two roles do not explain the excess.
+- **Open: the nonlinear variance gap.** n Var stays 15-19% above 4.73 from 3,200 to
+  12,800 (Monte Carlo s.e. 6-8%). It is not settled whether the gap closes or
+  whether the analytic value is off for this design.
+- **Bias.**
+  - The rotated average: the sqrt(n) bias halves from 4,000 to 16,000, and the
+    16,000 value matches Table 1.
+  - The nonlinear design: within 0.21 sqrt(n) units for n >= 3,200.
+- **Oracle arm.** Percentile and normal coverage 0.926 to 0.968 in every cell.
+- **Linear-fit arm.** Outside the scope's oracle-only comparison, reported for the
+  author's decision. It has a stable pseudo-target bias of about -0.035, so its
+  coverage falls to 0.34 at 12,800.
+
+**Gauss-Hermite targets replaced.**
+- `differing_slopes_simulation.py`, `differing_slopes_full_pipeline.py` and
+  `differing_slopes_nonlinear_outcome.py` now integrate on the trim window with
+  `experiments/methods/trimmed_quadrature.py` (adaptive quadrature).
+- New targets: check design -0.1197699 (was -0.1200638); beta2 = 0 / alpha-only
+  -0.3192384 (was -0.3392919); quadratic design 0.4844159 (was 0.4954968);
+  nonlinear 0.1521433 (was 0.1593373). They agree with `ds_identification_check.py`
+  and the notebook.
+- Saved runs under `experiments/runs/` were not recomputed.
+
+**For the author (not applied to the paper).**
+- **Proposed §5 change.** Add bootstrap coverage and the oracle arm to the displayed
+  design, and replace the §5.3 full-sample table by the four-role table. The todo
+  box can then go.
+- **Decisions needed.**
+  - Whether §5.3 keeps the linear-fit contrast. The scope allows only the oracle
+    comparison.
+  - Which interval the paper reports: normal, or percentile with more draws.
+
 ## 2026-10-19 - Protocol: answer in chat unless asked to write; name the result before editing math; check the source first (Claude)
 
 At the author's request, after a review of how the author has been using Claude (Claude
