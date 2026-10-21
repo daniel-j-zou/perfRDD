@@ -10,7 +10,7 @@ Both scores also contain the hour, day-of-week, weekday-hour x weekend and group
 indicators, and the untreated baseline uses the score covariates. Fare in dollars,
 eps = 0.05, outcome fit on the central 99.5% of residuals, policy set [$6, $24], as in
 the nine-way grid. The trim window is capped at the central 99% of the first-stage
-residuals, re-estimated in every rotation and bootstrap draw from the index fold (author
+residuals, re-estimated in every rotation and bootstrap draw from the evaluation fold (author
 decision, 2026-10-20): at eps = 0.05 the overlap endpoints l0, u0 lie beyond the
 residuals, so the supported population is the central 99% of latent types.
 

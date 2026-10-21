@@ -221,7 +221,9 @@ class Design:
     window: tuple | None = None    # fixed caps on the trim window, inside J
     # With ``window_tail`` set and ``window_estimated`` true, the caps are instead
     # re-estimated in every rotation as the window_tail and 1 - window_tail quantiles
-    # of the first-stage residuals on the index fold (author decision, 2026-10-20).
+    # of the first-stage residuals on the evaluation fold (author decision,
+    # 2026-10-20). Computing them on the evaluation fold keeps every function of eta in
+    # one role, so the role scores stay uncorrelated.
     window_tail: float | None = None
     window_estimated: bool = False
 
@@ -313,7 +315,7 @@ def rotation(data: Data, design: Design, folds: dict) -> Rotation:
     # Trim endpoints from the index fold; an endpoint beyond the caps (no residuals
     # there to fit) is inactive, and the window stops at the cap.
     if design.window_estimated:
-        e_idx = eta[folds["index"]]
+        e_idx = eta[folds["utility"]]
         caps = (float(np.quantile(e_idx, design.window_tail)),
                 float(np.quantile(e_idx, 1 - design.window_tail)))
     else:
