@@ -153,9 +153,9 @@ manuscript 6ae88d7; scope file updated (Positioning, decision history).
 - **Bibliography.** Four entries added, checked against Crossref (three DOIs) and the
   arXiv API (2208.13323, latest version 2024-09-04, no journal reference). Crippa is not
   cited, consistent with no remark on the rate.
-- **Left for later.** The one-line Carneiro–Heckman–Vytlacil citation after Proposition 1
-  (§2.4) was left out, because §2.3-§4 are claimed by the proof-simplification session.
-  That session was told the key.
+- **Citation after Proposition 1.** The one-line Carneiro–Heckman–Vytlacil citation in
+  §2.4 was held back while the proof-simplification session held §2.3-§4. It was added
+  after that session released them (manuscript 0f610e9).
 
 ## 2026-10-20 - How the target and the estimate move with eps: simulations and taxi (Claude)
 
