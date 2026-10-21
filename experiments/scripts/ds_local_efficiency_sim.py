@@ -142,14 +142,19 @@ def _design_matrix(e, X, D, info):
     return np.column_stack(((1 - D) * B, (1 - D) * X, D * B, D * X)), B.shape[1]
 
 
-def outcome_fit(s: Sample, idx: np.ndarray, eta_hat: np.ndarray, J) -> OutcomeFit:
-    """Arm-wise stacked spline fit on J (equivalent to the paper's D N, N, X, DX)."""
+def outcome_fit(s: Sample, idx: np.ndarray, eta_hat: np.ndarray, J,
+                n_interior: int | None = None) -> OutcomeFit:
+    """Arm-wise stacked spline fit on J (equivalent to the paper's D N, N, X, DX).
+
+    ``n_interior`` overrides the fixed knot rule (for the cross-validation check)."""
     e = eta_hat[idx]
     keep = (e >= J[0]) & (e <= J[1])
     fit = idx[keep]
     e, X, D, Y = eta_hat[fit], s.X[fit], s.D[fit], s.Y[fit]
     n1 = int(D.sum())
-    info = _basis_params(_n_interior(min(n1, len(fit) - n1)), J)
+    if n_interior is None:
+        n_interior = _n_interior(min(n1, len(fit) - n1))
+    info = _basis_params(int(n_interior), J)
     Z, nb = _design_matrix(e, X, D, info)
     coef = _ls(Z, Y)
     dim = X.shape[1]

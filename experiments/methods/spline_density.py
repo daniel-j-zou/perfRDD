@@ -90,14 +90,16 @@ def spline_basis_dimension(
 ) -> int:
     """Choose the total number of cubic-spline basis functions.
 
-    The exponent lies strictly between the manuscript's lower and upper rate
-    exponents, 1/6 and 1/5.  ``multiplier`` is a fixed finite-sample constant;
-    unlike a data-selected bandwidth it does not change the rate calculation.
+    The exponent lies strictly inside the manuscript's density-basis range
+    n^{1/8} << L << n^{1/4} (condition (DS5), 2026-10-20; it was (1/6, 1/5)
+    before the proof simplifications).  ``multiplier`` is a fixed finite-sample
+    constant; unlike a data-selected bandwidth it does not change the rate
+    calculation.
     """
     if n_fit <= 0:
         raise ValueError("n_fit must be positive")
-    if not (1.0 / 6.0 < exponent < 1.0 / 5.0):
-        raise ValueError("exponent must lie strictly between 1/6 and 1/5")
+    if not (1.0 / 8.0 < exponent < 1.0 / 4.0):
+        raise ValueError("exponent must lie strictly between 1/8 and 1/4")
     if not np.isfinite(multiplier) or multiplier <= 0.0:
         raise ValueError("multiplier must be finite and positive")
     return max(int(minimum), int(round(multiplier * n_fit ** exponent)))

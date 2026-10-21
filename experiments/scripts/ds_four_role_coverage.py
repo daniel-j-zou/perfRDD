@@ -316,22 +316,36 @@ def _resample(s: Sample, idx: np.ndarray) -> Sample:
 def replicate(task) -> dict:
     design_key, n, rep, seed, n_boot, pop = task[:6]
     scheme = task[6] if len(task) > 6 else "resplit"
+    linear_arm = task[7] if len(task) > 7 and task[7] is not None else LINEAR_ARM[design_key]
+    old = task[8] if len(task) > 8 else None
     design = COVERAGE_DESIGNS[design_key]
     truth = make_truth(design, pop)
-    linear_arm = LINEAR_ARM[design_key]
     t0 = time.perf_counter()
     s = generate(design, n, seed)
     rng0 = np.random.default_rng([seed, 1])
-    if scheme == "within":
-        blocks = np.array_split(rng0.permutation(n), 4)
-        sizes = np.cumsum([len(blk) for blk in blocks])[:-1]
-        est = estimate(s, design, truth, None, linear_arm, blocks=blocks)
-    else:
-        est = estimate(s, design, truth, rng0, linear_arm)
-    boot = {key: [] for key in est}
-    failures = 0
     brng = np.random.default_rng([seed, 2])
-    for b in range(n_boot):
+    if old is not None:
+        # Extend a finished run: reuse its estimate and its first draws, which used
+        # the same seeds, and continue the bootstrap stream where it stopped.
+        if scheme != "resplit" or old["seed"] != seed:
+            raise ValueError("extension needs the resplit scheme and the same seed")
+        est = {k: v for k, v in old["est"].items() if linear_arm or not k.startswith("linear")}
+        boot = {k: list(old["boot"][k]) for k in est}
+        failures = int(old["failures"])
+        start = len(old["boot"]["avg"]) + failures
+        for _ in range(start):
+            brng.integers(0, n, n)
+    else:
+        if scheme == "within":
+            blocks = np.array_split(rng0.permutation(n), 4)
+            sizes = np.cumsum([len(blk) for blk in blocks])[:-1]
+            est = estimate(s, design, truth, None, linear_arm, blocks=blocks)
+        else:
+            est = estimate(s, design, truth, rng0, linear_arm)
+        boot = {key: [] for key in est}
+        failures = 0
+        start = 0
+    for b in range(start, n_boot):
         try:
             if scheme == "within":
                 idx = np.concatenate([blk[brng.integers(0, len(blk), len(blk))] for blk in blocks])
@@ -346,8 +360,9 @@ def replicate(task) -> dict:
             continue
         for key, val in draw.items():
             boot[key].append(val)
+    seconds = time.perf_counter() - t0 + (float(old["seconds"]) if old is not None else 0.0)
     return {"rep": rep, "seed": seed, "est": est, "boot": boot, "failures": failures,
-            "seconds": time.perf_counter() - t0}
+            "seconds": seconds}
 
 
 # ------------------------------------------------------------ summaries
@@ -421,12 +436,16 @@ def _suffix(scheme: str) -> str:
 
 
 def run_cell(design_key: str, n: int, reps: int, n_boot: int, seed: int, workers: int,
-             out: Path, pop: dict, scheme: str = "resplit") -> dict:
+             out: Path, pop: dict, scheme: str = "resplit", linear_arm=None,
+             extend_from: Path = None) -> dict:
     path = out / f"{design_key}_n{n}{_suffix(scheme)}.jsonl"
     rows = _load_rows(path)
     done = {r["rep"] for r in rows}
-    tasks = [(design_key, n, r, seed + 104_729 * n + r, n_boot, pop, scheme)
-             for r in range(reps) if r not in done]
+    old = {}
+    if extend_from is not None:
+        old = {r["rep"]: r for r in _load_rows(extend_from / path.name)}
+    tasks = [(design_key, n, r, seed + 104_729 * n + r, n_boot, pop, scheme, linear_arm,
+              old.get(r)) for r in range(reps) if r not in done]
     if tasks:
         print(f"[{design_key}] n={n}: {len(done)} done, running {len(tasks)}", flush=True)
         t0 = time.perf_counter()
@@ -484,6 +503,11 @@ def main(argv=None) -> None:
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
     ap.add_argument("--scheme", choices=("resplit", "within"), default="resplit")
     ap.add_argument("--report", action="store_true", help="print the tables of a finished run")
+    ap.add_argument("--no-linear", action="store_true",
+                    help="drop the supplementary linear-in-eta arm (nonlinear design)")
+    ap.add_argument("--extend-from", type=Path, default=None,
+                    help="directory of a finished run with the same seeds; reuse its estimates "
+                         "and draws and add draws up to --boot")
     args = ap.parse_args(argv)
     summary_path = args.out / f"{args.design}_summary{_suffix(args.scheme)}.json"
     if args.report:
@@ -496,11 +520,14 @@ def main(argv=None) -> None:
           f"V_rotated = {pop['V_rotated']:.3f}, V_oracle = {pop['V_oracle']:.4f}", flush=True)
     result = json.loads(summary_path.read_text()) if summary_path.exists() else {}
     result.update({"design": args.design, "design_params": repr(design), "population": pop,
-                   "settings": {"boot": args.boot, "seed": args.seed, "scheme": args.scheme}})
+                   "settings": {"boot": args.boot, "seed": args.seed, "scheme": args.scheme,
+                                "linear_arm": not args.no_linear,
+                                "extended_from": str(args.extend_from) if args.extend_from else None}})
     result.setdefault("cells", {})
     for n in args.n:
         cell = run_cell(args.design, n, args.reps, args.boot, args.seed, args.workers,
-                        args.out, pop, args.scheme)
+                        args.out, pop, args.scheme, False if args.no_linear else None,
+                        args.extend_from)
         result["cells"][str(n)] = cell
         summary_path.write_text(json.dumps(result, indent=1) + "\n")
         print(json.dumps(cell, indent=1), flush=True)
