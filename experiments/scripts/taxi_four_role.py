@@ -360,7 +360,8 @@ def _argmax(f, lo, hi, m=181):
 
 
 def four_role(data: Data, design: Design, seed: int, curves: np.ndarray | None = None,
-              grid_points: int = 181, alpha_grid: np.ndarray | None = None) -> dict:
+              grid_points: int = 181, alpha_grid: np.ndarray | None = None,
+              tau_and_own: bool = True) -> dict:
     """Fixed-fold four-role estimator, rotated over the four roles."""
     blocks = np.array_split(np.random.default_rng(seed).permutation(len(data.Q)), 4)
     rots, phis = [], []
@@ -384,6 +385,7 @@ def four_role(data: Data, design: Design, seed: int, curves: np.ndarray | None =
         out["alpha"] = np.mean([r.alpha(alpha_grid) for r in rots], axis=0)
     if curves is not None:
         out["U"] = np.array([pooled(x) for x in curves]) - pooled(design.phi0)
+    if curves is not None and tau_and_own:
         out["tau"] = np.array([np.mean([r.marginal(x) for r in rots]) for x in curves])
         cuts = np.unique(data.Q)
         cuts = cuts[(cuts >= design.policy[0]) & (cuts <= design.policy[1])]

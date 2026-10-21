@@ -112,7 +112,8 @@ def _draw(b):
     data, design, seed = _B["data"], _B["design"], _B["seed"]
     idx = np.random.default_rng(seed + 1_000 + b).integers(0, len(data.Q), len(data.Q))
     r = M.four_role(data.subset(idx), design, seed=seed + 50_000 + b, grid_points=GRID_POINTS,
-                    curves=M.boxcox(_B["curve_grid"], LAM), alpha_grid=_B["alpha_grid"])
+                    curves=M.boxcox(_B["curve_grid"], LAM), alpha_grid=_B["alpha_grid"],
+                    tau_and_own=False)
     d = lambda p: M.dollars(p, LAM)
     return {"b": b, "phi": d(r["phi_avg"]), "phi_pooled": d(r["phi_pooled"]),
             "at_boundary": bool(r["at_boundary"]), "U": np.round(r["U"], 7).tolist(),
