@@ -180,7 +180,10 @@ application, and other candidate datasets. Nonparametric first stage or outcome 
 
 ## Open questions for the author
 
-- None at the moment. Pending checks are under Simulations ("To do").
+- Nonlinear-design variance (Simulations, "To do"): checked 2026-10-21. The analytic
+  value 4.73 is right, and the excess is a small-n effect from the 8-function density
+  basis, gone by n = 12,800 (log, "Nonlinear design: the analytic variance is right").
+  Add larger-n cells to the §5 table, or only reword the small-n excess?
 
 ## Updating this file
 

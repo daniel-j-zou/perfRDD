@@ -9,6 +9,83 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-21 - Spline sizes: cross-validation against the fixed rule (Claude)
+
+At the author's request (weekly scope review, 2026-10-20: "fixed rule, CV as
+check"). Summary: `experiments/datasets/simulations/DS_SPLINE_SIZE_CV_20261020.md`.
+Code (pushed in 7740a30):
+- `experiments/methods/spline_size_cv.py` and its tests;
+- `experiments/scripts/ds_spline_size_cv.py`.
+
+**Setup.**
+- Same data and the same four-block split for both arms, with the seeds of the
+  coverage script; the rule arm repeats its estimates to 1e-8.
+- CV arm: 5-fold CV for the outcome knots and least-squares CV for the density
+  block, chosen in each rotation, over grids inside the new (A5) range.
+- 300 data sets per cell, point estimates only.
+
+**Results** (average of the four rotations; sqrt(n) bias, then n Var):
+
+| design, n | rule | CV |
+|---|---|---|
+| displayed, 16,000 | 0.88, 37.35 | 1.54, 37.65 |
+| displayed, 64,000 | 0.68, 31.25 | 1.08, 30.83 |
+| nonlinear, 3,200 | 0.26, 5.10 | 0.24, 5.02 |
+| nonlinear, 12,800 | -0.21, 5.63 | -0.13, 5.82 |
+
+- **Variance:** the same in every cell, within Monte Carlo error.
+- **Bias, displayed design:** CV raises it by 0.66 and 0.40 sqrt(n) units (paired
+  s.e. about 0.03).
+- **Bias, nonlinear design:** the two agree.
+- **Choices:** CV mostly picks the smallest outcome basis on its grid, and a density
+  basis at or below the rule's.
+
+**Reading.** The check supports the fixed rule. Least-squares CV targets the L2
+error of the density block, not the bias of the criterion's derivative. Nothing in
+the paper changes.
+
+## 2026-10-21 - Nonlinear design: the analytic variance is right; the excess is a small-n density-basis effect (Claude)
+
+At the author's request (weekly scope review, 2026-10-20: "check the analytic value
+first"). An independent agent that did not write the variance code did the check.
+- Summary: `experiments/datasets/simulations/DS_NONLINEAR_VARIANCE_CHECK_20261020.md`.
+- Scripts: `experiments/scripts/ds_nonlinear_variance_check/`.
+- Monte Carlo rows: the ignored `experiments/runs/ds_nonlinear_variance_check/`.
+
+**Finding 1: the analytic value is right.** sigma^2/H^2 = 4.7293, piece by piece:
+- phi* = 0.152143 and H = -0.219539;
+- Var psi_U = 0.001809, Var psi_o = 0.21731, Var psi_T = 0.008753 and
+  Var psi_gamma = 6.3e-5.
+
+These come from the paper's formulas by quadrature, without the project code. A
+2e7-draw Monte Carlo of the scores agrees, with cross-covariances below 1.5e-5. The
+sieve representer norm agrees to 1e-11, and finite differences of the population
+map agree with the loadings to 1e-9.
+
+**Finding 2: the excess is a finite-sample effect, gone by n = 12,800.** The
+method is a control variate: the exact first-order proxy, computed on the same data
+sets, correlates 0.96-0.99 with the estimator (2,000 point-estimate data sets per n).
+The resulting estimates of n Var are:
+
+| n | n Var | ratio to 4.729 |
+|---:|---:|---:|
+| 3,200 | 5.39 (0.08) | 1.14 |
+| 6,400 | 5.14 (0.05) | 1.09 |
+| 12,800 | 4.74 (0.04) | 1.00 |
+| 25,600 | 4.71 (0.03) | 1.00 |
+
+- The table's 5.63 at 12,800 is Monte Carlo noise: on those 300 data sets the
+  first-order proxy alone gives 5.75.
+- The small-n excess comes mostly from the rule's 8-function density basis at
+  n <= 6,400. That basis biases the curvature (sieve H -0.2147 against -0.2195), and
+  the first-order variance at L = 8 is 4.92.
+- Ruled out: cross-rotation correlation, heavy tails, and the pooled-versus-average
+  term.
+
+**Consequence.** No formula error. A larger-n bootstrap run is not needed to settle
+the variance question; whether to add one, and how §5 words the small-n excess, is
+for the author. The §5 table is being rerun with 999 draws anyway (task board).
+
 ## 2026-10-21 - Dose schedules: proof sketches (Claude)
 
 At the author's request, wrote `dose_schedule_sketch.tex` (manuscript 4c5089e), a
