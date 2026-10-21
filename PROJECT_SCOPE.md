@@ -54,8 +54,9 @@ decision history at the end. How to change this file is described in "Updating t
   per-rotation thresholds. The paper keeps the average and adds a remark on its
   second-order bias, with the pooled and combined alternatives (2026-10-19).
 - **Nuisances:**
-  - spline series estimates of g and rho_X (the pairwise empirical-tail route is not used);
-  - a stacked spline outcome regression;
+  - one spline series projection of h = (g, rho_X) on one full clamped basis (2026-10-20;
+    the pairwise empirical-tail route is not used);
+  - a stacked spline outcome regression (equivalently, one partially linear fit per arm);
   - an ordinary-least-squares first stage.
 - **Spline sizes:** chosen by cross-validation over a grid inside the theorem's rate range.
 - **Full-sample reuse:** a simulation remark only, with no theory.
@@ -70,6 +71,11 @@ decision history at the end. How to change this file is described in "Updating t
   Done (2026-10-19): Proposition 3 of the paper; in the paper (DS5) now names the
   sieve and rate condition.
 - **Asymptotics:** pointwise, for a fixed data-generating process and a fixed eps.
+- **Proof route** (2026-10-20): the first-stage effects are found by conditioning on the
+  first-stage fold, under the index-family condition (DS4); X is centred without loss of
+  generality (exact shift invariance); fourth moments of X~; spline sizes
+  n^{1/7} << K << n^{1/4} and n^{1/8} << L << n^{1/4}. The old Taylor-expansion route is
+  kept only in a draft-only note in the paper.
 - **Boundary optima** (always treat or never treat) are outside the CLT.
 
 ## Inference
@@ -144,7 +150,6 @@ application, and other candidate datasets. Nonparametric first stage or outcome 
 
 ## Open questions for the author
 
-- Which of the checked proof simplifications (log 2026-10-13) to integrate.
 - Which of the nine taxi specifications in `this_week.tex` §7 to adopt and port to the
   paper's §6. Suggested: a score with distance and log distance, and the effect linear in
   distance. It gives $11.76 (cell $12.10, 90% [$11.36, $12.17], 20 draws). The spline score
@@ -194,6 +199,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-10-20 | All eight proof simplifications integrated: one density block, closed-form outcome representer, conditioning on the first-stage fold (old route kept in a draft-only note), centred X, least-squares centring, wider spline-size range, pruned conditions, pathwise remark | Log: "Proof simplifications integrated into differing_slopes.tex" |
 | 2026-10-20 | Positioning: abstract and introduction rewritten against the four closest papers (Crippa not cited); eps sensitivity reported in §5.3 | Log: "Abstract and introduction: positioning and novelty" |
 | 2026-10-19 | Notebook §5 theory ported into the paper; no efficiency or debiasing in the paper; rotated average kept with a second-order-bias remark; §6 taxi port deferred | Log: "Paper brought up to date: identification and consistency theory ported" |
 | 2026-10-15 | Taxi effect nonlinear in eta and linear in covariates; eta must carry meaning; nine-way comparison in `this_week.tex` §7 | Log: "Taxi: nine-way comparison of score and effect specifications" |

@@ -9,6 +9,61 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-20 - Proof simplifications integrated into differing_slopes.tex (Claude)
+
+At the author's request, all eight proposals of the 2026-10-13 entry ("Proof
+simplifications for differing_slopes.tex: checks") are now in the paper
+(manuscript 9718563). Author decisions: implement S1-S8; for S3, keep a
+draft-only note of the original route. The theorem's statement and role scores
+are unchanged in substance; the conditions and the proof route changed.
+
+**What is in the paper now.**
+- S1: g and rho_X fitted as one block h = (g, rho_X')' with multiplier X~, on
+  one full clamped basis of size L.
+- S2: arm-wise form of the outcome fit (lemma) and the closed-form outcome
+  representer (lemma); the abstract Riesz paragraphs and the Sieve Riesz lemma
+  are gone.
+- S3: Step 3 conditions on the first-stage fold. New (DS4): the weighted index
+  density h_a is L2-differentiable in a with derivative -h_X~' delta, and
+  f_{a'X~} E(1 + ||X~||^4 | a'X~) is bounded near gamma (these are (C1)-(C2) of
+  the proposal). New lemmas: exact conditional mean, density block at the
+  generated index, evaluation fold (Block C). Removed: the Taylor expansion of
+  the fitted splines, the zero-outer-trace basis, Block E with "Fixed-support
+  density repair", the moving-set lemma and the alpha-hat' consistency claim.
+  The draft-only box in Appendix 2, Step 3 describes the old route; its full
+  text is manuscript 6ae88d7.
+- S4: Lemma "Shift invariance" (Appendix 1) makes E X = 0 without loss of
+  generality; A_U = e1{...} has no slope block; location invariance is proved
+  from the population map, with the explicit cancellation kept as a check.
+- S5: the outcome fit is centred at the population least-squares fit; bias
+  <r - r_K, m_bar_K - m> = O(K^{-7/2}); Lemma 3a's approximation pieces are
+  bounded as a difference.
+- S6: n^{1/7} << K << n^{1/4} and n^{1/8} << L << n^{1/4}; new Lemma "Density
+  spline bias" (O(L^{-4}), L1 x Linf with Shadrin 2001), which needs g and
+  rho_X in C^3 on all of the density interval ((DS3)).
+- S7: (DS2) is E||X~||^4 + E eta^2 < infinity; (DS6) is (Q1m)-(Q2m) only; the
+  duplicate and automatic clauses of the old (DS4) are gone. (DS7) is kept as a
+  condition, to keep the numbering.
+- S8: Remark "Role scores as pathwise derivatives" in Section 4.4, with no
+  efficiency claim.
+
+**Checks.** The paper builds with no LaTeX warnings, undefined references or
+overfull lines, and has no em dashes. An independent reviewer agent re-derived the new
+lemmas (closed-form representer, conditional mean, density block, evaluation
+fold, density bias, least-squares centring, Lemma 3a, shift and location
+invariance), the signs and the rate bookkeeping, and found no errors. Its minor
+findings are on the task board ("Author: review findings on the integrated
+proof simplifications") and are applied only on the author's "apply". The main
+ones: the claim that every first-stage effect is the derivative of a
+population map should exclude the outcome fit, which is still expanded in the
+generated residual, or add the one-line derivation for A_out; (DS4)(ii) needs
+only conditional second moments; and the symbols h, c_1 and e_K are
+overloaded.
+
+**Open.** `experiments/methods/spline_density.py` still enforces the old
+exponent range (1/6, 1/5) for the density basis. It lies inside the new range,
+so the code remains covered by the theory; widening it is optional.
+
 ## 2026-10-20 - Nonlinear first stage: parked for the next paper or a revision (Claude)
 
 At the author's request, a nonlinear first stage is recorded as future work
