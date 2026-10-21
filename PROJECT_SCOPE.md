@@ -112,15 +112,21 @@ decision history at the end. How to change this file is described in "Updating t
     of eta and an effect linear in X.
   - Do not discuss their differencing estimator.
 - **Root-n rate:** no remark explaining it relative to threshold-learning papers.
-- **Closest prior work (pending author review):**
-  - Zhang, Ben-Michael & Imai;
-  - Eckles et al. (Biometrika 2025);
-  - Ben-Michael et al. (JASA 2025);
-  - Carneiro, Heckman & Vytlacil (2010);
-  - Crippa.
+- **Closest prior work (decided 2026-10-20; the paper's §1 follows this):**
+  - Zhang, Ben-Michael & Imai, and Ben-Michael et al. (JASA 2025): they bound the
+    unidentified counterfactual and give safety and regret guarantees. Our score model
+    buys point identification and a root-n limit, at the price of X independent of eta
+    and an effect linear in X.
+  - Eckles et al. (Biometrika 2025): the identifying idea is framed through them. The
+    covariate index randomizes treatment given eta, and it is observed and may enter
+    outcomes.
+  - Carneiro, Heckman & Vytlacil (2010): the first-order condition is a
+    marginal-effect-equals-cost condition in their sense.
+  - Crippa: not cited.
+  - Novelty claim: no existing method point-identifies the utility-maximizing cutoff from
+    one deterministic cutoff and gives a root-n limit for it.
 
-  A reading brief is at https://claude.ai/code/artifact/ba824b8e-f3cc-4d05-8c5b-0112bc3e5706.
-  Nothing is added to `references.bib` until the author decides.
+  Reading brief: https://claude.ai/code/artifact/ba824b8e-f3cc-4d05-8c5b-0112bc3e5706.
 
 ## Out of scope (future work)
 
@@ -138,8 +144,6 @@ application, and other candidate datasets. Nonparametric first stage or outcome 
 
 ## Open questions for the author
 
-- Positioning against the five closest papers, and which of them to cite (see the reading
-  brief).
 - Which of the checked proof simplifications (log 2026-10-13) to integrate.
 - Which of the nine taxi specifications in `this_week.tex` §7 to adopt and port to the
   paper's §6. Suggested: a score with distance and log distance, and the effect linear in
@@ -190,6 +194,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-10-20 | Positioning: abstract and introduction rewritten against the four closest papers (Crippa not cited); eps sensitivity reported in §5.3 | Log: "Abstract and introduction: positioning and novelty" |
 | 2026-10-19 | Notebook §5 theory ported into the paper; no efficiency or debiasing in the paper; rotated average kept with a second-order-bias remark; §6 taxi port deferred | Log: "Paper brought up to date: identification and consistency theory ported" |
 | 2026-10-15 | Taxi effect nonlinear in eta and linear in covariates; eta must carry meaning; nine-way comparison in `this_week.tex` §7 | Log: "Taxi: nine-way comparison of score and effect specifications" |
 | 2026-10-15 | Taxi main sample without the $5–$25 fare range; the restricted sample as a comparison | Log: "Taxi application with the four-role estimator" |

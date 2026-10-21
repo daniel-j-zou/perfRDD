@@ -9,6 +9,37 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-20 - Abstract and introduction: positioning and novelty (Claude)
+
+At the author's request ("do this positioning and novelty in the introduction"; the
+abstract "needs fixing"). The author approved the paragraph plan in chat. Paper:
+manuscript 6ae88d7; scope file updated (Positioning, decision history).
+
+**Decision (author-approved plan).**
+- **Abstract.** It no longer says "without parametric assumptions on the conditional
+  treatment effect". It now states the effect model (nonparametric in eta, linear in X),
+  the trimmed target, the interior optimum, the split estimator, the root-n limit,
+  bootstrap coverage and the taxi application.
+- **Introduction**, against Mukherjee, Banerjee & Ritov. Choosing a cutoff adds three
+  things: the covariate composition of each counterfactual margin, a supported
+  population with estimated boundaries, and inference on a maximizer.
+- **Identifying idea.** The covariate index randomizes treatment given eta, framed
+  against Eckles et al. (Biometrika 2025).
+- **First-order condition.** Stated as a marginal condition in the sense of Carneiro,
+  Heckman & Vytlacil (2010).
+- **Safe policy learning** (Ben-Michael et al. JASA 2025; Zhang, Ben-Michael & Imai).
+  The trade-off: bounds and safety guarantees against point identification and root-n
+  inference.
+- **Novelty statement**: "to our knowledge" no existing method point-identifies the
+  utility-maximizing cutoff from one deterministic cutoff and gives a root-n limit
+  for it.
+- **Bibliography.** Four entries added, checked against Crossref (three DOIs) and the
+  arXiv API (2208.13323, latest version 2024-09-04, no journal reference). Crippa is not
+  cited, consistent with no remark on the rate.
+- **Left for later.** The one-line Carneiro–Heckman–Vytlacil citation after Proposition 1
+  (§2.4) was left out, because §2.3-§4 are claimed by the proof-simplification session.
+  That session was told the key.
+
 ## 2026-10-20 - How the target and the estimate move with eps: simulations and taxi (Claude)
 
 At the author's request: "it would be a good idea to talk about how the estimator
