@@ -8,8 +8,11 @@ specifications of ``taxi_four_role_grid.py`` side by side, with no single headli
 
 Both scores also contain the hour, day-of-week, weekday-hour x weekend and group-ride
 indicators, and the untreated baseline uses the score covariates. Fare in dollars,
-eps = 0.05, outcome fit on the central 99.5% of residuals, trim window capped at the
-central 99%, policy set [$6, $24], as in the nine-way grid.
+eps = 0.05, outcome fit on the central 99.5% of residuals, policy set [$6, $24], as in
+the nine-way grid. The trim window is capped at the central 99% of the first-stage
+residuals, re-estimated in every rotation and bootstrap draw from the index fold (author
+decision, 2026-10-20): at eps = 0.05 the overlap endpoints l0, u0 lie beyond the
+residuals, so the supported population is the central 99% of latent types.
 
 For each specification the script records:
 
@@ -76,7 +79,8 @@ ROBUST_SEEDS = (2, 3, 4, 5)
 
 def build(df, spec, eps=EPS, tail=TAIL, window_tail=WINDOW_TAIL):
     data = M.make_data(df, LAM, EFFECT, score=SPECS[spec])
-    design = M.make_design(data, eps, effect=True, tail=tail, window_tail=window_tail)
+    design = M.make_design(data, eps, effect=True, tail=tail, window_tail=window_tail,
+                           window_estimated=True)
     return data, design
 
 

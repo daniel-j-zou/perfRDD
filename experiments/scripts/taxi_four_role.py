@@ -219,6 +219,11 @@ class Design:
     cost: float = 0.0
     effect: bool = True
     window: tuple | None = None    # fixed caps on the trim window, inside J
+    # With ``window_tail`` set and ``window_estimated`` true, the caps are instead
+    # re-estimated in every rotation as the window_tail and 1 - window_tail quantiles
+    # of the first-stage residuals on the index fold (author decision, 2026-10-20).
+    window_tail: float | None = None
+    window_estimated: bool = False
 
 
 def _xt(Z):
@@ -226,7 +231,8 @@ def _xt(Z):
 
 
 def make_design(data: Data, eps: float, margin_sd: float = 0.7, effect: bool = True,
-                tail: float = 0.005, window_tail: float | None = None) -> Design:
+                tail: float = 0.005, window_tail: float | None = None,
+                window_estimated: bool = False) -> Design:
     """Fixed nuisance region, density interval and policy set, from (Q, Z) only.
 
     With ``window_tail`` the trim window is also capped at the central
@@ -248,7 +254,8 @@ def make_design(data: Data, eps: float, margin_sd: float = 0.7, effect: bool = T
     if window_tail is not None:
         window = (float(np.quantile(eta, window_tail)), float(np.quantile(eta, 1 - window_tail)))
     return Design(J=J, eps=eps, phi0=phi0, T_support=T_support, policy=policy,
-                  effect=effect, window=window)
+                  effect=effect, window=window, window_tail=window_tail,
+                  window_estimated=bool(window_estimated and window_tail is not None))
 
 
 # ----------------------------------------------------------------------------- estimator
@@ -305,7 +312,12 @@ def rotation(data: Data, design: Design, folds: dict) -> Rotation:
     tails = fit_weighted_tails(T_idx, data.X[folds["index"]], design.T_support)
     # Trim endpoints from the index fold; an endpoint beyond the caps (no residuals
     # there to fit) is inactive, and the window stops at the cap.
-    caps = design.window if design.window is not None else design.J
+    if design.window_estimated:
+        e_idx = eta[folds["index"]]
+        caps = (float(np.quantile(e_idx, design.window_tail)),
+                float(np.quantile(e_idx, 1 - design.window_tail)))
+    else:
+        caps = design.window if design.window is not None else design.J
     l_hat = max(design.phi0 - float(np.quantile(T_idx, 1 - design.eps)), caps[0])
     u_hat = min(design.phi0 - float(np.quantile(T_idx, design.eps)), caps[1])
     U = folds["utility"]
