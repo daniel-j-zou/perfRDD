@@ -9,6 +9,68 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-20 - Nonlinear first stage: parked for the next paper or a revision (Claude)
+
+At the author's request, a nonlinear first stage is recorded as future work
+(task board, manuscript 6001777). The paper keeps the hard trim and the
+linear first stage; `PROJECT_SCOPE.md` already lists "Nonparametric first
+stage or outcome in X" as out of scope. The theory below is a derivation
+sketch from chat, not yet reviewed by a second agent.
+
+**Hard trim.** A first-stage error delta = h_hat - h enters the score
+through an L2 term E[kappa_s(X) delta(X)] plus
+
+  b_l{m(phi* - l0) - m(phi0 - l0)} - b_u{m(phi* - u0) - m(phi0 - u0)},
+
+where m(t) = E[delta(X) | T = t]. These are level-set means at the trim
+corners (where r_g jumps) and at the trim quantiles, and they cancel only if
+phi* = phi0.
+- A linear or fixed-basis first stage makes them finite-dimensional, so
+  root-n holds.
+- A class that contains functions of the index (tensor or index splines,
+  neural networks of growing width) turns them into point evaluations with
+  no L2 representer. Then phi*_eps is not pathwise differentiable, however
+  slowly the sieve grows.
+- Additive splines keep them bounded when no single covariate determines
+  the index.
+
+**Smooth trim.** The hard trim is exactly 1{eps <= p(eta) <= 1 - eps}, with
+p(eta) = P(T > phi0 - eta). A smooth ramp w(p(eta)) removes the level-set
+terms, and the influence function becomes
+psi_U + psi_o + psi_T + psi_omega + kappa(X) eta, with kappa in L2.
+- A series least-squares first stage then works with the plug-in, because
+  its bias is a product of approximation errors.
+- Other learners need the debiased correction kappa_hat(X){Q - h_hat(X)}.
+- Both need X independent of eta.
+- Sketch windows for cubic splines:
+  - additive first stage: n^{1/12} << K_h << n^{1/2};
+  - general h in d dimensions, smoothness s: n^{d/(4s)} << J << n^{1/2},
+    which needs s > d/2;
+  - other sieves: n^{1/12} up to about ||h_hat - h||_inf^{-1/2}, roughly
+    n^{3/14} for an additive first stage at K_h ~ n^{1/7}.
+
+**Simulation.** Hard trim, common-slope baseline, shared-training plug-in,
+4-fold cross-fit; summary in
+`experiments/datasets/simulations/DS_FLEXIBLE_FIRST_STAGE_20261019.md`. At
+N = 40,000 with 300 reps:
+
+| First stage | N Var, K = 4, 8, 16, 32 |
+|---|---|
+| Spread index (linear first stage: 38.6) | |
+| additive splines | 46.2, 46.6, 46.8, 46.3 (flat) |
+| index splines | 74.8, 88.0, 96.3, 103.9 (growing) |
+| Single-covariate index (linear first stage: 44.0) | |
+| additive splines | 86.7, 101.2, 107.5, 105.0 (growing) |
+
+- Growth from K = 4 to 32 is +29 and +18, against +19 predicted from the
+  trim-point terms.
+- Additive splines at K = 32 carry a bias that shrinks like K/n:
+  sqrt(N) bias is -5.11 at N = 10,000 and -2.15 at N = 40,000. This is
+  own-observation bias from the shared training sample.
+- Neural networks are inconclusive. Over 150 reps, N Var is 63 to 76
+  against 42 linear, it is not monotone in width, and there is some bias at
+  small widths.
+
 ## 2026-10-20 - Abstract and introduction: positioning and novelty (Claude)
 
 At the author's request ("do this positioning and novelty in the introduction"; the
