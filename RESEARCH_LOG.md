@@ -9,6 +9,34 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-21 - Independent review of the paper (Fable 5.1) and approved corrections (Claude)
+
+At the author's request, Fable 5.1 (high effort) reviewed `differing_slopes.tex`
+except §6 and Appendices 4-5 in one pass: a technical check of every statement and
+proof step in §2.4, §3, §4 and Appendices 1-3, plus a writing cleanup. A second Fable
+5.1 reviewer (extra-high effort) answered the five findings the first marked probable
+or unsure. Every non-writing change went to the author as a yes/no list. Record:
+`reviews/REVIEW_FABLE_20261021.md`.
+
+- **No blocking error.** Signs of the loadings and endpoint terms, the representer
+  identities, the location-invariance cancellation, the tau' channels and the (A5)
+  rate bookkeeping were followed and are consistent. One-dimensional numerical
+  claims were recomputed by quadrature and agree.
+- **Corrections (approved, manuscript 51f5dbb):** three entries of the
+  min_Phi tau' column were off in the third digit (grid stopped at +-2.95);
+  the bimodal window and one endpoint (10.13 -> 10.12) corrected; §2.4 and
+  Corollary "Common slope" now say f_eta > 0 is still used; two lemma hypotheses
+  made complete ("g bounded" in Lemma "Outcome representer", (A1)(i) in Lemma
+  "Density block at the generated index"); an unsupported "n^{1/6}" clause dropped;
+  a stale pointer to §2.1 and two draft boxes updated.
+- **Deferred:** removing the §5.4 linear-in-eta comparison, with the 999-draw rerun
+  (board item updated).
+- **Not checked:** the simulation tables beyond their arithmetic, the role-score
+  variances and B = 21.6, and the cited spline and empirical-process results against
+  their sources (not available locally).
+- **Possible follow-up:** `experiments/scripts/ds_identification_check.py` likely
+  takes the minimum of tau' on a grid that omits the ends of Phi.
+
 ## 2026-10-21 - Follow-up: residual and latent ability (Claude)
 
 Author decision: make the §1 change and drop "latent" from "latent residual"
