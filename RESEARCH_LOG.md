@@ -9,6 +9,16 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-21 - Paper text names no files (Claude)
+
+Author decision: "This should be a paper, and should not have references to specific
+files. If you want them for reference yourself, please comment them out." Applied
+outside §6 and Appendices 4-5 (manuscript b575bee): script paths, summary files and
+one commit hash in §5.2-§5.4, an Appendix 2 draft box and Appendix 3 are now LaTeX
+comments. Appendices 4-5 still name scripts and run directories; they are with the
+session rewriting §6 and the appendices. The rule is added to the prose rules in
+`COLLABORATION.md`.
+
 ## 2026-10-21 - Spline sizes: cross-validation against the fixed rule (Claude)
 
 At the author's request (weekly scope review, 2026-10-20: "fixed rule, CV as

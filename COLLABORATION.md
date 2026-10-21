@@ -156,6 +156,10 @@ Additional standing rules for this workflow:
 - The `\section*{To discuss.}` block at the top of `prelim/prelim.tex` is the author's
   working notes for advisor discussion, not manuscript prose. Do not treat it as draft
   text or rewrite it into the paper.
+- No file names, script paths, run directories, commit hashes or references to the
+  repositories, the notebook or the research log in the paper's text, including draft
+  boxes (author, 2026-10-21: "This should be a paper"). Keep such pointers as LaTeX
+  comments (`% Script: ...`) next to the result they support.
 - No em dashes in manuscript prose (`---` or `--` used as a dash). Recast with commas, a
   colon, parentheses or a new sentence. Prefer short declarative sentences and plain,
   precise words; cut hype ("novel", "powerful") and vague qualifiers.
