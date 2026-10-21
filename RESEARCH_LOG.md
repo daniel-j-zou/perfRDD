@@ -9,6 +9,45 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-21 - Dose schedules: proof sketches (Claude)
+
+At the author's request, wrote `dose_schedule_sketch.tex` (manuscript 4c5089e), a
+standalone, intuition-first note on two results for the advisor's continuous-dose draft
+("Endogenous treatment intensity"). It uses the draft's Model 2: dose response
+f(eta, a) + a tau'Z with f(e, 0) = 0, and historical dose A = s(Q). This work is outside
+`PROJECT_SCOPE.md` (a possible next paper); `differing_slopes.tex` is unchanged.
+
+- **Theorem (score-only schedules in [0, a_bar]).** The plug-in fits the outcome by a
+  tensor spline with f(e, 0) = 0 imposed by dropping the first clamped a-spline, moves
+  the fit to every unit, bins over Q and takes the argmax.
+  - Regret <= 2 sup|psi_hat - psi| + slack, with no uniqueness needed.
+  - The schedule converges uniformly if the best dose is unique, with a rate under
+    strong concavity.
+  - Earlier review fixes are in: the constrained basis is {H_l, l >= 2}, not
+    {H_l - H_l(0)}, which is linearly dependent; and a sqrt(kl) K^{-2} term was missing.
+- **Proposition (n^{1/2} for a smooth low-dimensional family; proof sketch).**
+  - Lemma: for a strictly monotone C^2 best member and a weight vanishing at the window
+    ends, the slope functional E[w v d_a F(eta, d(Q))] equals an L2-bounded average of F.
+    The proof is a change of variables to the dose plus integration by parts.
+  - Not n^{1/2} for the plug-in: a hard window, a stretch at the cap, a flat stretch
+    (including a constant dose) and a kink.
+  - Repaired after review: the Hessian step uses an L2 bound; the representer generally
+    jumps at dose 0, which gives the window n^{1/7} << k << n^{1/6}.
+  - Still open: the tensor-sieve versions of the outcome-fit steps, a uniform law of
+    large numbers, the full first-stage term, the representer's approximation rate,
+    and a variance estimator.
+- **Simulations (scratch scripts in this session, not yet in `code/`; not reverified):**
+  - Linear family, Model 2 design, 100 reps: the robust sd of sqrt(n)(theta_hat -
+    theta*) is stable from n = 12k to 768k at noise 0.1 and 0.25. The plug-in sd is
+    3-11 times an oracle's. The intercept bias reaches about 0.4 robust sd at n = 768k
+    (noise 0.25), with k = n^{1/7}, the lower edge of the window.
+  - The pointwise dose converges at about n^{-0.4}.
+  - Score-only schedule without a binding cap: regret 19% -> 0.95% of the optimum
+    from n = 3k to 192k. A Model 2 fit under a Model 1 truth costs about 8%.
+    Isotonic projection cut the sup error 10-20%.
+- **Independent review of the note:** one blocking item (the headline overstated the
+  n^{1/2} claim) and about 25 minor items, all fixed before the push.
+
 ## 2026-10-21 - Independent review of the paper (Fable 5.1) and approved corrections (Claude)
 
 At the author's request, Fable 5.1 (high effort) reviewed `differing_slopes.tex`
