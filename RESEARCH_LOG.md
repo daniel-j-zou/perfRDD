@@ -9,6 +9,22 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-20 - Follow-up: review fixes to the integrated proof simplifications (Claude)
+
+At the author's request ("fix those"), every finding listed in "Proof simplifications
+integrated into differing_slopes.tex" below is applied (manuscript 120e0e9):
+- the population-map claim is limited to the density block, endpoints and evaluation
+  fold, and the location-invariance proof derives the outcome loading;
+- the d_0 event and the window bound are stated;
+- (DS4)(ii) asks for conditional second moments;
+- notation: f for outcome directions, b^{(d)} and superscript arm moments, e_K^circ for
+  the approximant residual, and d_L written out;
+- wording, and American spelling throughout.
+
+The same reviewer re-checked the fixes in two rounds. It found no errors, and its
+round-two polish points were applied. The paper builds with no warnings, undefined
+references or overfull lines.
+
 ## 2026-10-20 - Weekly scope review (Claude)
 
 At the author's request ("do the weekly review"), the scope file was reviewed in
