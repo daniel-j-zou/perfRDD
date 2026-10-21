@@ -9,6 +9,30 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-21 - Positioning: differing slopes is the setting (Claude)
+
+Author decisions (2026-10-21): "make sure the positioning is that differing slope is
+the real paper setting. there should be no real reference to common slope other than
+that it is a specific case, like a corallary", and "remove the mention of potential
+outcomes". The author approved an item-by-item plan in chat. Applied to
+`differing_slopes.tex` §1-§5, the Discussion and Appendices 1-3 (manuscript bcb2482);
+see the CHANGELOG entry for the list. No result, proof step or number changed.
+
+- Common slope now appears only as the beta2 = 0 special case: Corollary "Common
+  slope" in Appendix 3 and one sentence in §2.4 that points to it. The "correction",
+  "extension", "augmented", "key model change" and "residual-only" wording is gone
+  from those sections.
+- The outcome model is Y = b(eta) + X' beta1 + D W + eps with
+  W = alpha(eta) + X' beta2 + R_W; beta1 is the baseline slope. Appendix 1 states the
+  stability condition (b, alpha, the slopes and W unchanged across candidate cutoffs)
+  without potential outcomes.
+- Not yet aligned, outside this edit: §6 (residual-indexed / deficiency / "extension"
+  framing) and the old §6.5 alpha-only comparison, both claimed by the "Theory
+  Simplification" session, which has the author's request; and the common-slope
+  simulation tables in Appendix 5.
+- `PROJECT_SCOPE.md`: the main-contribution bullet no longer says "differing-slopes
+  correction", and a "Positioning in the text" line records the decision.
+
 ## 2026-10-21 - Notation: no DS tags; assumptions (A1)-(A7) (Claude)
 
 Author decision (2026-10-21): "drop DS throughout, also rename conditions ... I would

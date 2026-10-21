@@ -5,7 +5,7 @@ session by reading this file, then the newest entries in `RESEARCH_LOG.md` and
 `../manuscript/TODO.md`.
 
 - **Last reviewed with the author:** 2026-10-20 (Claude)
-- **Covers decisions up to:** research log entries of 2026-10-21 ("Notation: no DS tags; assumptions (A1)-(A7)")
+- **Covers decisions up to:** research log entries of 2026-10-21 ("Positioning: differing slopes is the setting")
 
 This file holds author decisions only. Evidence and derivations stay in `RESEARCH_LOG.md`;
 tasks stay in `../manuscript/TODO.md`. Every item below can be traced through the
@@ -24,7 +24,9 @@ decision history at the end. How to change this file is described in "Updating t
 - **Main contribution** (2026-10-20): the cutoff itself as the estimand leads. The paper
   point-identifies the utility-maximizing cutoff from data under one deterministic cutoff
   and gives a root-n limit for it. Two things support that headline:
-  - the differing-slopes correction;
+  - an effect that varies with the covariates as well as the latent type, so the utility
+    follows the covariate composition of each counterfactual margin (2026-10-21: no
+    longer described as a "correction");
   - the limit theory for trimming with a generated regressor.
 
 ## Model and target
@@ -34,6 +36,11 @@ decision history at the end. How to change this file is described in "Updating t
 - **Effect:** given (X, eta), W has mean alpha(eta) + X' beta2. X is centered, so
   alpha(eta) = E(W | eta), the average effect at latent type eta. Differing slopes is the
   model and common slope is a special case. The effect is linear in X.
+- **Positioning in the text** (2026-10-21): the paper presents differing slopes as its
+  setting, not as an extension of a common-slope model. Common slope appears only as
+  the beta2 = 0 special case (Corollary "Common slope" and the sentence in §2.4 that
+  points to it). The outcome model is written without potential outcomes:
+  Y = b(eta) + X' beta1 + D W + eps.
 - **Notation:** alpha, not a, is the treatment-effect function, in the paper and the
   notebook.
 - **Paper notation** (2026-10-21): the assumptions are (A1)-(A7), formerly (DS1)-(DS7);
@@ -215,6 +222,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-10-21 | Positioning: differing slopes is the setting, common slope only the beta2 = 0 corollary; no "correction"/"extension" framing; no potential-outcome notation | Log: "Positioning: differing slopes is the setting" (2026-10-21) |
 | 2026-10-21 | Paper notation: no DS tags; (DS1)-(DS7) renamed Assumptions (A1)-(A7); Proposition 2 conditions (U1)-(U4); Z(phi) renamed Upsilon(phi) | Log: "Notation: no DS tags; assumptions (A1)-(A7)" (2026-10-21) |
 | 2026-10-20 | Weekly review: the cutoff as estimand leads the contribution; taxi §6 reports S1-E1 and S2-E1 side by side; simulations oracle-only (linear-fit contrast dropped); percentile intervals with 999 draws; a fixed spline-size rule with CV as a check; GPA stays out | Log: "Weekly scope review" (2026-10-20) |
 | 2026-10-20 | All eight proof simplifications integrated: one density block, closed-form outcome representer, conditioning on the first-stage fold (old route kept in a draft-only note), centred X, least-squares centring, wider spline-size range, pruned conditions, pathwise remark | Log: "Proof simplifications integrated into differing_slopes.tex" |
