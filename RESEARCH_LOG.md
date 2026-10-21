@@ -9,6 +9,14 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-21 - Follow-up: residual and latent ability (Claude)
+
+Author decision: make the §1 change and drop "latent" from "latent residual"
+(manuscript 469b481). Convention: eta is "the residual" where the score decomposition
+or its estimate is meant (abstract; §1 on Mukherjee et al.), "the latent ability" where
+it is a unit characteristic (§1 identifying idea), and "the unobserved residual" in the
+§1 contrast with policy rules on observed covariates.
+
 ## 2026-10-21 - Follow-up: eta is the latent ability (Claude)
 
 Author decision: "instead of latent types \eta, use latent abilities". Applied in
