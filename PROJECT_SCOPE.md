@@ -5,7 +5,7 @@ session by reading this file, then the newest entries in `RESEARCH_LOG.md` and
 `../manuscript/TODO.md`.
 
 - **Last reviewed with the author:** 2026-10-20 (Claude)
-- **Covers decisions up to:** research log entries of 2026-10-21 ("Positioning: differing slopes is the setting")
+- **Covers decisions up to:** research log entries of 2026-10-21 ("Follow-up: eta is the latent ability")
 
 This file holds author decisions only. Evidence and derivations stay in `RESEARCH_LOG.md`;
 tasks stay in `../manuscript/TODO.md`. Every item below can be traced through the
@@ -46,7 +46,8 @@ decision history at the end. How to change this file is described in "Updating t
 - **Paper notation** (2026-10-21): the assumptions are (A1)-(A7), formerly (DS1)-(DS7);
   the conditions of Proposition 2 (unique interior optimum) are (U1)-(U4); symbols carry
   no "DS" tag (R_Y, r_out, xi, F*_eps, sigma^2, ...); the negative utility derivative
-  -U_eps'(phi) is Upsilon(phi), so that Z stays free for score covariates. The notebook
+  -U_eps'(phi) is Upsilon(phi), so that Z stays free for score covariates. eta is called the
+  "latent ability", not "latent type". The notebook
   and the log keep the old labels as a record.
 - **Target:** the hard-trimmed utility maximizer phi*_eps. The trim level eps is fixed and
   chosen by the user. Present phi*_eps as the optimal cutoff for the population the data
@@ -222,6 +223,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-10-21 | eta is called the "latent ability" in the paper | Log: "Follow-up: eta is the latent ability" (2026-10-21) |
 | 2026-10-21 | Positioning: differing slopes is the setting, common slope only the beta2 = 0 corollary; no "correction"/"extension" framing; no potential-outcome notation | Log: "Positioning: differing slopes is the setting" (2026-10-21) |
 | 2026-10-21 | Paper notation: no DS tags; (DS1)-(DS7) renamed Assumptions (A1)-(A7); Proposition 2 conditions (U1)-(U4); Z(phi) renamed Upsilon(phi) | Log: "Notation: no DS tags; assumptions (A1)-(A7)" (2026-10-21) |
 | 2026-10-20 | Weekly review: the cutoff as estimand leads the contribution; taxi §6 reports S1-E1 and S2-E1 side by side; simulations oracle-only (linear-fit contrast dropped); percentile intervals with 999 draws; a fixed spline-size rule with CV as a check; GPA stays out | Log: "Weekly scope review" (2026-10-20) |

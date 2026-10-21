@@ -9,6 +9,15 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-21 - Follow-up: eta is the latent ability (Claude)
+
+Author decision: "instead of latent types \eta, use latent abilities". Applied in
+§1, §2.1, §2.4 and Appendix 3 of `differing_slopes.tex` (manuscript 3241d5a), after the
+author's own change in §2.1. "Latent type" stays in the sentence on Eckles et al.
+(their model), and "latent residual" stays where it describes the score
+decomposition. In the taxi section eta is the fare residual (an excess time charge),
+where "ability" fits less well; that section is with the session rewriting §6.
+
 ## 2026-10-21 - Positioning: differing slopes is the setting (Claude)
 
 Author decisions (2026-10-21): "make sure the positioning is that differing slope is
