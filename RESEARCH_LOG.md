@@ -9,6 +9,60 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-20 - Weekly scope review (Claude)
+
+At the author's request ("do the weekly review"), the scope file was reviewed in
+four rounds of questions, covering log entries since 2026-10-12 and the commits since
+the last review (2026-10-13). `PROJECT_SCOPE.md` is updated; both dates now read
+2026-10-20.
+
+**Decisions (as the author stated them).**
+- **Taxi specification:** S1-E1, plus the distance and log-distance score "to
+  mitigate" the independence concern. In a follow-up, the author chose to report
+  S1-E1 and S2-E1 as co-equal, with no single headline.
+  - S1-E1 is a linear-distance score with the effect linear in distance: $11.87,
+    cell $12.10.
+  - S2-E1 is a distance + log-distance score with the same effect: $11.76, cell
+    $12.10.
+  - The independence diagnostics differ: R^2 of eta-hat on rich covariate
+    functions is 0.092 for S1 and 0.026 for S2. The spread ratio is about 2.3 for
+    both.
+- **§5.3 negative control:** drop it. Simulations compare only against the truth
+  and the oracle.
+- **Bootstrap intervals:** report percentile intervals, and rerun the coverage
+  tables with more draws (999).
+- **Spline sizes:** use a fixed rule (the n^{11/60} rule), with cross-validation
+  over the (DS5) grid as a check only.
+- **Contribution:** the cutoff leads. Point identification and a root-n limit for
+  the utility-maximizing cutoff are the headline; differing slopes and the
+  trimming theory support it.
+- **Nonlinear-design variance gap** (n Var 15-19% above the first-order 4.73):
+  check the analytic value first.
+- **Confirmed unchanged:**
+  - the goal (Biometrika style, no venue or date);
+  - the model and target (X independent of eta, effect linear in X, a fixed
+    user-chosen eps, eps-sensitivity shown);
+  - theory and inference (pointwise asymptotics, boundary optima outside the CLT,
+    no bootstrap theorem, the analytic variance only as a check);
+  - the out-of-scope list, with GPA staying out.
+
+**Still open.**
+- Theory for the taxi specifications. The score and effect use different
+  covariates (both S1 and S2). Under S2, distance enters the score through two
+  columns, so the quantile lemma needs to cover that.
+- The nonlinear-design variance gap, pending the analytic check.
+- The author's own review of the ported and simplified proofs.
+
+**Priorities for the week (author).**
+1. Port taxi S1-E1 and S2-E1 into §6.
+2. Rerun the §5 coverage tables with 999-draw percentile intervals, without the
+   linear-fit column.
+3. The author reviews the proofs.
+4. The cross-validation robustness check.
+
+The board is updated to match (manuscript a434d82). The next review is due
+2026-10-27.
+
 ## 2026-10-20 - Proof simplifications integrated into differing_slopes.tex (Claude)
 
 At the author's request, all eight proposals of the 2026-10-13 entry ("Proof

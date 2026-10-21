@@ -4,8 +4,8 @@ The current agreed scope and methodology of the paper, in one place. Start every
 session by reading this file, then the newest entries in `RESEARCH_LOG.md` and
 `../manuscript/TODO.md`.
 
-- **Last reviewed with the author:** 2026-10-13 (Claude)
-- **Covers decisions up to:** research log entries of 2026-10-12
+- **Last reviewed with the author:** 2026-10-20 (Claude)
+- **Covers decisions up to:** research log entries of 2026-10-20 ("Weekly scope review")
 
 This file holds author decisions only. Evidence and derivations stay in `RESEARCH_LOG.md`;
 tasks stay in `../manuscript/TODO.md`. Every item below can be traced through the
@@ -21,8 +21,9 @@ decision history at the end. How to change this file is described in "Updating t
   them unless the author asks.
 - **Name:** "Performative RDD" is a legacy name. The paper does not model units reacting to
   the cutoff.
-- **Main contribution:** the combination of three things, with no single one leading:
-  - the cutoff itself as the estimand;
+- **Main contribution** (2026-10-20): the cutoff itself as the estimand leads. The paper
+  point-identifies the utility-maximizing cutoff from data under one deterministic cutoff
+  and gives a root-n limit for it. Two things support that headline:
   - the differing-slopes correction;
   - the limit theory for trimming with a generated regressor.
 
@@ -58,7 +59,9 @@ decision history at the end. How to change this file is described in "Updating t
     the pairwise empirical-tail route is not used);
   - a stacked spline outcome regression (equivalently, one partially linear fit per arm);
   - an ordinary-least-squares first stage.
-- **Spline sizes:** chosen by cross-validation over a grid inside the theorem's rate range.
+- **Spline sizes** (2026-10-20): a fixed deterministic rule inside the (DS5) range (the
+  n^{11/60} rule of the simulations). Cross-validation over a grid inside that range is a
+  robustness check only.
 - **Full-sample reuse:** a simulation remark only, with no theory.
 - **No efficiency or debiasing in the paper** (2026-10-19): the paper keeps the plug-in
   estimator with the OLS first stage and makes no efficiency claim. The debiased
@@ -82,17 +85,22 @@ decision history at the end. How to change this file is described in "Updating t
 
 - Bootstrap confidence intervals, supported by coverage simulations. There is no bootstrap
   validity theorem.
+- The paper reports percentile intervals, with 999 draws in the coverage simulations
+  (2026-10-20).
 - The analytic four-role variance is used only as a cross-check in simulations.
 
 ## Simulations
 
 - **Comparisons:** our estimator against the truth, plus an oracle with known nuisances.
-  Nothing else.
-- **Gaps to close:**
-  - the four-role differing-slopes run with the spline outcome fit;
-  - rerun the displayed differing-slopes design with its own optimum (phi* ~ 0.545103);
-  - bootstrap coverage for the rotated estimator;
-  - a design with nonlinear alpha and b.
+  Nothing else. The linear-in-eta negative control in the paper's §5.3 table is dropped
+  (2026-10-20).
+- **Gaps closed** (2026-10-19 and 2026-10-20): the four-role run with the spline outcome
+  fit; the displayed design at its own optimum (phi* ~ 0.545103); bootstrap coverage for
+  the rotated estimator; the nonlinear alpha, b design.
+- **To do** (2026-10-20):
+  - rerun the coverage tables with 999-draw percentile intervals;
+  - in the nonlinear design, n Var stays 15-19% above the first-order 4.73. Check the
+    analytic value first, then decide whether larger n is needed.
 
 ## Application
 
@@ -102,8 +110,16 @@ decision history at the end. How to change this file is described in "Updating t
   their $5–$25 fare range, which selects on the running variable. The restricted sample is
   kept for a comparison subsection.
 - **Taxi model:** the treatment effect is nonlinear in eta and linear in the covariates (no
-  functions of distance in the D*X block), and eta should carry meaning. The candidates are
-  the nine specifications compared in `this_week.tex` §7 (fare in dollars).
+  functions of distance in the D*X block), and eta should carry meaning.
+- **Taxi specifications** (2026-10-20): §6 reports two specifications side by side, with
+  no single headline. Both have the effect linear in distance (E1), on the dollar scale:
+  - S1-E1, a linear-distance score: $11.87, cell $12.10;
+  - S2-E1, a distance + log-distance score: $11.76, cell $12.10.
+
+  S2 is included because its eta-hat is closer to independent of the covariates
+  (R^2 0.026 against 0.092). Both carry the independence diagnostics. The theorem needs a
+  short extension for different covariates in the score and the effect. Under S2,
+  distance enters the score through two columns, which the quantile lemma must cover.
 
 ## Positioning
 
@@ -150,12 +166,7 @@ application, and other candidate datasets. Nonparametric first stage or outcome 
 
 ## Open questions for the author
 
-- Which of the nine taxi specifications in `this_week.tex` §7 to adopt and port to the
-  paper's §6. Suggested: a score with distance and log distance, and the effect linear in
-  distance. It gives $11.76 (cell $12.10, 90% [$11.36, $12.17], 20 draws). The spline score
-  gives the $13.30 cell, and the common slope always selects the $6 boundary. Two short
-  theory extensions are needed: different covariates in the score and the effect, and the
-  quantile lemma with distance entering the score through several columns.
+- None at the moment. Pending checks are under Simulations ("To do").
 
 ## Updating this file
 
@@ -199,6 +210,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-10-20 | Weekly review: the cutoff as estimand leads the contribution; taxi §6 reports S1-E1 and S2-E1 side by side; simulations oracle-only (linear-fit contrast dropped); percentile intervals with 999 draws; a fixed spline-size rule with CV as a check; GPA stays out | Log: "Weekly scope review" (2026-10-20) |
 | 2026-10-20 | All eight proof simplifications integrated: one density block, closed-form outcome representer, conditioning on the first-stage fold (old route kept in a draft-only note), centred X, least-squares centring, wider spline-size range, pruned conditions, pathwise remark | Log: "Proof simplifications integrated into differing_slopes.tex" |
 | 2026-10-20 | Positioning: abstract and introduction rewritten against the four closest papers (Crippa not cited); eps sensitivity reported in §5.3 | Log: "Abstract and introduction: positioning and novelty" |
 | 2026-10-19 | Notebook §5 theory ported into the paper; no efficiency or debiasing in the paper; rotated average kept with a second-order-bias remark; §6 taxi port deferred | Log: "Paper brought up to date: identification and consistency theory ported" |
