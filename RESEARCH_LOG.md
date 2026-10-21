@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-21 - Notation: no DS tags; assumptions (A1)-(A7) (Claude)
+
+Author decision (2026-10-21): "drop DS throughout, also rename conditions ... I would
+prefer if they were assumptions A1-7, and rename prop 2 ... fix this Z thing".
+Applied to `differing_slopes.tex` (manuscript 949e497); notation only, no statement,
+proof step or number changed.
+
+- **DS tags.** They date from when the paper and the common-slope prelim were one
+  document, where "DS" marked the extended model's objects. With differing slopes as
+  the only model they distinguished nothing. Dropped from R_Y, r_out, L_out, A_out,
+  xi, F*_eps, s*_eps, A_U and sigma^2; no untagged symbol was already in use.
+- **Labels.** (DS1)-(DS7) are now Assumptions (A1)-(A7). Proposition 2's own
+  conditions, previously (A1)-(A4), are now (U1)-(U4).
+- **Z.** The negative utility derivative -U_eps'(phi) was written Z_DS in the roadmap
+  and Z in Appendix 2; it is now Upsilon(phi). Z remains for the stacked outcome
+  regressors (Section 3.2) and the covariate split of Block D; the planned taxi theory
+  may want Z for score covariates, which would need one of those renamed too.
+- Not changed: `this_week.tex` (it defines its own (A1)-(A7) in the debiased-score
+  section, so renaming its references to the paper would clash), earlier log and
+  changelog entries, and code comments.
+
 ## 2026-10-20 - Follow-up: review fixes to the integrated proof simplifications (Claude)
 
 At the author's request ("fix those"), every finding listed in "Proof simplifications

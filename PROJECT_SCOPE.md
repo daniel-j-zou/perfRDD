@@ -5,7 +5,7 @@ session by reading this file, then the newest entries in `RESEARCH_LOG.md` and
 `../manuscript/TODO.md`.
 
 - **Last reviewed with the author:** 2026-10-20 (Claude)
-- **Covers decisions up to:** research log entries of 2026-10-20 ("Weekly scope review")
+- **Covers decisions up to:** research log entries of 2026-10-21 ("Notation: no DS tags; assumptions (A1)-(A7)")
 
 This file holds author decisions only. Evidence and derivations stay in `RESEARCH_LOG.md`;
 tasks stay in `../manuscript/TODO.md`. Every item below can be traced through the
@@ -36,6 +36,11 @@ decision history at the end. How to change this file is described in "Updating t
   model and common slope is a special case. The effect is linear in X.
 - **Notation:** alpha, not a, is the treatment-effect function, in the paper and the
   notebook.
+- **Paper notation** (2026-10-21): the assumptions are (A1)-(A7), formerly (DS1)-(DS7);
+  the conditions of Proposition 2 (unique interior optimum) are (U1)-(U4); symbols carry
+  no "DS" tag (R_Y, r_out, xi, F*_eps, sigma^2, ...); the negative utility derivative
+  -U_eps'(phi) is Upsilon(phi), so that Z stays free for score covariates. The notebook
+  and the log keep the old labels as a record.
 - **Target:** the hard-trimmed utility maximizer phi*_eps. The trim level eps is fixed and
   chosen by the user. Present phi*_eps as the optimal cutoff for the population the data
   supports. Add a remark relating it to phi*, and show sensitivity to eps in the
@@ -43,7 +48,7 @@ decision history at the end. How to change this file is described in "Updating t
 - **Interior optimum:** state a proposition with simple sufficient conditions, as a
   single-crossing condition on alpha(eta) - c + beta2' E(X | T = phi - eta) over the trim
   window. It extends "Uniqueness of the maximizer" in `../manuscript/goodstuff.tex`.
-  Done (2026-10-19): Proposition 2 of the paper, with (DS1)(iii) as the
+  Done (2026-10-19): Proposition 2 of the paper, with (A1)(iii) as the
   single-crossing condition.
 
 ## Estimator
@@ -59,7 +64,7 @@ decision history at the end. How to change this file is described in "Updating t
     the pairwise empirical-tail route is not used);
   - a stacked spline outcome regression (equivalently, one partially linear fit per arm);
   - an ordinary-least-squares first stage.
-- **Spline sizes** (2026-10-20): a fixed deterministic rule inside the (DS5) range (the
+- **Spline sizes** (2026-10-20): a fixed deterministic rule inside the (A5) range (the
   n^{11/60} rule of the simulations). Cross-validation over a grid inside that range is a
   robustness check only.
 - **Full-sample reuse:** a simulation remark only, with no theory.
@@ -69,13 +74,13 @@ decision history at the end. How to change this file is described in "Updating t
 
 ## Theory
 
-- **Rigor:** the theory must be complete. Condition (DS5), uniform consistency of U-hat and
+- **Rigor:** the theory must be complete. Assumption (A5), uniform consistency of U-hat and
   its first two derivatives, is derived from primitive assumptions, not assumed.
-  Done (2026-10-19): Proposition 3 of the paper; in the paper (DS5) now names the
+  Done (2026-10-19): Proposition 3 of the paper; in the paper (A5) now names the
   sieve and rate condition.
 - **Asymptotics:** pointwise, for a fixed data-generating process and a fixed eps.
 - **Proof route** (2026-10-20): the first-stage effects are found by conditioning on the
-  first-stage fold, under the index-family condition (DS4); X is centred without loss of
+  first-stage fold, under the index-family assumption (A4); X is centred without loss of
   generality (exact shift invariance); fourth moments of X~; spline sizes
   n^{1/7} << K << n^{1/4} and n^{1/8} << L << n^{1/4}. The old Taylor-expansion route is
   kept only in a draft-only note in the paper.
@@ -210,6 +215,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-10-21 | Paper notation: no DS tags; (DS1)-(DS7) renamed Assumptions (A1)-(A7); Proposition 2 conditions (U1)-(U4); Z(phi) renamed Upsilon(phi) | Log: "Notation: no DS tags; assumptions (A1)-(A7)" (2026-10-21) |
 | 2026-10-20 | Weekly review: the cutoff as estimand leads the contribution; taxi §6 reports S1-E1 and S2-E1 side by side; simulations oracle-only (linear-fit contrast dropped); percentile intervals with 999 draws; a fixed spline-size rule with CV as a check; GPA stays out | Log: "Weekly scope review" (2026-10-20) |
 | 2026-10-20 | All eight proof simplifications integrated: one density block, closed-form outcome representer, conditioning on the first-stage fold (old route kept in a draft-only note), centred X, least-squares centring, wider spline-size range, pruned conditions, pathwise remark | Log: "Proof simplifications integrated into differing_slopes.tex" |
 | 2026-10-20 | Positioning: abstract and introduction rewritten against the four closest papers (Crippa not cited); eps sensitivity reported in §5.3 | Log: "Abstract and introduction: positioning and novelty" |
