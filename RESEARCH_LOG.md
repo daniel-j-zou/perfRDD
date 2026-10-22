@@ -9,6 +9,111 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-21 - Location-scale first stage: taxi scales, theory check, write-up (Claude)
+
+At the author's request: try square-root and log fare scales, then a location-scale
+first stage, on the taxi data; check whether the paper's theory carries over; write it
+up. Write-up: `this_week.tex` §8, "A location-scale first stage" (manuscript bbb4d4c;
+changelog 08a27e2). This is exploratory. The scope file still assumes X independent
+of eta, and changing that is the author's decision.
+
+**Why.** Under X independent of eta, the share treated P(D=1 | eta = e) = P(T > phi0 - e)
+rises in e. On the taxi data it is U-shaped under every score of the nine-way
+comparison. The cause: the sd of eta-hat doubles across distance deciles (ratio 2.3).
+
+**Score scales** (`experiments/scripts/taxi_score_scales.py`; 11 settings, point
+estimates).
+- These runs use the empirical index law. On the dollar distance + log distance setting
+  it reproduces the grid: $11.73-11.79, against $11.76.
+- J and the window now stop at the 0.25% and 0.5% tails within each arm. Without that,
+  the square-root linear-distance setting has no untreated rides in its left tail.
+
+Results:
+- **Log scale** overcorrects: the spread falls with distance (ratio 1.9-2.4), and the
+  share treated sags at high eta.
+- **Square root** flattens the middle deciles but not the tails (spread 1.2-2.2), and
+  eta is no longer in dollars.
+- **All 11 settings** are interior, at $11.64-13.27, with one maximum each.
+
+**Location-scale model.** Q = T + s(X) zeta, zeta independent of X, log s^2 linear in
+the scale covariates (a spline in log distance and the indicators). The threshold is
+t_phi(X) = (phi - T)/s(X). The utility is
+U(phi) = E_X int_{max(l0, t_phi)}^{u0} (alpha - c + X'beta2) f_zeta. The window is the
+eps and 1-eps quantiles of t_phi0(X).
+
+Taxi, dollars, distance + log distance:
+
+| scale fit | phi-hat | cell | spread ratio | R^2(zeta-hat^2) | assignment gap |
+|---|---|---|---|---|---|
+| additive | $11.73 | $12.10 | 2.30 | 0.064 | 0.049 |
+| Harvey | $11.64 | $11.70 | 1.35 | 0.002 | 0.008 |
+| Poisson | $11.61 | $11.70 | 1.05 | 0.000 | 0.012 |
+
+- In both location-scale fits the own-score check agrees.
+- Spline score, location-scale: $12.99 (cell $13.30). The split between the two
+  distance specifications survives, so heteroskedasticity was not its cause.
+- Folds occur only for the shortest 0.7% of rides (at most 0.36 miles), at the top of
+  the window.
+- No bootstrap bands: the machine was shared with a coverage run.
+
+**Theory check.** Four independent reviewers (identification and uniqueness;
+estimation and the CLT; citations, notation and code; numerics), plus quick checks.
+Scripts are in `experiments/scripts/location_scale/`.
+- **Carries over** with restated objects:
+  - the target and the marginal-effect representation (U' = -p tau);
+  - identification, with level sets of t_phi0(X);
+  - the trimmed-vs-untrimmed proposition;
+  - the eps-sensitivity, using the density of t_phi0(X).
+- **Does not carry over:** the aligned, opposing and common-slope uniqueness results,
+  which use the convolution. Counterexample (`counterexample.py`):
+  - setup: phi0 = 0, eps = 0.1, T = X1, s = e^{X2/2} with X2 = +-1, alpha(e) = 0.2e,
+    beta2 = 0.5 on X2;
+  - tau_eps has zeros at -1.96 (a minimum of U) and 0.84 (the maximum), while the
+    additive analog has a single zero at 0;
+  - mechanism: E(X2 | Q = phi) is U-shaped, -0.20 at 0 and 0.67 at +-3.
+
+  So single crossing must be assumed and checked with tau-hat.
+- **CLT, fixed assignment:** expected to carry over, but not proved. Conditions:
+  - E zeta = 0;
+  - zeta independent of X, with the scale correctly specified;
+  - E|X|^4 (1 + s^-4) < inf;
+  - f_zeta in C^3;
+  - continuous densities of T + s(X)e near phi*;
+  - no folds;
+  - f_t > 0 at the endpoints.
+
+  It also needs three changes:
+  - **Poisson scale fit.** Its score is orthogonal to gamma. The sqrt(n)-sd of the
+    effect of using eta-hat is 0.13 / 0.06 / 0.03 at n = 4k / 16k / 64k. Harvey's stays
+    at 1.6-2.7 for skewed zeta.
+  - **Smoothed criterion.** A one-dimensional density of zeta-hat. It agrees with the
+    step version: sqrt(n)-sd of the difference 0.28 and 0.20, against 8.2 and 8.7.
+  - **Rotated variance.** It includes Cov(psi_gamma, psi_U) != 0. Rotation leaves 0.34
+    (0.28-0.40) of one assignment's variance at n = 64k, not 0.25. The bootstrap
+    captures it.
+- **Simulation** (location-scale design, phi* = 0.7777):
+
+  | n | reps | bias (se) | sqrt(n)·sd |
+  |---|---|---|---|
+  | 4k | 200 | -0.014 (0.010) | 9.0 |
+  | 16k | 100 | -0.007 (0.007) | 8.3 |
+  | 64k | 100 | +0.001 (0.004) | 9.4 |
+
+  - t(5): bias +0.010 (0.005) against phi* = 0.842.
+  - Additive estimator: about half its rotations at the bound, and no well-defined
+    limit.
+- Harvey (1976) is not in the repo; its conditions came from the reviewers' general
+  knowledge.
+
+**Open.**
+- Author: adopt the location-scale model (a scope change; zeta becomes the latent
+  ability) or keep it as an application robustness check.
+- If adopted:
+  - four proofs: the Poisson scale fit, the one-dimensional density block, the endpoint
+    lemmas for t_phi0(X), and the cross-role covariance;
+  - bootstrap bands for the taxi runs.
+- A Fable review of §8 was requested next.
+
 ## 2026-10-21 - Paper text names no files (Claude)
 
 Author decision: "This should be a paper, and should not have references to specific
