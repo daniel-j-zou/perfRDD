@@ -9,6 +9,46 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-22 - Location-scale write-up: Fable review applied (Claude)
+
+Follow-up to "Location-scale first stage: taxi scales, theory check, write-up"
+(2026-10-21). Fable reviewed `this_week.tex` §8 (bbb4d4c) read-only, in two rounds.
+
+**Round 1.** No blocking error. The derivations, the carry-over table, the
+counterexample and every number in the tables check out against the outputs. It found
+11 minor and 7 cosmetic items.
+
+**Fixes.** The author said "apply all" (manuscript d5a8a7b; changelog 1c78a03):
+- **Conditions:**
+  - E zeta^4 < inf and E|X~|^4 (1 + s^4 + s^-4) < inf for the scale-fit CLT;
+  - densities of T + s(X)e on a neighborhood of Phi, not only near phi*;
+  - "no folds" weakened to fold cutoffs outside a neighborhood of Phi for e in the
+    window. The simulation design folds for every e < 0, but its critical values
+    2.5(log(2.5/|e|) - 1) are at least 2.39 > 2.2 there.
+- **Rotation reporting:**
+  - ratios 0.264 (0.23-0.30), 0.280 (0.23-0.33) and 0.337 (0.28-0.40) at
+    n = 4k / 16k / 64k, and 0.224 (0.18-0.27) under t5;
+  - only the largest n excludes 0.25. The earlier text reported only the 64k interval.
+- **Bias** is now also stated against the estimator's own limit 0.784 (phi* + 0.006 from
+  extrapolation outside J): the means are 1.4-2.1 se below it.
+- **Counterexample:** it refutes the aligned-heterogeneity proposition (beta2 != 0),
+  not the common-slope corollary.
+- **Other:** the covariance mechanism (two terms), the scale-fit ranges, "superlevel
+  sets", the bandwidth n_U, hedging, and a note that zeta and V_e clash with symbols
+  in the paper.
+
+**New committed check.** `experiments/scripts/taxi_ls_checks.py`, output
+`runs/taxi_score_scales/ls_checks.json`.
+- **Share treated against eta-hat.** It is U-shaped under all three dollar scores of the
+  nine-way comparison: minimum 0.049-0.055, left end 0.38-0.92, right end 0.64-0.67 on
+  the central 99%.
+- **Folds of the location-scale fit** (Harvey scale, distance + log distance):
+  - 0.45% of rides at the top of the window;
+  - all among the shortest 0.68% (at most 0.36 miles; median fare $3.70).
+
+**Round 2.** All 18 findings resolved, and the new numbers match ls_checks.json. Its
+three wording nits are applied as well.
+
 ## 2026-10-22 - Weekly scope review, short pass (Claude)
 
 The scheduled Monday review fired late. The full review had already run with the
