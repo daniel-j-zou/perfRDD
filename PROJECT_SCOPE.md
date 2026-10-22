@@ -4,8 +4,9 @@ The current agreed scope and methodology of the paper, in one place. Start every
 session by reading this file, then the newest entries in `RESEARCH_LOG.md` and
 `../manuscript/TODO.md`.
 
-- **Last reviewed with the author:** 2026-10-20 (Claude)
-- **Covers decisions up to:** research log entries of 2026-10-21 ("Follow-up: residual and latent ability")
+- **Last reviewed with the author:** 2026-10-22, a short pass on the open items (Claude);
+  the full refresh pass is set for 2026-10-27
+- **Covers decisions up to:** research log entries of 2026-10-22 ("Weekly scope review, short pass")
 
 This file holds author decisions only. Evidence and derivations stay in `RESEARCH_LOG.md`;
 tasks stay in `../manuscript/TODO.md`. Every item below can be traced through the
@@ -113,8 +114,9 @@ decision history at the end. How to change this file is described in "Updating t
   the rotated estimator; the nonlinear alpha, b design.
 - **To do** (2026-10-20):
   - rerun the coverage tables with 999-draw percentile intervals;
-  - in the nonlinear design, n Var stays 15-19% above the first-order 4.73. Check the
-    analytic value first, then decide whether larger n is needed.
+  - in the nonlinear design, reword the small-n excess in §5 (2026-10-22): the analytic
+    4.73 is right and the excess is a small-n density-basis effect, gone by n = 12,800.
+    No larger-n cells are added.
 
 ## Application
 
@@ -134,6 +136,9 @@ decision history at the end. How to change this file is described in "Updating t
   (R^2 0.026 against 0.092). Both carry the independence diagnostics. The theorem needs a
   short extension for different covariates in the score and the effect. Under S2,
   distance enters the score through two columns, which the quantile lemma must cover.
+- **Location-scale first stage** (2026-10-22): a robustness check for the taxi
+  application only (notebook §8). The model keeps X independent of eta; the paper's
+  theory is not extended to the location-scale model.
 
 ## Positioning
 
@@ -177,13 +182,12 @@ application, and other candidate datasets. Nonparametric first stage or outcome 
 - **Notebook to paper:** `../manuscript/this_week.tex` is the working notebook. Once a result
   is verified and the author approves it, port it into `differing_slopes.tex`.
 - **Prose:** plan first, then write one paragraph at a time (see `COLLABORATION.md`).
+- **No files in the paper's text** (2026-10-21): the paper names no files, scripts,
+  run directories or commits. References kept for the agents go in LaTeX comments.
 
 ## Open questions for the author
 
-- Nonlinear-design variance (Simulations, "To do"): checked 2026-10-21. The analytic
-  value 4.73 is right, and the excess is a small-n effect from the 8-function density
-  basis, gone by n = 12,800 (log, "Nonlinear design: the analytic variance is right").
-  Add larger-n cells to the §5 table, or only reword the small-n excess?
+- None open after the 2026-10-22 pass.
 
 ## Updating this file
 
@@ -227,6 +231,9 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-10-22 | Location-scale first stage kept as a taxi robustness check only; X independent of eta stays | Log: "Weekly scope review, short pass" (2026-10-22) |
+| 2026-10-22 | Nonlinear design: reword the small-n variance excess in §5; no larger-n cells | Log: "Weekly scope review, short pass" (2026-10-22) |
+| 2026-10-21 | The paper's text names no files, scripts or commits; such references become LaTeX comments | Log: "Paper text names no files" (2026-10-21) |
 | 2026-10-21 | "Latent residual" becomes "residual"; "latent ability" where eta is a unit characteristic | Log: "Follow-up: residual and latent ability" (2026-10-21) |
 | 2026-10-21 | eta is called the "latent ability" in the paper | Log: "Follow-up: eta is the latent ability" (2026-10-21) |
 | 2026-10-21 | Positioning: differing slopes is the setting, common slope only the beta2 = 0 corollary; no "correction"/"extension" framing; no potential-outcome notation | Log: "Positioning: differing slopes is the setting" (2026-10-21) |

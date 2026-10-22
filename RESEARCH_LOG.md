@@ -9,6 +9,30 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-22 - Weekly scope review, short pass (Claude)
+
+The scheduled Monday review fired late. The full review had already run with the
+author on 2026-10-20 ("Weekly scope review"), so this pass covered only the log
+entries after the scope file's coverage (2026-10-21). The questions were asked in
+chat because the question tool was unavailable at that point.
+
+**Author decisions (2026-10-22).**
+- **Location-scale first stage** ("Location-scale first stage: taxi scales, theory
+  check, write-up"): keep it as a robustness check for the taxi application. The
+  model keeps X independent of eta, and the four proofs it would need are not
+  pursued.
+- **Nonlinear-design variance** ("Nonlinear design: the analytic variance is
+  right"): only reword the small-n excess in §5; add no larger-n cells.
+- **No files in the paper's text** ("Paper text names no files", 2026-10-21): now
+  recorded in the scope file under "How we work", with a decision-history row.
+- **Full refresh pass:** at the next regular review, 2026-10-27.
+
+**Still open.** None in the scope file. The week's priorities stay those set on
+2026-10-20; they are asked again on 2026-10-27.
+
+`PROJECT_SCOPE.md` updated: Simulations "To do", Application, How we work, Open
+questions, decision history and both dates.
+
 ## 2026-10-21 - Location-scale first stage: taxi scales, theory check, write-up (Claude)
 
 At the author's request: try square-root and log fare scales, then a location-scale
