@@ -43,6 +43,7 @@ Results for each specification are merged into ``<out>/summary.json``.
 Run (from code/):
     python -m experiments.scripts.taxi_section6 --specs R2-E1 --boot 999 --workers 6
     python -m experiments.scripts.taxi_section6 --specs S1-E1 S2-E1 --boot 999 --workers 3
+    python -m experiments.scripts.taxi_section6 --comparisons --specs R2-E1
     python -m experiments.scripts.taxi_section6 --figures --specs R2-E1
 """
 from __future__ import annotations
@@ -224,6 +225,61 @@ def run(boot, workers, seed, out, specs):
     print(f"wrote {out} [{time.time() - t0:.0f}s]")
 
 
+def comparisons(seed, out, spec=MAIN):
+    """Point estimates for the Section 6 comparison rows (author choice, 2026-10-27):
+    the common slope (W = alpha(eta), no D*X block) and the restricted $5-$25 sample
+    of Haggag and Paci, both with the main specification's scale and score."""
+    lam, score = SPECS[spec]
+    path = out / "summary.json"
+    result = json.loads(path.read_text())
+    rows = {}
+    df = M.load_frame("full")
+    data = M.make_data(df, lam, "none", score=score)
+    design = M.make_design(data, EPS, effect=False, tail=TAIL, window_tail=WINDOW_TAIL,
+                           window_estimated=True)
+    rows["common_slope"] = estimate(data, design, seed)
+    dfr = M.load_frame("restricted")
+    data = M.make_data(dfr, lam, EFFECT, score=score)
+    design = M.make_design(data, EPS, effect=True, tail=TAIL, window_tail=WINDOW_TAIL,
+                           window_estimated=True)
+    rows["restricted"] = {**estimate(data, design, seed), "n": int(len(data.Q)),
+                          "independence": G.independence(dfr, data)}
+    for k, r in rows.items():
+        print(f"[{spec} {k}] phi {r['phi']:.2f} cell {r['cell']:.2f} boundary {r['at_boundary']} "
+              f"beta2 {np.round(r['beta2'], 3).tolist()}", flush=True)
+    result["specs"][spec]["comparisons"] = rows
+    path.write_text(json.dumps(result, indent=1) + "\n")
+
+
+def paper_figure(result, out, spec):
+    """The Section 6 figure for one specification: tips relative to the $15 cutoff
+    against the cutoff (left) and alpha-hat against the latent ability (right), with
+    95% pointwise percentile bands from the bootstrap."""
+    r = result["specs"][spec]
+    grid = np.array(result["fare_grid"])
+    fig, (a1, a2) = plt.subplots(1, 2, figsize=(10, 3.6))
+    U = 100 * np.array(r["U"])
+    lo, hi = (100 * np.array(v) for v in r["boot"]["U_band95"])
+    a1.fill_between(grid, lo, hi, color="C0", alpha=0.25, lw=0)
+    a1.plot(grid, U, color="C0", lw=1.6)
+    a1.axhline(0, color="k", lw=0.7)
+    a1.axvline(r["phi"], color="C3", ls="--", lw=1)
+    a1.axvline(M.FARE0, color="0.5", ls=":", lw=1)
+    a1.set_xlabel("fare cutoff (\\$)")
+    a1.set_ylabel("tips vs the \\$15 cutoff (cents per ride)")
+    x, al = np.array(r["eta_grid"]), np.array(r["alpha"])
+    lo, hi = (np.array(v) for v in r["boot"]["alpha_band95"])
+    a2.fill_between(x, lo, hi, color="C2", alpha=0.25, lw=0)
+    a2.plot(x, al, color="C2", lw=1.6)
+    a2.axhline(0, color="k", lw=0.7)
+    unit = r"(2$\sqrt{\$}$)" if r.get("lambda", 1.0) == 0.5 else r"(\$)"
+    a2.set_xlabel(r"latent ability $\eta$ " + unit)
+    a2.set_ylabel(r"$\hat\alpha(\eta)$ (\$ per ride)")
+    fig.tight_layout()
+    fig.savefig(out / f"taxi_section6_{spec}.png", dpi=200, bbox_inches="tight")
+    plt.close(fig)
+
+
 def figures(result, out, specs):
     """Section 6 figures for ``specs``: U-hat and alpha-hat with 95% bootstrap bands, and
     the tau-hat curves. Files are named after the specifications."""
@@ -290,9 +346,18 @@ def main(argv=None):
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--out", type=Path, default=OUT)
     ap.add_argument("--figures", action="store_true", help="redraw figures from summary.json")
+    ap.add_argument("--comparisons", action="store_true",
+                    help="common-slope and restricted-sample rows for the first --specs entry")
     a = ap.parse_args(argv)
     if a.figures:
-        figures(json.loads((a.out / "summary.json").read_text()), a.out, a.specs)
+        result = json.loads((a.out / "summary.json").read_text())
+        figures(result, a.out, a.specs)
+        for spec in a.specs:
+            if "boot" in result["specs"][spec]:
+                paper_figure(result, a.out, spec)
+        return
+    if a.comparisons:
+        comparisons(a.seed, a.out, a.specs[0])
         return
     run(a.boot, a.workers, a.seed, a.out, a.specs)
 

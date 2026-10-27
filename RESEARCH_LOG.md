@@ -9,6 +9,58 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-27 - Paper §6 rewritten for the taxi use case R2-E1 (Claude)
+
+Follow-up to the entry below. The paper's §6 now holds the R2-E1 application
+(manuscript f1c716a; changelog and board eea169f). The author agreed the paragraph plan
+first and chose:
+- comparison rows for the common slope, the dollar-scale S1/S2 and the $5-$25 sample;
+- CMT as an external benchmark only;
+- one hedged sentence on the theory gap;
+- U and alpha as the figures.
+
+**Results** (`taxi_section6.py`, paper's estimator, `runs/taxi_section6/summary.json`):
+
+| quantity | value |
+|---|---|
+| phi-hat | $12.87, cell $12.90; pooled $12.87 |
+| rotations | $12.58-13.18 |
+| own-score cell | $12.90 |
+| 999-draw bootstrap | sd 0.155; 95% percentile [12.56, 13.18]; 90% [12.62, 13.14] |
+| bootstrap cells | 12.90: 527, 13.30: 465, 12.50: 5, 13.70: 2; no draw at the boundary; all below $15 |
+| beta2-hat | 0.55 per sd of distance, $0.24 per mile |
+| tau at $15 / at $6 | +0.248 / -0.723 dollars per ride |
+| gain over $15 | 0.65 cents per ride (pointwise band 0.44-0.84 at $12.75) |
+| first-stage R^2 | 0.925 |
+| independence | R^2(eta-hat) 0.093, R^2(eta-hat^2) 0.203, spread ratio 1.48 |
+
+**Robustness:**
+- eps 0.075 / 0.10: $13.00 / $13.08;
+- J tails: $12.88-12.94;
+- J and window scaled together: $12.92-12.93;
+- fold seeds: $12.87-12.89.
+
+The design variations move the estimate by at most $0.21.
+
+**Comparisons** (new `--comparisons` mode):
+- common slope: $6.00, the lower boundary;
+- $5-$25 sample (n = 540,426): $13.15, cell $13.30.
+
+The dollar-scale S1-E1 ($11.87, 95% [11.33, 12.51]) and S2-E1 ($11.76, [11.29, 12.21])
+do not overlap the main interval.
+
+**CMT benchmark:** the controlled CMT-minus-VTS contrast on $5-$15 restricted rides
+crosses zero at $12.78 (`runs/taxi_low_fare_proxy/summary.json`).
+
+**Figure:** `taxi_section6.py --figures` draws `taxi_section6_R2-E1.png` (U and alpha
+with 95% bands), copied to the manuscript as `figures/taxi_section6.png`.
+
+**Open:**
+- Appendix 5's opening still mentions "the outcome-scale check for the taxi
+  application", which no longer exists. This is reported, not edited, because it is
+  outside §6.
+- The theory item for different covariates in the score and the effect remains open.
+
 ## 2026-10-27 - Taxi use case: square-root fare, distance and log distance (Claude)
 
 **Author decision (2026-10-27):** "for now, lets fix sqrt - dist + log dist as the use case
