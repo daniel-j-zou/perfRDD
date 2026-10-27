@@ -9,6 +9,23 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-27 - 811 course outline tracks the paper (Claude)
+
+The author is taking 811, a technical-writing course whose main writing project is
+this paper. Course work goes in `../manuscript/811.tex`, a detailed outline of
+`differing_slopes.tex` with its front matter (manuscript 286e29d, revised in fa94a39).
+The author edited its front matter on Overleaf (aaaf1f9: four keywords, two notes
+removed), and those edits stand.
+
+**Author decision (2026-10-27).** The outline should roughly track the current status of
+`differing_slopes.tex`. It now uses the paper's own sections and subsections and says
+what each holds now. Planned changes appear in its status lines. The rule is in
+`COLLABORATION.md` under "Shared sources of truth": a manuscript push that changes the
+paper's sections, contents or status also updates `811.tex`.
+
+This is a workflow rule, not a scope change. Neither the paper nor `PROJECT_SCOPE.md`
+changes. For the scope file's "How we work" at the next review (due 2026-10-27).
+
 ## 2026-10-22 - Location-scale write-up: Fable review applied (Claude)
 
 Follow-up to "Location-scale first stage: taxi scales, theory check, write-up"

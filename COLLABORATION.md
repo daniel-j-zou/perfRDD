@@ -13,6 +13,11 @@ instruction files should point here rather than maintain competing versions.
 - `../manuscript/CHANGELOG.md` is the human-readable edit trail of the paper: one entry
   per manuscript push describing what changed, where, and why, so the authors can follow
   updates without reading diffs.
+- `../manuscript/811.tex` is the author's outline of the paper for the 811
+  technical-writing course. It roughly tracks the current status of
+  `differing_slopes.tex` (author, 2026-10-27): when a manuscript push changes the paper's
+  sections, their contents or their status, update the matching part of the outline in
+  the same push. Keep the author's own edits to it.
 - Reproducible code and durable computational documentation live in this repository.
 - Paper text, bibliography, figures, and the tracked task board live in `../manuscript/`.
 - `../work/` and `../outputs/` are local scratch and review directories. Anything needed
