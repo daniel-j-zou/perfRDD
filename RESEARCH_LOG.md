@@ -9,6 +9,71 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-27 - Two-score extension: population check (Claude)
+
+This is an exploratory check, started from the main session after a chat
+discussion of the two-score extension. Multiple scores stay out of scope
+(`PROJECT_SCOPE.md`), no scope decision is implied, and the paper is not edited.
+- **Summary:** `experiments/datasets/simulations/TWO_SCORE_POPULATION_20261027.md`.
+- **Script:** `experiments/scripts/two_score_population.py`. It uses quadrature,
+  checked against 2e7 Monte Carlo draws.
+
+**Model.**
+- Q_j = gamma_j'X + eta_j, with X ~ N(0, I_3) and eta bivariate normal with
+  correlation rho.
+- W = alpha(eta) + X'beta2, deployed rule D0 = 1{Q_1 > 0, Q_2 > 0}.
+- Supported region eps <= P(T in A(phi0) - eta) <= 1 - eps, with eps = 0.10.
+- For Gaussian X only kappa = Var(T)^{-1} G beta2 matters, since
+  lambda(t) = kappa't.
+
+**Structure, derived and checked to 1e-9 or better.**
+- **First derivatives:** dU/dphi_j = -f_j tau_j, where
+  tau_1 = E[W - c | Q_1 = phi_1, Q_2 > phi_2, I0 = 1]. This is Proposition 1
+  face by face.
+- **Cross partial:** d^2U/dphi_1 dphi_2 = p(phi) tau(phi), the density at the
+  corner times its net effect. It is negative at an interior optimum.
+- **Diagonal:** where tau_j = 0, H_jj = -f_j d tau_j / d phi_j.
+- **Maximum condition:** a critical point is a maximum if and only if both face
+  averages increase and f_1 f_2 tau_1' tau_2' > (p tau)^2 at the corner.
+
+**Designs** (c = 2.25, rho = 0.5):
+
+| design | phi* | Hessian eigenvalues | gain over phi0 | 2nd score as hurdle | loss vs first best: conjunctive / compensatory |
+|---|---|---|---|---|---|
+| alpha = 2 + 0.8e1 + 0.5e2, paper beta2 (kappa_2 = -0.105) | phi_2* -> -inf (single score) | — | 0.0415 | 0 | 0.0038 / 0.0004 |
+| alpha = 2 + 0.7(e1 + e2), kappa = (0.2, 0.2) | (-0.496, -0.496) | -0.079, -0.027 | 0.0201 | 0.0187 | 0.0213 / 0.0001 |
+| same alpha, paper beta2 | (-0.089, -2.328), plus a saddle at phi_2 = -3.86 | -0.088, -0.0004 | 0.0302 | 3e-5 | 0.0113 / 0.0004 |
+| alpha = 2 + 1.4 softmin(e1, e2), kappa = (0.2, 0.2) | (-0.272, -0.272) | -0.085, -0.035 | 0.0063 | 0.0274 | 0.0129 / 0.0005 |
+
+**Sweep** over rho in {-0.5, 0, 0.5, 0.8, 0.95} and kappa_2 in [-0.4, 0.4], with
+kappa_1 = 0.2:
+- **kappa_2 <= -0.2:** the second hurdle never binds.
+- **kappa_2 = -0.1:** the optimum is interior only at rho >= 0.5, and flat
+  (|lambda_min| <= 0.003).
+- **kappa_2 = 0:** well curved only at rho >= 0.5.
+- **kappa_2 >= 0.1:** interior and well curved for every rho (|lambda_min| 0.01-0.03,
+  mostly rising with rho).
+
+The weak direction always trades one cutoff against the other. The cause of slack
+or flat hurdles is the trim: under I0, eta_j >= -1.28, so the deep Q_j tail
+consists of units with extreme T_j. With kappa_j < 0 those units have positive
+effects, and the face average does not cross zero, or crosses it twice.
+
+**Rule comparison.**
+- **Compensatory:** the best rule 1{w'Q > phi} is within 0.003 of the first best
+  {tau > 0} in every design and cell.
+- **Conjunctive:** the best rule captures 24-97% of the first-best gain over the
+  deployed rule.
+- **Robustness:** a complementary (softmin) alpha and less noisy indices leave
+  this unchanged.
+
+**Caveat.** The check is all-Gaussian with linear lambda. With linear alpha, the
+untrimmed first best is exactly a half-plane, which favors compensatory rules.
+
+**Open for the author** (not decided). If a two-score extension is ever pursued:
+- the compensatory rule may be the more natural target;
+- a conjunctive target would need face-wise single-crossing conditions.
+
 ## 2026-10-27 - 811 course outline tracks the paper (Claude)
 
 The author is taking 811, a technical-writing course whose main writing project is
