@@ -1,14 +1,16 @@
-"""Taxi application for ``differing_slopes.tex`` Section 6: the two chosen specifications.
+"""Taxi application for ``differing_slopes.tex`` Section 6.
 
-At the author's request (weekly scope review, 2026-10-20), Section 6 reports two
-specifications of ``taxi_four_role_grid.py`` side by side, with no single headline:
+Specifications (effect linear in distance throughout):
 
-  S1-E1  score linear in distance;                effect linear in distance
-  S2-E1  score in distance and log distance;      effect linear in distance
+  R2-E1  square root of the fare; score in distance and log distance   (main, author
+         decision 2026-10-27: "for now" the paper's use case)
+  S1-E1  fare in dollars; score linear in distance                     (weekly review
+  S2-E1  fare in dollars; score in distance and log distance            2026-10-20)
 
-Both scores also contain the hour, day-of-week, weekday-hour x weekend and group-ride
-indicators, and the untreated baseline uses the score covariates. Fare in dollars,
-eps = 0.05, outcome fit on the central 99.5% of residuals, policy set [$6, $24], as in
+Every score also contains the hour, day-of-week, weekday-hour x weekend and group-ride
+indicators, and the untreated baseline uses the score covariates. The fare scale is a
+Box-Cox power (1/2: square root; 1: dollars); a cutoff on the transformed fare is a
+cutoff on the fare. eps = 0.05, outcome fit on the central 99.5% of residuals, policy set [$6, $24], as in
 the nine-way grid. The trim window is capped at the central 99% of the first-stage
 residuals, re-estimated in every rotation and bootstrap draw from the evaluation fold (author
 decision, 2026-10-20): at eps = 0.05 the overlap endpoints l0, u0 lie beyond the
@@ -36,9 +38,12 @@ For each specification the script records:
 Draws are appended to ``<out>/<spec>_draws.jsonl`` as they finish, and a rerun
 resumes from them. ``--figures`` redraws the figures from the saved results.
 
+Results for each specification are merged into ``<out>/summary.json``.
+
 Run (from code/):
-    python -m experiments.scripts.taxi_section6 --boot 999 --workers 3
-    python -m experiments.scripts.taxi_section6 --figures
+    python -m experiments.scripts.taxi_section6 --specs R2-E1 --boot 999 --workers 6
+    python -m experiments.scripts.taxi_section6 --specs S1-E1 S2-E1 --boot 999 --workers 3
+    python -m experiments.scripts.taxi_section6 --figures --specs R2-E1
 """
 from __future__ import annotations
 
@@ -64,11 +69,12 @@ from experiments.scripts import taxi_four_role as M
 from experiments.scripts import taxi_four_role_grid as G
 
 OUT = M.ROOT / "runs" / "taxi_section6"
-SPECS = {"S1-E1": "linear", "S2-E1": "distlog"}
-LABEL = {"S1-E1": "score: distance", "S2-E1": "score: distance + log distance"}
+SPECS = {"R2-E1": (0.5, "distlog"), "S1-E1": (1.0, "linear"), "S2-E1": (1.0, "distlog")}
+MAIN = "R2-E1"
+LABEL = {"R2-E1": "square root of fare; distance + log distance",
+         "S1-E1": "dollars; distance", "S2-E1": "dollars; distance + log distance"}
 EFFECT = "distance"
 EPS = G.EPS
-LAM = G.LAM
 TAIL, WINDOW_TAIL = 0.0025, 0.005
 GRID_POINTS = G.GRID_POINTS
 ROBUST_EPS = (0.075, 0.10)
@@ -78,16 +84,17 @@ ROBUST_SEEDS = (2, 3, 4, 5)
 
 
 def build(df, spec, eps=EPS, tail=TAIL, window_tail=WINDOW_TAIL):
-    data = M.make_data(df, LAM, EFFECT, score=SPECS[spec])
+    lam, score = SPECS[spec]
+    data = M.make_data(df, lam, EFFECT, score=score)
     design = M.make_design(data, eps, effect=True, tail=tail, window_tail=window_tail,
                            window_estimated=True)
     return data, design
 
 
 def estimate(data, design, seed, curve_grid=None, alpha_grid=None):
-    r = M.four_role(data, design, seed, curves=None if curve_grid is None else M.boxcox(curve_grid, LAM),
+    r = M.four_role(data, design, seed, curves=None if curve_grid is None else M.boxcox(curve_grid, data.lam),
                     grid_points=GRID_POINTS, alpha_grid=alpha_grid)
-    d = lambda p: M.dollars(p, LAM)
+    d = lambda p: M.dollars(p, data.lam)
     out = {"phi": d(r["phi_avg"]), "cell": M.fare_cell(d(r["phi_avg"]), data.fare),
            "phi_pooled": d(r["phi_pooled"]), "rotations": [d(p) for p in r["phi_rotations"]],
            "at_boundary": r["at_boundary"], "local_maxima": r["local_maxima"],
@@ -112,9 +119,9 @@ def _draw(b):
     data, design, seed = _B["data"], _B["design"], _B["seed"]
     idx = np.random.default_rng(seed + 1_000 + b).integers(0, len(data.Q), len(data.Q))
     r = M.four_role(data.subset(idx), design, seed=seed + 50_000 + b, grid_points=GRID_POINTS,
-                    curves=M.boxcox(_B["curve_grid"], LAM), alpha_grid=_B["alpha_grid"],
+                    curves=M.boxcox(_B["curve_grid"], data.lam), alpha_grid=_B["alpha_grid"],
                     tau_and_own=False)
-    d = lambda p: M.dollars(p, LAM)
+    d = lambda p: M.dollars(p, data.lam)
     return {"b": b, "phi": d(r["phi_avg"]), "phi_pooled": d(r["phi_pooled"]),
             "at_boundary": bool(r["at_boundary"]), "U": np.round(r["U"], 7).tolist(),
             "alpha": np.round(np.asarray(r["alpha"]), 6).tolist()}
@@ -167,17 +174,22 @@ def summarize_boot(est, rows, fares):
                              np.quantile(A, 0.975, axis=0).tolist()]}
 
 
-def run(boot, workers, seed, out):
+def run(boot, workers, seed, out, specs):
     out.mkdir(parents=True, exist_ok=True)
     df = M.load_frame("full")
     curve_grid = np.linspace(*M.POLICY_DOLLARS, 73)
-    result = {"eps": EPS, "lambda": LAM, "fare_grid": curve_grid.tolist(), "specs": {}}
+    path = out / "summary.json"
+    result = json.loads(path.read_text()) if path.exists() else {}
+    result.update(eps=EPS, fare_grid=curve_grid.tolist())
+    result.setdefault("specs", {})
+    result.pop("lambda", None)                 # now recorded per specification
     t0 = time.time()
-    for spec in SPECS:
+    for spec in specs:
         data, design = build(df, spec)
         alpha_grid = np.linspace(design.window[0], design.window[1], 61)
         est = estimate(data, design, seed, curve_grid, alpha_grid)
         est["eta_grid"] = alpha_grid.tolist()
+        est["lambda"], est["score"] = SPECS[spec]
         est["independence"] = G.independence(df, data)
         est["effect_block"] = M.effect_diagnostics(data, design, seed)
         est["design"] = {"J": list(design.J), "window_caps": list(design.window),
@@ -207,16 +219,19 @@ def run(boot, workers, seed, out):
             print(f"[{spec}] B={b['B']} sd {b['sd']:.3f} 95% pct [{b['pct95'][0]:.2f}, "
                   f"{b['pct95'][1]:.2f}] boundary {b['share_boundary']:.3f}", flush=True)
         result["specs"][spec] = est
-        (out / "summary.json").write_text(json.dumps(result, indent=1) + "\n")
-    figures(result, out)
+        path.write_text(json.dumps(result, indent=1) + "\n")
+    figures(result, out, specs)
     print(f"wrote {out} [{time.time() - t0:.0f}s]")
 
 
-def figures(result, out):
-    """Section 6 figures: U-hat and alpha-hat with 95% bootstrap bands, and the tau-hat curves."""
+def figures(result, out, specs):
+    """Section 6 figures for ``specs``: U-hat and alpha-hat with 95% bootstrap bands, and
+    the tau-hat curves. Files are named after the specifications."""
     grid = np.array(result["fare_grid"])
-    specs = list(result["specs"])
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.6), sharey=True)
+    tag = "_".join(specs)
+    k = len(specs)
+    fig, axes = plt.subplots(1, k, figsize=(5 * k, 3.6), sharey=True, squeeze=False)
+    axes = axes[0]
     for ax, spec in zip(axes, specs):
         r = result["specs"][spec]
         U = 100 * np.array(r["U"])
@@ -231,10 +246,11 @@ def figures(result, out):
         ax.set_xlabel("fare cutoff (\\$)")
     axes[0].set_ylabel("tips relative to the \\$15 cutoff (cents per ride)")
     fig.tight_layout()
-    fig.savefig(out / "taxi_U.png", dpi=200, bbox_inches="tight")
+    fig.savefig(out / f"taxi_U_{tag}.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
 
-    fig, axes = plt.subplots(1, 2, figsize=(10, 3.6), sharey=True)
+    fig, axes = plt.subplots(1, k, figsize=(5 * k, 3.6), sharey=True, squeeze=False)
+    axes = axes[0]
     for ax, spec in zip(axes, specs):
         r = result["specs"][spec]
         x, a = np.array(r["eta_grid"]), np.array(r["alpha"])
@@ -244,10 +260,11 @@ def figures(result, out):
         ax.plot(x, a, color="C2", lw=1.6)
         ax.axhline(0, color="k", lw=0.7)
         ax.set_title(LABEL[spec], fontsize=10)
-        ax.set_xlabel(r"latent type $\eta$ (\$)")
+        unit = r"(2$\sqrt{\$}$)" if r.get("lambda", 1.0) == 0.5 else r"(\$)"
+        ax.set_xlabel(r"latent ability $\eta$ " + unit)
     axes[0].set_ylabel(r"$\hat\alpha(\eta)$ (\$ per ride)")
     fig.tight_layout()
-    fig.savefig(out / "taxi_alpha.png", dpi=200, bbox_inches="tight")
+    fig.savefig(out / f"taxi_alpha_{tag}.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
 
     fig, ax = plt.subplots(figsize=(5.5, 3.6))
@@ -261,7 +278,7 @@ def figures(result, out):
     ax.set_ylabel("marginal net effect (\\$ per ride)")
     ax.legend(fontsize=8, frameon=False)
     fig.tight_layout()
-    fig.savefig(out / "taxi_tau.png", dpi=200, bbox_inches="tight")
+    fig.savefig(out / f"taxi_tau_{tag}.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
 
 
@@ -269,14 +286,15 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
     ap.add_argument("--boot", type=int, default=999)
     ap.add_argument("--workers", type=int, default=3)
+    ap.add_argument("--specs", nargs="+", default=[MAIN], choices=list(SPECS))
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--out", type=Path, default=OUT)
     ap.add_argument("--figures", action="store_true", help="redraw figures from summary.json")
     a = ap.parse_args(argv)
     if a.figures:
-        figures(json.loads((a.out / "summary.json").read_text()), a.out)
+        figures(json.loads((a.out / "summary.json").read_text()), a.out, a.specs)
         return
-    run(a.boot, a.workers, a.seed, a.out)
+    run(a.boot, a.workers, a.seed, a.out, a.specs)
 
 
 if __name__ == "__main__":

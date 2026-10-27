@@ -9,6 +9,35 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-27 - Taxi use case: square-root fare, distance and log distance (Claude)
+
+**Author decision (2026-10-27):** "for now, lets fix sqrt - dist + log dist as the use case
+for the paper, and write it in to differing slopes. Keep the above discussion in
+this_week."
+- The specification, called R2-E1:
+  - the fare on the square-root scale (Box-Cox 1/2);
+  - score covariates distance, log distance and the hour, day-of-week,
+    weekday-hour x weekend and group indicators;
+  - an effect linear in distance.
+- It replaces the 2026-10-20 plan to report S1-E1 and S2-E1 (dollar scale) side by side.
+- `this_week.tex` §7 (nine-way comparison) and §8 (location-scale) stay as they are.
+
+**Earlier evidence on this specification** (exploratory, `taxi_score_scales.py`, which
+uses the empirical index law and arm-wise J; not the paper's estimator):
+- phi-hat $12.87, cell $12.90; the own-score check selects $13.30;
+- R^2(eta-hat) on rich covariate functions 0.093, R^2(eta-hat^2) 0.203;
+- spread ratio across distance deciles 1.48, driven by the shortest decile (1.41
+  relative to the median).
+
+So on the square-root scale distance + log distance leaves more mean dependence than on
+the dollar scale (0.026) but much less spread (2.30 there).
+
+**Run.** `taxi_section6.py` now takes the specification list, with R2-E1 as the default.
+Results merge into `runs/taxi_section6/summary.json`, so the S1-E1/S2-E1 runs are kept.
+The run is `--specs R2-E1 --boot 999 --workers 6`, with the paper's estimator, the trim
+caps re-estimated per fit, percentile intervals and the usual robustness runs. The §6
+rewrite follows a paragraph plan agreed with the author.
+
 ## 2026-10-27 - Two-score extension: population check (Claude)
 
 This is an exploratory check, started from the main session after a chat

@@ -127,15 +127,13 @@ decision history at the end. How to change this file is described in "Updating t
   kept for a comparison subsection.
 - **Taxi model:** the treatment effect is nonlinear in eta and linear in the covariates (no
   functions of distance in the D*X block), and eta should carry meaning.
-- **Taxi specifications** (2026-10-20): §6 reports two specifications side by side, with
-  no single headline. Both have the effect linear in distance (E1), on the dollar scale:
-  - S1-E1, a linear-distance score: $11.87, cell $12.10;
-  - S2-E1, a distance + log-distance score: $11.76, cell $12.10.
-
-  S2 is included because its eta-hat is closer to independent of the covariates
-  (R^2 0.026 against 0.092). Both carry the independence diagnostics. The theorem needs a
-  short extension for different covariates in the score and the effect. Under S2,
-  distance enters the score through two columns, which the quantile lemma must cover.
+- **Taxi specification** (2026-10-27, "for now"): the paper's use case is R2-E1. The fare
+  is on the square-root scale (Box-Cox 1/2), the score has distance and log distance plus
+  the indicators, and the effect is linear in distance. It replaces the 2026-10-20 plan to
+  report S1-E1 and S2-E1 (dollar scale) side by side. Those runs (999 draws each) stay
+  available as comparisons; their role in §6 is open. The theorem still needs a short
+  extension for different covariates in the score and the effect, and the quantile lemma
+  must cover distance entering the score through two columns.
 - **Location-scale first stage** (2026-10-22): a robustness check for the taxi
   application only (notebook §8). The model keeps X independent of eta; the paper's
   theory is not extended to the location-scale model.
@@ -231,6 +229,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-10-27 | Taxi use case for the paper, for now: square-root fare, distance + log-distance score, effect linear in distance (R2-E1); replaces S1-E1 and S2-E1 side by side | Log: "Taxi use case: square-root fare, distance and log distance" (2026-10-27) |
 | 2026-10-22 | Location-scale first stage kept as a taxi robustness check only; X independent of eta stays | Log: "Weekly scope review, short pass" (2026-10-22) |
 | 2026-10-22 | Nonlinear design: reword the small-n variance excess in §5; no larger-n cells | Log: "Weekly scope review, short pass" (2026-10-22) |
 | 2026-10-21 | The paper's text names no files, scripts or commits; such references become LaTeX comments | Log: "Paper text names no files" (2026-10-21) |
