@@ -1,5 +1,7 @@
 # Taxi 30,000-trip bootstrap results
 
+> Removed from the tree on 2026-10-27 (cleanup; unused by current code): `taxi_bootstrap_30k.py`. Restore with `git checkout eb99dcb -- <path>`.
+
 ## Conclusion
 
 On the paper-restricted January 2009 sample, the no-cost driver-tip objective is

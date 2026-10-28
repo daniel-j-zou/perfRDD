@@ -21,22 +21,15 @@ The original data is governed by the AEJ replication terms; see
 
 ## Layout
 
+Removed on 2026-10-27 (unused by current code; restore with `git checkout eb99dcb -- <path>`): `redesign.py`, `welfare.py`, `../../scripts/gpa_redesign_hard_trim.py`, `../../scripts/gpa_welfare_hard_trim.py` and the legacy `general/` folder. The current GPA analysis is `../../scripts/gpa_four_role.py`.
+
 - `adapter.py` — exports `load() -> RDDSample`. Sole required entry point.
-- `redesign.py` — full-population persistence outcomes, an explicitly selected
-  GPA diagnostic, and a transparent composite-outcome sensitivity analysis.
 - `HARD_TRIM_RESULTS.md` — reproducible status, verified point estimates, and limitations
   for the exact hard-trim application.
-- `welfare.py` — prespecified 16-outcome welfare menu separating direct outcomes,
-  inherited missing-GPA sensitivities, and status-adjusted stress tests.
 - `WELFARE_RESULTS.md` — full welfare-menu results, skeptical audit, and publication
   limitations.
-- `../../scripts/gpa_redesign_hard_trim.py` — exact hard-support-trimmed application.
-  It reports a locked full-sample ridge grid using one pilot-fixed nuisance support
-  for every outcome.
 - `Dep_Data/` — raw + intermediate files (preserved from the original
   replication package layout).
-- `general/` — legacy GPA-specific analysis scripts and notebooks. New
-  per-dataset analysis should go in `analysis/` or `notes/`.
 
 ## Campus-specific cutoffs (2026-10-27)
 

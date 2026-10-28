@@ -1,0 +1,6 @@
+# Python and OS junk (experiments/.gitignore covers runs/ and dataset data)
+__pycache__/
+*.pyc
+.DS_Store
+.idea/
+.ipynb_checkpoints/

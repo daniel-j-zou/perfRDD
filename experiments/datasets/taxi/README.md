@@ -1,5 +1,7 @@
 # Taxi — NYC TLC 2009 default-tips RDD
 
+> Removed from the tree on 2026-10-27 (cleanup; unused by current code): `hard_trim_existing_applications.py`, `taxi_utility_curve.py`, `taxi_bootstrap_30k.py` and the other screening-era taxi scripts cited below (the current application is `taxi_section6.py`). Restore with `git checkout eb99dcb -- <path>`.
+
 | Field | Value |
 |---|---|
 | **Q** | `Fare_Amt` (taxi fare in dollars) |

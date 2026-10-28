@@ -1,5 +1,7 @@
 # Differing slopes: identifying a level-dependent treatment effect
 
+> Removed from the tree on 2026-10-27 (cleanup; unused by current code): `taxi_differing_slopes_rank.py`. Restore with `git checkout eb99dcb -- <path>`.
+
 ## The problem the taxi application exposed
 
 The performative-RDD estimator targets the policy value

@@ -9,6 +9,59 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-27 - Repository cleanup: unused files removed (Claude)
+
+At the author's request: find the files that are not useful, verify that they really
+are unused (especially data), then remove them, keeping all raw data. Two read-only
+Fable audits (code and manuscript) proposed the candidates; Claude then verified them.
+
+**Verification (code):**
+- **References.** Every remaining tracked text file was searched for each candidate's
+  file name, module path and folder name. The search covered code, configs, notebooks,
+  notes, the paper and notebook comments, and the untracked `taxi_perfrdd_share_tip.py`.
+  Mentions in the log and changelog count as history, not use.
+- **Imports.** In a scratch copy with the candidates deleted, every import in the 163
+  remaining Python files resolves. The full suite passes (113 tests), with the same
+  three data-missing skips (HMDA, MIMIC, NLSY) as before.
+- **Dropped from the list:**
+  - `screen_candidate.py` and `taxi_perfrdd_application.py`, which the untracked
+    `share_tip.py` imports;
+  - the generic screens `differing_slopes_screen.py`, `screen_flatness.py` and
+    `local_rd_checks.py`, which the `chile_admission` README gives as its workflow. That
+    README was being edited by another session.
+- **Data.** No candidate is raw data. The `.csv`/`.txt` files in `general/` are
+  simulation summary tables, and `poster_data.npz` is a cache written by a plotting
+  script. `Dep_Data/` and every ignored local `data/` folder are untouched.
+
+**Removed (246 files; restore any of them with `git checkout eb99dcb -- <path>`):**
+- **Junk:** tracked `.DS_Store`, `.idea/` and `__pycache__`, and an empty
+  `Simulations/sim_playground.py`.
+- **Pre-log legacy:**
+  - the 2025 top-level scripts and `Simulations/`;
+  - `general/` (the old common-slope library, sweeps, figures and tables);
+  - `tests/` (online thresholds, the asymptotic-variance check);
+  - `experiments/datasets/gpa/general/`;
+  - `deb_paper.pdf` and `writing/`;
+  - the May-2026 pooled-PLM explorations (22 scripts);
+  - `methods/perfrdd_all_nonlinear.py` and `perfrdd_q_nonlinear.py`.
+- **Screening-era taxi:** `bootstrap_candidate`, `taxi_perfrdd_logit_tip`,
+  `taxi_bootstrap_30k`, `taxi_utility_curve`, `existing_datasets_smooth_trim`,
+  `hard_trim_existing_applications` and `taxi_differing_slopes_rank`, with their tests.
+- **GPA redesign and welfare:** `datasets/gpa/redesign.py`, `welfare.py`, and
+  `gpa_redesign_hard_trim`/`gpa_welfare_hard_trim`, with their tests.
+- **Chile retention:** `chile_retention_{curves,local_checks,missing_outcome,profile}`,
+  `retention_settings`, `ds_curve_check` and `ds_knots_check`.
+
+**Also:**
+- a root `.gitignore` (`__pycache__/`, `*.pyc`, `.DS_Store`, `.idea/`,
+  `.ipynb_checkpoints/`);
+- notes that give reproduction commands for removed scripts now say so: taxi README,
+  BOOTSTRAP_RESULTS, DIFFERING_SLOPES, GPA README, HARD_TRIM_RESULTS, WELFARE_RESULTS and
+  the chile_retention README;
+- the GPA adapter's description points to `gpa_four_role.py`.
+
+The manuscript side is recorded in the manuscript changelog.
+
 ## 2026-10-27 - Datasets for the threshold-rule extensions (Claude)
 
 At the author's request: datasets in hand or easy to get for the rule classes judged

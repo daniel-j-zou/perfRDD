@@ -1,5 +1,7 @@
 # GPA welfare-menu hard-trim results
 
+> Removed from the tree on 2026-10-27 (cleanup; unused by current code): `gpa_welfare_hard_trim.py` and `experiments/datasets/gpa/welfare.py`. Restore with `git checkout eb99dcb -- <path>`.
+
 ## Bottom line
 
 A prespecified menu of 16 welfare outcomes does not identify an interior GPA-probation

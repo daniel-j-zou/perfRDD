@@ -1,5 +1,7 @@
 # Chile grade retention — MINEDUC open student-performance files
 
+> Removed from the tree on 2026-10-27 (cleanup; unused by current code): `chile_retention_profile.py`, `chile_retention_local_checks.py`, `chile_retention_curves.py`, `chile_retention_missing_outcome.py`, `retention_settings.py`, `ds_curve_check.py` and `ds_knots_check.py`. The generic screens `differing_slopes_screen.py`, `screen_flatness.py` and `local_rd_checks.py` remain. Restore with `git checkout eb99dcb -- <path>`.
+
 | Field | Value |
 |---|---|
 | **Q** | `PROM_GRAL`, annual general grade average (1.0-7.0, reported on a 0.1 grid; 0.0 for withdrawn students) |

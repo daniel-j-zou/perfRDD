@@ -52,8 +52,9 @@ def load() -> RDDSample:
             "Academic probation RDD. Q = first-year GPA distance from cutoff; "
             "treatment = 1{Q < 0} (placed on probation); Y = GPA at the next "
             "recorded evaluation minus the applicable probation cutoff. This "
-            "complete-case outcome is post-treatment selected; use redesign.py "
-            "for policy-oriented full-population outcomes."
+            "complete-case outcome is post-treatment selected; full-population "
+            "outcomes (graduation, persistence, credits) are in "
+            "experiments/scripts/gpa_four_role.py."
         ),
         citation="Lindo, Sanders, Oreopoulos (2010), AEJ:Applied",
         treatment_rule=_below_zero,

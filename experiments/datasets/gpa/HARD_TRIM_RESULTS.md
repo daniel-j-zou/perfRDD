@@ -1,5 +1,7 @@
 # GPA hard-trim application status
 
+> Removed from the tree on 2026-10-27 (cleanup; unused by current code): `gpa_redesign_hard_trim.py` and `experiments/datasets/gpa/redesign.py`. Restore with `git checkout eb99dcb -- <path>`.
+
 ## Reproduction
 
 Run from the code-repository root with the project Python environment:
