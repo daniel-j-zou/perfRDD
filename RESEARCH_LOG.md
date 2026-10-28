@@ -9,6 +9,51 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-27 - Fable whole-paper review applied (Claude)
+
+At the author's request, Fable 5.1 (high effort) reviewed all of `differing_slopes.tex`
+on a review branch, following the 2026-10-21 process. Unlike that review, this one also
+read §6 and Appendices 4-5. Record: `reviews/REVIEW_FABLE_20261027.md`; check scripts
+in `reviews/fable_20261027/`.
+
+**Findings.** 13 in all: none blocking, 6 minor, 7 cosmetic.
+- Every proof step in §2.4, §3, §4 and Appendices 1-3 was re-followed and is
+  consistent.
+- All §6 numbers match the run summary.
+- Quadrature claims reproduce, including some left unchecked last time (Var psi_T in
+  two designs, the Appendix 5 constants, the Appendix 4 targets).
+
+A second Fable reviewer (extra-high effort) answered the three uncertain items:
+- **T4.** Valid. At eps = 0.05 the taxi window is the central 99% of eta-hat on the
+  evaluation fold, and the eps-endpoints never bind. The endpoint terms are therefore
+  a trimmed mean in eta-hat, not the index quantiles of Block D, so this is a third
+  theory gap for §6. Also u0 = 3.497 lies above J.
+- **T11.** Valid. The scale fixes what eta is, not only independence. The untrimmed
+  optimum is scale-free; the supported target is not.
+- **T13.** Partly valid. "The deployed cutoff is too high" was reworded to be
+  conditional on the model and tied to the bootstrap.
+
+**Author decision** ("all, with 6a"; manuscript 7c38869 cleanup, 4271d93 changes,
+changelog 7b1e567). Every proposal is applied:
+- §5.4 now carries the decision of 2026-10-22;
+- the appendix file names moved to comments;
+- §6 names the window gap and gives the window shares at eps 0.075/0.10;
+- the robustness-battery rows without results are cut, and the §6.6 sentence on them
+  removed;
+- smaller fixes: the unit-variance t5, the quadratic design's second zero, a precise
+  pointer, the reworded scale and "too high" sentences, and the Gauss-Hermite remarks
+  deleted.
+
+The paper is now 56 pages. The §5.4 linear-fit comparison stays deferred to the 999-draw
+rerun.
+
+**Open.** The §6 theory sentence now lists three gaps, none written out:
+- beta2 restricted to one coordinate;
+- distance entering the score through two columns;
+- the capped trim window, which gives trimmed-mean endpoint terms.
+
+The board item "Theory for the taxi specifications" should include the third.
+
 ## 2026-10-27 - Two-score estimator: simulations and first data results (Claude)
 
 The author approved the design ("Yes, as proposed") and then asked to implement the

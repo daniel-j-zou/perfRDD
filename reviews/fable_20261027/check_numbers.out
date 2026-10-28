@@ -1,0 +1,32 @@
+Displayed design: phi*_eps = 0.545103 (paper 0.545103), H = -0.107534 (paper -0.107534)
+  Var psi_U = 0.01452 (paper 0.0145), E F* = 6.89e-15;  Var psi_T = 0.04339 (paper 0.0434), E psi_T = -6.81e-15
+  oracle Var psi_U/H^2 = 1.2557 (paper 1.256)
+  sigma^2 from the four paper values = 0.3594; sigma^2/H^2 with paper H = 31.080 (paper 31.09); x4 = 124.3 (paper 124.4)
+Nonlinear design: phi*_eps = 0.152143 (paper 0.152143), H = -0.219539 (paper -0.219539)
+  Var psi_U = 0.001809; oracle Var psi_U/H^2 = 0.0375 (paper 0.0375);  Var psi_T = 0.008753 (log 0.008753)
+  sigma^2/H^2 from the log's four values = 4.729 (paper 4.73)
+App 5 common-slope baseline: phi*_eps = 0.73129 (paper 0.7313), H = -0.07202 (paper -0.0720)
+  Var psi_U = 0.01846 (paper 0.0185);  Var psi_T = 0.03628 (paper 0.0363)
+  sigma^2 sum = 0.2266 (paper 0.2265); 4 sigma^2/H^2 = 174.8 (paper 174.7); sigma^2/H^2 = 43.71 (paper 43.68)
+  App 5 Table ratios: 175.2/42.4=4.132 (4.14), 173.5/40.1=4.327 (4.32), 175.8/43.3=4.060 (4.06)
+  App 5 ds table: 17.53/4.52=3.878 (3.88) 17.53/4.31=4.067 (4.07) 17.32/4.22=4.104 (4.11) 17.32/4.25=4.075 (4.08) 17.40/4.38=3.973 (3.98) 17.40/4.37=3.982 (3.98)
+App 4 baseline: phi*_eps = -0.119770 (paper -0.119770), H = -0.2180 (App 3 table -0.2180)
+  window Phi^-1(0.9) = 1.28155 (App 4: 1.28155)
+App 4 quadratic design: argmax U_eps on [-3,3] = 0.484416 (paper 0.484416); grid argmax 0.475
+  zeros of tau_eps on [-3,3]: [-2.3849  0.4844]
+App 5 t5 target, t5 raw index, common-slope baseline: phi*_eps = 0.642004 (paper 0.587810)
+App 5 t5 target, t5 raw residual, common-slope baseline: phi*_eps = 0.742961
+App 5 t5 target, t5 standardized index, common-slope baseline: phi*_eps = 0.587810 (paper 0.587810)
+App 5 t5 target, t5 standardized residual, common-slope baseline: phi*_eps = 0.847659
+Table 3: slope (0.590-0.505)/0.05 = 1.70; 143.3/20.1 = 7.13; 1.24/sqrt(136.9) = 0.106
+  n=64000 nVar / V: [0.045 0.048 0.042 0.043 0.039 0.046 0.045] (paper: 4-5% below); MC se of a variance from 1000 sets = 0.045
+  step sd: sqrt(34.2/16000) = 0.0462 (0.046); sqrt(29.8/64000) = 0.0216 (0.022)
+Table 1: 132.2/33.0 = 4.01, 125.1/30.3 = 4.13; 30.3/31.09-1 = -0.025, 30.1/31.09-1 = -0.032
+  0.41/sqrt(30.3) = 0.074 sd (paper 0.07); 4B/sqrt n = 0.683, 0.342; B/sqrt n = 0.171, 0.085
+  combination bias (4*0.36-0.89)/3 = 0.183, (4*0.15-0.41)/3 = 0.063
+Table 2: 42.2/36.3 = 1.163 (16%), 33.7/34.3 = 0.983, 31.4/30.8 = 1.019; cov se sqrt(.95*.05/500) = 0.0097, /200 = 0.0154
+Table 4: 5.49/4.73 = 1.161, 5.45/4.73 = 1.152, 5.63/4.73 = 1.190; MC se sqrt(2/499) = 0.063, sqrt(2/299) = 0.082; 0.21/sqrt(12800) = 0.0019
+199-draw percentile coverage, exact normal bootstrap: numpy linear interpolation 0.9407; order stats (5,195) 0.9502 (paper: about 0.940)
+Taxi cells (smallest grid fare >= estimate): 12.87->12.90, 13.00->13.30, 13.08->13.30, 12.88->12.90, 12.94->13.30, 12.92->13.30, 12.93->13.30, 12.89->12.90, 11.87->12.10, 11.76->12.10, 6.00->6.10, 13.15->13.30, 12.56->12.90, 13.18->13.30, 15.00->15.30
+  Q = 2(sqrt(fare)-1): Box-Cox 1/2 check at 15: 5.7460; grid fares around 15: [14.9 15.3]
+  design variations max move: 13.08-12.87 = 0.21; 540426/633616 = 0.853
