@@ -88,6 +88,41 @@ distance. Only the dependence on $\eta$ is nonparametric. The text was copied as
 and is not changed here. Raise it at the scope review: the scope file's drift check
 covers an abstract that no longer matches the model.
 
+## 2026-10-27 - Paper §6: Fable review applied (Claude)
+
+Follow-up to "Paper §6 rewritten for the taxi use case R2-E1". Fable reviewed §6
+(f1c716a) read-only in two rounds.
+- **Numbers.** Every number reproduces from `runs/taxi_section6/summary.json`, the 999
+  draws and the CMT summary. Fable also recomputed n, the treated share, the first-stage
+  R^2, J and the caps.
+- **Code against text.** The window cap, J, Phi, the spline rules, the bootstrap and
+  the own-score check all match the code.
+
+**Blocking findings, fixed (manuscript 3ea99fb, author "yes, all"):**
+1. **Trim endpoints.** The text said both lie outside the observed residuals. That was
+   true on the dollar scale, not on the square-root scale: there 0.14% of rides lie
+   below l0 = -0.878 and 0.05% above u0 = 3.50. Correct statement: both lie outside the
+   central 99% (caps -0.757 / 1.560), and l0 is below J (-0.821).
+2. **Theory sentence.** It now says that beta2 is supported on one coordinate (d is the
+   first score covariate), that the theory assumes each covariate enters the score once
+   while distance enters through two columns, and that the extension is expected but
+   not written out.
+
+**Other corrections:**
+- the spread ratio without the shortest decile is 1.25 (decile sds 0.529, 0.357, ...,
+  0.447);
+- the common slope treats fares from $6.10 (77.1% of rides; 22.9% are below $6);
+- U is the expected tip up to a cutoff-free term;
+- Q = 2(sqrt fare - 1) is stated;
+- tau-hat is named;
+- the CMT controls are listed.
+
+**Open:**
+- §6.6's body still uses the old vocabulary ("augmented estimator", "fitted linear
+  extension", "original reduction"), and its table caption says "after the taxi
+  motivation". This needs author approval.
+- Appendix 5's stale taxi sentence (see the entry below).
+
 ## 2026-10-27 - Paper §6 rewritten for the taxi use case R2-E1 (Claude)
 
 Follow-up to the entry below. The paper's §6 now holds the R2-E1 application
