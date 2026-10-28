@@ -49,7 +49,9 @@ Runs: `python -m experiments.scripts.dose_schedule_apply <name>`, logs and JSON 
 | `cms_hrrp` (new): readmissions penalty | continuous cut, capped at 3%, from six readmission ratios (multi-score) | 10,608 | 0.14 | not run | not run | not run | weak fit: several scores, 84% already penalised at the heart-failure kink |
 | `nhanes_lunch` (in hand) | free / reduced / paid lunch on the income-poverty ratio | 12,730 | 0.31 | wide | noisy, signs change across bins | not run | does not stick (small n, eligibility not take-up) |
 
-Pending (agent running): `chile_sep`.
+Partly built: `chile_sep` (Art. 16 tiers verified against the law text for 2008, 2011 and 2012; SIMCE school files and
+covariates in hand). The score Q is blocked: datosabiertos.mineduc.cl and the other MINEDUC hosts did not answer
+from this machine on 2026-10-28, so `load_dose()` raises FileNotFoundError and the registry skips it.
 
 Figures and a short evaluation: `simulations/dose_schedule/dose_applications_eval.tex` (alpha, psi and U
 for UI, DSH, LCFF, taxi and Lending Club), made by `experiments/scripts/dose_schedule_figures.py`.
@@ -80,4 +82,5 @@ for UI, DSH, LCFF, taxi and Lending Club), made by `experiments/scripts/dose_sch
 | Medicare DSH financial outcomes | margins and uncompensated care | the HCRIS Hospital-2010 cost reports are public on cms.gov; say if a parser should be written |
 | LCFF 2016-17 to 2018-19 (more years at c = 0.50) | a second schedule with more data | save the Principal Apportionment pages (e.g. https://www.cde.ca.gov/fg/aa/pa/pa1819.asp) from a browser; cde.ca.gov blocks scripts |
 | SEDA district test scores (for Title I) | achievement outcomes | entering an e-mail at https://edopportunity.org/opportunity/data/ accepts a data use agreement; download district achievement CSVs into `experiments/datasets/title1/data/raw/seda/` |
+| Chile SEP priority-student files | the score Q for `chile_sep` | when datosabiertos.mineduc.cl answers (it may need a Chilean IP), run `experiments.datasets.chile_sep.download`; else ask estadisticas@mineduc.cl, or decide whether Internet Archive copies of the official files are acceptable |
 | Spain MCVL (UI with dependent-based caps) | large administrative UI data | institutional application (https://www.seg-social.es/descarga/es/120853); eligibility of non-EU institutions unclear |
