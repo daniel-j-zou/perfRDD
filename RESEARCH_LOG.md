@@ -9,6 +9,50 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-27 - Datasets for the threshold-rule extensions (Claude)
+
+At the author's request: datasets in hand or easy to get for the rule classes judged
+viable for root-n proofs (one or several cutoffs, group cutoffs, weighted sums of
+scores, a cutoff on each score), made ready for testing. Multiple scores remain future
+work in `PROJECT_SCOPE.md`. Note: `experiments/datasets/MULTI_RULE_DATASETS_20261027.md`.
+
+- **Procedure.** The existing one: the adapter contract in `experiments/README.md`, the
+  five checks of the 2026-09-23 scan, and no automated log-ins. Added
+  `experiments/scripts/multi_rule_readiness.py`: rule agreement with a published flag,
+  per-score R^2, sd(T) and sd(eta), sd(eta) across T deciles, corr(T) and corr(eta), the
+  spread of T along its weakest direction, mass near the boundary, and per-group fits.
+- **New adapter `chile_two_score`.** Chile's 2024 university-application eligibility is
+  a fixed-weight two-score rule: eligible if an elective test was taken and
+  ((reading + math-1)/2 >= 458 or top 10% of class).
+  - The rule matches the published `HABILITACION_POST` for all 267,341 registrants with a
+    valid average and NEM. The published `PROMEDIO_CM_MAX` equals the average of the two
+    best scores exactly.
+  - Sample: elective takers outside the top 10% (n = 223,335). In this sample D is sharp in
+    Q = (reading, math-1).
+  - R^2 is 0.31 (reading) and 0.38 (math). corr(T1, T2) = 0.94 and corr(eta1, eta2) = 0.51.
+  - The weakest direction of T (reading against math) has sd 18.5, 0.18 of sd(eta), so a
+    rule that trades the tests is weakly identified.
+  - sd(eta) for math doubles across T deciles. 90% of students are eligible.
+- **gpa.** `load()` now also returns campus, campus cutoffs (1.5 / 1.5 / 1.6) and raw
+  GPA for group-cutoff rules. Probation matches the campus rule for all but 51 of 44,362.
+- **One step away:**
+  - Chile program-level applications: DEMRE "Postulación" files. The portal's search runs
+    a reCAPTCHA, so the author has to download them; the MINEDUC mirror timed out today.
+  - HMDA's both-cutoffs design: build the processed file from the notebook.
+  - Kenya tracking: Dataverse guestbook.
+- **Not usable:**
+  - OULAD's both-cutoffs pass rule: exam scores for 2 modules (4,955 enrolments); 88%
+    rule agreement.
+  - Chile retention: subject grades are not public.
+  - Pop-Eleches: no covariates.
+  - Choi & Lee and Cattaneo et al. replication data: small, few covariates.
+  - Saber 11 and ENEM: no outcome after assignment in the public files.
+  - Lending Club approval: outcomes only for approved loans.
+- **Next:** the author's DEMRE download, the HMDA decision, and a two-score estimator
+  (the pipeline is single-score).
+
+— Claude
+
 ## 2026-10-27 - Abstract clause reworded; 811 outline cut to five pages (Claude)
 
 Follow-up to the entry below; closes its open point. **Author decision (2026-10-27):**

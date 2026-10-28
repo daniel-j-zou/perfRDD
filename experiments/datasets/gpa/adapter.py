@@ -26,6 +26,7 @@ X_COLS = [
 ]
 Q_COL = "dist_from_cut"
 Y_COL = "nextGPA"
+GROUP_CUTOFFS = {1: 1.5, 2: 1.5, 3: 1.6}
 
 
 def _below_zero(Q: np.ndarray) -> np.ndarray:
@@ -56,4 +57,11 @@ def load() -> RDDSample:
         ),
         citation="Lindo, Sanders, Oreopoulos (2010), AEJ:Applied",
         treatment_rule=_below_zero,
+        # Group-specific cutoffs: Q is centred at the campus cutoff (1.5 on campuses
+        # 1-2, 1.6 on campus 3); these let a method set a different cutoff per campus.
+        extras={
+            "group": np.select([df.loc_campus1 == 1, df.loc_campus2 == 1], [1, 2], 3),
+            "group_cutoffs": GROUP_CUTOFFS,
+            "gpa_year1": df["GPA_year1"].to_numpy(dtype=float),
+        },
     )

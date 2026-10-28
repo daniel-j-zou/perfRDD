@@ -38,6 +38,17 @@ The original data is governed by the AEJ replication terms; see
 - `general/` — legacy GPA-specific analysis scripts and notebooks. New
   per-dataset analysis should go in `analysis/` or `notes/`.
 
+## Campus-specific cutoffs (2026-10-27)
+
+The probation cutoff is 1.5 on campuses 1 and 2 and 1.6 on campus 3, so the design has
+group-specific cutoffs. `load()` keeps Q centred at the own-campus cutoff and now also
+returns `extras["group"]` (campus 1-3), `extras["group_cutoffs"]` and
+`extras["gpa_year1"]`, so a method can set a different cutoff per campus. Probation
+status matches `1{GPA < campus cutoff}` for all but 51 of 44,362 students.
+`python -m experiments.scripts.multi_rule_readiness gpa`: R^2 0.338 / 0.348 / 0.376 by
+campus, treated share 0.10 / 0.18 / 0.22; the only continuous covariate is
+`hsgrade_pct`.
+
 ## Four-role estimator (2026-10-19)
 
 `../../scripts/gpa_four_role.py` runs the paper's four-role differing-slopes estimator
