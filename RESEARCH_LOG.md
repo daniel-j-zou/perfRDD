@@ -9,6 +9,53 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-27 - More datasets for the threshold-rule extensions (Claude)
+
+Follow-up to "Datasets for the threshold-rule extensions" below. At the author's
+request ("come up with more datasets"; "keep on going with the format"), three new
+samples were built and folders were set up for the downloads the author must make.
+The datasets note is updated: `experiments/datasets/MULTI_RULE_DATASETS_20261027.md`.
+`us_tracts_lic` and `fl_school_grades` were built by subagents; Claude re-ran their
+loaders, rule checks and readiness.
+
+- **`us_tracts_lic`.** The low-income-community test for NMTC and Opportunity Zone
+  eligibility: poverty >= 20% or family income <= 80% of the benchmark (ACS 2011-2015).
+  This is an either-cutoff rule on two scores.
+  - n = 70,320 tracts. The rule matches CDFI's published flag for 100%, and the scores
+    rebuilt from the raw ACS match CDFI's.
+  - X: 2010 decennial counts, which share no ACS sampling error. R^2 is 0.75 and 0.68.
+  - corr(T) = -0.85; the weakest direction has sd 0.32 of sd(eta). sd(eta) changes
+    2.7-2.9-fold across T deciles.
+  - Y: change in log jobs 2017-2019 (LODES7), plus a 2015-2017 placebo and LIHTC
+    placements.
+  - Designation is fuzzy: 24.6% of eligible tracts were designated.
+- **`fl_school_grades`.** A fixed-weight sum of components with grade bands, and cutoffs
+  by school type and year.
+  - The cutoffs were read from FLDOE's calculation guides; the published grade matches
+    them for 34,343 of 34,343 graded school-years.
+  - B/C boundary: n = 23,373, R^2 0.52, sd(eta) ratio 1.33.
+  - Two-score view (elementary, achievement vs gains, weights 3/7 and 4/7): n = 6,940,
+    R^2 0.72 and 0.35; the weakest direction has sd 0.48 of sd(eta).
+  - Y: next year's percent of points.
+  - The FLDOE main site denies scripts; its CDN serves the files.
+- **`chile_teacher_scholarship`** (in hand). Group cutoffs on the reading/math average:
+  625, or 595 for recent top-10% graduates of non-private schools.
+  - n = 258,843, and 96% of the 1,368 award holders meet the rule.
+  - R^2 0.46.
+  - The first stage is small (1.2% of eligible students receive the award).
+- **Waiting for the author** (folders with download steps):
+  - DEMRE applications (reCAPTCHA);
+  - HUD qualified census tracts (bot challenge);
+  - CMS nursing homes (scripts denied);
+  - CalEnviroScreen (bot check);
+  - Freddie Mac and Fannie Mae (accounts);
+  - Yelp (terms form);
+  - Kenya tracking (guestbook).
+- **Not built:** NYC energy grades. The Energy Star score is adjusted for building
+  characteristics, so X should barely predict it.
+
+— Claude
+
 ## 2026-10-27 - Repository cleanup: unused files removed (Claude)
 
 At the author's request: find the files that are not useful, verify that they really

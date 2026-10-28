@@ -37,6 +37,9 @@ registered sample, plus R^2, sd(T), sd(eta), and the change in sd(eta) across T 
 |---|---|---:|---|---|
 | `chile_two_score` (new) | deployed weighted sum (reading + math-1)/2 >= 458; counterfactual weights, both / either, bands | 223,335 | enrollment 2024 / 2025 | in hand; rule matches the published flag for 100% |
 | `gpa` (extras added) | campus cutoffs 1.5 / 1.5 / 1.6 | 40,582 | next GPA | in hand; probation matches the rule for all but 51 of 44,362 |
+| `us_tracts_lic` (second round) | a cutoff on each of two scores, either suffices: poverty >= 20% or family income <= 80% of the benchmark (NMTC / Opportunity Zone eligibility, ACS 2011-2015) | 70,320 tracts | change in log jobs 2017-2019 (LODES7); placebo 2015-2017; LIHTC placements | public downloads (491 MB); rule matches CDFI's flag for 100% |
+| `fl_school_grades` (second round) | fixed-weight sum of components with grade bands; cutoffs by school type and year; two-score view (achievement vs gains) | 23,373 school-years (two-score: 6,940) | next year's percent of points; ELA, math, grade, closure | FLDOE CDN (32 MB); published grade matches the cutoffs for 34,343 of 34,343 |
+| `chile_teacher_scholarship` (second round) | group cutoffs on the reading/math average: 625, or 595 for recent top-10% graduates of non-private schools | 258,843 | enrollment in a university education program 2024 / 2025 | in hand; 96% of the 1,368 award holders meet the rule |
 
 Readiness, from `runs/multi_rule_readiness/summary.json`:
 - **chile_two_score.**
@@ -52,14 +55,42 @@ Readiness, from `runs/multi_rule_readiness/summary.json`:
   - The only continuous covariate is `hsgrade_pct`.
   - sd(eta) changes 1.39-fold across T deciles.
   - The earlier four-role runs found every specification at a policy boundary.
+- **us_tracts_lic.**
+  - R^2 is 0.75 (poverty) and 0.68 (income ratio), with 2010 decennial covariates, so X
+    shares no ACS sampling error.
+  - corr(T1, T2) = -0.85; the weakest direction has sd 0.32 of sd(eta).
+  - sd(eta) changes 2.7-2.9-fold across T deciles.
+  - 42% are eligible, and 24.6% of eligible tracts were designated.
+  - The outcome is missing for Arkansas, Mississippi and Alaska (1,500 tracts).
+- **fl_school_grades.**
+  - At the B/C boundary: R^2 0.52, sd(T) 8.6, sd(eta) 8.2, sd(eta) ratio 1.33; 61% treated
+    and 13% near the boundary.
+  - Two-score view (elementary, 3 achievement + 4 gains components): R^2 0.72 and 0.35;
+    the weakest direction has sd 0.48 of sd(eta).
+  - The cutoffs and components change by year (2023 is a baseline year), and schools
+    repeat, so inference should cluster by school.
+- **chile_teacher_scholarship.**
+  - R^2 0.46, and sd(eta) changes 1.39-fold across T deciles.
+  - The first stage is small: 1.2% of eligible students receive the award.
 
-## One step away
+## Waiting for the author
 
-| Candidate | Rule class | What is needed |
+Each folder below has a README with the download steps. Files go in its `data/raw/`.
+
+| Folder | Rule class | Why the author |
 |---|---|---|
-| Chile program-level applications, process 2024 (DEMRE file "Postulación") | weighted sums with program-chosen weights; program-specific cutoffs | **Author download.** The DEMRE portal (https://portal-transparencia.demre.cl/portal-base-datos) is public, but its file search runs a reCAPTCHA, so it was not automated. Choose "Proceso de Admisión 2024", type "Postulación", then BUSCAR, and save the files into `chile_admission/data/raw/`. Files link by DEMRE's `ID_aux`, not `MRUN`. The MINEDUC mirror (with `MRUN`) timed out from here on 2026-10-27; it worked on 2026-09-29. |
-| HMDA 2024 (`hmda/`, 2.2 GB of raw state files in hand) | both cutoffs: CLTV > 80 and loan amount > conforming limit | Build `dftest_export.csv` with `hmda/data_process.ipynb`. The limit varies by county (group cutoffs). Loan amount is close to CLTV x property value, so given X it has little noise of its own. From memory, not checked: public loan amounts are $10k-bin midpoints, which heap at the limit. |
-| Kenya tracking (Duflo, Dupas & Kremer 2011) | school-specific median cutoff (group cutoffs) | Harvard Dataverse guestbook with personal details (author). Small, few covariates. |
+| `chile_admission/` (DEMRE "Postulación" 2024) | weighted sums with program-chosen weights; program cutoffs | reCAPTCHA; the MINEDUC mirror timed out all day |
+| `us_tracts_qct/` (HUD qualified census tracts) | either cutoff: share below 60% of area median income >= 50%, or poverty >= 25% | huduser.gov sends scripts a bot challenge |
+| `nursing_homes/` (CMS star ratings) | state-specific cutoffs; decision matrix | data.cms.gov denies scripts |
+| `calenviroscreen/` (SB 535) | composite with chosen weights; top 25% | oehha.ca.gov bot check |
+| `freddie_mac/`, `fannie_mae/` | decision matrix on credit score x LTV | free accounts |
+| `yelp/` | several cutoffs (half-star rounding) | terms form |
+| `kenya_tracking/` | school-specific median cutoff | Dataverse guestbook |
+| `hmda/` (in hand) | both cutoffs | the author decides whether to build it |
+
+Public and pullable, not built yet: NYC energy grades (the Energy Star score is adjusted
+for building characteristics, so X will barely predict it), E-Rate discount bands,
+US births at 1500 g (a clinical guideline, fuzzy), the CEJST tracts (public mirror).
 
 ## Checked and not usable
 
@@ -84,8 +115,6 @@ Readiness, from `runs/multi_rule_readiness/summary.json`:
 
 ## Next
 
-1. Author: download the DEMRE 2024 "Postulación" files. Claude then builds a
-   program-level adapter with the program weights and cutoffs.
-2. Decide whether to build the HMDA processed file.
-3. Testing needs a two-score estimator. The current pipeline handles one score, and
+1. Author downloads, in the order above.
+2. A two-score estimator. The pipeline handles one score, and
    `two_score_population.py` computes population quantities only.

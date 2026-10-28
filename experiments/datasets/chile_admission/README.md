@@ -27,6 +27,21 @@ Each RAR extracts to a folder of the same name. The adapter caches the merged fi
 2021-2026 (PDT 2021-2022, PAES 2023-2026). The PSU-era files (2004-2020) are held by
 DEMRE and are not on the portal.
 
+## Waiting for the author: DEMRE application files (2026-10-27)
+
+These files hold each applicant's ranked program choices, the program-weighted score of
+each choice, and the selection result. They give program-specific weights and
+cutoffs (see `../MULTI_RULE_DATASETS_20261027.md`). DEMRE's portal runs a reCAPTCHA, so
+this is a browser download:
+
+1. Go to https://portal-transparencia.demre.cl/portal-base-datos.
+2. Choose Proceso "Proceso de Admisión 2024" and Tipo "Postulación", then click BUSCAR.
+3. Download every listed file into this folder's `data/raw/`.
+4. Optionally, do the same with Tipo "Matrícula".
+
+DEMRE files link by `ID_aux`, not `MRUN`. The MINEDUC mirror carries `MRUN` but timed out
+from here on 2026-10-27.
+
 ## Cutoffs seen in the 2024 data
 
 - University enrollment jumps at 458: 10.4% at 457 vs 19.2% at 458.
