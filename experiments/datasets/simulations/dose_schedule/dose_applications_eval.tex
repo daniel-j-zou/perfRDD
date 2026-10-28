@@ -4,6 +4,21 @@
 \usepackage[hidelinks]{hyperref}
 \setlength{\parskip}{4pt}\setlength{\parindent}{0pt}
 \newcommand{\E}{\mathbb E}
+\newcommand{\vars}[8]{%
+\par\noindent\small
+\begin{tabular}{@{}>{\bfseries}p{2.6cm}p{14.4cm}@{}}
+\toprule
+Unit & #1\\
+Score $Q$ & #2\\
+Latent part $\eta$ & #3\\
+Dose $A=s(Q)$ & #4\\
+Reference dose & #5\\
+Outcome $Y$ & #6\\
+Covariates $X$ & #7\\
+Modifiers $Z$ & #8\\
+\bottomrule
+\end{tabular}\normalsize\par\medskip}
+
 
 \title{Dose schedules on real data: a first evaluation}
 \author{Claude, for Daniel Zou \quad (2026-10-28)}
@@ -74,14 +89,20 @@ of the reference units; with a cubic in distance the high-dose taxi estimates ex
 \newpage
 \section*{1. Unemployment insurance (Upjohn bonus experiments)}
 
+\vars{a person filing an unemployment claim: Washington 1988 (15,489) and Illinois 1984 (12,101); $n=27{,}038$ after trimming 1\% tails}
+{prior earnings: the average of the claimant's two highest quarters of covered earnings in the base year, divided by the earnings at which the benefit reaches the cap, on a log scale}
+{earnings not explained by $X$, roughly earning ability ($R^2$ of $Q$ on $X$ = 0.51)}
+{the weekly benefit set by state law, as a share of the cap. Washington: quarterly earnings / 25 (about half the weekly wage), between a floor of \$55--57 and a cap of \$205--209. Illinois: 48\% of the weekly wage, between \$51 and \$161, plus a dependents' allowance. Example: \$3,000 a quarter in Washington gives \$120 a week, 0.59 of the cap. Doses run from 0.24 to 1}
+{the cap ($A=1$): the 34\% of claimants whose earnings are above the cap kink all get the maximum}
+{weeks of UI paid in the benefit year (mean 17.0); also UI dollars paid (mean \$2,339)}
+{age, sex, race, education, earnings in earlier quarters, industry, occupation, local office, claim month, state and period, and the randomized reemployment-bonus arm}
+{age, sex, education}
+
 \includegraphics[width=\linewidth]{ui.png}
 
 \begin{itemize}
-\item \textbf{Setting.} Weekly benefit $=\text{rate}\times$ prior earnings between a floor and a
- cap (WA: 1/25 of the two-quarter average, cap \$205--209; IL: 48\%, cap \$161 plus
- dependents). The formula reproduces 94.7\% (WA) and 99.5\% (IL) of published benefits; no
- bunching at the kinks. Score: log(earnings / cap kink); 34\% of claimants are at the cap,
- which is the reference dose. Randomized bonus arms and state-period groups are in $X$.
+\item \textbf{Rule check.} The formula reproduces 94.7\% (WA) and 99.5\% (IL) of the published
+ weekly benefits; no bunching at the kinks.
 \item \textbf{$\psi$:} at 60\% of the cap, weeks of UI paid fall by 2.7--3.2 against the cap in
  every supported earnings bin (mean 17.0 weeks), an elasticity of about 0.4, in line with
  the literature.
@@ -97,13 +118,22 @@ of the reference units; with a cubic in distance the high-dose taxi estimates ex
 
 \section*{2. Medicare DSH adjustment}
 
+\vars{a hospital paid under Medicare's inpatient system, in a fiscal year, FY 2008--13; $n=19{,}061$ hospital-years (3,369 hospitals)}
+{the disproportionate patient percentage (DPP): the share of the hospital's inpatient days used by Medicaid patients plus Medicare patients on SSI, in percent}
+{the low-income patient share not explained by the hospital's size, location and type ($R^2$ = 0.37)}
+{the DSH add-on, a percentage increase on every Medicare inpatient payment: 0 if $Q\le15$; $2.5+0.65(Q-15)$ up to $Q=20.2$; $5.88+0.825(Q-20.2)$ above; capped at 12\% for small urban and most rural hospitals (a second schedule). Example: $Q=25$ gives 9.8\%. Doses run from 0 to about 50\%}
+{0 (21\% of hospital-years have $Q\le15$)}
+{exit: the hospital is gone from the Medicare files within two years (mean 2.8\%); also log Medicare cases the next year}
+{beds, occupancy, residents per bed, case-mix index, Medicare share of days, earlier Medicare cases, wage index, cost-to-charge ratio, urban/rural, referral-centre, sole-community and teaching flags, year and state}
+{log beds, residents per bed, case-mix index, rural}
+
 \includegraphics[width=\linewidth]{dsh_exit.png}
 \includegraphics[width=\linewidth]{dsh.png}
 
 \begin{itemize}
-\item \textbf{Setting.} Add-on 0 below a 15\% low-income patient share, 2.5\% + 65\% of the excess
- up to 20.2\%, then 82.5\% of the excess; 12\% cap for small hospitals (a second schedule).
- Reproduced for every hospital-year 2007--2027 but one. FY 2014 cut the formula to 25\%.
+\item \textbf{Rule check.} Reproduced for every hospital-year 2007--2027 but one. FY 2014 cut the
+ formula to 25\% and added a separate uncompensated-care payment, so later years are a
+ different schedule.
 \item \textbf{$\psi$:} closures fall and Medicare volume rises with the add-on, almost the same at
  each share bin: about $-1$ pp exit and $+3\%$ cases at 2.5\%, $-2.5$ pp and $+8$ to $+10\%$ at
  8\% (bins with a 15--30\% share, where these doses are supported).
@@ -116,13 +146,19 @@ of the reference units; with a cubic in distance the high-dose taxi estimates ex
 
 \section*{3. California LCFF concentration grant}
 
+\vars{a school district or charter school (LEA) in a fiscal year, 2020--21 to 2024--25; $n=10{,}645$ LEA-years (927 districts, 1,277 charters)}
+{the unduplicated pupil percentage (UPP): the share of students who are low-income, English learners or foster youth, each counted once, averaged over three years}
+{the high-need share not explained by $X$ ($R^2$ = 0.82)}
+{the concentration grant in dollars per student (ADA): $c\times\text{base}\times\max(\text{UPP}-0.55,0)$, with $c=0.50$ in 2020--21 and 0.65 from 2021--22 and a base grant of about \$8,000--10,400. Example: UPP = 0.75 gives about \$1,200--1,300 per student. Doses run from 0 to about \$2,400}
+{0 (40\% of LEA-years have UPP $\le0.55$)}
+{the share of students meeting the state ELA standard (CAASPP) the next spring (mean 46\%); math as an alternative}
+{charter flag, enrollment, race and ethnicity shares, share with disabilities, grade mix, district type, last year's test result, location, year and county}
+{charter flag, enrollment, Hispanic share, share with disabilities, last year's test result}
+
 \includegraphics[width=\linewidth]{lcff.png}
 
 \begin{itemize}
-\item \textbf{Setting.} Grant per ADA $=c\times\text{base}\times\max(\text{UPP}-0.55,0)$ with
- $c=0.50$, then 0.65 from 2021--22; zero for 40\% of LEA-years. Reproduced to the dollar for
- all districts. No bunching at 55\%. Outcome: CAASPP percent meeting the standard the next
- spring; the lagged outcome is in $X$ and $Z$.
+\item \textbf{Rule check.} Reproduced to the dollar for all districts; no bunching at 55\%.
 \item \textbf{$\psi$:} in the supported bins, \$1,000 per ADA raises ELA by 0.7--2.3 pp (math
  1.1--1.9), larger in the lower-need bins. Rotation spreads are 0.4--1.6 pp (ELA) and 1--2 pp (math).
 \item \textbf{$U$:} see the right panel; removing the grant ($c=0$) lowers ELA by about 0.9 pp
@@ -134,6 +170,15 @@ of the reference units; with a cubic in distance the high-dose taxi estimates ex
 \newpage
 \section*{4. Mechanically strong, weak as policy problems}
 
+\vars{a credit-card taxi ride, New York City, January 2009, fare \$5--25; $n=1{,}019{,}330$}
+{the fare}
+{the fare not explained by distance and time, roughly traffic ($R^2$ = 0.88)}
+{the middle tip suggestion on the payment screen, in dollars. Vendor VTS: \$3 below a \$15 fare, 25\% of the fare above. Vendor CMT: 20\% of the fare at every fare. Doses run from \$1 to \$6.25}
+{\$3 (VTS rides below \$15)}
+{the tip in dollars}
+{trip distance, passengers, hour of day, day of week, vendor}
+{passengers, hour of day}
+
 \includegraphics[width=\linewidth]{taxi2.png}
 
 Taxi: two vendors give two schedules, $R^2=0.88$ and a million rides, so every dose is
@@ -141,6 +186,15 @@ supported. The tip rises by about \$0.35--0.40 per dollar of the middle suggesti
 $\alpha$ is nearly flat in $\eta$. $U$ is linear in the default percentage and has no cost, so
 there is no interior optimum. The score-direction modifier test rejects, possibly because the
 two vendors' menus and fleets differ.
+
+\vars{a 36-month Lending Club loan issued 2009--13 and finished; $n=171{,}175$}
+{Lending Club's risk grade, A1 to G5 (1 to 35)}
+{Lending Club's information beyond the borrower data we see, such as the credit score ($R^2$ = 0.40)}
+{the interest rate, set by Lending Club's rate table from the grade and the month (95\% of loans at their cell's rate); the table changed many times, so there are many schedules. Doses run from 5.4\% to 25.9\%}
+{12\% (a normalization: there is no untreated group)}
+{realized return per dollar lent over the loan's life; also default}
+{income, debt-to-income, delinquencies, inquiries, open accounts, revolving utilization, credit history length, loan amount, employment length, home ownership, purpose, income verification, issue quarter}
+{log income, debt-to-income}
 
 \includegraphics[width=\linewidth]{lending.png}
 
