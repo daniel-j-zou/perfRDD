@@ -9,6 +9,52 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-27 - Two-score estimator: simulations and first data results (Claude)
+
+The author approved the design ("Yes, as proposed") and then asked to implement the
+estimation and evaluation and apply them to the datasets. Exploratory: multiple scores
+remain future work in `PROJECT_SCOPE.md`. Full note:
+`experiments/datasets/simulations/TWO_SCORE_ESTIMATOR_20261027.md`.
+
+- **Estimator** (`experiments/methods/two_score.py`).
+  - The paper's four roles and rotated average.
+  - Trim I = 1{eps <= pi0(eta) <= 1 - eps}, with pi0 from the index fold. In one
+    dimension this is the paper's quantile window.
+  - A per-arm spline outcome fit in (eta1, eta2), tensor-product or additive.
+  - The pairwise value U_hat(A) = avg_i avg_j I_i {alpha_hat(eta_i) - c + beta2_hat'X_j}
+    1{T_j + eta_i in A}, computed over a grid of rules by FFT. It matches the exact sums
+    to 1e-5.
+  - Rule classes: weighted average (weight fixed or chosen), both cutoffs, either cutoff.
+- **Change from the plan.** The unpenalized tensor fit is unstable, with alpha errors in
+  the hundreds, because the deployed rule leaves tensor cells with one arm only. Each
+  arm's spline coefficients now carry a P-spline penalty (pen = 0.03). This penalty is not
+  covered by theory.
+- **Simulations** (`symmetric` and `complementary` designs; 200 data sets at 16k, 100 at
+  64k).
+  - Oracle: sqrt(n) bias about 0, and n Var stable from 16k to 64k.
+  - Tensor: small bias for the weighted-average rules at 64k, and one cutoff coordinate
+    off by about 2-2.5 Monte Carlo se. n Var is 20-40 times the oracle's and still
+    falling at 64k, so the asymptotic regime is not reached.
+  - Additive: sqrt(n) bias grows with n when alpha or b is not additive (up to -20). It
+    stays a check only.
+- **Data** (eps = 0.05, bootstrap with full re-estimation).
+  - Chile, university enrollment 2025, with an illustrative cost: at c = 0.1 the cutoff
+    falls from 458 to 418 (sd 6.5), and the reading weight is 0.57 (sd 0.09; edges in 47%
+    of draws). At c = 0.2 the cutoff is 507 (sd 13) and the weight 0.51 (0.06).
+  - Florida (B/C, next-year points, c = 0): cutoff 53.9 (sd 1.2) against the deployed 53.5;
+    achievement weight 0.31 (sd 0.07) against 0.43.
+  - Either-cutoff rules are unstable in both datasets.
+  - Chile any enrollment and the census tracts: no interior optimum (the effects are
+    about zero or slightly negative).
+  - Value gains over the deployed rules are small throughout.
+- **Open.**
+  - Penalty choice (cross-validation, or a rate in n).
+  - Larger n to confirm the root-n regime.
+  - Theory for the penalized two-dimensional fit and the level-set trim; proof review
+    before any claim.
+
+— Claude
+
 ## 2026-10-27 - More datasets for the threshold-rule extensions (Claude)
 
 Follow-up to "Datasets for the threshold-rule extensions" below. At the author's

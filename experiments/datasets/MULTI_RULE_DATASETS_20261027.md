@@ -116,5 +116,6 @@ US births at 1500 g (a clinical guideline, fuzzy), the CEJST tracts (public mirr
 ## Next
 
 1. Author downloads, in the order above.
-2. A two-score estimator. The pipeline handles one score, and
-   `two_score_population.py` computes population quantities only.
+2. Done (2026-10-27): a two-score estimator, its simulations and the first runs on
+   `chile_two_score`, `us_tracts_lic` and `fl_school_grades`. See
+   `simulations/TWO_SCORE_ESTIMATOR_20261027.md`.
