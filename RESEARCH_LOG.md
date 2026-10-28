@@ -9,6 +9,52 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-28 - Fourth round of datasets; per-unit deployed rules in the estimator (Claude)
+
+At the author's request ("find more datasets"). Candidates were screened for a viable
+rule class and for a site that answers a plain script request; six folders were built by
+subagents, and Claude re-ran every loader and rule check and ran the two-score estimator
+on each. Details: `experiments/datasets/MULTI_RULE_DATASETS_20261027.md` (fourth round)
+and `experiments/datasets/simulations/TWO_SCORE_ESTIMATOR_20261027.md` (fourth-round data).
+
+- **New, with a reproducible rule:**
+  - `nyc_progress_reports`: A-F from Environment + Performance + Progress, cuts by school
+    type and year (2006-07 to 2011-12 rated, 2012-13 outcome). A/B and B/C match the
+    published grade in every school-year; C/D after dropping school-years a floor could
+    lift. 4,663 at C/D, 5,348 at A/B.
+  - `wi_report_cards`: a weighted sum whose achievement weight falls with the share of
+    economically disadvantaged students; the formula reproduces every published score
+    from 2017-18 and every rating. 15,161 school-years. No formal consequence.
+  - `in_school_grades`: 0.5 Performance + 0.5 Growth; points exist only for 2016-17 and
+    2017-18 (1,716 schools).
+  - `gainful_employment`: not passing = annual D/E > 8% and discretionary D/E > 20%;
+    matches 8,528 of 8,528 programs without an approved appeal. Y = closure (IPEDS).
+  - `chile_top10`: the top-10% flag is a cutoff on the grade average per school x program
+    x year; sharp in 100% of 2024 classes; the "458 or top 10%" rule matches the published
+    eligibility flag for every registrant in 2024 and 2025. Cutoffs are bracketed, not
+    published.
+  - `ca_dashboard`: Red = status Very Low and change below +3.0, a both-cutoffs rule;
+    every color 2017-2026 after documented exclusions. 49,451 school-years (ELA).
+- **Sources reached indirectly:** NYC's DOE result files and guides are Internet Archive
+  copies. CDE's pages sit behind a bot challenge, which was not attempted; the data files
+  download directly, with names from a web search and the Archive's URL index.
+- **Estimator:** new deployed-rule type `unit_halfplane` (weight and cutoff per unit) for
+  Wisconsin, with tests. Results (c = 0, bootstrap sd):
+  - NYC A/B: weights fixed, cutoff 4.6 (3.2) points above the deployed cut, 10% of draws
+    at an edge; the only interior estimate this round.
+  - Wisconsin, California (ELA, math), gainful employment: the estimated effect is flat or
+    zero and every rule class goes to the edge.
+  - NYC C/D: large, noisy effect with selective attrition; edge.
+  - Indiana: too small.
+  - Chile top 10%: PAES cutoff 397 (c = 0) and 448 (c = 0.1); the grade route is pushed
+    to the edge, weakly identified.
+- **Left for the author (sites block scripts):** England's KS2 floor and coasting
+  standards (both / either rules), CMS's HAC Reduction Program and MIPS (weighted sums),
+  the 2014 gainful-employment rates. Public but not built: EDA distress, ARC distressed
+  counties, USDA food-access tracts, IRA energy communities, Kentucky's color table.
+
+— Claude
+
 ## 2026-10-28 - Third round of datasets and estimator runs (Claude)
 
 At the author's request ("All five", then "download more if possible"). Seven new folders

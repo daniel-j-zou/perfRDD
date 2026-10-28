@@ -30,13 +30,18 @@ class TwoScoreTest(unittest.TestCase):
             x, Sc = pr.curve1(lam)
             self.assertAlmostEqual(float(np.interp(phi, x, Sc)),
                                    pr.value(Rule("halfplane", (lam, phi))), delta=2e-4)
+            # a per-unit rule with constant weight and cutoff is the same half-plane
+            n = len(pr.T)
+            unit = Rule("unit_halfplane", (lam, phi), unit=(np.full(n, lam), np.full(n, phi)))
+            self.assertAlmostEqual(pr.value(unit), pr.value(Rule("halfplane", (lam, phi))), places=12)
 
     def test_prob_in_rule_matches_brute_force(self):
         rng = np.random.default_rng(1)
         T = rng.standard_normal((4000, 2))
         e = rng.standard_normal((50, 2))
+        unit = (rng.uniform(0.1, 0.9, len(T)), rng.normal(0.2, 0.3, len(T)))
         for rule in (Rule("halfplane", (0.3, 0.2)), Rule("both", (0.1, -0.2)),
-                     Rule("either", (0.5, 0.4))):
+                     Rule("either", (0.5, 0.4)), Rule("unit_halfplane", (0.5, 0.2), unit=unit)):
             brute = np.array([rule.treat_adj(T + ei).mean() for ei in e])
             self.assertLess(np.max(np.abs(prob_in_rule(rule, e, T) - brute)), 0.01)
 

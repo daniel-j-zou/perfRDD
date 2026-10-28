@@ -215,3 +215,32 @@ chosen reading weight is 0.55-0.61 in every sample.
 - **Louisiana**'s two-score sample (1,089) is too small for the four-role split.
 - **Gains in value** over the deployed rules are small everywhere (Texas +0.009 to +0.022
   points; NC +0.007 to +0.015; NC low-performing +0.08).
+
+## Fourth-round data (2026-10-28, Claude)
+
+Same settings (cross-validated penalty, eps 0.05, c = 0 unless stated; 40 bootstrap
+draws with full re-estimation; "edge" is the share of draws with a rotation at the edge
+of the policy box). Datasets: `../MULTI_RULE_DATASETS_20261027.md`, "Fourth round".
+
+New in `two_score.py`: a deployed rule `unit_halfplane`, w_i Q1 + (1 - w_i) Q2 >= c_i with
+a weight and cutoff per unit (Wisconsin). pi0 and the deployed value are computed
+pairwise, O(n_e n_x), with each index unit's own (w_j, c_j); `Rule.subset` restricts the
+arrays to a fold or a bootstrap draw. Tests: it equals the plain half-plane when w and c
+are constant, and pi0 matches brute force.
+
+| data (n) | deployed | weights fixed: cutoff (sd); edge | both (sd); edge | reading |
+|---|---|---|---|---|
+| NYC A/B (5,348) | 0.4 Q1 + 0.6 Q2 >= 0 (percent units) | 4.6 (3.2); 10% | (-21.4, 0.1), sd (9.8, 5.3); 40% | the only interior estimate this round; 1.4 sd above the deployed cut |
+| NYC C/D (3,673) | same | -9.5 (2.8); 95% | edge | large, noisy effect (6.1, sd 2.5) with selective attrition below the cut |
+| Wisconsin 4 stars (13,710) | per-school weight and cutoff | lower edge (treat all); 100% | edge | flat: at c = 2 the four rotations give cutoffs from 45 to 90; at c = 3 all go to the top |
+| Indiana D/F and B/C (2,590) | 0.5 P + 0.5 G >= 59.95 / 79.95 | sd 7.6 and 6.7; 90% and 78% | sd 13-16 | too small |
+| Gainful employment, not passing (7,065) | a > 8 and d > 20 | — | (7.7, 11.8), sd (2.3, 7.2); 100% | effect on closure about 1 point (sd 0.8); flat |
+| California Red, ELA / math (49,451 / 49,442) | status < 0 and change < 3 | — | sd about 10 and 5; 100% | no effect of Red on next status (-0.05 and 0.05, sd 0.04) |
+| Chile top 10% (225,050) | PAES >= 458 or grade >= class cutoff | — | grade cutoff at the box edge | PAES cutoff 397 (c = 0) and 448 (c = 0.1); the grade route is pushed out, weakly identified (R^2 0.03) |
+
+- Only NYC A/B gives an interior estimate, and it is not distinguishable from the
+  deployed cut.
+- Where the estimated effect is flat (Wisconsin, California, gainful employment) or
+  noisy (NYC C/D), every rule class goes to the edge, as in the census-tract data.
+- The datasets with clear results remain Texas, North Carolina and the Chile cohorts
+  (previous section).

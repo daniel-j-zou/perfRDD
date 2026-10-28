@@ -151,7 +151,114 @@ def _tx():
     return s, dep, (1, 1), classes
 
 
+def _chile_top10():
+    """All elective takers: eligible if the PAES average >= 458 or the grade average is in
+    the top 10% of the class (grade minus the class cutoff >= 0; cutoff at the bracket
+    midpoint). Scores are on different scales, so no weighted-sum class."""
+    from experiments.datasets.chile_top10 import adapter as a
+    s = a.load_two_score_mid()
+    dep = Rule("either", (458.0, 0.0))
+    classes = {
+        "either": {"kind": "either", "box": ((380.0, 560.0), (-0.6, 0.4))},
+        "both": {"kind": "both", "box": ((250.0, 560.0), (-2.5, 0.4))},
+    }
+    return s, dep, (1, 1), classes
+
+
+def _wi():
+    """Wisconsin 4-star boundary on (Achievement, Growth). The deployed weight and cutoff
+    differ by school: the achievement weight falls with the share of economically
+    disadvantaged students, and the other priority areas move the cutoff
+    (wi_report_cards/README.md). The counterfactual rules use one weight and cutoff."""
+    from experiments.datasets.wi_report_cards import adapter as a
+    s = a.load_two_score()
+    w, c = s.extras["unit_weights"][:, 0], s.extras["unit_cutoff"]
+    dep = Rule("unit_halfplane", (float(np.median(w)), float(np.median(c))), unit=(w, c))
+    classes = {
+        "weights": {"kind": "halfplane", "lam_range": (0.1, 0.9), "box": (45.0, 90.0)},
+        "fixed_weights": {"kind": "halfplane", "lam_fixed": float(np.median(w)), "box": (45.0, 90.0)},
+        "both": {"kind": "both", "box": ((30.0, 100.0), (20.0, 100.0))},
+        "either": {"kind": "either", "box": ((50.0, 100.0), (50.0, 100.0))},
+    }
+    return s, dep, (1, 1), classes
+
+
+def _indiana(boundary="DF"):
+    """Grades 3-8 schools, 2016-17 and 2017-18 grades pooled: 0.5 Performance + 0.5 Growth
+    (Growth runs 0-150). Small: 2,590 school-years."""
+    from experiments.datasets.in_school_grades import adapter as a
+    s = a.load_two_score_pooled(boundary)
+    cut = float(s.extras["cutoff"])
+    dep = Rule("halfplane", (0.5, cut))
+    box = (cut - 15.0, cut + 15.0)
+    classes = {
+        "fixed_weights": {"kind": "halfplane", "lam_fixed": 0.5, "box": box},
+        "weights": {"kind": "halfplane", "lam_range": (0.3, 0.7), "box": box},
+        "both": {"kind": "both", "box": ((20.0, 100.0), (40.0, 150.0))},
+        "either": {"kind": "either", "box": ((40.0, 110.0), (60.0, 150.0))},
+    }
+    return s, dep, (1, 1), classes
+
+
+def _ca(subject="ela"):
+    """California Dashboard, all students: Red = status Very Low (centred status < 0) and
+    change below +3.0, a both-cutoffs rule on sign-reversed (status, change)."""
+    from experiments.datasets.ca_dashboard import adapter as a
+    s = a.load_two_score() if subject == "ela" else a.load_math_two_score()
+    # scores on a 0.1 grid: -status >= 0.05 is status < -0.05; -change >= -2.95 is change < 2.95
+    dep = Rule("both", (0.05, -2.95), signs=(-1, -1))
+    classes = {
+        "both": {"kind": "both", "box": ((-30.0, 20.0), (-15.0, 15.0))},
+        "either": {"kind": "either", "box": ((-20.0, 60.0), (0.0, 40.0))},
+        "weights": {"kind": "halfplane", "lam_range": (0.1, 0.9), "box": (-25.0, 25.0)},
+    }
+    return s, dep, (-1, -1), classes
+
+
+def _ge(fail=False):
+    """Gainful-employment programs (2015 D/E rates): not passing = annual rate > 8 and
+    discretionary rate > 20 (fail: > 12 and > 30), a both-cutoffs rule; Y = no completions
+    in 2019-20. Rates are truncated to 0.01, so "> 8" is ">= 8.005"."""
+    from experiments.datasets.gainful_employment import adapter as a
+    s = a.load_two_score_fail() if fail else a.load_two_score()
+    dep = Rule("both", (12.005, 30.005) if fail else (8.005, 20.005))
+    classes = {
+        "both": {"kind": "both", "box": ((4.0, 16.0), (10.0, 45.0))},
+        "either": {"kind": "either", "box": ((6.0, 25.0), (15.0, 99.0))},
+    }
+    return s, dep, (1, 1), classes
+
+
+def _nyc(boundary="CD"):
+    """NYC Progress Reports (elementary, K-8, middle; 2008-2012): overall = Environment +
+    Performance + Progress + credit with maxima 40 (the first two) and 60, so in percent
+    of each maximum, net of its share of the cut, the grade rule is 0.4 Q1 + 0.6 Q2 >= 0."""
+    from experiments.datasets.nyc_progress_reports import adapter as a
+    s = a.load_two_score(boundary)
+    dep = Rule("halfplane", (0.4, -1e-6))     # units at the cut have Q = 0 up to rounding
+    if boundary == "CD":
+        classes = {
+            "fixed_weights": {"kind": "halfplane", "lam_fixed": 0.4, "box": (-10.0, 15.0)},
+            "weights": {"kind": "halfplane", "lam_range": (0.1, 0.9), "box": (-15.0, 20.0)},
+            "both": {"kind": "both", "box": ((-30.0, 30.0), (-40.0, 20.0))},
+            "either": {"kind": "either", "box": ((-10.0, 70.0), (-20.0, 60.0))},
+        }
+    else:
+        classes = {
+            "fixed_weights": {"kind": "halfplane", "lam_fixed": 0.4, "box": (-20.0, 20.0)},
+            "weights": {"kind": "halfplane", "lam_range": (0.1, 0.9), "box": (-20.0, 20.0)},
+            "both": {"kind": "both", "box": ((-40.0, 40.0), (-50.0, 30.0))},
+            "either": {"kind": "either", "box": ((-20.0, 60.0), (-30.0, 50.0))},
+        }
+    return s, dep, (1, 1), classes
+
+
 DATASETS = {"chile_two_score": _chile, "chile_two_score_univ": lambda: _chile("univ_2025"),
+            "chile_top10": _chile_top10, "wi_report_cards": _wi,
+            "ca_dashboard_ela": _ca, "ca_dashboard_math": lambda: _ca("math"),
+            "nyc_progress_reports": _nyc, "nyc_progress_reports_ab": lambda: _nyc("AB"),
+            "gainful_employment": _ge, "gainful_employment_fail": lambda: _ge(True),
+            "in_school_grades_df": _indiana, "in_school_grades_bc": lambda: _indiana("BC"),
             "chile_2024_univ_same_year": lambda: _chile("univ_2024"),
             "chile_2023_univ_next_year": lambda: _chile("2023_univ_2024"),
             "chile_2025_univ_same_year": lambda: _chile("2025_univ_2025"),
@@ -165,6 +272,7 @@ def problem(name, cost=0.0, eps=0.05, idx=None):
     Q, X, Y = s.Q, s.X, s.Y
     if idx is not None:
         Q, X, Y = Q[idx], X[idx], Y[idx]
+        dep = dep.subset(idx)
     # drop constant columns (state dummies absent in a resample, etc.)
     keep = X.std(0) > 0
     prob = TwoScoreProblem(Q=Q, X=X[:, keep], Y=Y, deployed=dep, cost=cost, eps=eps, signs=signs)

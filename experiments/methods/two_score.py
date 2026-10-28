@@ -24,7 +24,10 @@ Rules are written on sign-adjusted scores s * Q (s = +1 or -1 per score), so tha
 rule treats high values:
   * ``halfplane``: lam (s1 Q1) + (1 - lam)(s2 Q2) >= phi   (a weighted average, theta = (lam, phi));
   * ``both``:      s1 Q1 >= phi1 and s2 Q2 >= phi2          (theta = (phi1, phi2));
-  * ``either``:    s1 Q1 >= phi1 or  s2 Q2 >= phi2.
+  * ``either``:    s1 Q1 >= phi1 or  s2 Q2 >= phi2;
+  * ``unit_halfplane`` (deployed rules only): w_i (s1 Q1) + (1 - w_i)(s2 Q2) >= c_i, a weight
+    and a cutoff per unit that depend on covariates (``unit = (w, c)``, aligned with the
+    sample; ``Rule.subset`` restricts them to a fold).
 U_hat over a grid of theta is computed at once: the pairwise sum is a convolution of the
 (linearly binned) weighted point masses of eta and T, followed by a survival transform.
 """
@@ -45,13 +48,18 @@ ROLES = ("gamma", "outcome", "index", "utility")
 
 @dataclass(frozen=True)
 class Rule:
-    kind: str                         # "halfplane" | "both" | "either"
+    kind: str                         # "halfplane" | "both" | "either" | "unit_halfplane"
     theta: Tuple[float, float]        # (lam, phi) or (phi1, phi2), on sign-adjusted scores
     signs: Tuple[int, int] = (1, 1)
+    # unit_halfplane only: per-unit (w, c), aligned with the sample; theta is for reporting
+    unit: Optional[Tuple[np.ndarray, np.ndarray]] = field(default=None, compare=False)
 
     def treat_adj(self, Z: np.ndarray) -> np.ndarray:
         """Treatment for sign-adjusted points Z (n, 2)."""
         a, b = self.theta
+        if self.kind == "unit_halfplane":
+            w, c = self.unit
+            return w * Z[:, 0] + (1.0 - w) * Z[:, 1] >= c
         if self.kind == "halfplane":
             return a * Z[:, 0] + (1.0 - a) * Z[:, 1] >= b
         if self.kind == "both":
@@ -62,6 +70,19 @@ class Rule:
 
     def treat(self, Q: np.ndarray) -> np.ndarray:
         return self.treat_adj(Q * np.asarray(self.signs, float))
+
+    def subset(self, idx) -> "Rule":
+        """The rule on a subsample; per-unit rules keep each unit's own w and c."""
+        if self.unit is None:
+            return self
+        return Rule(self.kind, self.theta, self.signs, (self.unit[0][idx], self.unit[1][idx]))
+
+
+def _unit_halfplane_in(rule: Rule, T_adj: np.ndarray, e: np.ndarray) -> np.ndarray:
+    """(len(e), len(T)) indicator of T_j + e_i in unit j's own half-plane."""
+    w, c = rule.unit
+    s = w * T_adj[:, 0] + (1.0 - w) * T_adj[:, 1] - c
+    return s[None, :] + e[:, 1:2] + w[None, :] * (e[:, 0:1] - e[:, 1:2]) >= 0
 
 
 # ---------------------------------------------------------------- binning helpers
@@ -104,6 +125,9 @@ def _survival1(m):
 def prob_in_rule(rule: Rule, e_adj: np.ndarray, T_adj: np.ndarray, G: int = 1024) -> np.ndarray:
     """pi(e) = share of index points T_j with T_j + e in the rule (sign-adjusted inputs)."""
     a, b = rule.theta
+    if rule.kind == "unit_halfplane":      # O(n_e n_x), in chunks
+        return np.concatenate([_unit_halfplane_in(rule, T_adj, e_adj[k:k + 500]).mean(1)
+                               for k in range(0, len(e_adj), 500)])
     if rule.kind == "halfplane":
         s = np.sort(a * T_adj[:, 0] + (1 - a) * T_adj[:, 1])
         v = a * e_adj[:, 0] + (1 - a) * e_adj[:, 1]
@@ -251,7 +275,7 @@ class Pairs:
     _cache: Dict = field(default_factory=dict, repr=False)
 
     def value(self, rule: Rule) -> float:
-        """Exact U_hat(rule) for one rule (O(n_u n_x) only for 'both'/'either'; use sparingly)."""
+        """Exact U_hat(rule) for one rule (O(n_u n_x) except 'halfplane'; use sparingly)."""
         keep = self.I > 0
         e, u, I = self.e[keep], self.u[keep], self.I[keep]
         if rule.kind == "halfplane":
@@ -265,9 +289,12 @@ class Pairs:
         tot = 0.0
         for c0 in range(0, len(e), 500):
             ee = e[c0:c0 + 500]
-            Z0 = self.T[None, :, 0] + ee[:, 0:1]
-            Z1 = self.T[None, :, 1] + ee[:, 1:2]
-            inA = (Z0 >= a) & (Z1 >= b) if rule.kind == "both" else (Z0 >= a) | (Z1 >= b)
+            if rule.kind == "unit_halfplane":     # rule restricted to the index fold
+                inA = _unit_halfplane_in(rule, self.T, ee)
+            else:
+                Z0 = self.T[None, :, 0] + ee[:, 0:1]
+                Z1 = self.T[None, :, 1] + ee[:, 1:2]
+                inA = (Z0 >= a) & (Z1 >= b) if rule.kind == "both" else (Z0 >= a) | (Z1 >= b)
             tot += float(u[c0:c0 + 500] @ inA.sum(1) + I[c0:c0 + 500] @ (inA @ self.x))
         return tot / (self.n_u * self.n_x)
 
@@ -416,19 +443,21 @@ def rotation_pairs(prob: TwoScoreProblem, folds: Dict[str, np.ndarray], form: st
     T = Xt @ Gam
     eta = prob.Z - T
     T_idx = T[folds["index"]]
+    dep = prob.deployed.subset(folds["index"])
     # trim: pi0 from the index fold; the outcome fit uses a wider band
-    po = prob_in_rule(prob.deployed, eta[folds["outcome"]], T_idx)
+    po = prob_in_rule(dep, eta[folds["outcome"]], T_idx)
     keep_o = (po >= prob.eps / 2) & (po <= 1 - prob.eps / 2)
     o = folds["outcome"][keep_o]
     fit = outcome_fit(eta[o], prob.Xc[o], prob.D[o], prob.Y[o], form=form, m=m, pen=pen)
-    pu = prob_in_rule(prob.deployed, eta[folds["utility"]], T_idx)
+    pu = prob_in_rule(dep, eta[folds["utility"]], T_idx)
     I = ((pu >= prob.eps) & (pu <= 1 - prob.eps)).astype(float)
     e_u = eta[folds["utility"]]
     u = np.zeros(len(e_u))
     u[I > 0] = fit.alpha(e_u[I > 0]) - prob.cost
     pairs = Pairs(e=e_u, u=u * I, I=I, T=T_idx, x=prob.Xc[folds["index"]] @ fit.beta2,
                   n_u=len(e_u), n_x=len(T_idx))
-    info = {"gamma": Gam, "trim_share": float(I.mean()), "m": fit.basis.m, "pen": fit.pen}
+    info = {"gamma": Gam, "trim_share": float(I.mean()), "m": fit.basis.m, "pen": fit.pen,
+            "deployed": dep}
     return pairs, fit, info
 
 
@@ -452,7 +481,8 @@ def estimate(prob: TwoScoreProblem, classes: Dict[str, Dict], seed: int = 0,
     for folds in make_folds(len(prob.Y), seed)[:rotations]:
         pairs, fit, info = rotation_pairs(prob, folds, form=form, m=m, pen=pen)
         infos.append(info)
-        U_dep.append(pairs.value(prob.deployed) if prob.deployed.kind == "halfplane"
+        U_dep.append(pairs.value(info["deployed"])
+                     if prob.deployed.kind in ("halfplane", "unit_halfplane")
                      else _value_from_grid(pairs, prob.deployed))
         for label, spec in classes.items():
             if spec["kind"] == "halfplane":

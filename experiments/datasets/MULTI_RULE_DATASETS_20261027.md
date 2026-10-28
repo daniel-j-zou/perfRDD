@@ -96,6 +96,59 @@ done by subagents; Claude re-ran each loader and its rule check.
 - Estimator results for these datasets are in
   `simulations/TWO_SCORE_ESTIMATOR_20261027.md`, under "More data".
 
+## Fourth round (2026-10-28)
+
+At the author's request ("find more datasets"). Candidates were screened for a viable
+rule class and for a site that answers a plain script request; the builds were done by
+subagents, and Claude re-ran each loader and its rule check.
+
+| Folder | Rule class | n | Outcome | Rule check |
+|---|---|---:|---|---|
+| `nyc_progress_reports` | A-F grades from Environment + Performance + Progress (maxima 15 / 25 / 60) and credit, cuts by school type and year; two-score view 0.4 (Env + Perf) + 0.6 Progress, in percent units | 4,663 school-years at C/D (two-score 3,673; A/B 5,348) | next year's overall score; no graded report next year | 100% at A/B and B/C; C/D after dropping school-years a floor could lift (2 misses in 2009-10) |
+| `wi_report_cards` | star ratings on a weighted sum whose achievement weight falls with the share of economically disadvantaged students; other priority areas shift each school's cutoff | 15,161 school-years (two-score 13,710) | next year's overall score | every published score from 2017-18 on, every rating |
+| `in_school_grades` | A-F on 0.5 Performance + 0.5 Growth (grades 3-8) | 1,716 schools (pooled two-score 2,590) | next year's points or pass rate | grade from points 100%; only 2016-17 and 2017-18 have points |
+| `gainful_employment` | not passing = annual D/E > 8% and discretionary D/E > 20% (fail: > 12% and > 30%), a both-cutoffs rule | 7,065 programs | no IPEDS completions in 2019-20; change in log completions | 8,528 of 8,528 programs without an approved appeal |
+| `chile_top10` | top 10% of the class on the grade average (one cutoff per school x program x year), inside the "458 or top 10%" either-rule | 21,479 below 458; two-score 225,050 | university enrollment | class cutoffs sharp for 100% of 2024 classes; eligibility matches the published flag for every registrant (2024, 2025) |
+| `ca_dashboard` | Red = status Very Low and change below +3.0, a both-cutoffs rule on (status, change); Red-or-Orange is a staircase | 49,451 school-years (ELA), 49,442 (math) | next Dashboard year's status | every color, 2017-2026, after documented exclusions |
+
+- **Chile top-10%.** The class cutoffs are bracketed from registrants, not published.
+  `load_mid()` puts each at the midpoint of its bracket and avoids a heap at Q = 0; the
+  estimator uses it.
+- **Wisconsin.** The rating has no formal consequence in these years (the Milwaukee
+  takeover route was never used), so D is the published rating itself.
+- **California.** cde.ca.gov serves its `.asp` pages behind a bot challenge, which was
+  not attempted. The data files themselves (`www3.cde.ca.gov/researchfiles/...`) download
+  with a plain request; their names came from a web search and the Internet Archive's
+  URL index. The covariates explain 2-3% of the change score.
+- **NYC.** The DOE result files and Educator Guides are Internet Archive copies; the
+  2006-07 cuts are inferred from the data. 13% of D/F school-years have no grade the next
+  year (phase-outs), so the main outcome is missing selectively below the cut.
+- **Gainful employment.** No program lost aid; the rule was rescinded in 2019. 109
+  programs later won appeals, and "closure" in IPEDS includes recoding and 2019-20
+  includes COVID-19.
+
+Checked and left for the author or for later:
+- **Author download (sites block scripts):**
+  - England's KS2 floor and coasting standards: attainment < 65% and a progress score
+    below its floor, a both / either rule on 15,000 schools a year (2016-2018).
+    compare-school-performance.service.gov.uk returns 403.
+  - CMS Hospital-Acquired Condition Reduction Program (worst quartile of an equal-weight
+    average of six measure scores) and MIPS (weighted sum of four category scores
+    against a performance threshold). data.cms.gov returns 403.
+  - The 2014 informational gainful-employment rates (a second GE year), on www2.ed.gov
+    (403).
+- **Public, not built:**
+  - EDA distress criteria, an either rule on county unemployment and per capita income
+    (ERS and BEA files answer scripts). Eligibility is assessed per project area, so D
+    is loose.
+  - ARC distressed counties: the average of three ratios against national quantiles,
+    but only 423 counties are treated.
+  - USDA food-access tracts: the low-income either rule and a low-access cutoff with
+    urban / rural distances; no credible first stage.
+  - IRA energy communities: a both rule on fossil-fuel employment and unemployment,
+    about 2,800 areas.
+  - Kentucky's status-by-change color table (like California's).
+
 ## Waiting for the author
 
 Each folder below has a README with the download steps. Files go in its `data/raw/`.
