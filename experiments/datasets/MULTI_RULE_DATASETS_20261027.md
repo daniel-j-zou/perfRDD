@@ -165,7 +165,15 @@ scripts, so the CMS files come from NBER's public mirror of the Compare download
 - Estimator (c = 0, outcomes signed so higher is better): every rule class goes to the
   edge in all four. HACRP and nursing homes show no effect; dialysis has selective
   attrition; banks bunch just above both cutoffs.
-- `il_school_designations` was still being built when this was written.
+- `il_school_designations` (Illinois ESSA summative designations, 2023-2024 with the next
+  year's index as Y): Comprehensive = index at or below the bottom-5% threshold (high
+  schools also by graduation rate <= 66.67%, an either rule); the rule reproduces every
+  official designation, 2023-2025. The scores come from ISBE's public Report Card Service
+  (rcc.isbe.net, 3,698 school files, paced requests). Comprehensive support is a real
+  intervention, but the samples are small (7,116 school-band-years; 146 within 2 points of
+  the cutoff; two-score views 1,315 and 2,383), support lasts four years so many units at
+  the cutoff are already treated, and 2025 changed the proficiency levels. Estimator not
+  run (too small for four folds, as with Indiana).
 
 **Decision (author, 2026-10-28): continuous outcomes only.** A binary Y would need a
 different outcome model, so the two-score work keeps to settings with a continuous Y.

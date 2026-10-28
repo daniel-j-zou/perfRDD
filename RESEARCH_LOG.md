@@ -52,7 +52,9 @@ Gains are against today's schedule, mean over the three role rotations (range ov
 - **Fifth round of datasets** (`MULTI_RULE_DATASETS_20261027.md`): `cms_hacrp`,
   `esrd_qip`, `nursing_homes` (stub completed), `fdic_capital`, all with exact rule
   checks; CMS files via NBER's public mirror. Every rule class goes to the edge in all
-  four (no effect, selective attrition, or bunching at the cutoffs).
+  four (no effect, selective attrition, or bunching at the cutoffs). Added later the same
+  day: `il_school_designations` (Comprehensive support in Illinois; exact rule check,
+  2023-2025), too small for the estimator.
 - **Code:** `two_score_apply.py` can resample whole schools in the bootstrap (CLUSTER);
   the row bootstrap understates sds for school panels. Not run, at the author's request.
 
