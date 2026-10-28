@@ -9,6 +9,26 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-28 - Follow-up: budget-neutral dose redesigns (Claude)
+
+At the author's request, computed budget-neutral redesigns for the three settings judged
+reasonable (`experiments/scripts/dose_schedule_redesign.py`; section 5 of
+`experiments/datasets/simulations/dose_schedule/dose_applications_eval.tex`). Each family has
+two parameters; one is set so total spending equals today's, and utility is the outcome itself.
+Gains are against today's schedule, mean over the three role rotations (range over rotations).
+
+- **Medicare DSH** (linear add-on from DPP t, slope by the budget; utility = exit): a lower
+  start with a flatter slope lowers exits, in all three rotations for every t <= 12.5%: t = 5%
+  gives -0.61 pp (-1.39 to -0.19), t = 0 gives -1.04 pp (-2.69 to -0.00); base rate 2.8%.
+  Consistent with the add-on's effect on exit flattening at high doses. Starts above 20% push
+  doses past the data and explode, so the grid stops at 20%.
+- **LCFF** (grant from UPP t, slope by the budget): best t = 0.625, ELA +0.03 pp (-0.32 to
+  +0.21); math t = 0.60, +0.02 pp. Today's 0.55 is as good as any member, within the noise.
+- **UI** (lower cap kappa, higher rate theta keeping predicted UI dollars, with behaviour):
+  best kappa = 0.95 with theta = 1.08, -0.11 weeks (-0.30 to +0.08); lower caps raise weeks.
+- No inference beyond the rotation spread; DSH budget uses a payment proxy (lagged cases x
+  case-mix index).
+
 ## 2026-10-28 - Two-score work: continuous outcomes only; settings write-up; fifth round of datasets (Claude)
 
 - **Decision (author):** the two-score work keeps to settings with a continuous outcome.

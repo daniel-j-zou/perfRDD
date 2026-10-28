@@ -30,7 +30,7 @@ Modifiers $Z$ & #8\\
 
 \section*{What was done}
 
-Twelve datasets were screened in which a dose is set by a known formula from an observed
+Thirteen datasets were screened in which a dose is set by a known formula from an observed
 score, $A=s(Q,\text{group})$. Each was run through the Model~2 estimator of
 \texttt{dose\_schedule\_sketch.tex} (code: \texttt{experiments/methods/dose\_schedule.py};
 runs: \texttt{experiments/scripts/dose\_schedule\_apply.py} and
@@ -75,7 +75,8 @@ CMS dialysis QIP & payment cut (5 steps) on TPS & 57,328 & 0.46 & clean, but a n
 Medicare Advantage & benchmark \% (steps) on FFS rank & 31,181 & 0.51 & clean, but noisy and near null\tabularnewline
 NHANES school lunch & free/reduced/paid on income ratio & 12,730 & 0.31 & too small; eligibility, not take-up\tabularnewline
 CMS readmissions & penalty from six ratios & 10,608 & 0.14 & several scores; not run\tabularnewline
-Chile SEP; Title I & school / district funding steps & -- & -- & builds still running\tabularnewline
+Title I & formula weight on child poverty & 43,205 & 0.59 & small, blurred dose; null on spending\tabularnewline
+Chile SEP & school subsidy steps & -- & -- & build still running\tabularnewline
 \bottomrule
 \end{tabular}
 \normalsize
@@ -202,6 +203,61 @@ Lending Club: many rate tables over 2009--13 make the score-direction modifier t
 rejected). Realized return rises with the rate at every $\eta$, but only near each grade's own
 rate is supported, and the data contain only loans that were taken, so the effect of a
 higher rate on who borrows, the main force against raising rates, is missing.
+
+\newpage
+\section*{5. Budget-neutral redesigns}
+
+The $U$ curves above only scale the existing formula, so ``more money'' always wins. Here the
+budget is held fixed: each design spends the same total as today, and only how the money is
+spread over the score changes. Each family has two parameters; the budget fixes one, so
+utility is a curve in the other. The proposed design is the best point on that curve. Utility
+is the outcome itself (weeks, exits, test scores), so no dollar value is needed. Gains are
+against today's schedule, averaged over the three role rotations; the range in brackets is
+over the rotations (code: \texttt{experiments/scripts/dose\_schedule\_redesign.py}).
+
+\begin{itemize}
+\item \textbf{LCFF:} grant $=k\times(\text{year's \$ slope})\times\max(\text{UPP}-t,0)$. For each start
+ $t$, $k$ keeps total grant dollars (ADA $\times$ grant) at today's level; $t=0.55$, $k=1$ is the law.
+ Utility: the share of tested students meeting the standard.
+\item \textbf{DSH:} add-on $=\min\{s\max(\text{DPP}-t,0),\,12\%\text{ for the capped class}\}$, a linear
+ ramp from $t$. For each $t$, $s$ keeps total add-on dollars (proxy: lagged Medicare cases
+ $\times$ case-mix index) at today's level, among hospitals with DPP $\le45\%$. Today's schedule,
+ with its jump at 15\%, is not in this family; the ramp that starts at about 12.9\% matches it
+ in exits. Utility: the share of hospitals exiting (lower is better). Starts above 20\% push
+ doses past the data and the estimates explode, so they are left out.
+\item \textbf{UI:} benefit $=\min(\theta\times\text{earnings-based benefit},\ \kappa\times\text{cap})$, a lower
+ cap $\kappa$ and a higher replacement rate $\theta$. For each $\kappa$, $\theta$ keeps the predicted
+ UI dollars paid, including the longer or shorter spells it causes, at today's level.
+ Utility: weeks of UI paid (lower is better). A higher cap is outside the data.
+\end{itemize}
+
+\begin{center}\small
+\begin{tabular}{llllll}
+\toprule
+Setting & Today & Proposed & Utility gain & Rotation range & Supported\\
+\midrule
+DSH, exit & start 15\% (jump) & start 5\%, slope 0.50 & $-0.61$ pp & $-1.39$ to $-0.19$ & 93\%\\
+ & & start 0\%, slope 0.39 & $-1.04$ pp & $-2.69$ to $-0.00$ & 92\%\\
+LCFF, ELA & start 0.55 & start 0.625, $k=1.46$ & $+0.03$ pp & $-0.32$ to $+0.21$ & 93\%\\
+LCFF, math & start 0.55 & start 0.60, $k=1.28$ & $+0.02$ pp & $-0.01$ to $+0.06$ & 94\%\\
+UI, weeks & cap 1, rate 1 & cap 0.95, rate $\times$1.08 & $-0.11$ weeks & $-0.30$ to $+0.08$ & 93\%\\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Reading.} Only DSH gives a gain that the three rotations agree on: every start at or
+below 12.5\% lowers exits in all three. Spreading the same dollars more evenly, with a lower start and
+a flatter slope, helps because the effect of the add-on on exit flattens at high doses (the
+$\psi$ panel in Section 2). The gain grows as the start moves to 0, but so does the
+disagreement between rotations; the base exit rate is 2.8\%, so $-0.6$ pp is about a fifth of
+all exits. For LCFF and UI today's schedule is as good as any member of these families,
+within the noise.
+
+\includegraphics[width=\linewidth]{redesign_dsh_exit.png}
+
+\includegraphics[width=\linewidth]{redesign_lcff_ela.png}
+
+\includegraphics[width=\linewidth]{redesign_ui_weeks.png}
 
 \section*{Decisions for you}
 \begin{itemize}
