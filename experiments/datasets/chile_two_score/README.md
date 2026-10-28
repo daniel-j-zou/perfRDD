@@ -53,3 +53,29 @@ No new download is needed. The adapter reads the raw files under
 - Dropping students who took no elective test selects on behaviour after registration.
 - D is eligibility (ITT). The single-score screens of `chile_admission` found boundary
   optima for every outcome.
+
+## Other admission years (2026-10-28)
+
+`build(cohort)` also reads the 2023 and 2025 registrant files, which are already in
+`../chile_admission/data/raw/`. The family-income file is in hand only for 2024, so for
+those cohorts the income columns are constant.
+
+| Loader | Cohort | Y | n | Rule check |
+|---|---|---|---:|---|
+| `load_2023_univ_2024()` | admission 2023 | university enrollment, next year | 216,451 | no published flag; enrollment the next year jumps at 458 (0.196 below, 0.259 above, within 10 points) |
+| `load_univ_2024()` | admission 2024 | university enrollment, same year | 223,335 | the rule matches the published flag for all registrants |
+| `load_2025_univ_2025()` | admission 2025 | university enrollment, same year | 223,115 | the rule (458, or top 10%, plus an elective test) matches the published flag for all 268,914 registrants |
+
+Two-score estimator (`../../scripts/two_score_apply.py`, eps 0.05, cross-validated
+penalty), estimated cutoff on (CL + M1)/2 with the weights fixed:
+
+| Sample | c = 0.1 | c = 0.2 | Chosen reading weight, c = 0.1 / 0.2 |
+|---|---:|---:|---|
+| 2023 cohort, next year | 435.8 | 502.6 | 0.60 / 0.58 |
+| 2024 cohort, next year | 416.0 | 503.6 | 0.55 / 0.52 |
+| 2024 cohort, same year | 427.1 | 484.8 | 0.60 / 0.59 |
+| 2025 cohort, same year | 418.4 | 476.2 | 0.61 / 0.59 |
+
+- The estimates replicate across cohorts and outcomes. The chosen weight on reading is
+  above the deployed 0.5 in every sample.
+- The costs are illustrative, not derived from data.

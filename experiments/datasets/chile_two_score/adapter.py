@@ -14,6 +14,9 @@ D = 1{(Q1 + Q2) / 2 >= 458}: eligible to apply to universities in the centralize
     group is eligible at any score, so it carries no variation in D.
 X = chile_admission's covariates without the top-10% flag (constant here).
 Y = load(): any undergraduate enrollment 2025; load_univ_2024(), load_univ_2025().
+Other cohorts (same rule, no family-income data): load_2023_univ_2024() (admission 2023,
+university enrollment the next year) and load_2025_univ_2025() (admission 2025,
+university enrollment the same year).
 
 The deployed rule is a fixed-weight compensatory rule. Counterfactual rules on Q:
 other weights, a cutoff on each test (both / either), or a band.
@@ -26,31 +29,48 @@ import numpy as np
 import pandas as pd
 
 from experiments._core.sample import RDDSample
-from experiments.datasets.chile_admission.adapter import SCORES, SOCIO, _enrolled, _num
+from experiments.datasets.chile_admission.adapter import RAW, SCORES, SOCIO, _enrolled, _num
 
 HERE = Path(__file__).parent
 PROCESSED = HERE / "data" / "processed"
 THRESHOLD = 458.0
+# Registrant files per admission process (cohort). Family income is published only for
+# 2024 in the files in hand; elsewhere the income columns are constant.
+SCORE_FILES = {
+    2023: RAW / "Prueba-de-Acceso-a-la-Educacion-Superior-2023-Inscritos-Puntajes-1"
+              / "A_INSCRITOS_PUNTAJES_2023_PAES_PUB_MRUN.csv",
+    2024: SCORES,
+    2025: RAW / "PAES_2025_Inscritos_Puntajes" / "A_INSCRITOS_PUNTAJES_PAES_2025_PUB_MRUN.csv",
+}
 X_COLS = ["nem", "ranking", "public", "private", "technical", "nonregular", "female",
           "years_since_grad", "income_group", "income_missing", "metro"]
 
 
-def build() -> pd.DataFrame:
-    """All registrants with a valid compulsory average and NEM (chile_admission's
-    sample), with the two test scores, the rule's parts and the published flag."""
-    cache = PROCESSED / "two_score_2024.csv.gz"
+def build(cohort: int = 2024) -> pd.DataFrame:
+    """All registrants of one admission process with a valid compulsory average and NEM
+    (chile_admission's sample), with the two test scores, the rule's parts, the
+    published flag (2024 and 2025 only) and enrollment in 2024 and 2025."""
+    cache = PROCESSED / f"two_score_{cohort}.csv.gz"
     if cache.exists():
         return pd.read_csv(cache)
-    if not SCORES.exists():
-        raise FileNotFoundError(f"{SCORES} missing; see experiments/datasets/chile_admission/README.md")
-    s = pd.read_csv(SCORES, sep=";", dtype=str, encoding="utf-8-sig",
-                    usecols=["MRUN", "PROMEDIO_CM_MAX", "CLEC_MAX", "MATE1_MAX", "HCSOC_MAX",
-                             "CIEN_MAX", "HABILITACION_POST", "PTJE_NEM", "PTJE_RANKING",
-                             "PORC_SUP_NOTAS", "DEPENDENCIA", "RAMA_EDUCACIONAL", "COD_SEXO",
-                             "ANYO_DE_EGRESO", "CODIGO_REGION_EGRESO"])
-    e = pd.read_csv(SOCIO, sep=";", dtype=str, encoding="utf-8-sig",
-                    usecols=["MRUN", "INGRESO_PERCAPITA_GRUPO_FA"])
-    s = s.merge(e, on="MRUN", how="left")
+    f = SCORE_FILES[cohort]
+    if not f.exists():
+        raise FileNotFoundError(f"{f} missing; see experiments/datasets/chile_admission/README.md")
+    cols = ["MRUN", "PROMEDIO_CM_MAX", "CLEC_MAX", "MATE1_MAX", "HCSOC_MAX", "CIEN_MAX",
+            "PTJE_NEM", "PTJE_RANKING", "PORC_SUP_NOTAS", "DEPENDENCIA", "RAMA_EDUCACIONAL",
+            "COD_SEXO", "ANYO_DE_EGRESO", "CODIGO_REGION_EGRESO"]
+    header = pd.read_csv(f, sep=";", nrows=0, encoding="utf-8-sig").columns
+    if "HABILITACION_POST" in header:
+        cols.append("HABILITACION_POST")
+    s = pd.read_csv(f, sep=";", dtype=str, encoding="utf-8-sig", usecols=cols)
+    if "HABILITACION_POST" not in s:
+        s["HABILITACION_POST"] = np.nan
+    if cohort == 2024:
+        e = pd.read_csv(SOCIO, sep=";", dtype=str, encoding="utf-8-sig",
+                        usecols=["MRUN", "INGRESO_PERCAPITA_GRUPO_FA"])
+        s = s.merge(e, on="MRUN", how="left")
+    else:
+        s["INGRESO_PERCAPITA_GRUPO_FA"] = np.nan
     s["MRUN"] = _num(s.MRUN)
     s = s[s.MRUN.notna() & ~s.MRUN.duplicated(keep=False)]
     s = s[(_num(s.PROMEDIO_CM_MAX) > 0) & (_num(s.PTJE_NEM) > 0)]
@@ -66,7 +86,8 @@ def build() -> pd.DataFrame:
         "cm_avg": _num(s.PROMEDIO_CM_MAX).to_numpy(),
         "elective": ((_num(s.HCSOC_MAX) > 0) | (_num(s.CIEN_MAX) > 0)).astype(float).to_numpy(),
         "top10": (_num(s.PORC_SUP_NOTAS) == 10).astype(float).to_numpy(),
-        "eligible_published": _num(s.HABILITACION_POST).isin([1, 2]).astype(float).to_numpy(),
+        "eligible_published": np.where(s.HABILITACION_POST.isna(), np.nan,
+                                       _num(s.HABILITACION_POST).isin([1, 2]).astype(float)),
         "nem": _num(s.PTJE_NEM).to_numpy(),
         "ranking": _num(s.PTJE_RANKING).to_numpy(),
         "public": dep.isin([1, 2, 6]).astype(float).to_numpy(),
@@ -74,15 +95,16 @@ def build() -> pd.DataFrame:
         "technical": rama.str.startswith("T").astype(float).to_numpy(),
         "nonregular": rama.isin(["H2", "H3", "H4"]).astype(float).to_numpy(),
         "female": (_num(s.COD_SEXO) == 2).astype(float).to_numpy(),
-        "years_since_grad": (2023 - _num(s.ANYO_DE_EGRESO)).clip(0, 40).to_numpy(),
+        "years_since_grad": (cohort - 1 - _num(s.ANYO_DE_EGRESO)).clip(0, 40).to_numpy(),
         "income_group": inc.where(inc.between(1, 10)).to_numpy(),
         "metro": (_num(s.CODIGO_REGION_EGRESO) == 13).astype(float).to_numpy(),
         "univ_2024": np.isin(mrun, list(univ24)).astype(float),
+        "any_2024": np.isin(mrun, list(any24)).astype(float),
         "any_2025": np.isin(mrun, list(any25)).astype(float),
         "univ_2025": np.isin(mrun, list(univ25)).astype(float),
     })
     out["income_missing"] = out.income_group.isna().astype(float)
-    out["income_group"] = out.income_group.fillna(out.income_group.median())
+    out["income_group"] = out.income_group.fillna(out.income_group.median()).fillna(0.0)
     out["years_since_grad"] = out.years_since_grad.fillna(0.0)
     out = out.dropna(subset=["cl", "m1", "nem", "ranking"])
     PROCESSED.mkdir(parents=True, exist_ok=True)
@@ -100,19 +122,20 @@ def _average_rule(Q: np.ndarray) -> np.ndarray:
     return (Q.mean(axis=1) >= THRESHOLD).astype(int)
 
 
-def _sample(y_col: str) -> RDDSample:
-    df = build()
+def _sample(y_col: str, cohort: int = 2024) -> RDDSample:
+    df = build(cohort)
     df = df[(df.elective == 1) & (df.top10 == 0) & df[y_col].notna()]
+    tag = "" if cohort == 2024 else f"_{cohort}"
     return RDDSample(
         Q=df[["cl", "m1"]].to_numpy(float), X=df[X_COLS].to_numpy(float),
         Y=df[y_col].to_numpy(float), threshold=(THRESHOLD, THRESHOLD),
-        name=f"chile_two_score_{y_col}", feature_names=list(X_COLS),
-        description=("Chile PAES 2024, elective-test takers outside the top 10%. "
+        name=f"chile_two_score{tag}_{y_col}", feature_names=list(X_COLS),
+        description=(f"Chile PAES admission {cohort}, elective-test takers outside the top 10%. "
                      "Q = (best reading, best math-1); treatment = 1{(Q1 + Q2)/2 >= 458} "
                      f"(university-application eligibility); Y = {y_col}."),
-        citation="MINEDUC Centro de Estudios / DEMRE, PAES 2024 and Matricula Ed. Superior",
+        citation=f"MINEDUC Centro de Estudios / DEMRE, PAES {cohort} and Matricula Ed. Superior",
         treatment_rule=_average_rule,
-        extras={"weights": (0.5, 0.5), "cutoff": THRESHOLD,
+        extras={"weights": (0.5, 0.5), "cutoff": THRESHOLD, "cohort": cohort,
                 "eligible_published": df.eligible_published.to_numpy(float)},
     )
 
@@ -127,3 +150,13 @@ def load_univ_2024() -> RDDSample:
 
 def load_univ_2025() -> RDDSample:
     return _sample("univ_2025")
+
+
+def load_2023_univ_2024() -> RDDSample:
+    """Admission 2023 cohort; university enrollment the following year (2024)."""
+    return _sample("univ_2024", 2023)
+
+
+def load_2025_univ_2025() -> RDDSample:
+    """Admission 2025 cohort; university enrollment in the admission year (2025)."""
+    return _sample("univ_2025", 2025)

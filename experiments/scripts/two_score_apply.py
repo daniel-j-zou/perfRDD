@@ -6,7 +6,9 @@ scores (every rule treats high values):
   * us_tracts_lic:    poverty >= 20 or income ratio <= 80  -> either (20, -80) on (pov, -mfi);
   * fl_school_grades: (3 ach + 4 gains)/7 >= B/C cutoff     -> halfplane (lam 3/7, phi 53.5).
 ``chile_two_score`` uses any undergraduate enrollment in 2025, ``chile_two_score_univ``
-university enrollment in 2025.
+university enrollment in 2025 (the year after admission). Replications: the 2023 cohort
+with university enrollment the next year, and the 2024 and 2025 cohorts with university
+enrollment in the admission year.
 
 For each dataset the rotated estimator is computed for four rule classes: the weighted
 average with the deployed weights (only the cutoff moves), with chosen weights, both
@@ -38,7 +40,8 @@ OUT = ROOT / "runs" / "two_score_apply"
 
 def _chile(y="any_2025"):
     from experiments.datasets.chile_two_score import adapter as a
-    s = {"any_2025": a.load, "univ_2025": a.load_univ_2025}[y]()
+    s = {"any_2025": a.load, "univ_2025": a.load_univ_2025, "univ_2024": a.load_univ_2024,
+         "2023_univ_2024": a.load_2023_univ_2024, "2025_univ_2025": a.load_2025_univ_2025}[y]()
     dep = Rule("halfplane", (0.5, 458.0))
     classes = {
         "fixed_weights": {"kind": "halfplane", "lam_fixed": 0.5, "box": (300.0, 700.0)},
@@ -77,6 +80,9 @@ def _florida():
 
 
 DATASETS = {"chile_two_score": _chile, "chile_two_score_univ": lambda: _chile("univ_2025"),
+            "chile_2024_univ_same_year": lambda: _chile("univ_2024"),
+            "chile_2023_univ_next_year": lambda: _chile("2023_univ_2024"),
+            "chile_2025_univ_same_year": lambda: _chile("2025_univ_2025"),
             "us_tracts_lic": _tracts, "fl_school_grades": _florida}
 
 
