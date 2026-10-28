@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-27 - Paper front matter set to the prelim version; 811 outline as homework (Claude)
+
+**Author decisions (2026-10-27):**
+- The title, authors, abstract and keywords of `differing_slopes.tex` and `811.tex` match
+  the earlier 811 homework, whose first page was built from `prelim/prelim.tex`. Both
+  files now copy them verbatim: the title reads "for score-explained" (was "in"), the
+  abstract is the prelim's shorter one, and the keywords are Policy learning;
+  Regression discontinuity design; Threshold selection; Error in variables. The paper's
+  keyword block is now live. Manuscript commit 1910a10.
+- `811.tex` has no citations ("this is supposed to be a simple hw assignment"), and
+  should read as a homework submission for the technical-writing class. Manuscript
+  commits df285a4 and 9d5ac1f. The outline's §6 now tracks the rewritten paper §6
+  (f1c716a).
+
+**Open point for the author.** The new abstract says "without parametric assumptions on
+the conditional treatment effect", but the model has the effect linear in the
+covariates, $W=\alpha(\eta)+X^\top\beta_2+R_W$, and the §6 use case is linear in
+distance. Only the dependence on $\eta$ is nonparametric. The text was copied as asked
+and is not changed here. Raise it at the scope review: the scope file's drift check
+covers an abstract that no longer matches the model.
+
 ## 2026-10-27 - Paper §6 rewritten for the taxi use case R2-E1 (Claude)
 
 Follow-up to the entry below. The paper's §6 now holds the R2-E1 application
