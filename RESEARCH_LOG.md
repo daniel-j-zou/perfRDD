@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-27 - Abstract clause reworded; 811 outline cut to five pages (Claude)
+
+Follow-up to the entry below; closes its open point. **Author decision (2026-10-27):**
+reword the clause so that only the dependence on latent ability is nonparametric. The
+approved sentence, now in `differing_slopes.tex` and `811.tex` (manuscript 4a327dd):
+"Modeling the score as a linear function of explanatory variables plus a latent
+ability, and the treatment effect as a nonparametric function of that ability plus a
+linear term in the explanatory variables, we prove that the estimated threshold is
+consistent and asymptotically normal at the root-$n$ rate." The frozen
+`prelim/prelim.tex` keeps the old wording.
+
+The author also asked for the 811 outline to be about five to six pages. It is now 5
+(manuscript 26ef04d), with every section and subsection of the paper kept.
+
 ## 2026-10-27 - Paper front matter set to the prelim version; 811 outline as homework (Claude)
 
 **Author decisions (2026-10-27):**
