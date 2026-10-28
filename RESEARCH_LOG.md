@@ -9,6 +9,35 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-27 - Two-score estimator: cross-validated penalty and a check up to n = 1M (Claude)
+
+Follow-up to "Two-score estimator: simulations and first data results" below, at the
+author's request ("Tune and check"). Details are in the follow-up section of
+`experiments/datasets/simulations/TWO_SCORE_ESTIMATOR_20261027.md`.
+
+- **Penalty by 5-fold cross-validation** of the prediction error of Y is now the default
+  (grid 0.001-100). The chosen penalty falls with n in the simulations: mostly 1 at 16k,
+  0.3 at 64k-256k, 0.1 at 1M.
+- **Root-n check** (100 data sets at 256k, 50 at 1M, plus the earlier 16k and 64k).
+  - Oracle: n Var is flat from 16k to 1M.
+  - Feasible: n Var stops falling after 64k and stays flat to 1M. It is 30-40 times the
+    oracle's for weighted-average rules and 20-40 times for cutoff rules.
+  - This revises the entry below: the feasible estimator does reach a root-n regime
+    from about 64k, with a large variance constant. The penalty level does not change
+    the variance.
+  - The cross-validated penalty adds a smoothing bias that fades with n: sqrt(n) bias in
+    the weighted-average cutoff of -3.0 at 16k and -0.6 at 1M.
+- **Data with the cross-validated penalty** (bootstrap with full re-estimation).
+  - Chile, university 2025: c = 0.1 gives cutoff 416 (sd 6.2) and reading weight 0.55
+    (0.07); c = 0.2 gives cutoff 504 (11.4) and weight 0.52 (0.04).
+  - Florida: cutoff 53.6 (1.1) against the deployed 53.5; achievement weight 0.31 (0.06)
+    against 0.43.
+  - Either-cutoff rules stay unstable.
+  - In Florida and the census tracts, cross-validation picks the top of the grid, so the
+    fitted alpha is bilinear in (eta1, eta2).
+
+— Claude
+
 ## 2026-10-27 - Fable whole-paper review applied (Claude)
 
 At the author's request, Fable 5.1 (high effort) reviewed all of `differing_slopes.tex`

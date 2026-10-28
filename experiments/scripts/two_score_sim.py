@@ -14,6 +14,8 @@ rotated estimator with a tensor-product or an additive alpha.
 
 Run from ``code/``:
     python -m experiments.scripts.two_score_sim --n 16000 64000 --reps 200 100 --workers 6
+    python -m experiments.scripts.two_score_sim --n 16000 64000 256000 --reps 200 100 50 \
+        --estimators tensor tensor_cv --tag _cv --workers 6     # penalty check
 """
 from __future__ import annotations
 
@@ -127,24 +129,31 @@ def oracle(pop, X, eta, T, seed):
     return {k: np.mean(v, 0).tolist() for k, v in res.items()}
 
 
+# feasible estimators: name -> (alpha form, penalty); "cv" = cross-validated penalty
+FEASIBLE = {"tensor": ("tensor", 0.03), "additive": ("additive", 0.03),
+            "tensor_cv": ("tensor", "cv"), "additive_cv": ("additive", "cv")}
+
+
 def replicate(task):
-    name, n, seed = task
+    name, n, seed, estimators = task
     pop, X, eta, T, Q, Y = generate(name, n, seed)
     d = pop.d
     out = {"seed": seed, "oracle": oracle(pop, X, eta, T, seed + 1)}
     prob = TwoScoreProblem(Q=Q, X=X, Y=Y, deployed=Rule("both", tuple(d.phi0)),
                            cost=d.cost, eps=d.eps)
-    for form in ("tensor", "additive"):
-        r = estimate(prob, CLASSES, seed=seed + 1, form=form)
-        out[form] = {k: r[k]["theta"] for k in CLASSES}
-        out[form + "_edges"] = {k: r[k]["edge_rotations"] for k in CLASSES}
-        out[form + "_m"] = r["m"]
+    for est in estimators:
+        form, pen = FEASIBLE[est]
+        r = estimate(prob, CLASSES, seed=seed + 1, form=form, pen=pen)
+        out[est] = {k: r[k]["theta"] for k in CLASSES}
+        out[est + "_edges"] = {k: r[k]["edge_rotations"] for k in CLASSES}
+        out[est + "_m"] = r["m"]
+        out[est + "_pen"] = r["pen"]
     return out
 
 
-def summarize(rows, n, tg):
+def summarize(rows, n, tg, estimators):
     s = {}
-    for est in ("oracle", "tensor", "additive"):
+    for est in ("oracle", *estimators):
         s[est] = {}
         for k in CLASSES:
             th = np.array([r[est][k] for r in rows])
@@ -155,6 +164,9 @@ def summarize(rows, n, tg):
                          "sd": th.std(0, ddof=1).round(4).tolist(),
                          "n_var": (n * th.var(0, ddof=1)).round(2).tolist(),
                          "mc_se_bias": (th.std(0, ddof=1) / np.sqrt(len(th))).round(4).tolist()}
+        if est != "oracle":
+            pens = np.array([r[est + "_pen"] for r in rows]).ravel()
+            s[est]["pen_chosen"] = {str(v): int(c) for v, c in zip(*np.unique(pens, return_counts=True))}
     return s
 
 
@@ -165,6 +177,9 @@ def main(argv=None):
     ap.add_argument("--reps", nargs="+", type=int, default=[200, 100])
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--seed", type=int, default=20261028)
+    ap.add_argument("--estimators", nargs="+", default=["tensor", "additive"],
+                    choices=list(FEASIBLE))
+    ap.add_argument("--tag", default="")
     a = ap.parse_args(argv)
     OUT.mkdir(parents=True, exist_ok=True)
     summary = {}
@@ -174,14 +189,14 @@ def main(argv=None):
         print(name, json.dumps({k: v.get("theta") for k, v in tg.items() if isinstance(v, dict)}))
         for n, reps in zip(a.n, a.reps):
             t0 = time.time()
-            tasks = [(name, n, a.seed + 1000 * r + n) for r in range(reps)]
+            tasks = [(name, n, a.seed + 1000 * r + n, tuple(a.estimators)) for r in range(reps)]
             with ProcessPoolExecutor(a.workers) as ex:
                 rows = list(ex.map(replicate, tasks))
-            (OUT / f"rows_{name}_n{n}.json").write_text(json.dumps(rows))
-            summary[name][str(n)] = summarize(rows, n, tg)
+            (OUT / f"rows_{name}_n{n}{a.tag}.json").write_text(json.dumps(rows))
+            summary[name][str(n)] = summarize(rows, n, tg, a.estimators)
             print(f"  n={n} reps={reps} {time.time() - t0:.0f}s")
             print(json.dumps(summary[name][str(n)], indent=None)[:3000])
-    (OUT / "summary.json").write_text(json.dumps(summary, indent=1))
+    (OUT / f"summary{a.tag}.json").write_text(json.dumps(summary, indent=1))
 
 
 if __name__ == "__main__":

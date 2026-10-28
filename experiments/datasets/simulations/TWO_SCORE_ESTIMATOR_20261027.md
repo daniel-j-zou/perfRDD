@@ -119,3 +119,72 @@ and 1.0-1.4 for the cutoff rules.
 - Theory: the oracle part extends `manuscript/pairwise_theory.tex` (Sherman 1993, 1994).
   The penalized two-dimensional outcome fit, the generated index and the level-set trim
   are not covered. Nothing here is proved.
+
+## Follow-up: cross-validated penalty and larger n (2026-10-27, Claude)
+
+At the author's request ("Tune and check").
+
+**Penalty by cross-validation.** `outcome_fit(pen="cv")` is now the default. It picks pen
+from PEN_GRID by 5-fold cross-validation of the squared prediction error of Y on the
+outcome fold. The grid was 0.001-10 for the simulations below, and 0.001-100 after data
+runs reached the top of the grid. The penalty matrix (second differences in each
+coordinate) leaves functions linear in each coordinate unpenalized, so a very large
+penalty fits alpha and b as bilinear in (eta1, eta2).
+
+**Simulations** (`two_score_sim.py --estimators tensor tensor_cv --tag _cv`): 200 / 100 /
+100 / 50 data sets at n = 16k / 64k / 256k / 1M; `tensor` keeps pen = 0.03. The 16k and
+64k draws are the same data sets as above.
+
+| design | rule | estimator | n Var at 16k / 64k / 256k / 1M | sqrt(n) bias at 1M |
+|---|---|---|---|---|
+| symmetric | half_fixed | oracle | 1.05 / 0.73 / 0.79 / 0.84 | -0.23 |
+| symmetric | half_fixed | tensor | 30.6 / 25.7 / 31.4 / 23.5 | 0.78 |
+| symmetric | half_fixed | tensor_cv | 31.5 / 25.6 / 31.7 / 24.8 | -0.584 |
+| symmetric | half | oracle | (0.2, 1.08) / (0.17, 0.71) / (0.22, 0.79) / (0.2, 0.84) | (-0.054, -0.225) |
+| symmetric | half | tensor | (7.97, 31.1) / (5.63, 25.2) / (6.1, 31.5) / (6.46, 23.5) | (-0.054, 0.768) |
+| symmetric | half | tensor_cv | (7.23, 31.6) / (5.48, 25.4) / (6.01, 31.6) / (6.24, 24.8) | (-0.334, -0.592) |
+| symmetric | both | oracle | (5.48, 5.69) / (5.6, 4.69) / (6.13, 6.74) / (7, 5.11) | (-0.932, 0.035) |
+| symmetric | both | tensor | (203, 206) / (120, 158) / (180, 117) / (126, 162) | (0.104, 1.69) |
+| symmetric | both | tensor_cv | (161, 187) / (116, 148) / (178, 115) / (123, 164) | (-3.17, 1.22) |
+| symmetric | either | oracle | (4.71, 3.87) / (3.07, 4.48) / (3.18, 3.19) / (3.46, 4.1) | (0.052, -0.497) |
+| symmetric | either | tensor | (171, 148) / (134, 109) / (95.9, 146) / (143, 122) | (2.36, 0.887) |
+| symmetric | either | tensor_cv | (170, 145) / (134, 109) / (96.8, 147) / (144, 117) | (1.92, -1.99) |
+| complementary | half_fixed | oracle | 1.22 / 0.76 / 0.81 / 1.02 | -0.218 |
+| complementary | half_fixed | tensor | 25.3 / 20.9 / 27.3 / 18.8 | 0.774 |
+| complementary | half_fixed | tensor_cv | 26.4 / 20.6 / 27.4 / 19.5 | -0.53 |
+| complementary | half | oracle | (0.27, 1.19) / (0.21, 0.7) / (0.25, 0.81) / (0.3, 1.02) | (-0.029, -0.218) |
+| complementary | half | tensor | (8.32, 25.7) / (5.84, 20.7) / (6.43, 27.3) / (7.42, 18.8) | (0.017, 0.745) |
+| complementary | half | tensor_cv | (7.6, 26.7) / (5.71, 20.5) / (6.36, 27.4) / (7.29, 19.5) | (-0.22, -0.548) |
+| complementary | both | oracle | (4.06, 3.59) / (3.22, 2.93) / (3.71, 4.15) / (5.64, 4.42) | (-0.633, -0.091) |
+| complementary | both | tensor | (108, 111) / (75.3, 86.3) / (113, 73.5) / (76.8, 105) | (0.531, 1.34) |
+| complementary | both | tensor_cv | (103, 113) / (76.9, 83.3) / (115, 72.5) / (77.1, 106) | (-1.81, 0.767) |
+| complementary | either | oracle | (8.12, 8.37) / (6.26, 7.96) / (6.55, 6.89) / (7.63, 9.33) | (0.114, -0.337) |
+| complementary | either | tensor | (302, 267) / (197, 184) / (169, 229) / (251, 214) | (2.7, 1.54) |
+| complementary | either | tensor_cv | (282, 240) / (190, 179) / (166, 229) / (248, 207) | (2.76, -1.4) |
+
+- **Oracle.** n Var is flat from 16k to 1M.
+- **Feasible.**
+  - n Var stops falling after 64k and stays flat to 1M, within the Monte Carlo error of
+    about 20% at 50 data sets. It is 30-40 times the oracle's for the weighted-average
+    rules and 20-40 times for the cutoff rules. So the estimator reaches a root-n regime
+    from about n = 64k, with a large variance constant. The earlier reading that the
+    asymptotic regime was not reached rested on 16k and 64k only.
+  - The penalty level does not change the variance.
+- **Cross-validated penalty.**
+  - The chosen penalty falls with n: mostly 1 at 16k, 0.3 at 64k-256k, 0.1 at 1M.
+  - Its sqrt(n) bias in the cutoff is -3.0 at 16k, -1.9 at 256k and -0.6 at 1M for the
+    weighted-average rules, a smoothing bias that fades with n.
+  - At 1M, both penalties have sqrt(n) bias within about 1-2 Monte Carlo se.
+
+**Data with the cross-validated penalty.**
+
+| data | penalty chosen (per rotation) | weights fixed: cutoff (boot sd) | weights chosen: (weight, cutoff) (boot sd) | both (boot sd) | either |
+|---|---|---|---|---|---|
+| Chile, university 2025, c = 0.1 (B = 40) | 1, 1, 10, 3 | 416.0 (6.2) | (0.55, 415.9), sd (0.07, 6.5); 20% of draws hit an edge | (380, 353), sd (6, 18) | unstable (sd 89-96) |
+| Chile, university 2025, c = 0.2 (B = 40) | 1, 1, 10, 3 | 503.6 (11.4) | (0.52, 503.9), sd (0.04, 11.4) | (478, 452), sd (16, 23) | unstable (sd 70-74) |
+| Florida, next-year points (B = 100) | 100 in every rotation | 53.6 (1.1) | (0.31, 53.6), sd (0.06, 1.1) | 59% edge | (61.4, 56.3), sd (3.6, 1.6) |
+| Census tracts; Chile any enrollment | 30-100; 1-100 | edge | edge | edge | edge |
+
+- The estimates move by at most a few points from the pen = 0.03 runs.
+- In Florida and the census tracts, cross-validation picks the top of the grid, so alpha
+  is fitted as bilinear in (eta1, eta2).

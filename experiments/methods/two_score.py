@@ -167,6 +167,7 @@ class OutcomeFit:
     w1: np.ndarray
     d0: np.ndarray
     d1: np.ndarray
+    pen: float = 0.0
 
     def alpha(self, e):
         return self.basis(e) @ (self.w1 - self.w0)
@@ -189,13 +190,27 @@ def _diff_penalty(m: int, form: str) -> np.ndarray:
     return P
 
 
+PEN_GRID = (0.001, 0.003, 0.01, 0.03, 0.1, 0.3, 1.0, 3.0, 10.0, 30.0, 100.0)
+
+
+def _penalized(ZtZ, ZtY, P, nb, p, pen):
+    A = ZtZ.copy()
+    if pen > 0:
+        for start in (0, nb + p):
+            sl = slice(start, start + nb)
+            A[sl, sl] += pen * float(np.mean(np.diag(ZtZ)[sl])) * P
+    return np.linalg.lstsq(A, ZtY, rcond=None)[0]
+
+
 def outcome_fit(e, X, D, Y, form="tensor", m: Optional[int] = None,
-                pen: float = 0.03) -> OutcomeFit:
+                pen="cv", cv_folds: int = 5, seed: int = 0) -> OutcomeFit:
     """Arm-wise stacked spline fit: columns ((1-D)B, (1-D)X, DB, DX).
 
     In two dimensions some tensor cells hold data from one arm only (the deployed rule
-    separates the arms), so each arm's spline coefficients get a small second-difference
-    penalty, pen x (mean diagonal of that arm's Gram block). pen = 0 gives least squares."""
+    separates the arms), so each arm's spline coefficients get a second-difference
+    (P-spline) penalty, pen x (mean diagonal of that arm's Gram block). pen = 0 gives
+    least squares; pen = "cv" picks pen from PEN_GRID by ``cv_folds``-fold
+    cross-validation of the squared prediction error of Y."""
     box = np.column_stack([np.quantile(e, 0.005, axis=0), np.quantile(e, 0.995, axis=0)])
     if m is None:
         n1 = int(D.sum())
@@ -206,13 +221,19 @@ def outcome_fit(e, X, D, Y, form="tensor", m: Optional[int] = None,
     Z = np.column_stack(((1 - Dc) * B, (1 - Dc) * X, Dc * B, Dc * X))
     nb, p = B.shape[1], X.shape[1]
     ZtZ, ZtY = Z.T @ Z, Z.T @ Y
-    if pen > 0:
-        P = _diff_penalty(m, form)
-        for start in (0, nb + p):
-            sl = slice(start, start + nb)
-            ZtZ[sl, sl] += pen * float(np.mean(np.diag(ZtZ)[sl])) * P
-    coef = np.linalg.lstsq(ZtZ, ZtY, rcond=None)[0]
-    return OutcomeFit(basis, coef[:nb], coef[nb + p:2 * nb + p], coef[nb:nb + p], coef[2 * nb + p:])
+    P = _diff_penalty(m, form)
+    if pen == "cv":
+        k = np.random.default_rng(seed).integers(0, cv_folds, len(Y))
+        parts = [(Z[k == f], Y[k == f]) for f in range(cv_folds)]
+        sse = np.zeros(len(PEN_GRID))
+        for Zf, Yf in parts:
+            A, b = ZtZ - Zf.T @ Zf, ZtY - Zf.T @ Yf
+            for g, pg in enumerate(PEN_GRID):
+                sse[g] += float(np.sum((Yf - Zf @ _penalized(A, b, P, nb, p, pg)) ** 2))
+        pen = PEN_GRID[int(np.argmin(sse))]
+    coef = _penalized(ZtZ, ZtY, P, nb, p, float(pen))
+    return OutcomeFit(basis, coef[:nb], coef[nb + p:2 * nb + p], coef[nb:nb + p],
+                      coef[2 * nb + p:], pen=float(pen))
 
 
 # ---------------------------------------------------------------- utility surfaces
@@ -388,7 +409,7 @@ def _ols(A, y):
 
 
 def rotation_pairs(prob: TwoScoreProblem, folds: Dict[str, np.ndarray], form: str = "tensor",
-                   m: Optional[int] = None, pen: float = 0.03) -> Tuple[Pairs, OutcomeFit, Dict]:
+                   m: Optional[int] = None, pen="cv") -> Tuple[Pairs, OutcomeFit, Dict]:
     """First stage, trim, outcome fit and the pairwise pieces for one role assignment."""
     Xt = np.column_stack([np.ones(len(prob.Xc)), prob.Xc])
     Gam = _ols(Xt[folds["gamma"]], prob.Z[folds["gamma"]])
@@ -407,7 +428,7 @@ def rotation_pairs(prob: TwoScoreProblem, folds: Dict[str, np.ndarray], form: st
     u[I > 0] = fit.alpha(e_u[I > 0]) - prob.cost
     pairs = Pairs(e=e_u, u=u * I, I=I, T=T_idx, x=prob.Xc[folds["index"]] @ fit.beta2,
                   n_u=len(e_u), n_x=len(T_idx))
-    info = {"gamma": Gam, "trim_share": float(I.mean()), "m": fit.basis.m}
+    info = {"gamma": Gam, "trim_share": float(I.mean()), "m": fit.basis.m, "pen": fit.pen}
     return pairs, fit, info
 
 
@@ -419,7 +440,7 @@ def make_folds(n: int, seed: int):
 
 def estimate(prob: TwoScoreProblem, classes: Dict[str, Dict], seed: int = 0,
              form: str = "tensor", m: Optional[int] = None, rotations: int = 4,
-             pen: float = 0.03) -> Dict:
+             pen="cv") -> Dict:
     """Rotated estimator: per rotation, the argmax for each rule class; then the average.
 
     ``classes`` maps a label to {"kind": "halfplane"|"both"|"either", "box": ...,
@@ -443,7 +464,7 @@ def estimate(prob: TwoScoreProblem, classes: Dict[str, Dict], seed: int = 0,
             r.pop("profile", None)
             per[label].append(r)
     out = {"U_deployed": float(np.mean(U_dep)), "trim_share": float(np.mean([i["trim_share"] for i in infos])),
-           "m": infos[0]["m"]}
+           "m": infos[0]["m"], "pen": [i["pen"] for i in infos]}
     for label, rs in per.items():
         th = np.array([r["theta"] for r in rs])
         out[label] = {"theta": th.mean(0).tolist(), "theta_rot": th.tolist(),
