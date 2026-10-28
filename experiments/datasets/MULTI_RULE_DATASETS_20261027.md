@@ -149,6 +149,30 @@ Checked and left for the author or for later:
     about 2,800 areas.
   - Kentucky's status-by-change color table (like California's).
 
+## Fifth round (2026-10-28)
+
+At the author's request ("keep looking for more datasets"). CMS's own site blocks
+scripts, so the CMS files come from NBER's public mirror of the Compare downloads
+(data.nber.org/compare/). Builds by subagents; Claude re-ran each loader and rule check.
+
+| Folder | Rule class | n | Outcome | Rule check |
+|---|---|---:|---|---|
+| `cms_hacrp` | penalized if the Total HAC Score is in the worst quartile; two-score view 0.15 PSI-90 domain + 0.85 infection domain (FY2018-19) | 14,657 hospital-years (two-score 5,711) | Total HAC Score three years later | 100% of CMS's penalty flags, FY2016-2026 |
+| `esrd_qip` | payment-reduction bands below a minimum Total Performance Score; two-score 0.75 clinical + 0.25 reporting | 11,477 facility-years (PY2015, PY2017) | TPS two payment years later | 100% of published reductions, PY2014-2019 |
+| `nursing_homes` (was a stub) | inspection stars by state percentile cutoffs; 5-star staffing = RN hours and total hours both above cut points | 68,431 inspection events (staffing 66,322) | next inspection's deficiency score | every check 99.99-100%; state cut points recomputed exactly |
+| `fdic_capital` | well capitalized = every capital ratio above its cutoff; in practice total risk-based >= 10 and leverage >= 5 (both) | 248,738 bank-years | loan growth; failure (binary) | ratios recomputed exactly; no published bank-level category |
+
+- Estimator (c = 0, outcomes signed so higher is better): every rule class goes to the
+  edge in all four. HACRP and nursing homes show no effect; dialysis has selective
+  attrition; banks bunch just above both cutoffs.
+- `il_school_designations` was still being built when this was written.
+
+**Decision (author, 2026-10-28): continuous outcomes only.** A binary Y would need a
+different outcome model, so the two-score work keeps to settings with a continuous Y.
+That drops Chile (enrollment), gainful employment (closure) and bank failure. The five
+continuous-Y settings with an interior optimum are written up, one per page, in
+`../writeups/two_score_settings/two_score_settings.pdf`.
+
 ## Waiting for the author
 
 Each folder below has a README with the download steps. Files go in its `data/raw/`.

@@ -402,5 +402,6 @@ def load_two_score(boundary: str = MAIN_BOUNDARY) -> RDDSample:
         citation="Florida Department of Education, School Grades",
         treatment_rule=lambda Q: (Q @ np.array(w) >= cut).astype(int),
         extras={"weights": w, "cutoff": cut, "year": df.year.to_numpy(int),
+                "school": (df.district * 100000 + df.school).to_numpy(int),
                 "eligible_published": df.grade.isin(list("ABCD"[:j + 1])).to_numpy(float)},
     )

@@ -9,6 +9,35 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-28 - Two-score work: continuous outcomes only; settings write-up; fifth round of datasets (Claude)
+
+- **Decision (author):** the two-score work keeps to settings with a continuous outcome.
+  A binary Y (Chile enrollment, gainful-employment closure, bank failure) would need a
+  different outcome model, not the partially linear one in the paper.
+- **Write-up:** `experiments/writeups/two_score_settings/two_score_settings.pdf`, one
+  page per setting with alpha_hat(eta) and U_hat figures, made by
+  `experiments/scripts/two_score_writeup.py`. Settings: Texas A/B, Florida B/C, North
+  Carolina B/C, NC low-performing, NYC A/B. No bootstrap (author: check whether the
+  settings are reasonable, quickly); the range over the four fold rotations is shown.
+  - Texas: weights fixed, cutoff 87.9 (rotations 87.0-88.9) against 89.5; both cutoffs
+    (86.8, 82.0), stable.
+  - Florida and NC B/C: the estimate is the deployed cutoff (53.6 and 69.5), with
+    rotation ranges of about 6 points.
+  - NC low-performing: alpha_hat changes sign inside the data (designation helps schools
+    far below their predicted score); estimated rule Q1 < 59.6 and Q2 < 90.0 against
+    (54.5, 85).
+  - NYC A/B: higher cutoff and more weight on progress in every rotation, cutoff range
+    13 points.
+  - Gains over the deployed rules are 0.01-0.08 points of outcomes with sd 10-19.
+- **Fifth round of datasets** (`MULTI_RULE_DATASETS_20261027.md`): `cms_hacrp`,
+  `esrd_qip`, `nursing_homes` (stub completed), `fdic_capital`, all with exact rule
+  checks; CMS files via NBER's public mirror. Every rule class goes to the edge in all
+  four (no effect, selective attrition, or bunching at the cutoffs).
+- **Code:** `two_score_apply.py` can resample whole schools in the bootstrap (CLUSTER);
+  the row bootstrap understates sds for school panels. Not run, at the author's request.
+
+— Claude
+
 ## 2026-10-28 - Dose schedules on real data: estimator, seven new datasets, first evaluation (Claude)
 
 The author asked for datasets fitting the continuous-dose setting ("download as much data as

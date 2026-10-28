@@ -15,7 +15,8 @@ average with the deployed weights (only the cutoff moves), with chosen weights, 
 cutoffs, and either cutoff. Reported: the estimated rule, U_hat at it and at the deployed
 rule (per unit of the evaluation fold, in outcome units), the rotation spread, and
 whether a rotation hit the edge of the policy box. Optional bootstrap with full
-re-estimation (``--boot``).
+re-estimation (``--boot``); for datasets in CLUSTER the bootstrap resamples whole
+schools (or campuses), since they repeat across years.
 
 Run from ``code/``:
     python -m experiments.scripts.two_score_apply                 # point estimates
@@ -253,10 +254,75 @@ def _nyc(boundary="CD"):
     return s, dep, (1, 1), classes
 
 
+def _hacrp():
+    """CMS HAC Reduction Program, FY2018-2019: penalized if 0.15 PSI-90 domain + 0.85
+    infection domain (each standardized, net of the cutoff) >= 0. Y is the Total HAC Score
+    three years later, which is worse when higher, so it is negated here: the estimator
+    maximizes the outcome."""
+    from experiments.datasets.cms_hacrp import adapter as a
+    s = a.load_two_score()
+    s.Y = -s.Y
+    dep = Rule("halfplane", (0.15, 0.0))
+    classes = {
+        "fixed_weights": {"kind": "halfplane", "lam_fixed": 0.15, "box": (-0.5, 0.5)},
+        "weights": {"kind": "halfplane", "lam_range": (0.05, 0.6), "box": (-0.5, 0.5)},
+        "both": {"kind": "both", "box": ((-1.5, 2.0), (-1.5, 2.0))},
+        "either": {"kind": "either", "box": ((-0.5, 3.0), (-0.5, 3.0))},
+    }
+    return s, dep, (1, 1), classes
+
+
+def _esrd():
+    """ESRD QIP, payment years 2015 and 2017: no payment reduction if 0.75 clinical +
+    0.25 reporting >= 59.5 (the TPS is an integer, minimum 60); Y = the TPS two payment
+    years later. D = 1 is the side without a reduction."""
+    from experiments.datasets.esrd_qip import adapter as a
+    s = a.load_two_score()
+    dep = Rule("halfplane", (0.75, 59.5))
+    classes = {
+        "fixed_weights": {"kind": "halfplane", "lam_fixed": 0.75, "box": (45.0, 75.0)},
+        "weights": {"kind": "halfplane", "lam_range": (0.5, 0.95), "box": (45.0, 75.0)},
+        "both": {"kind": "both", "box": ((20.0, 90.0), (30.0, 100.0))},
+        "either": {"kind": "either", "box": ((40.0, 100.0), (60.0, 100.0))},
+    }
+    return s, dep, (1, 1), classes
+
+
+def _nursing():
+    """Nursing homes, 5-star staffing: RN hours >= c_RN and total hours >= c_total (both,
+    per resident day, net of the period's cut points). Y = log(1 + deficiency score of the
+    next standard survey), worse when higher, so it is negated here."""
+    from experiments.datasets.nursing_homes import adapter as a
+    s = a.load_two_score()
+    s.Y = -s.Y
+    dep = Rule("both", (0.0, 0.0))
+    classes = {
+        "both": {"kind": "both", "box": ((-0.3, 0.3), (-1.0, 1.0))},
+        "either": {"kind": "either", "box": ((-0.1, 0.6), (-0.3, 1.5))},
+    }
+    return s, dep, (1, 1), classes
+
+
+def _fdic():
+    """Banks, Q4 1992-2024: well capitalized if total risk-based capital >= 10% and
+    leverage >= 5% (the binding pair; tier 1 and CET1 almost never bind alone), a
+    both-cutoffs rule; Y = log loan growth over the next four quarters. Banks bunch just
+    above both cutoffs, so the score density is not continuous there."""
+    from experiments.datasets.fdic_capital import adapter as a
+    s = a.load_two_score()
+    dep = Rule("both", (10.0, 5.0))
+    classes = {
+        "both": {"kind": "both", "box": ((8.0, 13.0), (3.5, 7.0))},
+        "either": {"kind": "either", "box": ((9.0, 16.0), (4.5, 10.0))},
+    }
+    return s, dep, (1, 1), classes
+
+
 DATASETS = {"chile_two_score": _chile, "chile_two_score_univ": lambda: _chile("univ_2025"),
             "chile_top10": _chile_top10, "wi_report_cards": _wi,
             "ca_dashboard_ela": _ca, "ca_dashboard_math": lambda: _ca("math"),
             "nyc_progress_reports": _nyc, "nyc_progress_reports_ab": lambda: _nyc("AB"),
+            "fdic_capital": _fdic, "nursing_homes": _nursing, "cms_hacrp": _hacrp, "esrd_qip": _esrd,
             "gainful_employment": _ge, "gainful_employment_fail": lambda: _ge(True),
             "in_school_grades_df": _indiana, "in_school_grades_bc": lambda: _indiana("BC"),
             "chile_2024_univ_same_year": lambda: _chile("univ_2024"),
@@ -265,6 +331,23 @@ DATASETS = {"chile_two_score": _chile, "chile_two_score_univ": lambda: _chile("u
             "us_tracts_lic": _tracts, "fl_school_grades": _florida,
             "nc_school_grades": _nc, "nc_low_performing": _nc_low_performing,
             "la_school_grades": _la, "us_tracts_ciia": _ciia, "tx_school_ratings": _tx}
+
+
+# unit id for the cluster bootstrap (schools repeat across years)
+CLUSTER = {"tx_school_ratings": "campus", "fl_school_grades": "school",
+           "nc_school_grades": "agency_code", "nc_low_performing": "agency_code",
+           "nyc_progress_reports": "dbn", "nyc_progress_reports_ab": "dbn"}
+
+
+def _draw(s, name, seed):
+    """Bootstrap row indices: whole clusters when the dataset has a unit id."""
+    rng = np.random.default_rng(seed)
+    if name not in CLUSTER:
+        return rng.integers(0, s.n, s.n)
+    _, g = np.unique(np.asarray(s.extras[CLUSTER[name]]), return_inverse=True)
+    rows = np.split(np.argsort(g, kind="stable"), np.cumsum(np.bincount(g))[:-1])
+    pick = rng.integers(0, len(rows), len(rows))
+    return np.concatenate([rows[k] for k in pick])
 
 
 def problem(name, cost=0.0, eps=0.05, idx=None):
@@ -284,7 +367,7 @@ def _one(task):
     s, _, _ = problem(name, cost, eps)
     idx = None
     if boot:
-        idx = np.random.default_rng(seed).integers(0, s.n, s.n)
+        idx = _draw(s, name, seed)
     _, prob, classes = problem(name, cost, eps, idx)
     r = estimate(prob, classes, seed=seed)
     r["D_agreement"] = float(np.mean(prob.D == s.D[idx] if idx is not None else prob.D == s.D))
@@ -318,7 +401,8 @@ def main(argv=None):
         allres[name] = res
         print(name, f"{time.time() - t0:.0f}s")
         print(json.dumps(res, indent=1)[:4000])
-        tag = f"_c{a.cost:g}_eps{a.eps:g}" + (f"_boot{a.boot}" if a.boot else "")
+        boot = ("_cboot" if name in CLUSTER else "_boot") + str(a.boot)
+        tag = f"_c{a.cost:g}_eps{a.eps:g}" + (boot if a.boot else "")
         (OUT / f"{name}{tag}.json").write_text(json.dumps(res, indent=1))
 
 
