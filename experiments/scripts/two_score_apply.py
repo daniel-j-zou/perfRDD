@@ -79,11 +79,85 @@ def _florida():
     return s, dep, (1, 1), classes
 
 
+def _nc():
+    from experiments.datasets.nc_school_grades import adapter as a
+    s = a.load()
+    dep = Rule("halfplane", (0.8, 69.5))
+    classes = {
+        "fixed_weights": {"kind": "halfplane", "lam_fixed": 0.8, "box": (40.0, 95.0)},
+        "weights": {"kind": "halfplane", "lam_range": (0.5, 0.95), "box": (40.0, 95.0)},
+        "both": {"kind": "both", "box": ((30.0, 100.0), (40.0, 100.0))},
+        "either": {"kind": "either", "box": ((40.0, 100.0), (50.0, 100.0))},
+    }
+    return s, dep, (1, 1), classes
+
+
+def _nc_low_performing():
+    """Designated if 0.8 A + 0.2 G < 54.5 and G < 85. On the scores (0.8 A + 0.2 G, G),
+    sign-reversed, this is a both-cutoffs rule; a linear map of the scores keeps the
+    score model."""
+    from experiments.datasets.nc_school_grades import adapter as a
+    s = a.load_low_performing()
+    A, G = s.Q[:, 0], s.Q[:, 1]
+    s.Q = np.column_stack([0.8 * A + 0.2 * G, G])
+    s.treatment_rule = lambda Q: ((Q[:, 0] < 54.5) & (Q[:, 1] < 85.0)).astype(int)
+    # strict inequalities: -Q >= -cutoff + tiny
+    dep = Rule("both", (-54.5 + 1e-9, -85.0 + 1e-9), signs=(-1, -1))
+    classes = {
+        "both": {"kind": "both", "box": ((-80.0, -30.0), (-100.0, -55.0))},
+        "either": {"kind": "either", "box": ((-80.0, -20.0), (-100.0, -40.0))},
+    }
+    return s, dep, (-1, -1), classes
+
+
+def _la():
+    from experiments.datasets.la_school_grades import adapter as a
+    s = a.load_two_score()
+    lam0, cut = float(s.extras["weights"][0]), float(s.extras["cutoff"])
+    dep = Rule("halfplane", (lam0, cut))
+    classes = {
+        "fixed_weights": {"kind": "halfplane", "lam_fixed": lam0, "box": (50.0, 100.0)},
+        "weights": {"kind": "halfplane", "lam_range": (0.4, 0.95), "box": (50.0, 100.0)},
+        "both": {"kind": "both", "box": ((40.0, 130.0), (20.0, 150.0))},
+        "either": {"kind": "either", "box": ((50.0, 150.0), (40.0, 150.0))},
+    }
+    return s, dep, (1, 1), classes
+
+
+def _ciia():
+    """Tracts failing the income test: eligible if poverty >= 20 or unemployment >= 1.5
+    times the national rate (an either rule on two scores)."""
+    from experiments.datasets.us_tracts_ciia import adapter as a
+    s = a.load_two_score()
+    dep = Rule("either", (20.0, 1.5))
+    classes = {
+        "either": {"kind": "either", "box": ((5.0, 45.0), (0.5, 3.0))},
+        "both": {"kind": "both", "box": ((0.0, 45.0), (0.0, 3.0))},
+    }
+    return s, dep, (1, 1), classes
+
+
+def _tx():
+    from experiments.datasets.tx_school_ratings import adapter as a
+    s = a.load_two_score()
+    lam0, cut = float(s.extras["weights"][0]), float(s.extras["cutoff"])
+    dep = Rule("halfplane", (lam0, cut))
+    classes = {
+        "fixed_weights": {"kind": "halfplane", "lam_fixed": lam0, "box": (70.0, 100.0)},
+        "weights": {"kind": "halfplane", "lam_range": (0.4, 0.95), "box": (70.0, 100.0)},
+        "both": {"kind": "both", "box": ((60.0, 105.0), (40.0, 105.0))},
+        "either": {"kind": "either", "box": ((70.0, 110.0), (60.0, 110.0))},
+    }
+    return s, dep, (1, 1), classes
+
+
 DATASETS = {"chile_two_score": _chile, "chile_two_score_univ": lambda: _chile("univ_2025"),
             "chile_2024_univ_same_year": lambda: _chile("univ_2024"),
             "chile_2023_univ_next_year": lambda: _chile("2023_univ_2024"),
             "chile_2025_univ_same_year": lambda: _chile("2025_univ_2025"),
-            "us_tracts_lic": _tracts, "fl_school_grades": _florida}
+            "us_tracts_lic": _tracts, "fl_school_grades": _florida,
+            "nc_school_grades": _nc, "nc_low_performing": _nc_low_performing,
+            "la_school_grades": _la, "us_tracts_ciia": _ciia, "tx_school_ratings": _tx}
 
 
 def problem(name, cost=0.0, eps=0.05, idx=None):

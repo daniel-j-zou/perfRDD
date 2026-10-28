@@ -73,6 +73,29 @@ Readiness, from `runs/multi_rule_readiness/summary.json`:
   - R^2 0.46, and sd(eta) changes 1.39-fold across T deciles.
   - The first stage is small: 1.2% of eligible students receive the award.
 
+## Third round (2026-10-28)
+
+At the author's request ("All five", then "download more if possible"). The builds were
+done by subagents; Claude re-ran each loader and its rule check.
+
+| Folder | Rule class | n | Outcome | Rule check |
+|---|---|---:|---|---|
+| `nc_school_grades` | fixed-weight sum 0.8 achievement + 0.2 growth, grade bands; low-performing = (score < 54.5) and (growth < 85), a both-cutoffs rule | 12,425 school-years (2018-2025) | next year's grade score | grade 100% (2018-2025); low-performing 100% of 4,055 designations |
+| `tx_school_ratings` | 0.7 max(achievement, progress) + 0.3 closing the gaps, grade bands | 38,075 campus-years (2019, 2022-2025) | next rated year's overall score | overall score 54,066 of 54,066 outside four local-accountability districts; A/B treatment 100% |
+| `la_school_grades` | weighted sum of indices, grade bands; two-score view 0.75 assessment + 0.25 progress | 5,839 (two-score 1,089) | next year's school performance score | grade 99.9%; two-score 100% |
+| `chile_two_score` (2023 and 2025 cohorts) | the same two-test rule | about 220k each | university enrollment | 2025 matches the published flag for every registrant; 2023 has no flag but shows the jump at 458 |
+| `us_tracts_ciia` | either cutoff on three scores: poverty, income, unemployment (CDFI investment areas, ACS 2016-2020) | 76,961 tracts (two-score sample 50,028) | change in log jobs 2022-2023 (LODES8) | 100% outside the exception routes |
+| `hrsa_hpsa` | one integer score (0-25) with a yearly funding cutoff (13-17) | 8,174 shortage areas | **placeholder**; no credible outcome | cutoffs from HRSA applicant tables and Federal Register notices |
+| `erate` | discount bands on the school-lunch share, urban / rural | 73,434 entity-years | next year's requested dollars | 309,351 applications match the matrix; **bunching just above 49.5** |
+| `cejst_tracts` | low-income percentile >= 65 and max burden percentile >= 90 (CEJST v2.0) | 73,273 tracts | **placeholder** (none in the file) | 93.75%; the rest are additions by other routes. Files are Wayback copies of the original server |
+
+- Arizona was tried first for a third state; azed.gov serves scripts a Cloudflare
+  challenge, so the author would have to download it by hand.
+- The 2011-2015 CDFI investment-area file is no longer published, so `us_tracts_ciia`
+  uses 2016-2020.
+- Estimator results for these datasets are in
+  `simulations/TWO_SCORE_ESTIMATOR_20261027.md`, under "More data".
+
 ## Waiting for the author
 
 Each folder below has a README with the download steps. Files go in its `data/raw/`.

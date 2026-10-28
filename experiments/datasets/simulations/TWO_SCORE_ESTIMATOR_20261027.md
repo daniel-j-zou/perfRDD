@@ -188,3 +188,30 @@ penalty fits alpha and b as bilinear in (eta1, eta2).
 - The estimates move by at most a few points from the pen = 0.03 runs.
 - In Florida and the census tracts, cross-validation picks the top of the grid, so alpha
   is fitted as bilinear in (eta1, eta2).
+
+## More data (2026-10-28, Claude)
+
+The estimator (cross-validated penalty, eps 0.05, c = 0; Y = next year's score) on the
+third-round datasets. Bootstrap with full re-estimation; "edge" is the share of draws
+with a rotation at the edge of the policy box.
+
+| data (B) | deployed | weights fixed: cutoff (sd) | weights chosen: (weight, cutoff) (sd); edge | both (sd); edge | either |
+|---|---|---|---|---|---|
+| Texas A/B (50) | 0.7 M + 0.3 CtG >= 89.5 | 87.9 (0.9) | (0.56, 87.3), sd (0.07, 0.9); 66% | (86.8, 82.0), sd (1.8, 1.3); 4% | unstable (100% edge) |
+| North Carolina B/C (100) | 0.8 A + 0.2 G >= 69.5 | 69.5 (1.6) | (0.88, 68.4), sd (0.06, 1.4); 84% | (66.7, 50.3); 94% | collapses to a cutoff on achievement |
+| NC low-performing (100) | designated if score < 54.5 and G < 85 | — | — | score < 59.6 and G < 90.0, sd (2.5, 3.5); 69% | unstable |
+| Louisiana two-score (100) | 0.75 assessment + 0.25 progress >= 75 | 78.6 (5.2) | (0.71, 82.4); 86% | 62% edge | (80.2, 115.9), sd (5.5, 12.2) |
+| CDFI investment areas, two-score | poverty >= 20 or unemployment >= 1.5 x national | — | — | edge | edge (effect on job growth about zero) |
+
+The Chile cohorts are in `../chile_two_score/README.md`. With the weights fixed, the
+estimated cutoff is 416-436 at c = 0.1 and 476-504 at c = 0.2 across four samples. The
+chosen reading weight is 0.55-0.61 in every sample.
+
+- **Texas** is the cleanest school result. With the weights fixed, the A/B cutoff is
+  estimated about 1.9 sd below the deployed 89.5. The both-cutoffs rule is well
+  determined (4% edge).
+- **North Carolina** gives no reason to move the B/C cutoff. The low-performing rule
+  would designate more schools (score cutoff 59.6 against 54.5, about 2 sd).
+- **Louisiana**'s two-score sample (1,089) is too small for the four-role split.
+- **Gains in value** over the deployed rules are small everywhere (Texas +0.009 to +0.022
+  points; NC +0.007 to +0.015; NC low-performing +0.08).

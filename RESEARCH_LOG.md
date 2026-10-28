@@ -9,6 +9,46 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-28 - Third round of datasets and estimator runs (Claude)
+
+At the author's request ("All five", then "download more if possible"). Seven new folders
+were built by subagents; Claude re-ran every loader and rule check, ran the two-score
+estimator where the rule fits, and ran the full test suite (116 tests, OK). Details:
+`experiments/datasets/MULTI_RULE_DATASETS_20261027.md` (third round) and
+`experiments/datasets/simulations/TWO_SCORE_ESTIMATOR_20261027.md` (more data).
+
+- **New, with a reproducible rule:**
+  - `nc_school_grades`: 0.8 achievement + 0.2 growth, grade bands, and a both-cutoffs
+    low-performing rule. Both reproduce 100% of the published values for 2018-2025.
+  - `tx_school_ratings`: 0.7 max(achievement, progress) + 0.3 closing the gaps.
+    Reproduces 54,066 of 54,066 overall scores outside four local-accountability
+    districts.
+  - `la_school_grades`: weighted indices, grade bands, 99.9%.
+  - `us_tracts_ciia`: either cutoff on three scores, 2016-2020 vintage, 100% outside the
+    exception routes.
+  - `erate`: discount bands, 100% of applications. Bunching just above 49.5 suggests
+    manipulation.
+  - `cejst_tracts`: both cutoffs, 93.75%; Wayback copies of the original files.
+  - `hrsa_hpsa`: integer score with a yearly funding cutoff.
+  - `hrsa_hpsa` and `cejst_tracts` have only placeholder outcomes.
+- **Chile 2023 and 2025 cohorts** (`chile_two_score`, code 0c79e57). The estimator
+  replicates across four samples: cutoff 416-436 at c = 0.1 and 476-504 at c = 0.2; the
+  chosen reading weight is 0.55-0.61 every time, against 0.5 deployed.
+- **Estimator on schools** (c = 0, next year's score, bootstrap sd):
+  - Texas A/B: weights fixed, cutoff 87.9 (0.9) against 89.5 deployed. Both cutoffs
+    (86.8, 82.0), well determined (4% of draws at an edge).
+  - North Carolina B/C: 69.5 (1.6), no change.
+  - NC low-performing: score < 59.6 and growth < 90.0 against (54.5, 85), sd (2.5, 3.5).
+  - Louisiana: too small (n = 1,089).
+  - CDFI tracts: no interior optimum.
+  - Value gains over the deployed rules are small.
+- **Blocked:**
+  - Arizona's site (Cloudflare challenge) and TEA's form-based TAPR downloads (mobility
+    only) need the author.
+  - nhsc.hrsa.gov returns 403 to scripts.
+
+— Claude
+
 ## 2026-10-27 - Two-score estimator: cross-validated penalty and a check up to n = 1M (Claude)
 
 Follow-up to "Two-score estimator: simulations and first data results" below, at the
