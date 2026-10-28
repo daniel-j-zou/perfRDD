@@ -9,6 +9,49 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-28 - Dose schedules on real data: estimator, seven new datasets, first evaluation (Claude)
+
+The author asked for datasets fitting the continuous-dose setting ("download as much data as
+you'd like... keep a list of what you need me to do... see what sticks"), then for a short
+writeup with figures of alpha and U. This is groundwork for a possible next paper, outside
+`PROJECT_SCOPE.md`. Scan, results and the author's download list:
+`experiments/datasets/DOSE_SCHEDULE_DATASETS_20261028.md`. Writeup:
+`experiments/datasets/simulations/dose_schedule/dose_applications_eval.tex`.
+
+- **Estimator** (`experiments/methods/dose_schedule.py`, tests pass): Model 2 of
+  `dose_schedule_sketch.tex` with three role rotations; continuous doses (splines with
+  f(e, a_ref) = 0, a_ref anywhere in the range) or step schedules (level indicators);
+  `coverage` and `support_share` flag transported values outside the eta range of units given
+  that dose; `modifier_test` adds (A - a_ref) T_hat, which a one-to-one schedule absorbs
+  (r2_absorbed near 1) and steps or several schedules identify; `family_value` gives U(theta)
+  for a one-parameter schedule family. Runs: `scripts/dose_schedule_apply.py`,
+  `scripts/dose_schedule_figures.py`.
+- **New datasets** (built by subagents, loaders re-run here): `ui_upjohn` (WA 1988 + IL 1984
+  UI benefit formulas, 94.7% / 99.5% reproduced), `medicare_dsh` (DSH add-on, reproduced for
+  every hospital-year 2007-27 but one), `ca_lcff` (concentration grant, to the dollar for
+  districts), `medicare_ma_benchmarks` (50,296 of 50,298 county-years), `cms_esrd_qip`
+  (91,681 of 91,681 facility-years), `cms_hrrp`. `chile_sep` and `title1` are still being built
+  and are not committed.
+- **Reasonable settings** (supported region only; spreads are over the three rotations):
+  - UI: at 60% of the cap, weeks paid fall 2.7-3.2 (mean 17.0); replacement rate x 0.6 gives
+    -3.0 weeks (2.4-3.7) and -$1,001 benefits per claimant. Average effect stable; alpha in eta
+    not determined at n = 27,038.
+  - Medicare DSH: exit by t+2 -2.4 to -2.6 pp at an 8% add-on; the FY 2014-style cut to 25%
+    raises exit by 2.2 pp (1.5-2.8) for hospitals at <= 16%.
+  - LCFF: $1,000 per ADA raises next-spring ELA percent met by 0.7-2.3 pp (math 1.1-1.9);
+    R^2 0.82.
+- **Mechanically strong but weak as policy problems:** taxi with both vendors (R^2 0.88,
+  1.0 M rides; tip +$0.35-0.40 per dollar of suggestion; the modifier test rejects, possibly
+  vendor differences) and Lending Club (local support; who borrows is not observed).
+  **Weak:** E-Rate (bunching, R^2 0.29), dialysis QIP (null), MA benchmarks (near null),
+  NHANES lunch (n 12,730, noisy).
+- **Lessons:** transport distance is bounded by sd(T) (R^2 0.3 gives only neighbouring
+  doses); a linear baseline in X carries identification at doses whose units have X outside
+  the reference units' range (a cubic in taxi distance makes high doses explode).
+- **Lost scratch work:** the Model 2 consistency and root-n notes and their simulation
+  scripts lived only in the session scratchpad and were wiped by 2026-10-28; the pushed
+  `dose_schedule_sketch.tex` and the 2026-10-21 entry are what remains.
+
 ## 2026-10-28 - Fourth round of datasets; per-unit deployed rules in the estimator (Claude)
 
 At the author's request ("find more datasets"). Candidates were screened for a viable
