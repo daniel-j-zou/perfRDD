@@ -181,6 +181,35 @@ That drops Chile (enrollment), gainful employment (closure) and bank failure. Th
 continuous-Y settings with an interior optimum are written up, one per page, in
 `../writeups/two_score_settings/two_score_settings.pdf`.
 
+## Sixth round: treatments with documented effects (2026-10-29)
+
+At the author's request ("more good datasets, where the treatment does have a reasonable
+effect"; continuous Y only). Each treatment is an intervention, money or a regulation
+with published RD or quasi-experimental evidence. Builds by subagents; Claude re-ran each
+loader and the two-score estimator (point estimates, c = 0, no bootstrap).
+
+| Folder | Treatment and rule | n | Y | Rule check | Local jump in Y | Estimator |
+|---|---|---:|---|---|---|---|
+| `hospital_340b` | 340B eligibility: SSI % + Medicaid % > 27.3 (DSH adjustment > 11.75%), >= 22.8 for RRC/SCH; nonprofit and public hospitals | 25,831 cost reports (two-score 18,640) | log drug charges two reports later | 99.85% vs the cost reports' own line 33 | +0.24 (0.07); 340B billing 39% -> 73% | edge: the effect is nearly constant, so every rule treats all (c < 0.2) or none |
+| `fl_grades_2002` | Florida F grade 2002-2011: status + growth points below the D minimum | 26,713 (437 F) | next year's percent of points | every published F, 2002-2014 | +3.1 (1.1) | edge: only 7% of the evaluation fold is inside the trim |
+| `tx_index_2013` | Texas Improvement Required 2013-2014: Index 1/2 margin or Index 3/4 margin below 0 (either rule) | 11,543 (1,061 IR) | next year's Index 1 | 99.94% (appeals) | +1.1 (0.6); change +1.6 (0.7) | edge, rotations disagree |
+| `nc_ayp` | NCLB AYP in North Carolina 2004-2010: reading or math minimum subgroup margin below 0; sanction stage for schools already in improvement | 1,723 in improvement (all schools 13,403) | next year's math proficiency | 88% (97% in 2004, 2005, 2010) | +2 to +4 in improvement; +0.5 all schools | edge; density bump just above 0 |
+| `epa_pm25` | PM2.5 nonattainment: county max design value above the standard (1997 round: annual or 24-hour) | 403 counties a round (pooled 1,226) | change in PM2.5 3-5 years later | 89-98%; fuzzy below the cutoff (contributing counties) | none (-0.12, se 0.30) | not run |
+
+- **Lesson.** A real effect is not enough. An interior optimum needs (1) an effect that
+  varies across units and crosses the cost inside the supported region, as in NC
+  low-performing; (2) enough units near the boundary; (3) a sharp rule. 340B fails (1),
+  Florida F and NC AYP fail (2), EPA fails (3).
+- **Access.** Florida's archive page returns 403; its files came from direct FLDOE links
+  found through search and the Internet Archive's index. NC AYP's DPI hosts are gone; the
+  files are Internet Archive copies. Texas: 34,532 static TEA summary PDFs (rptsvr1 has no
+  robots.txt), converted with pdftotext; TEA's 2016 files need the form, so 2016 is
+  missing. 340B took HCRIS from downloads.cms.gov, but imports the Impact Files of
+  `medicare_dsh`, which came partly from NBER's mirror.
+- **NBER mirror.** data.nber.org's robots.txt is `Disallow: /`. `cms_hacrp`, `esrd_qip`
+  and `nursing_homes` (and the other session's `medicare_dsh`) downloaded from it; the
+  author has been asked what to do. No new downloads from NBER.
+
 ## Waiting for the author
 
 Each folder below has a README with the download steps. Files go in its `data/raw/`.

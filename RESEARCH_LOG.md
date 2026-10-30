@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-10-29 - Sixth round: datasets with documented treatment effects; NBER robots.txt (Claude)
+
+At the author's request ("more good datasets, where the treatment does have a reasonable
+effect"). Five folders built by subagents and re-checked here; details in
+`experiments/datasets/MULTI_RULE_DATASETS_20261027.md` (sixth round).
+
+- `hospital_340b`, `fl_grades_2002`, `tx_index_2013`, `nc_ayp`, `epa_pm25`. All but EPA
+  reproduce the published rule to 88-100% and show a real local jump in the continuous Y
+  (340B +24% drug charges; Florida F +3 points; NCLB sanctions +2 to +4; Texas IR +1).
+- **The two-score estimator goes to the edge in all five.** An interior optimum needs an
+  effect that varies and crosses the cost inside the supported region, enough units at the
+  boundary, and a sharp rule. 340B has a nearly constant effect; Florida F and NC AYP are
+  thin at the boundary; EPA is fuzzy with no local effect. NC low-performing (2026-10-28
+  write-up) remains the only setting with all three.
+- **robots.txt.** data.nber.org disallows all robots. `cms_hacrp`, `esrd_qip` and
+  `nursing_homes` (2026-10-28) and the other session's `medicare_dsh` downloaded from it
+  before this was checked; nothing new is fetched from it. The author has been asked
+  whether to re-source from CMS directly or drop those files.
+
+— Claude
+
 ## 2026-10-28 - Follow-up: budget-neutral dose redesigns (Claude)
 
 At the author's request, computed budget-neutral redesigns for the three settings judged

@@ -318,11 +318,76 @@ def _fdic():
     return s, dep, (1, 1), classes
 
 
+def _h340b():
+    """340B eligibility, DSH-group nonprofit and public hospitals, cost reports FY2011-2022:
+    eligible if SSI % + Medicaid % >= 27.325 (a DSH adjustment above 11.75%), written as
+    0.5 SSI + 0.5 Medicaid >= 13.6625; Y = log drug charges two cost reports later."""
+    from experiments.datasets.hospital_340b import adapter as a
+    s = a.load_two_score("dsh")
+    dep = Rule("halfplane", (0.5, 27.325 / 2))
+    classes = {
+        "fixed_weights": {"kind": "halfplane", "lam_fixed": 0.5, "box": (9.0, 18.0)},
+        "weights": {"kind": "halfplane", "lam_range": (0.25, 0.75), "box": (8.0, 20.0)},
+        "both": {"kind": "both", "box": ((0.0, 20.0), (5.0, 40.0))},
+        "either": {"kind": "either", "box": ((5.0, 40.0), (15.0, 60.0))},
+    }
+    return s, dep, (1, 1), classes
+
+
+def _fl2002():
+    """Florida school grades 2002-2011 at the D/F line: graded F if status points + growth
+    points < the D minimum, with Q = (status, growth) net of their shares of the cutoff, so
+    F = 1{Q1 + Q2 < 0}; on sign-reversed scores, 0.5 Z1 + 0.5 Z2 > 0. Y = next year's
+    percent of points."""
+    from experiments.datasets.fl_grades_2002 import adapter as a
+    s = a.load_two_score("all")
+    dep = Rule("halfplane", (0.5, 1e-6), signs=(-1, -1))
+    classes = {
+        "fixed_weights": {"kind": "halfplane", "lam_fixed": 0.5, "box": (-15.0, 15.0)},
+        "weights": {"kind": "halfplane", "lam_range": (0.3, 0.7), "box": (-15.0, 15.0)},
+        "both": {"kind": "both", "box": ((-60.0, 30.0), (-40.0, 30.0))},
+        "either": {"kind": "either", "box": ((-20.0, 40.0), (-20.0, 40.0))},
+    }
+    return s, dep, (-1, -1), classes
+
+
+def _nc_ayp(sample="improvement"):
+    """North Carolina NCLB AYP, 2004-2010: a school misses AYP if its reading or its math
+    margin (minimum over subgroup cells of proficiency minus min(CI, safe-harbor) target)
+    is below 0, an either rule on sign-reversed (Q_R, Q_M). "improvement": Title I schools
+    already in School Improvement, where a miss moves them up a sanction stage; "all": all
+    schools. Y = next year's math percent proficient."""
+    from experiments.datasets.nc_ayp import adapter as a
+    s = (a.load_two_score if sample == "improvement" else a.load_all_two_score)(years=a.ALL_YEARS)
+    dep = Rule("either", (1e-9, 1e-9), signs=(-1, -1))
+    classes = {
+        "either": {"kind": "either", "box": ((-10.0, 10.0), (-10.0, 10.0))},
+        "both": {"kind": "both", "box": ((-20.0, 10.0), (-20.0, 10.0))},
+        "weights": {"kind": "halfplane", "lam_range": (0.1, 0.9), "box": (-10.0, 10.0)},
+    }
+    return s, dep, (-1, -1), classes
+
+
+def _tx_ir():
+    """Texas 2013-2014 ratings, elementary and middle schools: Improvement Required if the
+    Index 1/2 margin or the Index 3/4 margin is below 0 (each margin = unrounded index minus
+    target + 0.5), an either rule on sign-reversed scores. Y = next year's Index 1."""
+    from experiments.datasets.tx_index_2013 import adapter as a
+    s = a.load_two_score()
+    dep = Rule("either", (1e-9, 1e-9), signs=(-1, -1))
+    classes = {
+        "either": {"kind": "either", "box": ((-5.0, 5.0), (-5.0, 5.0))},
+        "both": {"kind": "both", "box": ((-15.0, 5.0), (-15.0, 5.0))},
+        "weights": {"kind": "halfplane", "lam_range": (0.2, 0.8), "box": (-8.0, 5.0)},
+    }
+    return s, dep, (-1, -1), classes
+
+
 DATASETS = {"chile_two_score": _chile, "chile_two_score_univ": lambda: _chile("univ_2025"),
             "chile_top10": _chile_top10, "wi_report_cards": _wi,
             "ca_dashboard_ela": _ca, "ca_dashboard_math": lambda: _ca("math"),
             "nyc_progress_reports": _nyc, "nyc_progress_reports_ab": lambda: _nyc("AB"),
-            "fdic_capital": _fdic, "nursing_homes": _nursing, "cms_hacrp": _hacrp, "esrd_qip": _esrd,
+            "fdic_capital": _fdic, "nursing_homes": _nursing, "cms_hacrp": _hacrp, "fl_grades_2002": _fl2002, "nc_ayp": _nc_ayp, "tx_index_2013": _tx_ir, "nc_ayp_all": lambda: _nc_ayp("all"), "hospital_340b": _h340b, "esrd_qip": _esrd,
             "gainful_employment": _ge, "gainful_employment_fail": lambda: _ge(True),
             "in_school_grades_df": _indiana, "in_school_grades_bc": lambda: _indiana("BC"),
             "chile_2024_univ_same_year": lambda: _chile("univ_2024"),
