@@ -206,8 +206,49 @@ def ui():
          "UI, budget-neutral: same predicted UI dollars paid (with behaviour), lower cap, higher rate", better="lower")
 
 
+def cwbh():
+    """Same family as ``ui`` on the CWBH claims. Benefits = weeks paid x weekly benefit (in units of
+    the claimant's cap), with predicted weeks under the new schedule (behaviour included)."""
+    cfg = app.cwbh(argparse.Namespace(x="linear", outcome="weeks_paid", seed=0))
+    pw = cfg["prob"]
+    floor = pw.a_lo
+    fw = rotation_fits(pw, cluster=cfg["cluster"])
+    kappas = np.round(np.arange(0.6, 1.001, 0.05), 3)
+    U = np.full((3, len(kappas)), np.nan)
+    sup = np.full((3, len(kappas)), np.nan)
+    th = np.full((3, len(kappas)), np.nan)
+    for r in range(3):
+        fit_w, eta, ev = fw[r]
+        idx = np.where(ev & pw.in_range)[0]
+        fi = np.where(~ev & pw.in_range)[0]
+        x = np.exp(pw.Q[idx])
+        A0 = np.clip(x, floor, 1.0)
+        gw0 = ds.gain(fit_w, eta[idx], pw.Z[idx], A0, 1.0)
+        w0 = pw.Y[idx]
+        cost0 = np.mean(w0 * A0)
+        for j, kap in enumerate(kappas):
+            def cost(t):
+                a1 = np.clip(t * x, floor, kap)
+                return np.mean((w0 + ds.gain(fit_w, eta[idx], pw.Z[idx], a1, 1.0) - gw0) * a1)
+            t = solve_budget(cost, cost0, 0.5, 3.0)
+            if np.isnan(t):
+                continue
+            a1 = np.clip(t * x, floor, kap)
+            th[r, j] = t
+            U[r, j] = np.mean(ds.gain(fit_w, eta[idx], pw.Z[idx], a1, 1.0) - gw0)
+            sup[r, j] = ds.support_share(eta[fi], pw.A[fi], eta[idx], a1)
+    j = report("cwbh_weeks", kappas, np.nanmean(th, 0), U, sup, np.zeros(len(kappas)), 1.0, better="lower")
+    q = np.linspace(0.2, 1.6, 200)
+    sched = [("status quo", q, np.clip(q, floor, 1.0)),
+             (f"proposed: cap {kappas[j]:.2f}, rate x{np.nanmean(th[:, j]):.2f}", q,
+              np.clip(np.nanmean(th[:, j]) * q, floor, kappas[j]))]
+    plot("cwbh_weeks", kappas, U, sup, 1.0, "cap as a share of today's cap (replacement rate set by the budget)",
+         "change in weeks paid", sched, "earnings / cap kink", "weekly benefit / today's cap",
+         "UI (CWBH), budget-neutral: same predicted UI dollars, lower cap, higher rate", better="lower")
+
+
 MAKERS = {"lcff": lambda: lcff("ela"), "lcff_math": lambda: lcff("math"), "dsh": lambda: dsh("exit"),
-          "dsh_cases": lambda: dsh("log_cases"), "ui": ui}
+          "dsh_cases": lambda: dsh("log_cases"), "ui": ui, "cwbh": cwbh}
 
 
 def main():

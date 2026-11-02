@@ -141,6 +141,30 @@ def ui(outcome):
     return fig
 
 
+def cwbh(outcome):
+    args = argparse.Namespace(x="linear", outcome=outcome, seed=0)
+    cfg = app.cwbh(args)
+    prob = cfg["prob"]
+    fits = rotation_fits(prob, cluster=cfg["cluster"])
+    fig = plt.figure(figsize=(11, 3.6))
+    gs = fig.add_gridspec(4, 3, hspace=0.6, wspace=0.35)
+    alpha_panel(fig.add_subplot(gs[:, 0]), prob, fits, [0.45, 0.6, 0.75], "weeks", lambda a: f"benefit = {a:g} x cap")
+    edges = cfg["edges"]
+    bins = [(1, "s/kink %.2f-%.2f" % tuple(np.exp(edges[1:3]))), (4, "s/kink %.2f-%.2f" % tuple(np.exp(edges[4:6]))),
+            (6, "s/kink %.2f-%.2f" % tuple(np.exp(edges[6:8])))]
+    psi_panel(fig.add_subplot(gs[:, 1]), prob, cfg, bins, "weeks", "weekly benefit as a share of the cap")
+    floor = prob.a_lo
+
+    def family(th, Q, idx):
+        return np.clip(th * np.exp(Q), floor, 1.0)
+    thetas = np.linspace(0.6, 1.0, 9)
+    u_panels(fig.add_subplot(gs[:3, 2]), fig.add_subplot(gs[3, 2]), prob, cfg, family, thetas, 1.0, "weeks",
+             "replacement-rate multiplier theta")
+    lab = {"weeks_paid": "weeks of UI paid", "duration": "claimed duration (weeks)"}[outcome]
+    fig.suptitle(f"UI, CWBH (LA, ID, MO, NM 1976-83, 19 schedules): Y = {lab}", fontsize=10, x=0.01, ha="left")
+    return fig
+
+
 def taxi2():
     args = argparse.Namespace(x="linear", outcome=None, seed=0)
     cfg = app.taxi2(args)
@@ -228,7 +252,8 @@ def lcff(subject):
     return fig
 
 
-MAKERS = {"lcff": lambda: lcff("ela"), "lcff_math": lambda: lcff("math"), "ui": lambda: ui("weeks"), "ui_benefits": lambda: ui("benefits"), "taxi2": taxi2, "lending": lending,
+MAKERS = {"lcff": lambda: lcff("ela"), "lcff_math": lambda: lcff("math"), "ui": lambda: ui("weeks"), "ui_benefits": lambda: ui("benefits"),
+          "cwbh": lambda: cwbh("weeks_paid"), "cwbh_duration": lambda: cwbh("duration"), "taxi2": taxi2, "lending": lending,
           "dsh": lambda: dsh("log_cases"), "dsh_exit": lambda: dsh("exit")}
 
 

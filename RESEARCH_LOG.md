@@ -9,6 +9,47 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-02 - Dose schedules: CWBH unemployment claims built and run; Freddie Mac screened out (Claude)
+
+The author downloaded the CWBH files (Landais 2015, openICPSR 114581) and the Freddie Mac
+sample files (2008-2026) and asked to keep going. Chile SEP stays on hold (author: "keep chile
+pending"; the ministry's site does not load for the author either).
+
+- **`ui_cwbh` adapter** (`experiments/datasets/ui_cwbh/`). One row per claim from the week
+  records, with Landais's filters (`Programs/cleaning_cwbh_v1.do`) and his state schedule
+  parameters (`prog_<state>.do`): 19 state-period schedules in LA, ID, MO, NM, 1976-83, caps
+  $85-205. The formula, with up-rounding, reproduces 95.9% (ID), 97.5% (LA, MO) and 98.2%
+  (NM) of reported benefits once two rounding changes found in the data are applied:
+  Louisiana rounds to the nearest dollar from 3 Apr 1983, Idaho rounds down from 1 Jul 1983
+  (switch dates read from match rates by benefit-year week). Off-formula claims are dropped.
+  WA is excluded by default: its benefit uses the two highest quarters, which the file lacks.
+- **Estimates** (`dose_schedule_apply cwbh`; Q = log(score / cap kink), A = benefit / cap,
+  reference the cap held by 45% of claims; n = 128,315, R^2 = 0.44; clusters = claimant).
+  Weeks of UI paid (mean 14.2) fall by 2.3-3.5 at 60% of the cap and 1.5-2.7 at 75% in every
+  score bin with >= 90% support; elasticity 0.3-0.5, matching the Upjohn data and Landais.
+  Claimed duration gives the same numbers. U(theta = 0.6) = -3.1 weeks (rotations 2.9-3.4).
+- **Modifier test.** Absorbed in shares of the cap (r2_absorbed 1.00). In 1984 dollars
+  (`cwbh_real`, reference $150) the schedules differ and the test rejects: -0.075 (se 0.007),
+  r2_absorbed 0.90. A real dollar moves weeks less for claimants with higher predicted
+  earnings, consistent with claimants responding to the replacement rate; this supports the
+  share-of-cap scale.
+- **Budget-neutral redesign** (`dose_schedule_redesign cwbh`; budget = weeks paid x benefit,
+  with predicted weeks). Cap 0.85 with rate x1.86 lowers weeks by 0.32 (rotations 0.31-0.33),
+  84% of claims supported; cap 0.95 with rate x1.12: -0.04. Caps below 0.85 cannot keep the
+  budget with rate <= x3. The rotations agree, unlike the Upjohn data (-0.11, range -0.30 to
+  +0.08).
+- **Caveats.** A lower benefit also lengthens tier-1 potential duration where base-period
+  earnings bind, so the effect is that of the whole schedule. The CWBH readme asks users to
+  contact Bruce Meyer or Patricia Anderson for a formal agreement: an author decision before
+  publication.
+- **Freddie Mac** (`experiments/datasets/freddie_mac/screen.py`): rates for 30-year purchase
+  loans (2009-22) fall at 11 of 12 fee-grid cutoffs between credit scores 640 and 740, by
+  about 8 bp on average, against -1.6 bp at placebo cutoffs; but loan covariates explain
+  only 12% of the credit score (sd(T) about 15 points, one fee band), and the fee is not in
+  the data. Not run; recorded as not sticking.
+- The evaluation PDF (`simulations/dose_schedule/dose_applications_eval.tex`) gains Section 1b
+  (CWBH), a Freddie Mac paragraph in Section 4, and a CWBH row and figure in Section 5.
+
 ## 2026-11-02 - Decision: keep the NBER-mirror files, with a note; no new NBER fetches (Claude)
 
 Follow-up to the 2026-10-29 entry. The author chose "keep with a note" for the files taken

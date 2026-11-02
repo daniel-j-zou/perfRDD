@@ -39,6 +39,8 @@ Runs: `python -m experiments.scripts.dose_schedule_apply <name>`, logs and JSON 
 | `ui_upjohn` (new): WA 1988 + IL 1984 bonus experiments | weekly benefit / cap on log(score / cap kink); reference the cap (34% of claimants) | 27,038 | 0.51 | coverage 90-99% for doses 0.45-0.9 of the cap at all but the lowest score bin | weeks of UI paid: -2.7 to -3.2 at 60% of the cap vs the cap in the supported bins (mean 17.0; rotation sd 0.1-1.7), elasticity about 0.4 | -10.6 (se 4.3), r2_absorbed 0.98 | **sticks**; small n, two states, nominal dollars |
 | `taxi` VTS | middle tip suggestion: $3 below $15, else 25% of the fare | 541,318 | 0.88 | 84-100% everywhere | tip +$0.32-0.41 at $3.75, +$1.47-1.60 at $6.25 vs $3, nearly flat in the fare | no power (r2_absorbed 1.00) | **sticks** with a linear baseline in distance; high doses unstable with a cubic baseline |
 | `taxi` VTS + CMT | two schedules: VTS as above, CMT 20% of the fare at every fare (Haggag and Paci 2014: CMT 15/20/25%) | 1,019,330 | 0.88 | wide | tip about -$0.58 at $1, -$0.35 at $2, +$0.28 at $3.75, +$0.56 at $4.50, +$1.5-1.7 at $6.25 vs $3 | 0.028 (se 0.003): rejects | sticks; the rejection may reflect vendor differences (menus, fleets) |
+| `ui_cwbh` (new, 2026-11-02): CWBH claims, LA, ID, MO, NM, benefit years 1976-83 (Landais 2015) | weekly benefit / cap on log(score / cap kink); 19 state-period schedules (caps $85-205); reference the cap (45% of claims); rule reproduced for 95.9-98.2% of claims after two rounding changes found in the data | 128,315 | 0.44 | coverage >= 90% for doses 0.45-0.9 of the cap in the middle score bins | weeks of UI paid: -2.3 to -3.5 at 60% of the cap, -1.5 to -2.7 at 75% (mean 14.2), elasticity 0.3-0.5; U at theta = 0.6: -3.1 (rotations 2.9-3.4). Budget-neutral cap 0.85 with rate x1.86: -0.32 weeks (rotations -0.33 to -0.31, 84% supported) | shares: absorbed (r2 1.00); in 1984 dollars: -0.075 (se 0.007), r2_absorbed 0.90, rejects | **sticks**: the main UI application. Data-use agreement to settle (readme: contact Meyer or Anderson) |
+| `freddie_mac` (new, 2026-11-02): sample files 2008-2026 | up-front credit fee on the credit-score x LTV grid (fee not in the data) | 925,000 | 0.12 | about one 20-point band | not run; rates fall by about 8 bp at 11 of 12 grid cutoffs (640-740, 2009-22) against -1.6 at placebos | not run | does not stick: score barely predicted; grids would need rebuilding |
 | `lending_club` (in hand) | interest rate (%) on the sub-grade rank; rate table by issue month (95% of loans at their cell's modal rate), many tables 2009-2013 | 171,175 | 0.40 | about +/- one grade of the rate's natural grade | default probability +0.6 to +1.8 pp at 15% vs 12% (grades B-D), +2.9 to +4.3 pp at 18% (grades C-E), where coverage >= 89% | 0.0002 (se 0.0003), r2_absorbed 0.96: not rejected | **sticks locally** |
 | `erate` (in hand) | C1 discount (%), urban/rural matrices; reference 50% | 73,434 | 0.29 | NSLP share 5-57%, discounts 40-80% | log requested dollars next year +0.37 to +0.44 at 80% vs 50% (NSLP 33-62%) | 0.0005 (se 0.0001): rejects | partly; bunching at 49.5, low R^2 limits transport |
 | `medicare_dsh` (new): IPPS impact files FY 2008-13 | DSH add-on (%) on the DPP: 0 to 15%, then 2.5% + 65% of the excess to 20.2%, then 82.5%; 12% cap for small hospitals; reproduced for every hospital-year 2007-27 but one | 19,061 | 0.37 | DPP 15-30% | exit by t+2: -0.9 to -1.1 pp at 2.5%, -2.4 to -2.6 pp at 8%; log Medicare cases t+1: +3% at 2.5%, +8 to +10% at 8%. Formula cut to 25% (as in FY 2014) for hospitals at <= 16%: exit +2.2 pp (rotations 1.5-2.8), cases -5.3% (1.8-7.3) | 0.0007 (se 0.0003), r2_absorbed 0.99 | **sticks**; DPP is CMS's projection basis, mild excess mass above 15%, financial outcomes need HCRIS |
@@ -51,10 +53,11 @@ Runs: `python -m experiments.scripts.dose_schedule_apply <name>`, logs and JSON 
 
 Partly built: `chile_sep` (Art. 16 tiers verified against the law text for 2008, 2011 and 2012; SIMCE school files and
 covariates in hand). The score Q is blocked: datosabiertos.mineduc.cl and the other MINEDUC hosts did not answer
-from this machine on 2026-10-28, so `load_dose()` raises FileNotFoundError and the registry skips it.
+from this machine on 2026-10-28, so `load_dose()` raises FileNotFoundError and the registry skips it. Still down on
+2026-10-29 from this machine and in the author's browser; the author put it on hold ("keep chile pending").
 
 Figures and a short evaluation: `simulations/dose_schedule/dose_applications_eval.tex` (alpha, psi and U
-for UI, DSH, LCFF, taxi and Lending Club), made by `experiments/scripts/dose_schedule_figures.py`.
+for UI (Upjohn and CWBH), DSH, LCFF, taxi and Lending Club), made by `experiments/scripts/dose_schedule_figures.py`.
 
 ## Lessons so far
 
@@ -73,8 +76,8 @@ for UI, DSH, LCFF, taxi and Lending Club), made by `experiments/scripts/dose_sch
 
 | Dataset | Why it matters | What to do |
 |---|---|---|
-| CWBH UI microdata, 5 states 1976-84 (Landais 2015, openICPSR 114581) | the main UI application: about 165,000 spells, five state schedules | sign in at https://www.openicpsr.org/openicpsr/project/114581/version/V1/view, "Download this project", accept the terms; save `Data/rawdata/*.dta` and `Readme.pdf` (about 2.3 GB) in `experiments/datasets/ui_cwbh/data/raw/` |
-| Freddie Mac single-family loan-level data | fee grid on credit score x LTV, tens of millions of loans, 2023 grid change | free registration at https://freddiemac.com/research/datasets/sf-loanlevel-dataset; a few origination years into `experiments/datasets/freddie_mac/data/raw/` |
+| ~~CWBH UI microdata~~ | done 2026-10-29 (author); adapter `ui_cwbh` built 2026-11-02 | CWBH data use: the readme asks users to contact Bruce Meyer or Patricia Anderson for a formal agreement; decide whether to write before publishing |
+| ~~Freddie Mac single-family loan-level data~~ | done 2026-10-29 (sample files 2008-2026, 5.5 GB) | screened 2026-11-02: does not stick (R^2 0.12) |
 | Kentucky KEES scholarship (KYSTATS) | award rises with GPA and ACT; latent ability score | data request with an MOU at https://kystats.ky.gov/Reports/IndividualDataRequest (up to 4 months) |
 | Texas ERC (Pell) | Pell award = max - EFC | proposal and fee (https://texaserc.utexas.edu) |
 | HRRP FY2023 supplemental file | the cms.gov FY2023 page links the FY2024 ZIP by mistake | download the real FY2023 IPPS final-rule supplemental file by hand into `experiments/datasets/cms_hrrp/data/raw/supp/hrrp_fy2023.zip` |
@@ -82,5 +85,5 @@ for UI, DSH, LCFF, taxi and Lending Club), made by `experiments/scripts/dose_sch
 | Medicare DSH financial outcomes | margins and uncompensated care | the HCRIS Hospital-2010 cost reports are public on cms.gov; say if a parser should be written |
 | LCFF 2016-17 to 2018-19 (more years at c = 0.50) | a second schedule with more data | save the Principal Apportionment pages (e.g. https://www.cde.ca.gov/fg/aa/pa/pa1819.asp) from a browser; cde.ca.gov blocks scripts |
 | SEDA district test scores (for Title I) | achievement outcomes | entering an e-mail at https://edopportunity.org/opportunity/data/ accepts a data use agreement; download district achievement CSVs into `experiments/datasets/title1/data/raw/seda/` |
-| Chile SEP priority-student files | the score Q for `chile_sep` | when datosabiertos.mineduc.cl answers (it may need a Chilean IP), run `experiments.datasets.chile_sep.download`; else ask estadisticas@mineduc.cl, or decide whether Internet Archive copies of the official files are acceptable |
+| Chile SEP priority-student files (on hold, author 2026-10-29) | the score Q for `chile_sep` | when datosabiertos.mineduc.cl answers (it may need a Chilean IP), run `experiments.datasets.chile_sep.download`; else ask estadisticas@mineduc.cl, or decide whether Internet Archive copies of the official files are acceptable |
 | Spain MCVL (UI with dependent-based caps) | large administrative UI data | institutional application (https://www.seg-social.es/descarga/es/120853); eligibility of non-EU institutions unclear |

@@ -87,6 +87,46 @@ def ui(args):
                      "bonus arms and schedule groups in X")
 
 
+def cwbh(args):
+    """CWBH claims (LA, ID, MO, NM 1976-83, Landais 2015): weekly benefit / cap on log(score / cap kink),
+    19 state-period schedules with the same shape; Y = weeks of UI paid (default)."""
+    from experiments.datasets.ui_cwbh import adapter as ad
+    s = ad.load_dose(outcome=args.outcome or "weeks_paid")
+    fn = s.feature_names
+    lq = np.log(s.Q)
+    keep = (lq > np.quantile(lq, 0.01)) & (lq < np.quantile(lq, 0.99))
+    Z = s.X[:, [fn.index(c) for c in ("age", "male", "educ")]]
+    A = s.extras["A"]
+    a_lo = float(np.floor(100 * A[keep].min()) / 100)
+    prob = ds.DoseProblem(lq[keep], s.X[keep], A[keep], s.Y[keep], Z[keep],
+                          ds.DoseBasis(1.0, 1.0, l=3, a_lo=a_lo), a_lo=a_lo)
+    return dict(prob=prob, cluster=s.extras["claim_id"][keep], levels=None,
+                edges=np.quantile(prob.Q, np.linspace(0, 1, 9)), n_bins=None,
+                a_grid=np.array([0.3, 0.45, 0.6, 0.75, 0.9, 1.0]),
+                note=f"CWBH: weekly benefit / cap on log(score / cap kink); Y = {args.outcome or 'weeks_paid'}; "
+                     "schedule x quarter cells in X")
+
+
+def cwbh_real(args):
+    """CWBH claims with the score and the benefit in 1984 dollars: the 19 schedules then differ (real caps
+    $109-$219), so the score-direction modifier is not absorbed. Reference $150 a week."""
+    from experiments.datasets.ui_cwbh import adapter as ad
+    s = ad.load_dose(outcome=args.outcome or "weeks_paid", dose="real")
+    fn = s.feature_names
+    lq = np.log(s.Q)
+    keep = (lq > np.quantile(lq, 0.01)) & (lq < np.quantile(lq, 0.99))
+    Z = s.X[:, [fn.index(c) for c in ("age", "male", "educ")]]
+    A = s.extras["A"]
+    a_lo, a_bar = float(np.quantile(A[keep], 0.005)), float(np.quantile(A[keep], 0.995))
+    prob = ds.DoseProblem(lq[keep], s.X[keep], A[keep], s.Y[keep], Z[keep],
+                          ds.DoseBasis(150.0, a_bar, l=4, a_lo=a_lo), a_lo=a_lo)
+    return dict(prob=prob, cluster=s.extras["claim_id"][keep], levels=None,
+                edges=np.quantile(prob.Q, np.linspace(0, 1, 9)), n_bins=None,
+                a_grid=np.array([60, 90, 120, 150, 180, 210.0]),
+                note=f"CWBH: weekly benefit (1984 $) on log real score; reference $150; "
+                     f"Y = {args.outcome or 'weeks_paid'}")
+
+
 def lending(args):
     """Lending Club 36-month loans issued 2009-2013 (LoanStats3a, 3b), resolved.
 
@@ -186,7 +226,8 @@ def lcff(args):
                 note=f"LCFF concentration grant ($/ADA) on UPP; Y = CAASPP % met, {args.outcome or 'ela'}")
 
 
-DATASETS = {"erate": erate, "taxi": taxi, "taxi2": taxi2, "ui": ui, "lending": lending, "esrd": esrd, "dsh": dsh,
+DATASETS = {"erate": erate, "taxi": taxi, "taxi2": taxi2, "ui": ui, "cwbh": cwbh, "cwbh_real": cwbh_real,
+            "lending": lending, "esrd": esrd, "dsh": dsh,
             "ma": ma, "lcff": lcff}
 
 
@@ -225,7 +266,7 @@ def main():
     p.add_argument("names", nargs="+", choices=sorted(DATASETS))
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--x", default="linear", choices=["linear", "cubic"], help="taxi: baseline in distance")
-    p.add_argument("--outcome", default=None, help="ui: weeks, benefits, spell or earn_post")
+    p.add_argument("--outcome", default=None, help="ui: weeks, benefits, spell or earn_post; cwbh: weeks_paid, duration, weeks_claimed")
     args = p.parse_args()
     for name in args.names:
         run(name, args)

@@ -21,7 +21,7 @@ Modifiers $Z$ & #8\\
 
 
 \title{Dose schedules on real data: a first evaluation}
-\author{Claude, for Daniel Zou \quad (2026-10-28)}
+\author{Claude, for Daniel Zou \quad (2026-10-28; CWBH and Freddie Mac added 2026-11-02)}
 \date{}
 
 \begin{document}
@@ -40,6 +40,8 @@ runs: \texttt{experiments/scripts/dose\_schedule\_apply.py} and
 \]
 with a reference dose $a_{\rm ref}$ (zero, a floor or a cap) held by many units. The three role
 rotations of the paper are used; nothing is tuned per dataset beyond the dose range.
+Two more datasets, the CWBH unemployment claims and the Freddie Mac loans, were added on
+2026-11-02 from your downloads (Section~1b and Section~4).
 
 \textbf{How to read each figure.}
 \begin{itemize}
@@ -66,17 +68,19 @@ rotations of the paper are used; nothing is tuned per dataset beyond the dose ra
 Dataset & Dose on score & $n$ & $R^2$ & Verdict\tabularnewline
 \midrule
 \textbf{UI, WA 1988 + IL 1984} & weekly benefit / cap on prior earnings; ref.\ the cap & 27,038 & 0.51 & \textbf{reasonable}: clean rule, stable average effect, two state schedules; small $n$\tabularnewline
+\textbf{UI, CWBH: LA, ID, MO, NM 1976--83} & weekly benefit / cap on prior earnings, 19 schedules; ref.\ the cap & 128,315 & 0.44 & \textbf{reasonable, best UI data}: same answer as Upjohn with 5$\times$ the claims\tabularnewline
 \textbf{Medicare DSH, FY08--13} & DSH add-on (\%) on the low-income patient share; ref.\ 0 & 19,061 & 0.37 & \textbf{reasonable}: kinked schedule with a zero range, stable effects; thin outcomes\tabularnewline
 \textbf{California LCFF, 2021--25} & concentration grant (\$/ADA) on the high-need share; ref.\ 0 & 10,645 & 0.82 & \textbf{reasonable}: kink at 55\%, high $R^2$; small $n$, persistent score\tabularnewline
 NYC taxi, VTS + CMT & middle tip suggestion on the fare; ref.\ \$3 & 1,019,330 & 0.88 & mechanics excellent; flat $\alpha$, linear $U$, no cost\tabularnewline
 Lending Club & interest rate on sub-grade; many rate tables & 171,175 & 0.40 & local only; selection on who borrows is missing\tabularnewline
+Freddie Mac loans 2008--26 & up-front credit fee (grid on credit score $\times$ LTV) & 925,000 & 0.12 & local only: covariates barely predict the credit score; not run\tabularnewline
 E-Rate & discount (6 steps) on lunch share & 73,434 & 0.29 & local only; bunching at 49.5\%\tabularnewline
 CMS dialysis QIP & payment cut (5 steps) on TPS & 57,328 & 0.46 & clean, but a null effect; large cuts rare\tabularnewline
 Medicare Advantage & benchmark \% (steps) on FFS rank & 31,181 & 0.51 & clean, but noisy and near null\tabularnewline
 NHANES school lunch & free/reduced/paid on income ratio & 12,730 & 0.31 & too small; eligibility, not take-up\tabularnewline
 CMS readmissions & penalty from six ratios & 10,608 & 0.14 & several scores; not run\tabularnewline
 Title I & formula weight on child poverty & 43,205 & 0.59 & small, blurred dose; null on spending\tabularnewline
-Chile SEP & school subsidy steps & -- & -- & build still running\tabularnewline
+Chile SEP & school subsidy steps & -- & -- & pending: the ministry's data site does not load\tabularnewline
 \bottomrule
 \end{tabular}
 \normalsize
@@ -113,8 +117,49 @@ of the reference units; with a cubic in distance the high-dose taxi estimates ex
  3.0 (rotations 2.4--3.7) and benefits paid by \$1,001 per claimant (rotations \$923--1,065;
  mean \$2,339). A welfare $U$ needs a value of insurance (Baily--Chetty); with it, the interior
  optimum is the natural target.
-\item \textbf{Next.} The five-state CWBH data (about 165,000 spells; your openICPSR login) would
- be the real application.
+\item \textbf{Next.} Done with the CWBH data: Section~1b.
+\end{itemize}
+
+\newpage
+\section*{1b. Unemployment insurance with the CWBH data (Landais 2015)}
+
+\vars{a new unemployment claim (one benefit year) in Louisiana, Idaho, Missouri or New Mexico, benefit year starting 1976--83; $n=128{,}315$ claims (107,140 people) after Landais's filters and trimming 1\% tails}
+{prior earnings: the claimant's highest quarter of covered earnings in the base period, divided by the earnings at which the benefit reaches the cap, on a log scale}
+{earnings not explained by $X$, roughly earning ability ($R^2$ of $Q$ on $X$ = 0.44)}
+{the weekly benefit set by state law, as a share of the cap: highest-quarter earnings / 25 (LA), /26 (ID, NM), /20 then /22.2 (MO), between a floor and a cap. The cap changed with each law change: 19 state-period schedules, caps \$85--205 (\$108--218 in 1984 dollars). Example: \$2,600 in the best quarter in Idaho in early 1982 gives \$100 a week, 0.69 of the \$145 cap. Doses run from 0.23 to 1}
+{the cap ($A=1$): the 45\% of claims with earnings above the cap kink}
+{weeks of UI paid in the benefit year (mean 14.2); also claimed duration, first to last certified week (mean 14.8)}
+{age, sex, race, education, dependents, household size, expected recall, industry, weeks worked and the ratio of base-period to highest-quarter earnings (which sets potential duration), and state $\times$ quarter-of-claim indicators}
+{age, sex, education}
+
+\includegraphics[width=\linewidth]{cwbh.png}
+
+\begin{itemize}
+\item \textbf{Rule check.} The formula reproduces 95.9\% (ID) to 98.2\% (NM) of the reported
+ weekly benefits once two rounding changes found in the data are used: Louisiana rounds to
+ the nearest dollar from 3 April 1983 (up before), Idaho rounds down from July 1983. Claims
+ off the formula (2--4\%) are dropped; Landais drops those on the wrong side of the kink and
+ moves the rest onto the formula. Washington is left out: the file has
+ only total and highest-quarter earnings, and its benefit uses the two highest quarters.
+\item \textbf{$\psi$:} at 60\% of the cap, weeks paid fall by 2.3--3.5 against the cap in every
+ earnings bin where the dose is supported ($\ge$90\%); at 75\%, by 1.5--2.7. The elasticity
+ is about 0.3--0.5, the same as the Upjohn data and Landais's kink estimates. Claimed
+ duration gives the same numbers.
+\item \textbf{$\alpha$:} negative and smooth for $\eta$ between about $-0.6$ and $0.4$, more
+ negative for higher $\eta$; the three rotations agree there, unlike the Upjohn data.
+\item \textbf{$U$:} scaling the replacement rate to $\theta=0.6$ (cap fixed) lowers weeks paid by
+ 3.1 (rotations 2.9--3.4), with 85\% of claims supported.
+\item \textbf{The modifier test} is absorbed in shares of the cap (every schedule has the same
+ shape). In 1984 dollars the 19 schedules differ, and the test rejects (coefficient $-0.075$,
+ se 0.007): a real dollar moves weeks less for claimants with higher predicted earnings.
+ That is what one expects if claimants respond to the replacement rate rather than the dollar
+ amount, and it argues for the share-of-cap scale used here. In dollars, \$120 against \$150
+ lowers weeks by 1.5--1.8 in every supported bin.
+\item \textbf{Caveats.} (i) A lower weekly benefit also lengthens potential duration for
+ claimants whose base-period earnings bind ($\min\{26, c\cdot\text{bpw}/\text{WBA}\}$ weeks), so the
+ effect is that of the whole schedule. (ii) The readme asks users to contact Bruce Meyer or
+ Patricia Anderson for a formal agreement to use the CWBH files; this should be settled
+ before anything is published.
 \end{itemize}
 
 \section*{2. Medicare DSH adjustment}
@@ -204,6 +249,18 @@ rejected). Realized return rises with the rate at every $\eta$, but only near ea
 rate is supported, and the data contain only loans that were taken, so the effect of a
 higher rate on who borrows, the main force against raising rates, is missing.
 
+\textbf{Freddie Mac loans (not run).} The fee schedule reaches borrowers: among the 925,000
+sampled loans, for 30-year purchase loans originated 2009--22, the rate falls at 11 of the 12
+fee-grid cutoffs between credit scores 640 and 740 (two LTV bands), by about 8 basis points on
+average, against $-6$ to $+3$ (mean $-1.6$) at the placebo cutoffs between them; after the
+2023 grid change the pattern is noisier. But the
+loan covariates (loan-to-value, debt-to-income, loan size, purpose, occupancy, property type,
+state, month) explain only 12\% of the credit score, so $\eta$ moves by about one 20-point
+fee band and only neighbouring fees are supported, as for Lending Club. The fee itself is not
+in the data, and the historical grids would have to be rebuilt. The 2023 grid change
+(fees moved toward higher-score borrowers) is the one policy-relevant use: two schedules for
+comparable borrowers, but only about two years of performance so far.
+
 \newpage
 \section*{5. Budget-neutral redesigns}
 
@@ -241,6 +298,8 @@ DSH, exit & start 15\% (jump) & start 5\%, slope 0.50 & $-0.61$ pp & $-1.39$ to 
 LCFF, ELA & start 0.55 & start 0.625, $k=1.46$ & $+0.03$ pp & $-0.32$ to $+0.21$ & 93\%\\
 LCFF, math & start 0.55 & start 0.60, $k=1.28$ & $+0.02$ pp & $-0.01$ to $+0.06$ & 94\%\\
 UI, weeks & cap 1, rate 1 & cap 0.95, rate $\times$1.08 & $-0.11$ weeks & $-0.30$ to $+0.08$ & 93\%\\
+UI (CWBH), weeks & cap 1, rate 1 & cap 0.85, rate $\times$1.86 & $-0.32$ weeks & $-0.33$ to $-0.31$ & 84\%\\
+ & & cap 0.95, rate $\times$1.12 & $-0.04$ weeks & $-0.09$ to $+0.00$ & 89\%\\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -253,16 +312,30 @@ disagreement between rotations; the base exit rate is 2.8\%, so $-0.6$ pp is abo
 all exits. For LCFF and UI today's schedule is as good as any member of these families,
 within the noise.
 
+\textbf{CWBH.} With five times the claims, the UI redesign is no longer noise: every rotation
+finds that a lower cap paid for by a higher replacement rate lowers weeks paid, by 0.32 weeks
+(2\% of 14.2) at a cap of 0.85. That design is nearly flat: everyone above 46\% of today's
+kink gets 85\% of today's cap. Caps below 0.85 cannot keep the budget (45\% of claims are at
+the cap, so the rate would have to rise above $\times$3), and 16\% of claims get a dose
+outside their support, so the endpoint leans on the model. The budget here counts UI dollars
+as weeks paid $\times$ weekly benefit, with the predicted change in weeks.
+
 \includegraphics[width=\linewidth]{redesign_dsh_exit.png}
 
 \includegraphics[width=\linewidth]{redesign_lcff_ela.png}
 
 \includegraphics[width=\linewidth]{redesign_ui_weeks.png}
 
+\includegraphics[width=\linewidth]{redesign_cwbh_weeks.png}
+
 \section*{Decisions for you}
 \begin{itemize}
 \item Which of UI, DSH and LCFF to develop. UI has the best policy story (optimal benefit
- schedule) but needs the CWBH download; DSH and LCFF are public and complete.
+ schedule) and now the CWBH data (128,315 claims, 19 schedules); DSH and LCFF are public and
+ complete.
+\item CWBH data use: whether to write to Bruce Meyer or Patricia Anderson for the agreement
+ the readme asks for.
+\item Freddie Mac: drop, or rebuild the fee grids for a local study of the 2023 change.
 \item UI: reference dose at the cap (34\% of claimants, used here) or the floor (5\%).
 \item LCFF: all LEAs (used here) or districts only; whether to add 2019--20.
 \item CMS dialysis: another session has a duplicate \texttt{esrd\_qip/} folder.
