@@ -385,6 +385,16 @@ SHA256: dict[str, str] = {
 }
 
 
+# data.nber.org's robots.txt is "User-agent: * / Disallow: /". The NBER files here were
+# fetched on 2026-10-28, before that was checked. The author decided on 2026-11-02 to keep
+# them but not to fetch from NBER again, so a missing NBER file raises an error: it has to
+# come from another public source or from the author.
+def _refuse_nber(url: str) -> None:
+    if "data.nber.org" in url:
+        raise RuntimeError(f"{url}: data.nber.org disallows robots (robots.txt); not fetched. "
+                           "See the README, 'Getting the data'.")
+
+
 def sha256_bytes(b: bytes) -> str:
     return hashlib.sha256(b).hexdigest()
 
@@ -398,6 +408,7 @@ def sha256(path: Path) -> str:
 
 
 def _get(url: str) -> bytes:
+    _refuse_nber(url)
     try:
         with urllib.request.urlopen(urllib.request.Request(url, headers=UA),
                                     timeout=600) as r:

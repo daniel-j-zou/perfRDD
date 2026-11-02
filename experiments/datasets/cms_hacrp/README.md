@@ -136,6 +136,12 @@ above it. The sources for this:
 
 ## Getting the data
 
+**NBER mirror (2026-11-02).** data.nber.org's robots.txt disallows all robots
+(`User-agent: *`, `Disallow: /`). The NBER files below were downloaded on 2026-10-28,
+before that was checked. The author decided to keep them, with this note, and not to fetch
+from NBER again: `download.py` now refuses NBER URLs, so a copy without the raw files has to
+get them from another public source or from the author (data.cms.gov blocks scripts).
+
     python -m experiments.datasets.cms_hacrp.download          # idempotent
     python -m experiments.datasets.cms_hacrp.download --check  # sizes, hashes
 

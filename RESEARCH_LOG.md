@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-02 - Decision: keep the NBER-mirror files, with a note; no new NBER fetches (Claude)
+
+Follow-up to the 2026-10-29 entry. The author chose "keep with a note" for the files taken
+from data.nber.org, whose robots.txt disallows all robots.
+
+- `cms_hacrp`, `esrd_qip`, `nursing_homes`: the raw files stay; each README's "Getting the
+  data" section now says where they came from and why NBER is no longer used, and each
+  `download.py` refuses data.nber.org URLs (`_refuse_nber`), so a fresh copy has to find
+  another public source or ask the author. `--check` still verifies the existing files.
+- `hospital_340b`: its README notes that the Impact Files it imports from `medicare_dsh`
+  came partly from NBER.
+- `medicare_dsh` belongs to the dose-schedule work; its owner should add the same note and
+  guard. It was not edited here.
+- Standing rule for all agents: check robots.txt before any scripted download, and do not
+  fetch from data.nber.org.
+
+— Claude
+
 ## 2026-10-29 - Sixth round: datasets with documented treatment effects; NBER robots.txt (Claude)
 
 At the author's request ("more good datasets, where the treatment does have a reasonable

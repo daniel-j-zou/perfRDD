@@ -21,6 +21,8 @@
 - **Covariates.** X predicts Q modestly (R^2 = 0.27).
 - **Weaknesses.**
   - The ownership test is only partly observable.
+  - The DSH-group Impact Files come from `medicare_dsh`, which downloaded older years from
+    data.nber.org (robots.txt disallows robots; kept by the author's decision of 2026-11-02).
   - Participation is fuzzy around the cutoff.
   - Y is gross charges, at prices the hospital sets.
 
