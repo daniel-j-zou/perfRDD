@@ -4,9 +4,8 @@ The current agreed scope and methodology of the paper, in one place. Start every
 session by reading this file, then the newest entries in `RESEARCH_LOG.md` and
 `../manuscript/TODO.md`.
 
-- **Last reviewed with the author:** 2026-10-22, a short pass on the open items (Claude);
-  the full refresh pass is set for 2026-10-27
-- **Covers decisions up to:** research log entries of 2026-10-22 ("Weekly scope review, short pass")
+- **Last reviewed with the author:** 2026-11-04, a full refresh pass (Claude)
+- **Covers decisions up to:** research log entries of 2026-11-04 ("Weekly scope review")
 
 This file holds author decisions only. Evidence and derivations stay in `RESEARCH_LOG.md`;
 tasks stay in `../manuscript/TODO.md`. Every item below can be traced through the
@@ -29,6 +28,9 @@ decision history at the end. How to change this file is described in "Updating t
     follows the covariate composition of each counterfactual margin (2026-10-21: no
     longer described as a "correction");
   - the limit theory for trimming with a generated regressor.
+- **Abstract** (2026-11-04): states the novelty claim, folded into its root-n sentence:
+  the utility-maximizing threshold is point identified from data collected under a
+  single deterministic threshold.
 
 ## Model and target
 
@@ -54,7 +56,9 @@ decision history at the end. How to change this file is described in "Updating t
 - **Target:** the hard-trimmed utility maximizer phi*_eps. The trim level eps is fixed and
   chosen by the user. Present phi*_eps as the optimal cutoff for the population the data
   supports. Add a remark relating it to phi*, and show sensitivity to eps in the
-  application.
+  application. Where the eps endpoints fall outside the data, the window is the eps
+  window capped at fixed residual quantiles (taxi: the central 99%), and the theory
+  covers that cap (2026-11-04).
 - **Interior optimum:** state a proposition with simple sufficient conditions, as a
   single-crossing condition on alpha(eta) - c + beta2' E(X | T = phi - eta) over the trim
   window. It extends "Uniqueness of the maximizer" in `../manuscript/goodstuff.tex`.
@@ -95,6 +99,12 @@ decision history at the end. How to change this file is described in "Updating t
   n^{1/7} << K << n^{1/4} and n^{1/8} << L << n^{1/4}. The old Taylor-expansion route is
   kept only in a draft-only note in the paper.
 - **Boundary optima** (always treat or never treat) are outside the CLT.
+- **Taxi extension** (2026-11-04): the supplement extends Theorem 1 to the §6 use
+  cases, with each step reviewed before it goes in, and the hedge in §6 becomes a
+  pointer to it. Three gaps: the effect uses a subset of the score covariates (a
+  restricted D·X block, with its rank condition); a covariate enters the score through
+  several columns, as a smooth increasing function (extends (Q1m)); and the window is
+  capped at residual quantiles (endpoint terms a trimmed mean in eta-hat).
 
 ## Inference
 
@@ -113,7 +123,8 @@ decision history at the end. How to change this file is described in "Updating t
   fit; the displayed design at its own optimum (phi* ~ 0.545103); bootstrap coverage for
   the rotated estimator; the nonlinear alpha, b design.
 - **To do** (2026-10-20):
-  - rerun the coverage tables with 999-draw percentile intervals;
+  - rerun the coverage tables with 999-draw percentile intervals (the run finished on
+    2026-10-23; the port into §5 is left);
   - in the nonlinear design, reword the small-n excess in §5 (2026-10-22): the analytic
     4.73 is right and the excess is a small-n density-basis effect, gone by n = 12,800.
     No larger-n cells are added.
@@ -130,10 +141,14 @@ decision history at the end. How to change this file is described in "Updating t
 - **Taxi specification** (2026-10-27, "for now"): the paper's use case is R2-E1. The fare
   is on the square-root scale (Box-Cox 1/2), the score has distance and log distance plus
   the indicators, and the effect is linear in distance. It replaces the 2026-10-20 plan to
-  report S1-E1 and S2-E1 (dollar scale) side by side. Those runs (999 draws each) stay
-  available as comparisons; their role in §6 is open. The theorem still needs a short
-  extension for different covariates in the score and the effect, and the quantile lemma
-  must cover distance entering the score through two columns.
+  report S1-E1 and S2-E1 (dollar scale) side by side. The theory for it is the taxi
+  extension under "Theory".
+- **Second use case** (2026-11-04): R3-E1, co-equal with R2-E1 and with no single
+  headline. It keeps the square-root fare and the effect linear in distance, with a
+  spline in log distance plus the indicators in the score. Both get the full 999-draw
+  run, figures and diagnostics.
+- **§6 comparisons** (2026-11-04): the dollar-scale S1-E1 and S2-E1, the common slope and
+  the $5–$25 sample are robustness rows; CMT is an external benchmark only.
 - **Location-scale first stage** (2026-10-22): a robustness check for the taxi
   application only (notebook §8). The model keeps X independent of eta; the paper's
   theory is not extended to the location-scale model.
@@ -172,6 +187,18 @@ decision history at the end. How to change this file is described in "Updating t
 Discrete Q, online or adaptive thresholds, multiple scores, the Chile grade-retention
 application, and other candidate datasets. Nonparametric first stage or outcome in X.
 
+## Side tracks (next paper)
+
+Groundwork for a later paper, outside this paper's scope (2026-11-04). Agents work on it
+only when the author asks; it does not change the sections above.
+- **Two scores:** the two-score estimator and its datasets
+  (`experiments/datasets/MULTI_RULE_DATASETS_20261027.md`). Continuous outcomes only
+  (author, 2026-10-28).
+- **Dose schedules:** the continuous-dose estimator on real data
+  (`experiments/datasets/DOSE_SCHEDULE_DATASETS_20261028.md`). Chile SEP is on hold. The
+  CWBH data asks users to contact its maintainers for a formal agreement, which needs
+  an author decision before any publication.
+
 ## How we work
 
 - **Direction:** set by the advisors (Banerjee, Ritov).
@@ -182,10 +209,16 @@ application, and other candidate datasets. Nonparametric first stage or outcome 
 - **Prose:** plan first, then write one paragraph at a time (see `COLLABORATION.md`).
 - **No files in the paper's text** (2026-10-21): the paper names no files, scripts,
   run directories or commits. References kept for the agents go in LaTeX comments.
+- **811 outline** (2026-10-27): `../manuscript/811.tex` is the author's outline of the
+  paper for the 811 writing course. A manuscript push that changes the paper's sections,
+  contents or status also updates it.
 
 ## Open questions for the author
 
-- None open after the 2026-10-22 pass.
+- **R3-E1 identification:** under the dollar-scale spline score (S3, 2026-10-15) the
+  D×distance column kept only 0.5% of its variance after partialling, so beta2 was
+  weakly identified. The square-root value is checked before the 999-draw run; if it is
+  as weak, the author decides how to report R3-E1.
 
 ## Updating this file
 
@@ -229,6 +262,11 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-04 | Taxi §6: R3-E1 (spline score, square-root fare) co-equal with R2-E1; dollar-scale S1/S2, common slope and $5–$25 sample as robustness rows; CMT an external benchmark only | Log: "Weekly scope review" (2026-11-04) |
+| 2026-11-04 | Taxi theory: write out the extension of Theorem 1 for all three gaps (restricted effect block, covariate in several score columns, window capped at residual quantiles), reviewed before it goes in; the target wording covers the cap | Log: "Weekly scope review" (2026-11-04) |
+| 2026-11-04 | Abstract states the novelty claim (point identification from a single deterministic threshold), folded into the root-n sentence | Log: "Weekly scope review" (2026-11-04) |
+| 2026-11-04 | Two-score and dose-schedule work recorded as next-paper side tracks, worked on only when the author asks; this paper's out-of-scope list unchanged | Log: "Weekly scope review" (2026-11-04) |
+| 2026-11-04 | "How we work" records the 811 rule: `811.tex` tracks the paper's sections and status | Log: "Weekly scope review" (2026-11-04); "811 course outline tracks the paper" (2026-10-27) |
 | 2026-10-27 | Taxi use case for the paper, for now: square-root fare, distance + log-distance score, effect linear in distance (R2-E1); replaces S1-E1 and S2-E1 side by side | Log: "Taxi use case: square-root fare, distance and log distance" (2026-10-27) |
 | 2026-10-22 | Location-scale first stage kept as a taxi robustness check only; X independent of eta stays | Log: "Weekly scope review, short pass" (2026-10-22) |
 | 2026-10-22 | Nonlinear design: reword the small-n variance excess in §5; no larger-n cells | Log: "Weekly scope review, short pass" (2026-10-22) |

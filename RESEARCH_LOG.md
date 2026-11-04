@@ -9,6 +9,89 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - Weekly scope review (Claude)
+
+The review started on 2026-11-03 and was answered on 2026-11-04 in five rounds of
+questions. It covers the log entries and commits since the scope file's coverage
+(2026-10-22). The full refresh pass planned for 2026-10-27 had not run, so the file was
+12 days old.
+
+**Decisions (as the author stated them).**
+- **Side work.** The two-score and dose-schedule work becomes a next-paper track,
+  recorded under "Side tracks" in the scope file. Agents work on it only when the
+  author asks. This paper's out-of-scope list is unchanged.
+- **§6 theory.** Write out the extension of Theorem 1 for all three gaps, in the
+  supplement, each reviewed before it goes in.
+  - Gap 1, the effect on distance only. The author asked whether different covariates
+    raise only an identifiability question. Essentially yes: the effect covariate is a
+    score covariate, so it stays independent of eta. What needs checking is the rank
+    condition of the restricted D·X block.
+  - Gap 2, distance in the score twice. This is a regularity condition, not
+    identification. (Q1m) needs one score covariate with a continuous density given
+    the others. Distance and log distance determine each other, and every other
+    covariate is an indicator.
+  - Gap 3, the capped window. The author chose "prove the capped window"; eps = 0.05
+    stays. The author asked why the application does not use eps = 0.05. It does,
+    but its endpoints, -0.878 and 3.50, lie below the outcome-fit range J (which
+    starts at -0.821) and above all but 0.05% of rides. So the window is capped at the
+    central 99% of eta-hat, [-0.757, 1.558], and at eps = 0.05 the cap binds on both
+    sides. At eps 0.075 and 0.10 only the lower end comes from eps (windows
+    [-0.354, 1.558] and [0.025, 1.558]), so a larger eps does not remove the upper cap.
+    One question had said otherwise; it was corrected before the author answered.
+- **Taxi use cases.** The author said "also lets include a spline one, so we have two
+  options". In a follow-up the author chose R3-E1, co-equal with R2-E1 and with no
+  single headline. R3-E1 keeps the square-root fare and the effect linear in distance,
+  and puts a spline in log distance plus the indicators in the score.
+- **Recorded in the scope file:**
+  - the §6 comparison rows chosen on 2026-10-27: the dollar-scale S1/S2, the common
+    slope and the $5–$25 sample, with CMT as an external benchmark only;
+  - the 811 rule (2026-10-27), under "How we work".
+
+  By the author's choice, two decisions stay in the log only: the front matter from
+  the 811 homework (2026-10-27) and the rule against downloads from data.nber.org
+  (2026-11-02).
+- **Abstract.** It gains the novelty claim, folded into the root-n sentence, and
+  Claude applied it: "... we show that the utility-maximizing threshold is point
+  identified from data collected under a single deterministic threshold, and prove
+  that the estimated threshold is consistent and asymptotically normal at the root-$n$
+  rate." Applied in `differing_slopes.tex` and `811.tex` (manuscript 13d8bbe); both
+  compile.
+- **Confirmed unchanged:**
+  - the goal: *Biometrika* style, no venue or date;
+  - the model and target, apart from the cap wording;
+  - theory and inference;
+  - the estimator and simulations;
+  - the out-of-scope list;
+  - how we work, apart from the 811 line.
+
+**Still open.**
+- **R3-E1 identification.** Under the dollar-scale spline score (S3) the D×distance
+  column kept 0.5% of its variance after partialling. The square-root value is checked
+  before the 999-draw run.
+- **Proof review.** The author's own review of the ported proofs (board item since
+  2026-10-19).
+- **Taxi CV.** The taxi spline-size CV comparison, not a priority this week.
+- **Side tracks.** The CWBH data agreement before any publication, and the NBER note
+  for `medicare_dsh`.
+
+**Priorities for the week.** The author said: "i focus on writing, you get the sims and
+proofs written".
+1. **§5 coverage tables.** Port the 999-draw run, which finished on 2026-10-23, into §5;
+   drop the linear-fit sentences and reword the small-n excess.
+2. **§6 theory extension.** Write gaps 1–3 into the supplement and have them reviewed.
+
+The R3-E1 run belongs with the simulations; its identification check comes first.
+
+**Updated.**
+- `PROJECT_SCOPE.md`: both dates; Goal (abstract); Model and target (cap); Theory (taxi
+  extension); Simulations (run status); Application (R3-E1, §6 comparisons); a new
+  "Side tracks" section; How we work (811); Open questions; decision history.
+- The board and changelog (manuscript 3abea8e).
+
+The next review is started by the Monday reminder on 2026-11-09.
+
+— Claude
+
 ## 2026-11-02 - Dose schedules: CWBH unemployment claims built and run; Freddie Mac screened out (Claude)
 
 The author downloaded the CWBH files (Landais 2015, openICPSR 114581) and the Freddie Mac
