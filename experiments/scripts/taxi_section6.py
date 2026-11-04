@@ -6,6 +6,9 @@ Specifications (effect linear in distance throughout):
          decision 2026-10-27: "for now" the paper's use case)
   S1-E1  fare in dollars; score linear in distance                     (weekly review
   S2-E1  fare in dollars; score in distance and log distance            2026-10-20)
+  R3-E1  square root of the fare; score a cubic B-spline in log distance (robustness
+         row, author decision 2026-11-04; its D x distance column is weakly identified
+         and its fitted score is not monotone in distance, see the research log)
 
 Every score also contains the hour, day-of-week, weekday-hour x weekend and group-ride
 indicators, and the untreated baseline uses the score covariates. The fare scale is a
@@ -45,6 +48,8 @@ Run (from code/):
     python -m experiments.scripts.taxi_section6 --specs S1-E1 S2-E1 --boot 999 --workers 3
     python -m experiments.scripts.taxi_section6 --comparisons --specs R2-E1
     python -m experiments.scripts.taxi_section6 --figures --specs R2-E1
+    python -m experiments.scripts.taxi_section6 --specs R3-E1 --boot 0 \
+        --out experiments/runs/taxi_section6_R3-E1
 """
 from __future__ import annotations
 
@@ -70,10 +75,12 @@ from experiments.scripts import taxi_four_role as M
 from experiments.scripts import taxi_four_role_grid as G
 
 OUT = M.ROOT / "runs" / "taxi_section6"
-SPECS = {"R2-E1": (0.5, "distlog"), "S1-E1": (1.0, "linear"), "S2-E1": (1.0, "distlog")}
+SPECS = {"R2-E1": (0.5, "distlog"), "S1-E1": (1.0, "linear"), "S2-E1": (1.0, "distlog"),
+         "R3-E1": (0.5, "spline")}
 MAIN = "R2-E1"
 LABEL = {"R2-E1": "square root of fare; distance + log distance",
-         "S1-E1": "dollars; distance", "S2-E1": "dollars; distance + log distance"}
+         "S1-E1": "dollars; distance", "S2-E1": "dollars; distance + log distance",
+         "R3-E1": "square root of fare; spline in log distance"}
 EFFECT = "distance"
 EPS = G.EPS
 TAIL, WINDOW_TAIL = 0.0025, 0.005
