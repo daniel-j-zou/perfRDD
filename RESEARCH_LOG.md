@@ -9,6 +9,47 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - Taxi theory ported into the paper's Appendix 3 (Claude)
+
+At the author's go-ahead ("Yes, port it"), the notebook derivation of
+`this_week.tex`, `sec:week-taxi-theory`, is now in `differing_slopes.tex`
+(manuscript 4c715f8, changelog 66bb714). The entry below
+("Taxi theory: numerical checks and proof review of the notebook section") has the
+checks and the review of the math.
+
+- **Where it is.** Appendix 3, the part "Theorem 1 for the application", covers the
+  restricted effect block (Lemmas `ds-restricted-id`, `ds-restricted-rout`,
+  Prop `ds-restricted`), the window capped at residual quantiles (conditions
+  (C1)-(C3), Lemma `ds-eval-cap`, Prop `ds-capped`) and their combination for the
+  main taxi specification (Cor `ds-taxi`). Block D has Lemma `ds-columns`, which
+  gives sufficient conditions for (A6) when a covariate enters the score through
+  several columns (distance and log distance). §6.2's hedge is now a pointer to
+  Cor `ds-taxi`, and §6.3 states that the outcome interval is set once on the full
+  sample and taken as given by the theory.
+- **Decision on scope (author, 2026-11-04, recorded by the Proof shortening
+  session).** The index-quantile trim window stays the paper's method. The capped
+  window is an extension for the application only.
+- **Correction carried into §6.** The outcome interval is the central 99.5% of
+  the residuals only at epsilon = 0.05. At 0.075 and 0.10 its lower end is
+  0.7 residual SDs below the full-sample l_0. §6.3's "the trim endpoints never
+  bind" is now limited to epsilon = 0.05, and §6.5 says that the lower trim
+  endpoint binds in the 0.075 and 0.10 rows.
+- **Review of the port.** One independent reviewer compared the paper text with the
+  notebook and the rest of the paper: statements, signs, numbers, cross-references
+  and notation clashes. Nothing blocking. Its ten wording points are applied. Two of
+  them: §6.2's trimmed-mean sentence is limited to both caps binding, and the
+  restricted proof cites `ds-outcome`(c)-(d) for Block A.
+- **Not in the paper.** The numerical checks and the remark on the spline score
+  (R3-E1: two turning points, so (S1) fails and (A3) is violated) stay in the
+  notebook. The R3-E1 robustness row is still an open board item.
+- **Not checked.** For each of the 156 indicator cells: whether distance has a
+  continuous conditional density near the roots of Lemma `ds-columns`, and whether
+  the population residual quantiles are unique. The paper says so.
+- **Coordination.** Of the seven §6 wording items from the Technical Writing session,
+  six are applied. Item 6 is not, because the wording pass bf94b3e had already
+  rewritten that sentence. That session's scripted rename and the Proof shortening
+  session's Block D rewrite were both waiting for this push, and both are notified.
+
 ## 2026-11-04 - Paper wording pass after the anti-AI writing review; abstract claim scoped (Claude)
 
 At the author's request, after a read-only review of manuscript 8deaf84 with the
