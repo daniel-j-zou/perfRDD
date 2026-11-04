@@ -254,3 +254,63 @@ The per-data-set rows, with every bootstrap draw, are in the ignored
 - The density basis is the full clamped cubic basis, as in Section 5.1.
 
 -- Claude, 2026-10-19
+
+## 999-draw rerun (finished 2026-10-23; in the paper 2026-11-04)
+
+For the author's choice of percentile intervals with 999 draws (weekly review 2026-10-20).
+The rerun reuses each data set's estimates and its 199 draws from the run above and adds
+800 draws (`--extend-from`). The data sets, bias and n Var are therefore unchanged. The
+nonlinear design runs without the linear-in-eta arm, which the paper no longer reports.
+All cells completed with no bootstrap failures. A recomputation of n Var* and both
+coverages from the per-data-set rows reproduces every summary value.
+
+Displayed design (coverage s.e. 0.010 at 500 data sets, 0.015 at 200):
+
+| n | estimator | sqrt(n) bias (s.e.) | n Var | n Var* | percentile | normal |
+|---:|---|---:|---:|---:|---:|---:|
+| 4,000 | rotated average | 1.76 (0.27) | 36.3 | 42.4 | 0.966 | 0.950 |
+| | pooled maximizer | 0.54 (0.24) | 29.5 | 35.7 | 0.956 | 0.962 |
+| | oracle | 0.00 (0.05) | 1.18 | 1.26 | 0.956 | 0.962 |
+| 16,000 | rotated average | 0.83 (0.26) | 34.3 | 33.4 | 0.936 | 0.940 |
+| | pooled maximizer | 0.27 (0.26) | 33.0 | 31.8 | 0.940 | 0.942 |
+| | oracle | 0.00 (0.05) | 1.28 | 1.26 | 0.936 | 0.944 |
+| 64,000 | rotated average | 0.87 (0.39) | 30.8 | 31.8 | 0.960 | 0.975 |
+| | pooled maximizer | 0.61 (0.39) | 30.4 | 31.5 | 0.960 | 0.970 |
+| | oracle | 0.08 (0.08) | 1.26 | 1.26 | 0.945 | 0.935 |
+
+Nonlinear design, rotated average and oracle (500 data sets, 300 at n = 12,800):
+
+| n | sqrt(n) bias (s.e.) | n Var | n Var* | percentile | normal | oracle pct. | oracle norm. |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 800 | -0.07 (0.30) | 43.8 | 54.3 | 1.000 | 0.954 | 0.942 | 0.940 |
+| 1,600 | -0.01 (0.17) | 14.0 | 22.3 | 0.988 | 0.968 | 0.962 | 0.962 |
+| 3,200 | 0.07 (0.10) | 5.49 | 6.22 | 0.952 | 0.968 | 0.954 | 0.956 |
+| 6,400 | 0.09 (0.10) | 5.45 | 5.21 | 0.948 | 0.946 | 0.952 | 0.956 |
+| 12,800 | -0.21 (0.14) | 5.63 | 4.71 | 0.927 | 0.943 | 0.957 | 0.957 |
+
+Against the 199-draw run:
+- Percentile coverage moves by at most 0.016. At n = 16,000 the rotated average goes from
+  0.926 to 0.936, and at 64,000 from 0.950 to 0.960.
+- Every coverage in the displayed table is within 1.64 Monte Carlo standard errors of
+  0.95.
+- The bootstrap variance is 17% above the Monte Carlo variance at n = 4,000, 2.7% below
+  it at 16,000 and 3.3% above it at 64,000 (was 16%, 2% below, 2% above).
+
+Reproduce. This needs the 199-draw rows of the run above; here it ran from 2026-10-21
+to 2026-10-23 with pauses, on 4-6 workers. The same commands are in the ignored
+`experiments/runs/ds_four_role_coverage_999/run_all.sh`.
+
+```sh
+cd code
+OUT=experiments/runs/ds_four_role_coverage_999; OLD=experiments/runs/ds_four_role_coverage
+python -m experiments.scripts.ds_four_role_coverage --design displayed --n 4000 16000 \
+  --reps 500 --boot 999 --workers 6 --out $OUT --extend-from $OLD
+python -m experiments.scripts.ds_four_role_coverage --design nonlinear --n 800 1600 3200 6400 \
+  --reps 500 --boot 999 --workers 6 --out $OUT --extend-from $OLD --no-linear
+python -m experiments.scripts.ds_four_role_coverage --design nonlinear --n 12800 \
+  --reps 300 --boot 999 --workers 6 --out $OUT --extend-from $OLD --no-linear
+python -m experiments.scripts.ds_four_role_coverage --design displayed --n 64000 \
+  --reps 200 --boot 999 --workers 6 --out $OUT --extend-from $OLD
+```
+
+-- Claude, 2026-11-04

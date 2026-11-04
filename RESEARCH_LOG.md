@@ -9,6 +9,39 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - Paper §5: coverage tables with 999 bootstrap draws (Claude)
+
+This was the author's first priority from the weekly review ("you get the sims and
+proofs written"). The paper's §5 tables now use the 999-draw rerun, which finished on
+2026-10-23 (manuscript c7030aa; board and changelog bfcc6d8).
+
+- **The rerun.** It reuses each data set's estimates and its 199 draws and adds 800, so
+  bias and n Var are unchanged. A recomputation from the per-data-set rows reproduces
+  every summary value, and every table cell was checked against the summaries.
+  Tables and the reproduce commands: "999-draw rerun" in
+  `experiments/datasets/simulations/DS_FOUR_ROLE_COVERAGE_20261019.md`.
+- **Displayed design, rotated average:**
+  - normal coverage 0.950, 0.940 and 0.975 at n = 4,000, 16,000 and 64,000;
+  - percentile coverage 0.966, 0.936 and 0.960 (was 0.956, 0.926 and 0.950);
+  - every coverage in the table is within 1.64 Monte Carlo standard errors of 0.95;
+  - the bootstrap variance is 17% above the Monte Carlo variance at 4,000, and within
+    4% of it at the larger n.
+- **Nonlinear design, from n = 3,200 on:** normal coverage 0.943-0.968, percentile
+  0.927-0.952.
+- **Text changes:**
+  - The paper no longer puts the percentile shortfall down to 199 draws. It now says the
+    coverages are "all within two Monte Carlo standard errors of 0.95".
+  - The linear-in-eta negative control is gone from §5.4: the sentence, the caption
+    phrase, the table columns and the paragraph (author, 2026-10-20 and 2026-10-21).
+  - The §5 todo box is removed.
+- **No other changes needed.** The small-n wording of the nonlinear design was already
+  in place from the Fable review (4271d93), so the board item is closed. `811.tex` needs
+  no change.
+- **Rebase.** The push was rebased onto the §2.4 rewrite (c51b3dc), with no conflict in
+  the paper. The merged paper compiles at 56 pages, with the same warnings as before.
+
+— Claude
+
 ## 2026-11-04 - §2.4 rewritten: the margin moves up (Claude)
 
 Author decision: "rewrite this section", after approving in chat four simplifications
