@@ -5,7 +5,7 @@ session by reading this file, then the newest entries in `RESEARCH_LOG.md` and
 `../manuscript/TODO.md`.
 
 - **Last reviewed with the author:** 2026-11-04, a full refresh pass (Claude)
-- **Covers decisions up to:** research log entries of 2026-11-04 ("Weekly scope review")
+- **Covers decisions up to:** research log entries of 2026-11-04 ("§2.4 rewritten: the margin moves up")
 
 This file holds author decisions only. Evidence and derivations stay in `RESEARCH_LOG.md`;
 tasks stay in `../manuscript/TODO.md`. Every item below can be traced through the
@@ -64,6 +64,11 @@ decision history at the end. How to change this file is described in "Updating t
   window. It extends "Uniqueness of the maximizer" in `../manuscript/goodstuff.tex`.
   Done (2026-10-19): Proposition 2 of the paper, with (A1)(iii) as the
   single-crossing condition.
+  Rewritten (2026-11-04): uniqueness is argued by "the margin moves up" (log-concave g
+  moves the marginal units' latent ability up, log-concave f_eta on the window moves
+  their index up; a local form of Efron 1965), with the three-term decomposition kept
+  in Appendix 3 for the curvature. (U1) asks for log-concave f_eta only when lambda is
+  not constant on V_Phi.
 
 ## Estimator
 
@@ -262,6 +267,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-04 | §2.4 rewritten around "the margin moves up"; (U1) needs log-concave f_eta only when lambda is not constant | Log: "§2.4 rewritten: the margin moves up" (2026-11-04) |
 | 2026-11-04 | Taxi §6: R3-E1 (spline score, square-root fare) co-equal with R2-E1; dollar-scale S1/S2, common slope and $5–$25 sample as robustness rows; CMT an external benchmark only | Log: "Weekly scope review" (2026-11-04) |
 | 2026-11-04 | Taxi theory: write out the extension of Theorem 1 for all three gaps (restricted effect block, covariate in several score columns, window capped at residual quantiles), reviewed before it goes in; the target wording covers the cap | Log: "Weekly scope review" (2026-11-04) |
 | 2026-11-04 | Abstract states the novelty claim (point identification from a single deterministic threshold), folded into the root-n sentence | Log: "Weekly scope review" (2026-11-04) |

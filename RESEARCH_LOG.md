@@ -9,6 +9,35 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - §2.4 rewritten: the margin moves up (Claude)
+
+Author decision: "rewrite this section", after approving in chat four simplifications
+of §2.4 ("A unique interior optimum"); push once the review is clean. Applied in
+manuscript c51b3dc; review record `reviews/REVIEW_SEC24_20261104.md`.
+
+- **Idea.** tau_eps(phi) = E{alpha(eta) - c + lambda(T) | eta + T = phi, eta in the
+  window}, with eta and T independent. Log-concave g makes the margin's latent ability
+  increase with phi in the likelihood-ratio order; log-concave f_eta on the window does
+  the same for its index, and truncation keeps log-concavity, so the hard trim needs no
+  condition of its own. With alpha and lambda nondecreasing, tau_eps is nondecreasing
+  (a local form of Efron 1965, Ann. Math. Statist. 36, 272-279; checked on Crossref).
+  New Lemma "The margin moves up" in Appendix 3.
+- **What it does not remove.** The strictly positive derivative at the optimum, which
+  the CLT needs, still uses the derivative lemma: C_alpha > 0 under (U3a), C_lambda >= 0
+  and B_eps > 0 under (U3b). The main text of §2.4 is about a sixth shorter and no longer
+  defines s_T, s_eta, Lambda, C_alpha, C_lambda, B_eps; Appendix 3 is not shorter.
+- **Statement changes.** (U1) asks for log-concave f_eta only when lambda is not
+  constant on V_Phi (was: whenever beta_2 != 0); weaker and still sufficient.
+  Proposition 2 concludes tau_eps' > 0 on Phi, a unique interior zero and (A1)(iii);
+  Proposition 1 no longer restates (A1)(iii), and §4.1 derives the curvature band once.
+  The sufficient condition for (U4) and the extension to all of R moved to Appendix 3.
+- **Review.** An independent Fable 5.1 reviewer checked both lemmas, the new proof under
+  (U3a) and (U3b), the weaker (U1), the corollary and the bimodal example (recomputed:
+  C_lambda = -1.556, B_eps = 1.435, tau'(0) = -0.121), and found no error. It found two
+  broken citation chains from the move (§4.1's use of Proposition 1; the checks list's
+  "bounds of Proposition 2") and five cosmetic points; all applied except the Efron
+  title, which Crossref gives in the singular. A second round confirmed the fixes.
+
 ## 2026-11-04 - Weekly scope review (Claude)
 
 The review started on 2026-11-03 and was answered on 2026-11-04 in five rounds of
