@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - Follow-up: identification examples and numerical checks moved to Appendix 5 (Claude)
+
+Author decision ("Yes, move them"), after the proof-shortening entry below. The
+"Examples", "Is log-concavity necessary?" and "Numerical checks of the identification
+results" parts of Appendix 3, with Table `tab:ds-id-checks`, are now the last subsection
+of Appendix 5, "Identification results: examples and numerical checks" (manuscript
+484beb7). They are evidence, not proof. Appendix 3 keeps the bimodal counterexample and
+the opposing-heterogeneity example, which the propositions cite, and gains a one-sentence
+pointer; §2.4's pointer sentence sends "not necessary for a given design" to Appendix 5.
+No text changed beyond pointers; 102 lines moved. Build: 55 pages, no undefined
+references.
+
+— Claude
+
 ## 2026-11-04 - Six proof shortenings in differing_slopes.tex, reviewed and ported (Claude)
 
 At the author's request ("shorten and clean up proofs"; then "all six"; then "fix and
