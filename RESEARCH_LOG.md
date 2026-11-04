@@ -9,6 +9,38 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - Taxi §6: spline-score (R3-E1) robustness row (Claude)
+
+At the author's go-ahead ("Yes, add it"), R3-E1 is in the §6.5 robustness table
+(manuscript 7f0b527, changelog bcf0b5d). The specification: square-root fare, a score
+that is a cubic B-spline in log distance plus the indicators, and the effect linear in
+distance. `taxi_section6.py` now has it in `SPECS` (code 9e6aff8; that commit's
+message mentions a log entry, but the entry is this one, in the next commit). The run
+was `--specs R3-E1 --boot 0 --out experiments/runs/taxi_section6_R3-E1`, so the
+`summary.json` behind the paper's R2-E1 numbers was not touched. It took 146 s.
+
+- **Estimate.** \$13.04, cell \$13.30, one cell above R2-E1's \$12.90. The pooled
+  maximizer is \$13.06 and the rotations are \$12.69-13.63. The estimate is interior
+  with one local maximum. The own-score check also selects \$13.30, and tau-hat is
+  +0.18 at \$15. The gain over \$15 is 0.45 cents per ride.
+- **Independence diagnostics.** R^2 of eta-hat is 0.002 and of eta-hat^2 is 0.019,
+  with a spread ratio of 1.22 across distance deciles. R2-E1 has 0.093, 0.203 and
+  1.48. So the spline score leaves a residual much closer to mean independence.
+- **Weak spots, now stated in §6.5.** D x distance keeps 0.48% of its variance after
+  partialling (R2-E1: 4.5%). The fitted score falls for rides of 0.02-0.26 miles
+  (0.26% of rides), which puts spikes in the index density at 1.49-2.18, inside the
+  argument set, so (A3) fails for this fit. The paper says the theory does not cover
+  the row.
+- **Sensitivity within R3-E1 (not in the paper).** The four other fold seeds give
+  \$13.03-13.10. eps 0.075 gives \$13.03 and eps 0.10 gives \$12.53. Varying J's
+  tail gives \$12.88-13.23, and varying J and the cap together gives \$12.84-13.05.
+  This is more spread than under R2-E1 (at most 21 cents), as weak identification of
+  beta2 leads one to expect.
+- **No bootstrap interval.** A 999-draw run takes about 2.5 hours on this machine.
+  Rerun with `--boot 999` into the same output folder if the row needs an interval.
+
+— Claude
+
 ## 2026-11-04 - Trim window: epsilon method confirmed; Block D endpoint lemma simplified (Claude)
 
 **Decision (author).** Asked whether the trimming could be made easier, three options
