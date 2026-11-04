@@ -9,6 +9,64 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - Taxi theory plan; R3-E1 is weakly identified and its score is not monotone (Claude)
+
+Start of the §6 theory extension, the author's second priority from the weekly review.
+The object is Theorem 1 (`thm:prelim-trim`, §4.4 of `differing_slopes.tex`) with
+Appendices 2-3. The estimator was checked against `taxi_four_role.rotation`:
+- the caps are the 0.5% and 99.5% quantiles of eta-hat (shared first stage) on the
+  evaluation fold, and the window is [max(l-hat, cap_lo), min(u-hat, cap_hi)];
+- J is set once from the full sample's (Q, X) and held fixed in every rotation and
+  bootstrap draw.
+
+**Data checks** (`experiments/scripts/taxi_score_shape_check.py`; square-root scale,
+full-sample first stage):
+- **R2-E1.** The fitted score rises strictly with distance: 0.349 per mile plus 0.954 per
+  log mile (Q units), with a smallest derivative of 0.37. The several-columns version of
+  (Q1m) applies. D×distance keeps 4.5% of its variance after partialling.
+- **R3-E1 (spline in log distance).** D×distance keeps 0.48% of its variance after
+  partialling, so beta2 is weakly identified, as under the dollar-scale S3 (0.5%).
+- **R3-E1 score shape.** Its fitted score falls for trips of 0.02-0.26 miles (1,621
+  rides, 0.26%). With discrete indicators, the turn puts a spike in the index density in
+  each of the 156 indicator cells, at index values 1.49-2.18. All of these lie inside
+  the argument set V = [1.43, 8.53] where the criterion evaluates g, so the fitted
+  R3-E1 model violates (A3). The spikes are far from the optimum (at phi-hat the
+  arguments are about 3.7-5.9), so they bear on consistency over the policy set, not on
+  the local limit.
+
+**Plan presented to the author** (the three gaps):
+1. **Restricted effect block.** For X_E = AX with A of full row rank, the identification
+   inequality restricts directly. Lemma `ds-arm` no longer splits the fit by arm, and
+   Lemma `ds-rout` gets a closed form with the arm slopes coupled through a
+   (d_X + d_E) linear system. Its matrix is the Gram of the restricted slope directions,
+   which is positive definite.
+2. **Several score columns.** (Q1m') lets a continuous V enter through known C^1
+   functions r(V), with gamma_R' r'(V) bounded away from zero. The projection-derivative
+   lemma keeps its conclusion by the implicit function theorem. At eps = 0.05 both
+   eps-endpoints are inactive in §6, because the caps bind. So (A6) is used only by the
+   eps = 0.075 and 0.10 rows, whose binding endpoint, l0 = phi0 - Q_{1-eps}(T), lies
+   among long rides, where the score is monotone.
+3. **Capped window.** The caps come from the evaluation fold, so Lemma `ds-eval` (which
+   assumes endpoints independent of that fold) is replaced by the trimmed-mean argument:
+   the empirical quantile fixes the count of units crossed. On a capped side, the
+   endpoint score moves from psi_T to psi_U, as +b_l z^eta_lo(eta) or
+   -b_u z^eta_hi(eta), with z^eta_p = {p - 1(eta <= xi_p)}/f_eta(xi_p). In A-bar, m_p is
+   replaced by e_1 = E X~, so the cap carries no slope loading. The uncorrelated-scores
+   corollary needs the intercept coordinate of A-bar to stay zero. That should follow as
+   before, because the caps move with eta-hat; it is to be checked numerically.
+
+**Author decisions (2026-11-04):**
+- "Proceed as planned": notebook first, then numerical checks, proof review and the
+  appendix.
+- J: "State it as fixed". One sentence in §6; no proof for an estimated J.
+- R3-E1: "Robustness row". R2-E1 stays the single use case, which revises the morning's
+  co-equal decision. The scope file is updated.
+
+**Caveat, not new.** Trip distance is recorded to 0.01 mile (2,418 values). Like the fare,
+it is treated as continuous.
+
+— Claude
+
 ## 2026-11-04 - Paper §5: coverage tables with 999 bootstrap draws (Claude)
 
 This was the author's first priority from the weekly review ("you get the sims and

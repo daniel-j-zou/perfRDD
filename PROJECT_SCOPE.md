@@ -5,7 +5,7 @@ session by reading this file, then the newest entries in `RESEARCH_LOG.md` and
 `../manuscript/TODO.md`.
 
 - **Last reviewed with the author:** 2026-11-04, a full refresh pass (Claude)
-- **Covers decisions up to:** research log entries of 2026-11-04 ("§2.4 rewritten: the margin moves up")
+- **Covers decisions up to:** research log entries of 2026-11-04 ("Taxi theory plan; R3-E1 is weakly identified and its score is not monotone")
 
 This file holds author decisions only. Evidence and derivations stay in `RESEARCH_LOG.md`;
 tasks stay in `../manuscript/TODO.md`. Every item below can be traced through the
@@ -109,7 +109,12 @@ decision history at the end. How to change this file is described in "Updating t
   pointer to it. Three gaps: the effect uses a subset of the score covariates (a
   restricted D·X block, with its rank condition); a covariate enters the score through
   several columns, as a smooth increasing function (extends (Q1m)); and the window is
-  capped at residual quantiles (endpoint terms a trimmed mean in eta-hat).
+  capped at residual quantiles (endpoint terms a trimmed mean in eta-hat). Plan agreed
+  (2026-11-04): notebook derivation with numerical checks, proof review, then the
+  appendix.
+- **Outcome region J in §6** (2026-11-04): J is chosen once from the full-sample
+  residuals and held fixed in every fit and bootstrap draw; §6 says so in one sentence,
+  and the theory treats J as given. No proof for an estimated J.
 
 ## Inference
 
@@ -148,10 +153,11 @@ decision history at the end. How to change this file is described in "Updating t
   the indicators, and the effect is linear in distance. It replaces the 2026-10-20 plan to
   report S1-E1 and S2-E1 (dollar scale) side by side. The theory for it is the taxi
   extension under "Theory".
-- **Second use case** (2026-11-04): R3-E1, co-equal with R2-E1 and with no single
-  headline. It keeps the square-root fare and the effect linear in distance, with a
-  spline in log distance plus the indicators in the score. Both get the full 999-draw
-  run, figures and diagnostics.
+- **Spline score R3-E1** (2026-11-04, revised the same day): a robustness row, not a
+  second use case; R2-E1 stays the single use case. R3-E1 keeps the square-root fare and
+  the effect linear in distance, with a spline in log distance plus the indicators in
+  the score. Its row carries the identification caveat: D×distance keeps 0.48% of its
+  variance after partialling.
 - **§6 comparisons** (2026-11-04): the dollar-scale S1-E1 and S2-E1, the common slope and
   the $5–$25 sample are robustness rows; CMT is an external benchmark only.
 - **Location-scale first stage** (2026-10-22): a robustness check for the taxi
@@ -220,10 +226,8 @@ only when the author asks; it does not change the sections above.
 
 ## Open questions for the author
 
-- **R3-E1 identification:** under the dollar-scale spline score (S3, 2026-10-15) the
-  D×distance column kept only 0.5% of its variance after partialling, so beta2 was
-  weakly identified. The square-root value is checked before the 999-draw run; if it is
-  as weak, the author decides how to report R3-E1.
+- None open. The R3-E1 identification question was answered on 2026-11-04 (robustness
+  row).
 
 ## Updating this file
 
@@ -267,6 +271,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-04 | R3-E1 becomes a robustness row with an identification caveat, not a co-equal use case (revises the same day's decision); J in §6 stated as fixed, no proof for an estimated J; theory-extension plan agreed | Log: "Taxi theory plan; R3-E1 is weakly identified and its score is not monotone" (2026-11-04) |
 | 2026-11-04 | §2.4 rewritten around "the margin moves up"; (U1) needs log-concave f_eta only when lambda is not constant | Log: "§2.4 rewritten: the margin moves up" (2026-11-04) |
 | 2026-11-04 | Taxi §6: R3-E1 (spline score, square-root fare) co-equal with R2-E1; dollar-scale S1/S2, common slope and $5–$25 sample as robustness rows; CMT an external benchmark only | Log: "Weekly scope review" (2026-11-04) |
 | 2026-11-04 | Taxi theory: write out the extension of Theorem 1 for all three gaps (restricted effect block, covariate in several score columns, window capped at residual quantiles), reviewed before it goes in; the target wording covers the cap | Log: "Weekly scope review" (2026-11-04) |
