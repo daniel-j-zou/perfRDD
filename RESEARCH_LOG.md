@@ -9,6 +9,35 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - Paper wording pass after the anti-AI writing review; abstract claim scoped (Claude)
+
+At the author's request, after a read-only review of manuscript 8deaf84 with the
+anti-ai-writing and humanizer skills (report in the Technical Writing session's notes).
+Pushed as manuscript bf94b3e (text) and a619475 (changelog). Wording only: no symbols,
+formulas, numbers or results changed.
+
+**Finding (verified against the paper).** Two abstract sentences said more than the body
+proves:
+- "the utility-maximizing threshold is point identified" - the paper identifies the
+  optimum for the supported population only, and it differs from the untrimmed optimum
+  (0.545 against 0.426 in the Section 5 design). The abstract now says "for the
+  subpopulation with overlap"; the Section 1 "To our knowledge" sentence and the first
+  Discussion sentence carry the same qualifier.
+- "New York City taxi tip menus, which switch ... above a fare threshold" - only the VTS
+  terminals switch (at \$15); CMT shows percentages at every fare (Section 6.5). The
+  abstract now says "one New York City taxi vendor" and "at a fare of \$15".
+
+**Decision (author).** Rewrite the "X, not Y" sentences and the weak verbs ("acts as",
+"serves as", "marks"); keep sentences that announce what comes next, and some passive
+voice. About 28 contrasts were rewritten or cut; repeated statements (uncorrelated role
+scores in the Section 3 opening, the Section 4 opening against the roadmap, the first
+Discussion paragraph) were cut; Future work is plain paragraphs; mentions of earlier
+drafts and scripts were removed from Section 5.4 and the appendices. The structural
+Section 6 items (6.6 closing paragraph, the table's Interpretation column, the 6.5
+italic list) are left for the Section 6 rewrite. Details in `../manuscript/CHANGELOG.md`.
+
+---
+
 ## 2026-11-04 - Taxi theory: numerical checks and proof review of the notebook section (Claude)
 
 Follows "Taxi theory plan; R3-E1 is weakly identified and its score is not monotone"
