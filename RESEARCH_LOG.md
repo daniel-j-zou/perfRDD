@@ -9,6 +9,77 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - Six proof shortenings in differing_slopes.tex, reviewed and ported (Claude)
+
+At the author's request ("shorten and clean up proofs"; then "all six"; then "fix and
+port all"). Each change was drafted as replacement text in `this_week.tex`, checked by
+three independent reviewer agents (logic and conditions for items 1 and 6; duplication
+and exponents for items 2-5; notation and cross-references), corrected, ported, and the
+ported diff re-reviewed by a fourth agent. Manuscript commits 5e294ad (items 2-5),
+54bb36b (items 1 and 6), 1d1d829 (re-review repairs), 3422d02 (hashes); CHANGELOG has
+the per-section detail. The paper is 74 lines shorter net; no step of any proof and
+no rate changed. Open: the author's own review of the ported proofs (board item of
+2026-10-19) now reads the merged outcome lemma.
+
+**What changed.**
+- Appendix 2, Step 2: the product remainder is bounded from the outcome lemma's rate
+  for beta2-hat; the separate root-n argument for beta2-hat (three bullets) is gone.
+  Verified: all six products of (sqrt(K/n), K^-3) x (sqrt(L/n), n^-1/2, L^-3) are
+  o(n^-1/2) under (A5); sqrt(KL)/n and sqrt(K/n) L^-3 are o(n^-3/4), K^-3 L^-3 is
+  o(n^-45/56). Nothing else in the paper used a root-n rate for beta2-hat; the
+  simulation sentence that called the observed halving "the sqrt n rate" now compares
+  with the lemma's bound.
+- Lemma "Location invariance": the coordinate check is the proof; the invariance
+  argument (with its Pi_delta -> Pi_0 interchange) is one sentence marked formal.
+- Steps 1b-3b: one lemma "Projection identity" (`lem:ds-dens-mean`, any first-stage
+  coefficient, delta = 0 included, delta independent of the index fold) replaces the
+  Step 1b derivation and the lemma "Exact conditional mean"; one displayed moment
+  bound (`eq:ds-moment`, from (A4)(ii)) replaces three spelled-out uses.
+- Appendix 1: "Role of the overlap interval" deleted; "Organization of the proofs"
+  is two sentences before the proof-map table.
+- (A6) and Block D: (A6) states the differentiability of F(a,q) = P(a'X~ <= q) at
+  (gamma, q_p) directly, with m_p := -d_a F(gamma,q_p)/f_T(q_p) (the continuous
+  version of E(X~ | T = q_p)) and d_X fixed; the old (Q1m)-(Q2m) and the lemma
+  "Projection derivative" are a "Sufficient conditions for (A6)" paragraph; the
+  Bahadur and endpoint lemmas keep their proofs with "(A6)" as hypothesis.
+- Appendix 3: the lemmas "Outcome fit", "Outer crossing" and "Generated inputs" are
+  one lemma `lem:ds-outcome`(a)-(e) with four shared facts (F1)-(F4) and one residual
+  split (`eq:ds-outcome-split`); every citation repointed to a part.
+
+**Findings worth keeping.**
+- A first-pass idea was wrong and is recorded so it is not retried: the a-derivative
+  of the projection distribution function does not follow from (A4), because (A4)
+  controls the weighted index density on the bounded interval T' only, and
+  F(a,q_p) - F(gamma,q_p) includes the mass crossing the lower end of T', which is
+  first order in ||a - gamma||; nor is q_p in T' guaranteed. (A6) stays a separate
+  condition.
+- Four slips inherited from the old outcome-fit proofs, repaired in the merged lemma:
+  (i) P_o ||z^ - z||^2 = O_p(K^3/n) was stated unweighted, but the basis is continued
+  past J by its outermost cubic piece, so N_K' is unbounded off J; every use is S-,
+  S^- or |Delta|-weighted, and (F2) now says so; (ii) the approximation piece of the
+  linear-term expansion bounded P_o[S z^ e_K] by the bound for P_o[S z e_K]; the
+  missing triangle inequality adds O_p(K^{3/2} n^{-1/2} K^{-3}) and leaves the
+  conclusion; (iii) the bounded second derivatives of the population fit's coefficient
+  functions were asserted; they follow from Step 2's bound ||theta-bar_K - theta_K||
+  <~ K^-3, the j = 2 envelope and a second-derivative bound on the quasi-interpolant;
+  (iv) the last clause of the outer-crossing part uses the density consistency lemma,
+  now cited with its conditions (A1)(i), (A3)-(A7).
+- Also repaired: the linear term's limit swaps xi_K for xi at cost O(K^{-3/2})
+  ||delta|| = o_p(n^-1/2), which the old proof did not say; and e_1' m_p = 1 is now
+  derived (F depends on (a_0, q) through q - a_0, so d_{a_0} F = -d_q F).
+- Not changed, for the author: the two-route proof of the marginal-effect derivative
+  (both forms are used); the closed-form outcome representer (used for the K^{-1/2}
+  rate and the variance); the identification examples and numerical checks in
+  Appendix 3, which are evidence rather than proof and could move to a supplement.
+- The draft replacement text is in the manuscript history at ace2d7c; `this_week.tex`
+  keeps a record section.
+
+Coordination: the "PerfRDD scope review" session, which is porting the Section 6
+taxi extension, was told which lemmas changed and will write its score-column
+condition as a second sufficient-conditions paragraph under (A6).
+
+— Claude
+
 ## 2026-11-04 - Paper §2 simplified; stability and identification stated (Claude)
 
 Author decision: "Fix all of those" (eleven items proposed in chat after a critical
