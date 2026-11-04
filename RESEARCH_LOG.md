@@ -9,6 +9,31 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - Taxi §6: bootstrap interval for the spline-score (R3-E1) row (Claude)
+
+Follow-up to "Taxi §6: spline-score (R3-E1) robustness row" below, which said the row
+had no interval. At the author's go-ahead ("Yes, run it"), the 999-draw bootstrap ran
+with the same design as the main specification (`python -m
+experiments.scripts.taxi_section6 --specs R3-E1 --boot 999 --workers 5 --out
+experiments/runs/taxi_section6_R3-E1`, 7,562 s; output git-ignored, `boot.log`,
+`summary.json`, `R3-E1_draws.jsonl`).
+
+- 95% percentile interval [\$12.52, \$13.44] (90%: [\$12.61, \$13.37]; normal
+  [\$12.59, \$13.49]); bootstrap sd 0.230. The main specification (R2-E1) has
+  [\$12.56, \$13.18] and sd 0.155, so this interval is about 1.5 times as wide and
+  contains the main estimate \$12.87.
+- All 999 draws are interior (boundary share 0) and below \$15. By cell: \$12.50 22,
+  \$12.90 256, \$13.30 628, \$13.70 92, \$14.10 1.
+- The wider interval fits the weak identification of $\beta_2$ recorded below
+  (0.48% of the distance column's variance left after partialling, against 4.5%);
+  we did not test that this is the cause.
+
+Paper: the §6.5 sentence now gives the interval and these two facts (manuscript
+bfb4912, changelog eb1825b); the table row and the (A3) caveat are unchanged.
+`TODO.md` status updated.
+
+---
+
 ## 2026-11-04 - Held notation renames applied; "threshold" throughout (Claude)
 
 Follow-up to "Notation reread: writing pass and approved renames" below. The renames the
