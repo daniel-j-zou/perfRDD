@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - Paper §2 simplified; stability and identification stated (Claude)
+
+Author decision: "Fix all of those" (eleven items proposed in chat after a critical
+read of Section 2). Applied in manuscript 92595af; reviewed by an independent Fable 5.1
+agent (nothing blocking; wording fixes applied).
+
+- **Cut:** repetition in §2.1 (alpha = E(W | eta) twice; the conditional-mean
+  display), the untrimmed U' and U'' and the interior-optimum sentence in §2.2, three
+  forward pointers to §2.4, the propensity symbol e_phi, "dividing by P(I_0 = 1)", the
+  second definition of tau_eps and the "In words" paragraph in §2.4.
+- **Moved:** the outer region J and the no-intercept remark to §3.2; chi_phi to the
+  Appendix 3 corollary on the trim level.
+- **Added, checked by the reviewer:** the stability assumption in §2.1 (outcome model
+  with the same b, alpha, slopes and W under D(phi) for every deployed cutoff; it was
+  only in Appendix 1), and an identification paragraph in §2.3 (given eta, the outcome
+  regression is affine in X on each side of {T = phi_0 - eta}; on the window both sides
+  have probability at least eps; with X independent of eta and (A1)(ii), alpha(eta),
+  b(eta), beta_1 and beta_2 are identified there; g, H_X, rho_X and the law of eta
+  depend on gamma and the law of the data).
+- Section 2 is 149 lines of PDF text, down from 167.
+
 ## 2026-11-04 - Taxi theory plan; R3-E1 is weakly identified and its score is not monotone (Claude)
 
 Start of the §6 theory extension, the author's second priority from the weekly review.
