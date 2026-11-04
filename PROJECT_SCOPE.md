@@ -63,7 +63,10 @@ decision history at the end. How to change this file is described in "Updating t
   supports. Add a remark relating it to phi*, and show sensitivity to eps in the
   application. Where the eps endpoints fall outside the data, the window is the eps
   window capped at fixed residual quantiles (taxi: the central 99%), and the theory
-  covers that cap (2026-11-04).
+  covers that cap (2026-11-04). Confirmed 2026-11-04 against two alternatives, a window
+  fixed before the analysis and a window at fixed residual shares (a trimmed mean in
+  eta-hat, which would drop (A6) and Block D): the eps window stays because it assures
+  the propensity floor on the target's population by definition.
 - **Interior optimum:** state a proposition with simple sufficient conditions, as a
   single-crossing condition on alpha(eta) - c + beta2' E(X | T = phi - eta) over the trim
   window. It extends "Uniqueness of the maximizer" in `../manuscript/goodstuff.tex`.

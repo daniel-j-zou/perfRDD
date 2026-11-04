@@ -9,6 +9,39 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - Trim window: epsilon method confirmed; Block D endpoint lemma simplified (Claude)
+
+**Decision (author).** Asked whether the trimming could be made easier, three options
+were laid out: (i) a window fixed before the analysis; (ii) a window at fixed residual
+shares p_lo, p_hi (empirical quantiles of eta-hat), whose endpoint term is the influence
+function of a trimmed mean, with no (A6) and no Block D; (iii) the index-quantile
+epsilon window as in the paper. The author declined (i) ("I don't want to fix the window
+a priori") and chose (iii) over (ii): the epsilon window assures the propensity floor
+on the target's population by definition, while (ii) leaves it as a condition to check
+from the fitted index density (automatic for a full-support index, not for a bounded
+one). Recorded in `PROJECT_SCOPE.md` ("Target"). The taxi session's capped-window
+proposition stays an extension for the application. Two facts worth keeping from the
+discussion: the outcome spline is fitted on J, which reaches propensities below epsilon
+(0.04 at the edge of J in the displayed design), so overlap on J rests on (A1)(ii) under
+either method; and in the common-slope baseline of Appendix 5 the endpoint part of
+psi_T has variance 0.012 of Var(psi_T) = 0.036 (about 5% of sigma^2 = 0.227, cross term
+with the density representer not included).
+
+**Proof simplification (manuscript 943cdc3, changelog cb6ccab).** Block D of Appendix 3
+is one lemma (`lem:prelim-boundary`, same statement plus a consistency clause) in place
+of the uniform-in-a Bahadur lemma over half-spaces (VC/Donsker) and the endpoint lemma.
+Proof: given the first-stage fold the index fold is an i.i.d. sample at a fixed
+coefficient, so the classical representation applies (Ghosh 1971, Lemma 1, Chebyshev
+bounds at deterministic points); the implicit function theorem moves the population
+quantile, which also proves Step 4's "derivative of delta -> Q_p(T_delta)"; a variance
+bound recenters the indicator. (A6) loses its fixed-dimension clause (now stated in §2).
+No hypothesis, rate or citation changed; 14 lines shorter. Two independent reviews
+(logic and conditions; notation and cross-references): no blocking findings; one wrong
+sentence and one limit in the wrong order fixed before pushing. Not verified: Ghosh's
+Lemma 1 against the source (publisher page behind a CAPTCHA); used in its standard
+form. Rebased onto the taxi-theory port (4c715f8); the taxi session's "A covariate in
+several columns" paragraph precedes the lemma unchanged.
+
 ## 2026-11-04 - Taxi theory ported into the paper's Appendix 3 (Claude)
 
 At the author's go-ahead ("Yes, port it"), the notebook derivation of
