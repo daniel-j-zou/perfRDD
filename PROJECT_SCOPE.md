@@ -52,7 +52,12 @@ decision history at the end. How to change this file is described in "Updating t
   -U_eps'(phi) is Upsilon(phi), so that Z stays free for score covariates. eta is called the
   "latent ability", not "latent type", and "the residual" (not "latent residual")
   where the score decomposition or its estimate is meant. The notebook
-  and the log keep the old labels as a record.
+  and the log keep the old labels as a record. Since 2026-11-04 (author, "Yes, all"):
+  §3's regressor is \hat z_i as in the appendices; density sieve Pi_L, calG_L, breve N_L;
+  bias constant calB; sample size n throughout; \hat I_i defined in §3. One name each:
+  "outcome interval J", "trim window [l_0,u_0]", "trim endpoints", "supported
+  population", "folds". Held until the taxi-theory lemmas land: no eps subscript on
+  representers and loadings, Sigma_K, G_a(q), 1_{a,q}, ell_2, f_T -> g, zeta_p.
 - **Target:** the hard-trimmed utility maximizer phi*_eps. The trim level eps is fixed and
   chosen by the user. Present phi*_eps as the optimal cutoff for the population the data
   supports. Add a remark relating it to phi*, and show sensitivity to eps in the
@@ -271,6 +276,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-04 | Notation reread: renames and one name per object (outcome interval, trim window, trim endpoints, supported population); renames that touch the taxi-theory lemmas held until that port lands | Log: "Notation reread: writing pass and approved renames" (2026-11-04) |
 | 2026-11-04 | R3-E1 becomes a robustness row with an identification caveat, not a co-equal use case (revises the same day's decision); J in §6 stated as fixed, no proof for an estimated J; theory-extension plan agreed | Log: "Taxi theory plan; R3-E1 is weakly identified and its score is not monotone" (2026-11-04) |
 | 2026-11-04 | §2.4 rewritten around "the margin moves up"; (U1) needs log-concave f_eta only when lambda is not constant | Log: "§2.4 rewritten: the margin moves up" (2026-11-04) |
 | 2026-11-04 | Taxi §6: R3-E1 (spline score, square-root fare) co-equal with R2-E1; dollar-scale S1/S2, common slope and $5–$25 sample as robustness rows; CMT an external benchmark only | Log: "Weekly scope review" (2026-11-04) |

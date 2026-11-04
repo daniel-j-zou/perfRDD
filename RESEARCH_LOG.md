@@ -9,6 +9,45 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - Notation reread: writing pass and approved renames (Claude)
+
+The author asked for a reread of the whole paper "focused on notation" and writing,
+"accurate but concise". A Fable 5.1 (high) reader proposed sentence-level edits and 19
+notation and terminology items; the author approved all of them ("Yes, all"), with the
+items that run through the taxi-theory lemmas held until that port lands. Review record:
+`reviews/REVIEW_NOTATION_20261104.md`.
+
+- Writing pass pushed as manuscript 8deaf84 (commit 326ea6e): sentence edits only;
+  labels, citations, displays and numbers unchanged (checked by script); §6 untouched.
+- Notation pass pushed as manuscript 245dbf9 (changelog ea39d7e), after an independent
+  Fable review: §3 regressor $\hat z_i$; density sieve $\Pi_L$, $\mathcal G_L$,
+  $\breve N_L$; bias constant $\mathcal B$; sample size $n$ throughout; $\hat I_i$
+  defined in §3; section labels replace hard-coded numbers; one name each for
+  $\mathcal J$ ("outcome interval"), $[l_0,u_0]$ ("trim window"), its endpoints ("trim
+  endpoints") and the units ("supported population"); Appendix 3's third restatement of
+  the target and its duplicated (A1)-check text replaced by pointers; stale todo box
+  commented out.
+- Held (board item "Notation renames held for the taxi theory"): $\epsilon$-subscript
+  drop on representers and loadings, $\Sigma_K$, $G_a(q)$, $\mathbb 1_{a,q}$, $\ell_2$,
+  $f_T\to g$, $\zeta_p$, bare $S$, $\hat Q_p=\hat q_p(\hat\gamma)$, `\mathrm`. The
+  taxi-theory session will port its lemmas in the new names and say when it has pushed.
+- §6 wording items (seven) went to the taxi-theory session, which owns §6. It corrected
+  one: the $\epsilon$-endpoints do not bind only at $\epsilon=0.05$; at 0.075 and 0.10
+  the lower one binds (full-sample $l_0=-0.354$ and $0.025$, above the cap $-0.757$).
+- Finding, author decision open: an xhigh second reviewer checked every use of (A3).
+  $f_\eta$ needs only two continuous derivatives (one use of a bounded $f_\eta''$, the
+  density shift in Lemma `ds-eval`). $\alpha$ and $b$ do need a bounded third
+  derivative: the $K^{-3}$ spline bias gives the lower limit $K\gg n^{1/7}$, which plain
+  $C^2$ would raise to $n^{1/5}$.
+- Also run at the author's request (read-only side session): the `anti-ai-writing` and
+  `humanizer` plugins. Neither finds much AI vocabulary. Their substantive findings,
+  checked against the paper and pending the author: the abstract says the
+  "utility-maximizing threshold" is identified, but the paper identifies the supported
+  optimum (0.545 against 0.426 in the §5 design); the abstract's "New York City taxi
+  tip menus" switch only on VTS terminals; plus repetition (the uncorrelated role scores
+  stated four times), a Discussion opening that restates §1, and draft-history phrasing
+  ("an earlier full-sample fit", "the same script").
+
 ## 2026-11-04 - Follow-up: identification examples and numerical checks moved to Appendix 5 (Claude)
 
 Author decision ("Yes, move them"), after the proof-shortening entry below. The
