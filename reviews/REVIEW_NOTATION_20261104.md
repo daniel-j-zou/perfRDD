@@ -9,7 +9,8 @@ the proof-shortening pass (5e294ad, 54bb36b) before this pass ran.
 
 Second reviewer (Fable 5.1, xhigh) on item (e)2, (A3) smoothness: f_eta needs only C^2 (one
 use of a bounded f_eta'', Lemma ds-eval, density shift); alpha and b do need a bounded third
-derivative (the K^{-3} spline bias behind the n^{1/7} lower limit on K). Author decision open.
+derivative (the K^{-3} spline bias behind the n^{1/7} lower limit on K). Author: yes
+(2026-11-04); applied in manuscript e23fed5.
 
 Held items applied in manuscript 558099d (after 4c715f8 and 943cdc3). A second Fable 5.1
 (high) review of that diff found every changed site on the intended object, no new clashes,

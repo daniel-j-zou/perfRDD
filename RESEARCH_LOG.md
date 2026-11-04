@@ -35,8 +35,12 @@ changelog d080c58. Notation only; no formula, condition, number or result change
   a label-only change to the script (this commit); before the change the redraw matched
   the paper's figure pixel for pixel, so the data are unchanged.
 - Earlier pending items now closed elsewhere: the skills findings were applied by the
-  author's wording pass (bf94b3e) and the §6.5-6.6 pass (45bc963). Still open for the
-  author: (A3), $f_\eta$ twice instead of three times continuously differentiable.
+  author's wording pass (bf94b3e) and the §6.5-6.6 pass (45bc963).
+- Decision (author, "Yes to A3"): (A3) now asks $\alpha$ and $b$ to be three times and
+  $f_\eta$ twice continuously differentiable near $\mathcal J$ (manuscript e23fed5,
+  changelog 5a1a0ce). The xhigh check above found no use of more than a bounded
+  $f_\eta''$; the taxi part, ported after that check, uses the same (a bounded second
+  derivative near the cap, from (A3) and (C3)). No proof changes.
 
 ---
 
