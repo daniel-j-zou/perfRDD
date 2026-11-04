@@ -9,6 +9,37 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - Held notation renames applied; "threshold" throughout (Claude)
+
+Follow-up to "Notation reread: writing pass and approved renames" below. The renames the
+author approved ("Yes, all") and held for the taxi theory ran once the taxi theory
+(manuscript 4c715f8) and the Block D rewrite (943cdc3) were on master: manuscript 558099d,
+changelog d080c58. Notation only; no formula, condition, number or result changed.
+- Applied: no $\epsilon$ (or empty $\eta$) subscript on representers, loadings, $F^*$,
+  $s^*$ (204 places; $\epsilon$ stays on $U_\epsilon$, $\phi^*_\epsilon$, $\tau_\epsilon$,
+  $p_\epsilon$, $\hat\phi_\epsilon$, $B_\epsilon$); Gram matrix $\Sigma_K$, $\hat\Sigma_K$;
+  Lemma `ds-rout`'s $B$ is $\ell_2$, defined once; Block D's $G_a(q)$ (so $G_\gamma=G$) and
+  empirical $\hat G_a(q)$; quantile influence $\zeta_p$ (pairs with the taxi part's
+  $\zeta^\eta_p$; the local $\zeta_0,\zeta_1$ of Lemma `ds-gram` became $\varsigma_0,
+  \varsigma_1$); $f_T\to g$; bare $S$, $\hat S$; `\mathrm`. Not needed after the Block D
+  rewrite: $\mathbb 1_{a,q}$ and the $\hat Q_p$ sentence.
+- Checks: a script that asserts every count; a build (62 pages, same warnings as master);
+  an independent Fable 5.1 (high) review of the diff, which confirmed every changed site
+  hits the intended object and found five leftovers outside the script's patterns (bare
+  $F$, $\partial F$ in Block D and Lemma `ds-zero-intercept`, a bare Gram $Q$ in Lemma
+  `ds-outcome`), all fixed before the push. Record: `reviews/REVIEW_NOTATION_20261104.md`.
+- Decision (author, relayed by the anti-AI review session): "use threshold". The paper
+  used "cutoff" 77 times and "threshold" 53 times for one object; all 77 are now
+  "threshold" (manuscript 4067554), as are the 27 in the 811 outline. The §6 figure is
+  redrawn from `runs/taxi_section6/summary.json` with `taxi_section6.py --figures` after
+  a label-only change to the script (this commit); before the change the redraw matched
+  the paper's figure pixel for pixel, so the data are unchanged.
+- Earlier pending items now closed elsewhere: the skills findings were applied by the
+  author's wording pass (bf94b3e) and the §6.5-6.6 pass (45bc963). Still open for the
+  author: (A3), $f_\eta$ twice instead of three times continuously differentiable.
+
+---
+
 ## 2026-11-04 - Taxi §6: spline-score (R3-E1) robustness row (Claude)
 
 At the author's go-ahead ("Yes, add it"), R3-E1 is in the §6.5 robustness table

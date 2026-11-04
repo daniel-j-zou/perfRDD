@@ -56,8 +56,10 @@ decision history at the end. How to change this file is described in "Updating t
   §3's regressor is \hat z_i as in the appendices; density sieve Pi_L, calG_L, breve N_L;
   bias constant calB; sample size n throughout; \hat I_i defined in §3. One name each:
   "outcome interval J", "trim window [l_0,u_0]", "trim endpoints", "supported
-  population", "folds". Held until the taxi-theory lemmas land: no eps subscript on
-  representers and loadings, Sigma_K, G_a(q), 1_{a,q}, ell_2, f_T -> g, zeta_p.
+  population", "folds". Applied once the taxi theory landed (manuscript 558099d): no eps
+  subscript on representers and loadings (r_out, r_T, L_T, A_U, A_T, F*, s*, ...), Gram
+  matrix Sigma_K, B of Lemma ds-rout = ell_2, Block D's G_a(q) (G_gamma = G), quantile
+  influence zeta_p, f_T -> g, bare S. "Threshold", never "cutoff" (author, 2026-11-04).
 - **Target:** the hard-trimmed utility maximizer phi*_eps. The trim level eps is fixed and
   chosen by the user. Present phi*_eps as the optimal cutoff for the population the data
   supports. Add a remark relating it to phi*, and show sensitivity to eps in the
@@ -287,6 +289,7 @@ asks whether to update the file first.
 | 2026-11-04 | Abstract states the novelty claim (point identification from a single deterministic threshold), folded into the root-n sentence | Log: "Weekly scope review" (2026-11-04) |
 | 2026-11-04 | Two-score and dose-schedule work recorded as next-paper side tracks, worked on only when the author asks; this paper's out-of-scope list unchanged | Log: "Weekly scope review" (2026-11-04) |
 | 2026-11-04 | "How we work" records the 811 rule: `811.tex` tracks the paper's sections and status | Log: "Weekly scope review" (2026-11-04); "811 course outline tracks the paper" (2026-10-27) |
+| 2026-11-04 | "Threshold" throughout the paper, never "cutoff"; held notation renames applied | Log: "Held notation renames applied; \"threshold\" throughout" (2026-11-04) |
 | 2026-10-27 | Taxi use case for the paper, for now: square-root fare, distance + log-distance score, effect linear in distance (R2-E1); replaces S1-E1 and S2-E1 side by side | Log: "Taxi use case: square-root fare, distance and log distance" (2026-10-27) |
 | 2026-10-22 | Location-scale first stage kept as a taxi robustness check only; X independent of eta stays | Log: "Weekly scope review, short pass" (2026-10-22) |
 | 2026-10-22 | Nonlinear design: reword the small-n variance excess in §5; no larger-n cells | Log: "Weekly scope review, short pass" (2026-10-22) |

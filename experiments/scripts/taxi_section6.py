@@ -259,8 +259,8 @@ def comparisons(seed, out, spec=MAIN):
 
 
 def paper_figure(result, out, spec):
-    """The Section 6 figure for one specification: tips relative to the $15 cutoff
-    against the cutoff (left) and alpha-hat against the latent ability (right), with
+    """The Section 6 figure for one specification: tips relative to the $15 threshold
+    against the threshold (left) and alpha-hat against the latent ability (right), with
     95% pointwise percentile bands from the bootstrap."""
     r = result["specs"][spec]
     grid = np.array(result["fare_grid"])
@@ -272,8 +272,8 @@ def paper_figure(result, out, spec):
     a1.axhline(0, color="k", lw=0.7)
     a1.axvline(r["phi"], color="C3", ls="--", lw=1)
     a1.axvline(M.FARE0, color="0.5", ls=":", lw=1)
-    a1.set_xlabel("fare cutoff (\\$)")
-    a1.set_ylabel("tips vs the \\$15 cutoff (cents per ride)")
+    a1.set_xlabel("fare threshold (\\$)")
+    a1.set_ylabel("tips vs the \\$15 threshold (cents per ride)")
     x, al = np.array(r["eta_grid"]), np.array(r["alpha"])
     lo, hi = (np.array(v) for v in r["boot"]["alpha_band95"])
     a2.fill_between(x, lo, hi, color="C2", alpha=0.25, lw=0)
@@ -306,8 +306,8 @@ def figures(result, out, specs):
         ax.axvline(r["phi"], color="C3", ls="--", lw=1)
         ax.axvline(M.FARE0, color="0.5", ls=":", lw=1)
         ax.set_title(f"{LABEL[spec]} (\\${r['phi']:.2f})", fontsize=10)
-        ax.set_xlabel("fare cutoff (\\$)")
-    axes[0].set_ylabel("tips relative to the \\$15 cutoff (cents per ride)")
+        ax.set_xlabel("fare threshold (\\$)")
+    axes[0].set_ylabel("tips relative to the \\$15 threshold (cents per ride)")
     fig.tight_layout()
     fig.savefig(out / f"taxi_U_{tag}.png", dpi=200, bbox_inches="tight")
     plt.close(fig)
@@ -337,7 +337,7 @@ def figures(result, out, specs):
         ax.axvline(r["phi"], color=f"C{k}", ls="--", lw=0.9)
     ax.axhline(0, color="k", lw=0.8)
     ax.axvline(M.FARE0, color="0.5", ls=":", lw=1.1)
-    ax.set_xlabel("fare cutoff (\\$)")
+    ax.set_xlabel("fare threshold (\\$)")
     ax.set_ylabel("marginal net effect (\\$ per ride)")
     ax.legend(fontsize=8, frameon=False)
     fig.tight_layout()

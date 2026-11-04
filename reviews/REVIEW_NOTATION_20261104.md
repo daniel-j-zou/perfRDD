@@ -11,6 +11,15 @@ Second reviewer (Fable 5.1, xhigh) on item (e)2, (A3) smoothness: f_eta needs on
 use of a bounded f_eta'', Lemma ds-eval, density shift); alpha and b do need a bounded third
 derivative (the K^{-3} spline bias behind the n^{1/7} lower limit on K). Author decision open.
 
+Held items applied in manuscript 558099d (after 4c715f8 and 943cdc3). A second Fable 5.1
+(high) review of that diff found every changed site on the intended object, no new clashes,
+and five leftovers outside the script's patterns (bare F, partial F in Block D and Lemma
+ds-zero-intercept; a bare Gram Q in Lemma ds-outcome, orphaned by removing the local
+shorthand), all fixed before the push; it also suggested defining ell_2 once, done. N3
+(1_{a,q}) and N13(i) were no longer needed: the Block D rewrite removed H_{a,q} and states
+hat Q_p = hat q_p(hat gamma). Item N16's "cutoff" vs "threshold": author decision "use
+threshold" (manuscript 4067554).
+
 ---
 
 Worktree: branch `review/notation-20261104`, base c1474a8. Writing-edit commit: **862bd53** ("Review: notation-focused reread, writing edits (Fable 5.1)"), not pushed, one file, 26 insertions / 28 deletions. Build after commit: exit 0, 14 warning lines (same set as the base: class/package path notices x2, font-shape substitutions x9, hyperref Unicode tokens x3, plus the overfull vboxes from floats), 0 overfull hboxes, 0 undefined references. PDF: `/private/tmp/claude-505/-Users-zoudj-Documents-Codex-PerfRDD/3e96b884-102e-40fc-bc48-861da49d2619/scratchpad/notation_build/differing_slopes.pdf`.
