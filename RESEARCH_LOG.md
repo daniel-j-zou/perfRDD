@@ -9,6 +9,79 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-04 - Taxi theory: numerical checks and proof review of the notebook section (Claude)
+
+Follows "Taxi theory plan; R3-E1 is weakly identified and its score is not monotone"
+(below). The derivation is in `../manuscript/this_week.tex`, section "Theorem 1 for
+the taxi specification" (`sec:week-taxi-theory`), pushed as manuscript 320e820 after
+review. It is not in the paper yet.
+
+**What is proved (in the notebook).** Theorem 1 extends to the main taxi
+specification:
+- a restricted effect block (a coordinate set E, with a closed-form representer whose
+  arm slopes are coupled by a small linear system);
+- a covariate entering the score through several known functions (sufficient
+  conditions (S1)-(S3) for (A6));
+- a trim window capped at residual quantiles taken from the evaluation fold. This is a
+  trimmed-mean argument: on a capped side the endpoint score moves from psi_T to
+  psi_U, and its first-stage loading becomes intercept only.
+
+The outcome interval J is taken as fixed, as agreed.
+
+**Numerical checks** (`experiments/scripts/ds_capped_window_check.py` and
+`ds_restricted_block_check.py`, committed now; outputs in the git-ignored
+`experiments/runs/`). Both use the displayed design of paper §5 at n = 64,000, seed
+20261104. Each larger run extends the 500-data-set run with the same seeds.
+
+| check | predicted n Var | first 500 | larger run |
+|---|---:|---:|---:|
+| capped window (eps = 0.10, caps 0.15/0.85) | 46.52 | 48.56 (3.07) | 47.99 (1.52), 2,000 |
+| plain eps = 0.15, same target | 50.69 | 52.76 (3.34) | 53.03 (1.68), 2,000 |
+| capped minus plain, paired | -4.17 | -4.21 (1.23) | -5.05 (0.66), 2,000 |
+| restricted block, beta2 = (0.4, 0, 0) | 18.89 | 18.80 (1.19) | 19.77 (0.88), 1,000 |
+| full block, same data | 23.66 | 24.97 (1.58) | 25.56 (1.14), 1,000 |
+| full minus restricted, paired | 4.77 | 6.17 (0.94) | 5.78 (0.68), 1,000 |
+
+- Everything is within two Monte Carlo standard errors.
+- The capped Abar has intercept 7e-18, and the four scores are uncorrelated (largest
+  |corr| 0.002 in 2M draws).
+- The restricted Riesz identities hold in 13 directions (largest |z| 1.49).
+- With E = all coordinates, the system reproduces the paper's omega^(d) to 3e-16.
+
+In this design the capped window has the smaller variance, 8% below the plain
+estimator with the same target, and so does the restricted fit. Neither result is
+claimed in general.
+
+**Proof review.**
+- Three independent reviewers re-derived every sign and found the math correct.
+- One blocking finding, now fixed: the evaluation-fold lemma inherited a root-n rate
+  for l-hat toward the capped endpoint, which is false on a capped side.
+- Fourteen minor findings, all applied: conditions, quantifiers, the combined taxi
+  corollary, the description of J, and renames to avoid notation clashes with the
+  paper.
+- Two fresh reviewers then re-checked the changed steps. They found no new error, and
+  their minor points are applied too.
+
+**Findings worth keeping.**
+- J is the central 99.5% of the residuals only at eps = 0.05. At 0.075 and 0.10,
+  `make_design` makes its lower end depend on the full-sample l0:
+  J = [-0.637, 2.065] and [-0.257, 2.065]. The docstring at the top of
+  `taxi_four_role.py` (lines 27-30) still describes J with the 0.005 tail. Not changed
+  here.
+- Follow-up to the R3-E1 entry below: the spline score has two turning points, a local
+  maximum at about 0.015 miles and the recorded minimum at 0.26 miles. Each puts an
+  index-density spike inside the argument set, at index values 2.38-3.07 and
+  1.49-2.18. Both are far below the upper index quantiles in use (5.83-6.69), so the
+  conclusions stand. `taxi_score_shape_check.py` reports only the minimum.
+- Not checked: whether distance has a conditional density that is continuous and
+  positive near the roots in each of the 156 indicator cells, and whether the
+  population quantiles are unique. Both are treated as continuous, like the fare.
+
+**Next:** port to the paper's appendix (board item "Theory for the taxi
+specifications"). With it, apply the seven §6 wording changes approved through the
+Technical Writing session, which is holding a scripted symbol rename until the port
+lands.
+
 ## 2026-11-04 - Notation reread: writing pass and approved renames (Claude)
 
 The author asked for a reread of the whole paper "focused on notation" and writing,
