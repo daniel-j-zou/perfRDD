@@ -34,6 +34,29 @@ bfb4912, changelog eb1825b); the table row and the (A3) caveat are unchanged.
 
 ---
 
+## 2026-11-09 - Follow-up: main-text material moved to the supplement (D1) (Claude)
+
+Decision (author): "Move the D1 candidates to the supplement, but keep them saved."
+Applied in manuscript b3a3e5b and f44c036, changelog 808db07, by a Fable 5.1 editor. An
+independent review found nothing lost and no number or formula changed.
+
+What moved:
+- the proof roadmap, to the opening of Appendix 2;
+- the §5.2 second-order bias paragraph and the n = 32,000 run, to Appendix 7;
+- most of §5.4 (one row of its table stays), to Appendix 7;
+- §6.6 and its table, to Appendix 6;
+- the §6 variable-mapping table, to Appendix 5;
+- two Future-work paragraphs, to a new Appendix 8;
+- Proposition 3's eligibility clause, which is Lemma D2(d), to Remark D1;
+- the finite-difference check of Remark 3, to Appendix 7;
+- the expansion hypotheses of Remark 4, to Appendix 2.
+
+The supplement now has eight appendices. The original passages are saved verbatim in
+`../manuscript/storage/moved_to_supplement_20261109.tex`. The main text is 23 pages
+(about 13,600 words), still above Biometrika's typical 15-20.
+
+---
+
 ## 2026-11-09 - Follow-up: heteroskedastic eta simulation; non-Gaussian four-role rerun (Claude)
 
 Follow-up to "Submission-readiness review and pass; first E results" below. Both runs are

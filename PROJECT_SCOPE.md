@@ -281,6 +281,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-09 | Main-text material moved to the supplement (D1), originals kept in storage/; supplement now eight appendices (Appendix 8: further directions) | Log: "Follow-up: main-text material moved to the supplement (D1)" (2026-11-09) |
 | 2026-11-09 | Supplement in seven appendices (old 3 split: identification; consistency and endpoint terms; extensions); unneeded old Appendix 4-5 material set aside in storage/, not deleted; (A1)(ii) and (A2) lose clauses other assumptions imply; (A4)(i) gets a sufficient-condition lemma; H stays the curvature | Log: "Submission-readiness review and pass; first E results" (2026-11-09) |
 | 2026-11-04 | Notation reread: renames and one name per object (outcome interval, trim window, trim endpoints, supported population); renames that touch the taxi-theory lemmas held until that port lands | Log: "Notation reread: writing pass and approved renames" (2026-11-04) |
 | 2026-11-04 | R3-E1 becomes a robustness row with an identification caveat, not a co-equal use case (revises the same day's decision); J in §6 stated as fixed, no proof for an estimated J; theory-extension plan agreed | Log: "Taxi theory plan; R3-E1 is weakly identified and its score is not monotone" (2026-11-04) |
