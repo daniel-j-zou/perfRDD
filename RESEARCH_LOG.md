@@ -9,28 +9,48 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
-## 2026-11-04 - Taxi §6: bootstrap interval for the spline-score (R3-E1) row (Claude)
+## 2026-11-09 - Follow-up: location-scale bootstrap (E2) (Claude)
 
-Follow-up to "Taxi §6: spline-score (R3-E1) robustness row" below, which said the row
-had no interval. At the author's go-ahead ("Yes, run it"), the 999-draw bootstrap ran
-with the same design as the main specification (`python -m
-experiments.scripts.taxi_section6 --specs R3-E1 --boot 999 --workers 5 --out
-experiments/runs/taxi_section6_R3-E1`, 7,562 s; output git-ignored, `boot.log`,
-`summary.json`, `R3-E1_draws.jsonl`).
+Follow-up to the E2 location-scale finding in "Submission-readiness review and pass;
+first E results" below. The 999-draw bootstrap finished (`python -m
+experiments.scripts.taxi_locscale_row --boot 999 --workers 2`, 12,135 s; outputs
+git-ignored in `runs/taxi_locscale_row/`, `summary.json`). Draw b reuses R2-E1's
+resample and split for draw b, so the two can be paired.
 
-- 95% percentile interval [\$12.52, \$13.44] (90%: [\$12.61, \$13.37]; normal
-  [\$12.59, \$13.49]); bootstrap sd 0.230. The main specification (R2-E1) has
-  [\$12.56, \$13.18] and sd 0.155, so this interval is about 1.5 times as wide and
-  contains the main estimate \$12.87.
-- All 999 draws are interior (boundary share 0) and below \$15. By cell: \$12.50 22,
-  \$12.90 256, \$13.30 628, \$13.70 92, \$14.10 1.
-- The wider interval fits the weak identification of $\beta_2$ recorded below
-  (0.48% of the distance column's variance left after partialling, against 4.5%);
-  we did not test that this is the cause.
+- Estimate $12.45 (cell $12.50). 95% percentile interval [$12.00, $12.81] (90%
+  [$12.09, $12.74]; normal [$12.04, $12.85]); bootstrap sd 0.205, against 0.155 for
+  R2-E1.
+- Every draw is interior and below $15. By cell: $12.10 64, $12.50 551, $12.90 379,
+  $13.30 5.
+- Paired with R2-E1 draw by draw: difference -$0.45 (sd 0.145), 95% interval -$0.75
+  to -$0.17, correlation 0.71. The intervals overlap on [$12.56, $12.81]. Like every
+  taxi interval, these ignore dependence within drivers.
+- Point: beta_2 = $0.22 per mile (R2-E1: $0.24); gain 0.84 cents (additive bridge in this
+  code: 0.67; R2-E1 in the paper: 0.65).
+- Caveats (from `point.json`): at the upper window cap the index decreases in distance
+  for 2.3% of rides, all of 0.56 miles or less (median fare $3.70); the density spikes
+  this causes sit at fares of about $3.80 to $9.00, none within $1 of $12.50. None of
+  the 1,583 rides between J's left edge and the window cap is treated; taking J and the
+  caps within each arm gives $12.44.
 
-Paper: the §6.5 sentence now gives the interval and these two facts (manuscript
-bfb4912, changelog eb1825b); the table row and the (A3) caveat are unchanged.
-`TODO.md` status updated.
+**Correction to the earlier reading.** The heteroskedastic-eta follow-up below says the
+taxi results "point to the second channel" (effect tied to eta/s(X)). That does not
+follow yet. The simulation ran the location-scale estimator only in design (a), where
+its model is right. In design (b), where the effect depends on eta itself, the
+location-scale outcome model is misspecified and its limit is unknown, and the
+own-score check would agree with the main estimate in either design. So the data do
+not yet say which estimate is closer to the target. Running the location-scale
+estimator in design (b) would settle whether its drop is diagnostic.
+
+Also: the simulation matches the taxi spread ratio (1.48), but its R^2 of eta^2 on X
+is 0.025, against 0.203 in the data. At k = 1 (ratio 4.11, R^2 0.198) the
+paper's estimator often sits at the edge of Phi, so that design gives no usable limit.
+
+Not in the paper: draft wording for §6.5, §7 and Appendix 7 went to the author on
+2026-11-09 for a yes/no decision.
+
+Housekeeping: the 2026-11-04 entry on the R3-E1 bootstrap interval had sat above the
+2026-11-09 entries; it is moved, unchanged, to its date.
 
 ---
 
@@ -191,6 +211,31 @@ the author.
 
 **Running.** E2: the paper's estimator when eta's spread depends on the covariates
 (spread ratio 1.48). The t_5 and mixture designs, rerun with the four-role estimator.
+
+---
+
+## 2026-11-04 - Taxi §6: bootstrap interval for the spline-score (R3-E1) row (Claude)
+
+Follow-up to "Taxi §6: spline-score (R3-E1) robustness row" below, which said the row
+had no interval. At the author's go-ahead ("Yes, run it"), the 999-draw bootstrap ran
+with the same design as the main specification (`python -m
+experiments.scripts.taxi_section6 --specs R3-E1 --boot 999 --workers 5 --out
+experiments/runs/taxi_section6_R3-E1`, 7,562 s; output git-ignored, `boot.log`,
+`summary.json`, `R3-E1_draws.jsonl`).
+
+- 95% percentile interval [\$12.52, \$13.44] (90%: [\$12.61, \$13.37]; normal
+  [\$12.59, \$13.49]); bootstrap sd 0.230. The main specification (R2-E1) has
+  [\$12.56, \$13.18] and sd 0.155, so this interval is about 1.5 times as wide and
+  contains the main estimate \$12.87.
+- All 999 draws are interior (boundary share 0) and below \$15. By cell: \$12.50 22,
+  \$12.90 256, \$13.30 628, \$13.70 92, \$14.10 1.
+- The wider interval fits the weak identification of $\beta_2$ recorded below
+  (0.48% of the distance column's variance left after partialling, against 4.5%);
+  we did not test that this is the cause.
+
+Paper: the §6.5 sentence now gives the interval and these two facts (manuscript
+bfb4912, changelog eb1825b); the table row and the (A3) caveat are unchanged.
+`TODO.md` status updated.
 
 ---
 
