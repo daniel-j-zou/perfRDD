@@ -34,6 +34,23 @@ bfb4912, changelog eb1825b); the table row and the (A3) caveat are unchanged.
 
 ---
 
+## 2026-11-09 - Follow-up: beta_2 interval for the taxi application (Claude)
+
+Finding (E1, second part). The 999-draw replay of the saved R2-E1 bootstrap
+(`taxi_section6_beta2.py`) also records beta_2. Every replayed threshold matches the
+saved one exactly (max difference 0 over 999 draws).
+- beta_2 = $0.2433 per mile, with 95% percentile interval $0.2333 to $0.2551 (sd
+  0.0055). Per SD of distance it is 0.550, interval 0.528 to 0.577. Each draw divides by
+  its own resample's SD of distance.
+- The slope is tightly estimated, even though the DX column keeps only 4.5% of its
+  variance after partialling. The extrapolation below $15 still rests on the effect
+  being linear in distance.
+- Now in §6.4 (manuscript fe11869; the Overleaf bridge recorded the push as "Update on
+  Overleaf.").
+- The intervals ignore dependence within drivers, as §7 says.
+
+---
+
 ## 2026-11-09 - Follow-up: main-text material moved to the supplement (D1) (Claude)
 
 Decision (author): "Move the D1 candidates to the supplement, but keep them saved."
