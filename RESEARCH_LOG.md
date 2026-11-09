@@ -34,6 +34,57 @@ bfb4912, changelog eb1825b); the table row and the (A3) caveat are unchanged.
 
 ---
 
+## 2026-11-09 - Follow-up: heteroskedastic eta simulation; non-Gaussian four-role rerun (Claude)
+
+Follow-up to "Submission-readiness review and pass; first E results" below. Both runs are
+by subagents. Claude checked the numbers in the rerun's summary file.
+
+**E2, simulation (finding).** The paper's estimator, run when the spread of eta depends
+on the covariates (`location_scale/hetero.py`; outputs in
+`runs/location_scale_hetero/`). Setup: s = exp(k(0.4 X1 + 0.2 X2)), with k set so that
+the sd of eta varies by 1.48 across X1 deciles (k = 0.279, as in the taxi main
+specification) or by 2.30 (k = 0.592). Checks: at k = 0 the targets and limits
+coincide, and a run at n = 1,000,000 gives 0.921 against the computed limit 0.917.
+
+The estimator does not converge to the supported optimum, and the bias does not shrink
+with n. Its size depends on how the effect is tied to the spread:
+- **Effect a function of eta itself** (only X independent of eta fails): the limit is
+  1.5 sampling sds from the target at the taxi n, and 3.2 at ratio 2.30. That loses
+  0.8% and 3.6% of the gain over phi_0.
+- **Effect a function of eta / s(X)**: the outcome model is misspecified too. The limit
+  is 8.6 sds away, and 9.3 at ratio 2.30, losing 26% and 52% of the gain.
+- A location-scale first stage removes the second error: at ratio 1.48 its limit is
+  0.840 against a target of 0.835.
+- The paper's own-score check removes the first error but not the second.
+- In the taxi data, the own-score check selects the same $12.90 cell, while the
+  location-scale fit moves the estimate to $12.45 (entry below). Together these point
+  to the second channel, of roughly 40 cents.
+- The original design (ratio 4.11) has no usable pseudo-target: 46% of rotations sit at
+  the lower edge of Phi.
+
+Not yet in the paper: how §6.5 and §7 report this waits for the author, with the
+location-scale bootstrap.
+
+**Non-Gaussian index designs (finding; now in Appendix 7, manuscript b462a03).** The old
+t_5 and mixture runs used full-sample reuse; they are rerun with the four-role estimator
+(`ds_four_role_nongaussian.py`; outputs in `runs/four_role_nongaussian/`). The
+first-order variance prediction comes from a population class ported to non-Gaussian
+index laws. It reproduces the Gaussian case exactly and matches a Monte Carlo of the
+role scores within 0.1%.
+
+| design | predicted rotated n Var | observed (average / pooled) |
+|---|---|---|
+| t_5, n = 64,000 | 45.6 | 43.4 / 42.6 |
+| mixture, n = 256,000 | 366 | 413 / 399 |
+
+- A fixed assignment has about four times the rotated variance.
+- The mixture criterion is three times flatter and converges slowly: at n = 4,000, 22%
+  of the rotated thresholds sit at the edge of Phi.
+- The constants are larger than the old 28-31 and 133-222, mainly because the estimator
+  now fits the DX block (12.2 of 45.6) and the first stage (11.5).
+
+---
+
 ## 2026-11-09 - Submission-readiness review and pass; first E results (Claude)
 
 **Review.** Four independent Fable 5.1 referee reads of manuscript eb1825b (record:
