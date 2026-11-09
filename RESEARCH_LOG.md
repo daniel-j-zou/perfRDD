@@ -34,6 +34,75 @@ bfb4912, changelog eb1825b); the table row and the (A3) caveat are unchanged.
 
 ---
 
+## 2026-11-09 - Submission-readiness review and pass; first E results (Claude)
+
+**Review.** Four independent Fable 5.1 referee reads of manuscript eb1825b (record:
+`reviews/REVIEW_SUBMISSION_20261109.md`). No reviewer found a wrong step. The research gap
+is clear and fairly positioned. The gaps were presentation (theorem not self-contained,
+terms used before definition, an empty proof map, forward references, simulations inside
+proofs), length (main text 23 pages against Biometrika's typical 15-20), and the
+application's robustness (X independent of eta fails in the diagnostics; the gain and
+beta_2 had no intervals).
+
+**Decisions (author, 2026-11-09).** "Fix all the writing. Do D3 and D4, and send out
+subagents for all the Es." For old Appendices 4-5: "take those out for now, but don't
+delete them permanently. Do all the other decisions too."
+
+**Applied** (manuscript f31dfa2, 3fe1acf, 0294b96, 616a1ff, 39281e1; changelog c5751a6,
+73af42d), with three independent reviews of the merged diff.
+- Writing: W1-W4.
+- D3: seven appendices. Old Appendix 3 is now Appendix 3 (identification),
+  Appendix 4 (consistency, outcome fit, endpoint terms) and Appendix 5 (extensions).
+- D4: (A1)(ii) drops "T has a continuous distribution" (the model gives T a density)
+  and (A2) drops "E(X~X~') nonsingular" (M_0(e) + M_1(e) = E(X~X~'), so it follows
+  from (A1)(ii)). Both implications were checked by an xhigh reviewer. (A4)(i) gets a
+  sufficient-condition lemma with a proof (Lemma D7, checked by the same reviewer).
+  (A6) defines m_p only.
+- Two short proof additions in Appendix 2: a grid refined by a local optimizer is
+  covered, because with probability tending to one U-hat is increasing then decreasing
+  on Phi; and a spline-size selection that is in the grid only with probability
+  tending to one is covered too.
+- Notation: H stays the curvature (it is U'' and negative; kappa would suggest a
+  positive curvature, and kappa_0 already bounds -U''), with a clause separating it
+  from H_X.
+- Unneeded old Appendix 4-5 material is set aside verbatim in
+  `../manuscript/storage/set_aside_20261109.tex`.
+- The main text is now 25 pages (about 14,700 words). Moving material to the
+  supplement (D1) is not approved; candidates are in the review record.
+
+**E1, finding (verified).** The paper's 0.65 cents is `summary.json` gain_cents =
+0.64994: the pooled criterion at its maximizer minus its value at $15. Over the 999 saved
+bootstrap draws (`taxi_section6_beta2.py`, which reproduces the saved phi draws exactly):
+- the gain has a 95% percentile interval of 0.48 to 0.84 cents;
+- at the fixed fare of $12.90 the interval is 0.46 to 0.82 cents;
+- the gain is positive in every draw.
+
+Now in §6.4. beta_2 = $0.2433 per mile: the average of the four rotated D x distance
+coefficients (0.5496 per SD), divided by the SD of distance (2.2587 miles). Its interval
+is pending: the 999-draw replay is running (PID 28516).
+
+**E2, location-scale row, finding (point estimates; bootstrap running, PID 31364).**
+The fit (`taxi_locscale_row.py`) is R2-E1 with a location-scale first stage: Poisson
+pseudo-likelihood scale, log s^2 linear in a spline in log distance plus the
+indicators. Results:
+- the estimate is $12.45 (cell $12.50), against $12.87 (cell $12.90);
+- the spread ratio across distance deciles is 1.10 against 1.48, and R^2 of
+  zeta-hat^2 on the covariates is 0.001 against 0.203;
+- an additive bridge through the same code gives $12.83, so the drop comes from the
+  scale; a Harvey scale fit gives $12.22;
+- in the first 30 paired draws the difference is -0.45 (95% -0.69 to -0.21).
+
+Caveats: the scale fit folds the score for 2.3% of rides (short trips), and no ride
+between J's left edge and the window cap is treated. The theory does not cover a
+location-scale first stage. Not in the paper yet: the row moves the estimate by more
+than the design variations (at most 21 cents), so the wording in §6.5 and §7 waits for
+the author.
+
+**Running.** E2: the paper's estimator when eta's spread depends on the covariates
+(spread ratio 1.48). The t_5 and mixture designs, rerun with the four-role estimator.
+
+---
+
 ## 2026-11-04 - Held notation renames applied; "threshold" throughout (Claude)
 
 Follow-up to "Notation reread: writing pass and approved renames" below. The renames the
