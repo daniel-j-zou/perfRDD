@@ -281,6 +281,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-09 | Supplement in seven appendices (old 3 split: identification; consistency and endpoint terms; extensions); unneeded old Appendix 4-5 material set aside in storage/, not deleted; (A1)(ii) and (A2) lose clauses other assumptions imply; (A4)(i) gets a sufficient-condition lemma; H stays the curvature | Log: "Submission-readiness review and pass; first E results" (2026-11-09) |
 | 2026-11-04 | Notation reread: renames and one name per object (outcome interval, trim window, trim endpoints, supported population); renames that touch the taxi-theory lemmas held until that port lands | Log: "Notation reread: writing pass and approved renames" (2026-11-04) |
 | 2026-11-04 | R3-E1 becomes a robustness row with an identification caveat, not a co-equal use case (revises the same day's decision); J in §6 stated as fixed, no proof for an estimated J; theory-extension plan agreed | Log: "Taxi theory plan; R3-E1 is weakly identified and its score is not monotone" (2026-11-04) |
 | 2026-11-04 | §2.4 rewritten around "the margin moves up"; (U1) needs log-concave f_eta only when lambda is not constant | Log: "§2.4 rewritten: the margin moves up" (2026-11-04) |
@@ -289,7 +290,6 @@ asks whether to update the file first.
 | 2026-11-04 | Abstract states the novelty claim (point identification from a single deterministic threshold), folded into the root-n sentence | Log: "Weekly scope review" (2026-11-04) |
 | 2026-11-04 | Two-score and dose-schedule work recorded as next-paper side tracks, worked on only when the author asks; this paper's out-of-scope list unchanged | Log: "Weekly scope review" (2026-11-04) |
 | 2026-11-04 | "How we work" records the 811 rule: `811.tex` tracks the paper's sections and status | Log: "Weekly scope review" (2026-11-04); "811 course outline tracks the paper" (2026-10-27) |
-| 2026-11-09 | Supplement in seven appendices (old 3 split: identification; consistency and endpoint terms; extensions); unneeded old Appendix 4-5 material set aside in storage/, not deleted; (A1)(ii) and (A2) lose clauses other assumptions imply; (A4)(i) gets a sufficient-condition lemma; H stays the curvature | Log: "Submission-readiness review and pass; first E results" (2026-11-09) |
 | 2026-11-04 | "Threshold" throughout the paper, never "cutoff"; held notation renames applied | Log: "Held notation renames applied; \"threshold\" throughout" (2026-11-04) |
 | 2026-10-27 | Taxi use case for the paper, for now: square-root fare, distance + log-distance score, effect linear in distance (R2-E1); replaces S1-E1 and S2-E1 side by side | Log: "Taxi use case: square-root fare, distance and log distance" (2026-10-27) |
 | 2026-10-22 | Location-scale first stage kept as a taxi robustness check only; X independent of eta stays | Log: "Weekly scope review, short pass" (2026-10-22) |
