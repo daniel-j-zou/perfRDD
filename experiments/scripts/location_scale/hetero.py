@@ -19,14 +19,19 @@ Targets (all maximize E[(W - c) 1(Q > phi) I] over Phi = [-0.2, 2.2], W = alpha(
 Design b (`extra`, population only): the same s(X), but b and alpha act on eta itself,
   W = alpha(eta) + X'beta2, so the paper's outcome model holds and only X indep. eta fails;
   the target uses the paper's window on eta, and the additive limit is computed as above.
+  `btarget` adds the design-b target with the location-scale window on zeta (the window
+  the location-scale estimator uses); its outcome model alpha(zeta) is misspecified in
+  design b, and its limit there is measured by Monte Carlo and `bign` (2026-11-10).
 
 usage (run from experiments/runs/location_scale_hetero):
   python hetero.py calib 1.48 2.30                 -> calib.json
   python hetero.py targets k[,k...]                -> targets_k<k>.json
   python hetero.py extra k[,k...]                  -> extra_k<k>.json (regret; design b)
   python hetero.py mc out.jsonl k:n:reps[:start[:design]] ...  (2 worker processes;
-                                                   design b runs the additive estimator only)
-  python hetero.py bign k n seed                   -> bign_k<k>_n<n>_s<seed>.json
+                                                   both estimators in both designs; before
+                                                   2026-11-10 design b ran the additive only)
+  python hetero.py btarget k[,k...]                -> btarget_k<k>.json (design b, zeta window)
+  python hetero.py bign k n seed [design]          -> bign_k<k>_n<n>_s<seed>[_b].json
   python hetero.py summary out.jsonl [...]
 """
 import common as C
@@ -357,6 +362,53 @@ def extra(k):
     json.dump(out, open(f"extra_k{ktag(k)}.json", "w"), indent=1, default=float)
 
 
+def U_zeta_window_factory(l0, u0, design, m1=4001, mz=3001):
+    """E[(alpha(arg) + X'beta2) 1(Q > phi) 1(l0 <= zeta <= u0)], arg = zeta (design a) or
+    eta = s(X) zeta (design b), by quadrature over X1 (grid), X2 and zeta on [l0, u0]."""
+    x1 = np.linspace(-9.0, 9.0, m1)
+    w1 = stats.norm.pdf(x1); w1 /= w1.sum()
+    z = np.linspace(l0, u0, mz)
+    hz = z[1] - z[0]
+    parts = []
+    for x2 in (-0.5, 0.5):
+        T, sx = C.T_true(x1, x2), C.s_true(x1, x2)
+        arg = z[None, :] * (sx[:, None] if design == "b" else 1.0)
+        f = np.broadcast_to(stats.norm.pdf(z)[None, :] * C.alpha_fn(arg), (m1, mz))
+        # suffix trapezoid integrals int_{z_j}^{u0}
+        seg = 0.5 * (f[:, 1:] + f[:, :-1]) * hz
+        SA = np.concatenate([np.cumsum(seg[:, ::-1], 1)[:, ::-1], np.zeros((m1, 1))], 1)
+        xb = C.BETA2[0] * x1 + C.BETA2[1] * x2
+        parts.append((T, sx, SA, xb))
+
+    def U(phi):
+        tot = 0.0
+        for T, sx, SA, xb in parts:
+            c = np.clip((phi - T) / sx, l0, u0)
+            pos = (c - l0) / hz
+            j = np.minimum(pos.astype(int), mz - 2)
+            fr = pos - j
+            ai = (1 - fr) * SA[np.arange(m1), j] + fr * SA[np.arange(m1), j + 1]
+            Fi = stats.norm.cdf(u0) - stats.norm.cdf(c)
+            tot += 0.5 * np.sum(w1 * (ai + xb * Fi))
+        return float(tot)
+    return U
+
+
+def btarget(k):
+    """Design-b target with the zeta window (location-scale estimator's window); check:
+    the same quadrature in design a reproduces phi_ls of targets_k<k>.json."""
+    set_k(k)
+    l0, u0 = window_zeta()
+    phi_a = argmax_fn(U_zeta_window_factory(l0, u0, "a"))[0]
+    Ub = U_zeta_window_factory(l0, u0, "b")
+    phi_bz, Ubz, _, _ = argmax_fn(Ub)
+    t = json.load(open(f"targets_k{ktag(k)}.json"))
+    out = dict(k=k, window_zeta=[l0, u0], b_phi_zeta=phi_bz, check_a_phi_ls=phi_a,
+               targets_phi_ls=t["phi_ls"], b_gain_phi0_zeta=Ubz - Ub(C.PHI0))
+    print(ktag(k), out, flush=True)
+    json.dump(out, open(f"btarget_k{ktag(k)}.json", "w"), indent=1, default=float)
+
+
 # ------------------------------------------------------------------ Monte Carlo
 def simulate_b(n, rng):
     """Design b: as C.simulate, but b and alpha act on eta = s(X) zeta."""
@@ -385,9 +437,8 @@ def one(task):
     d["folds"] = rng.permutation(n) % 4
     ad, ad_rot = C.four_role(d, scale=False)
     rec = dict(k=k, n=n, rep=rep, design=design, add=ad, add_rot=ad_rot.tolist())
-    if design == "a":
-        ls, ls_rot = C.four_role(d, scale=True)
-        rec.update(ls=ls, ls_rot=ls_rot.tolist())
+    ls, ls_rot = C.four_role(d, scale=True)        # four_role draws nothing from rng
+    rec.update(ls=ls, ls_rot=ls_rot.tolist())
     rec["secs"] = time.time() - t0
     return rec
 
@@ -412,12 +463,16 @@ def mc(outp, specs):
     print("done", time.time() - t0, flush=True)
 
 
-def bign(k, n, seed):
+def bign(k, n, seed, design="a"):
     """Full pipeline at large n; stores the rotation-averaged U-hat curves of both estimators."""
     set_k(k)
     grid = np.linspace(C.PHI_LO, C.PHI_HI, 121)
-    rng = np.random.default_rng([99, int(k * 1e6), n, seed])
-    d = C.simulate(n, rng)
+    if design == "a":
+        rng = np.random.default_rng([99, int(k * 1e6), n, seed])
+        d = C.simulate(n, rng)
+    else:
+        rng = np.random.default_rng([98, int(k * 1e6), n, seed])
+        d = simulate_b(n, rng)
     X, Q, D, Y = d["X"], d["Q"], d["D"], d["Y"]
     folds = rng.permutation(n) % 4
     rec = dict(k=k, n=n, seed=seed, grid=grid.tolist())
@@ -439,7 +494,9 @@ def bign(k, n, seed):
             ests.append(C.argmax_step(Uh))
         rec[nm] = dict(phi=float(np.mean(ests)), rot=ests, curves=curves, secs=time.time() - t0)
         print(nm, rec[nm]["phi"], np.round(ests, 4), f"{time.time()-t0:.0f}s", flush=True)
-    json.dump(rec, open(f"bign_k{ktag(k)}_n{n}_s{seed}.json", "w"), default=float)
+    rec["design"] = design
+    tag = "" if design == "a" else "_b"
+    json.dump(rec, open(f"bign_k{ktag(k)}_n{n}_s{seed}{tag}.json", "w"), default=float)
 
 
 # ------------------------------------------------------------------ summary
@@ -448,11 +505,13 @@ def summary(files):
     design b: phi_b. b_lim = mean - the estimator's large-n limit."""
     from collections import defaultdict
     recs = [json.loads(l) for f in files for l in open(f)]
-    tg, ex = {}, {}
+    tg, ex, bt = {}, {}, {}
     for f in glob.glob("targets_k*.json"):
         t = json.load(open(f)); tg[ktag(t["k"])] = t
     for f in glob.glob("extra_k*.json"):
         x = json.load(open(f)); ex[ktag(x["k"])] = x
+    for f in glob.glob("btarget_k*.json"):
+        x = json.load(open(f)); bt[ktag(x["k"])] = x
     g = defaultdict(list)
     for r in recs:
         g[(r.get("design", "a"), ktag(r["k"]), r["n"])].append(r)
@@ -472,8 +531,12 @@ def summary(files):
             if des == "a":
                 tgt, alt = t["phi_ls"], t["phi_eta"]
                 lim = t["lim_add"] if est == "add" else t["lim_ls"]
-            else:
+            elif est == "add":
                 tgt, alt, lim = ex[kk]["b_phi"], np.nan, ex[kk]["b_lim_add"]
+            else:   # location-scale in design b: target with its own (zeta) window;
+                # b_eta column = against the eta-window target; no computed limit
+                tgt = bt[kk]["b_phi_zeta"] if kk in bt else np.nan
+                alt, lim = ex[kk]["b_phi"], np.nan
             row = dict(design=des, k=float(kk), ratio=t["ratio"], est=est, n=n, R=R,
                        mean=x.mean(), target=tgt, limit=lim, bias=x.mean() - tgt,
                        mcse=sd / np.sqrt(R), sd=sd, rn_sd=np.sqrt(n) * sd,
@@ -511,7 +574,7 @@ def summary(files):
                   f"sd_add(taxi n)={sd_t:.4f} gap/sd={(lim - tgt) / sd_t:+.2f} "
                   f"loss share={share:.3f}{extra_txt}{ls_}")
     json.dump(dict(rows=rows, targets={k: {a: b for a, b in v.items() if a != "add_detail"}
-                                       for k, v in tg.items()}, extra=ex),
+                                       for k, v in tg.items()}, extra=ex, btarget=bt),
               open("summary.json", "w"), indent=1, default=float)
 
 
@@ -527,8 +590,12 @@ if __name__ == "__main__":
             extra(float(k))
     elif cmd == "mc":
         mc(sys.argv[2], sys.argv[3:])
+    elif cmd == "btarget":
+        for k in sys.argv[2].split(","):
+            btarget(float(k))
     elif cmd == "bign":
-        bign(float(sys.argv[2]), int(float(sys.argv[3])), int(sys.argv[4]))
+        bign(float(sys.argv[2]), int(float(sys.argv[3])), int(sys.argv[4]),
+             sys.argv[5] if len(sys.argv) > 5 else "a")
     elif cmd == "summary":
         summary(sys.argv[2:])
     else:

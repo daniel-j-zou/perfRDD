@@ -9,6 +9,43 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-10 - Follow-up: the location-scale fit fails when the effect depends on eta (Claude)
+
+Author: "Do those" (item 5 of the E2 proposals). Follow-up to "location-scale bootstrap
+(E2)" below, which said the taxi data could not yet tell the two heteroskedastic cases
+apart. `location_scale/hetero.py` now runs the location-scale estimator in design (b)
+as well, and `btarget` gives design (b)'s target with the location-scale window on
+zeta. Outputs (git-ignored) are in `runs/location_scale_hetero/`: `mc_hetero_b_ls.jsonl`,
+`btarget_k*.json`, `bign_k*_b.json`, and `summary.txt`, rebuilt from `mc_hetero.jsonl` and
+`mc_hetero_b_ls.jsonl` (the old one is kept as `summary_before_b_ls.txt`).
+
+Checks. The additive estimates in the new file reproduce `mc_hetero_b.jsonl` exactly
+(3,200 runs, max difference 0). The new quadrature reproduces design (a)'s phi_ls
+(0.83463 against 0.83460).
+
+**Finding.** In design (b), where the effect depends on eta itself, the location-scale
+fit is badly off, and the error does not shrink with n:
+
+| spread ratio | target (zeta window) | LS mean, n = 16k / 64k | LS at n = 10^6 | distance (sd at taxi n) | gain lost |
+|---|---|---|---|---|---|
+| 1.48 | 0.860 | 0.776 / 0.776 | 0.782 | -10.6 to -11.5 | 32-38% |
+| 2.30 | 0.854 | 0.644 / 0.647 | 0.651 | -28 | 2.1 times the gain (worse than phi_0) |
+
+For comparison, the paper's estimator in design (b) misses by +1.5 and +3.2 sd. The
+location-scale fit in design (a) misses by +0.7 and +0.8 sd. (The eta-window targets of
+design (b) are 0.861 and 0.857.)
+
+So each estimator fails when its outcome model is wrong, and in opposite directions:
+the additive fit lands too high in design (a), and the location-scale fit too low in
+design (b). Both cases predict a location-scale estimate below the additive one, which
+is what the taxi data show ($12.45 against $12.87). The drop therefore does not tell the
+cases apart. This confirms the §6.5 sentence "We have no check that tells these two
+cases apart" (manuscript 01b3fd2), and it removes any reading of $12.45 as the
+corrected estimate.
+
+Not in the paper yet: a sentence for §6.5 and location-scale rows for Table
+tab:ds-hetero went to the author on 2026-11-10 for a yes/no decision.
+
 ## 2026-11-09 - Follow-up: location-scale bootstrap (E2) (Claude)
 
 Follow-up to the E2 location-scale finding in "Submission-readiness review and pass;
