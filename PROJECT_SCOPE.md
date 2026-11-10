@@ -234,9 +234,21 @@ only when the author asks; it does not change the sections above.
   paper for the 811 writing course. A manuscript push that changes the paper's sections,
   contents or status also updates it.
 - **Statistics vocabulary** (2026-11-10): the author prefers terms from statistics to
-  terms from econometrics. Q is "the score" (no longer "running variable"; the
-  definition in §2.1 glosses the RD term once). Renames of other econometrics terms
-  (index, generated index, sieve, loading, exclusion) are proposed to the author first.
+  terms from econometrics, in every manuscript file outside `prelim/`. Approved
+  mapping:
+  - Q is "the score" (not "running variable"; §2.1 glosses the RD term once);
+  - T = gamma'X-tilde is "the linear predictor" (not "index"): "estimated linear
+    predictor" (not "generated index"), "score decomposition" (not "latent-index
+    decomposition"), "density fold" for the fold that fits g, rho_X and the trim
+    endpoints (not "index fold");
+  - "spline approximation/basis/coefficient" (not "sieve");
+  - "gradient" for a derivative in gamma, else "coefficient"/"component" (not
+    "loading");
+  - "utility" (not "welfare"); "independent noise" (not "exogenous noise");
+    "confounding" (not "endogeneity").
+  Kept: "representer", "latent ability", and literature names such as "single-index
+  model". LaTeX labels keep their old keys. Propose any further rename to the author
+  first.
 
 ## Open questions for the author
 
@@ -285,6 +297,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-10 | Econometrics terms replaced in all manuscript files outside prelim/: index -> linear predictor, sieve -> spline, loading -> gradient/coefficient, welfare -> utility, and cutoff -> threshold, running variable -> score in the notebook, sketches and storage too (mapping under "How we work") | Author: "use linear predictor", "Do all the recommended wording changes", "implement to all files except the locked prelim ones", "Also change cutoff to threshold in those files" (2026-11-10); manuscript 5dc0f8d, merge 55c63e1 |
 | 2026-11-10 | Statistics terms preferred to econometrics terms; Q is "the score" throughout (was "running variable" in seven places) | Author, 2026-11-10; manuscript 01b3fd2 |
 | 2026-11-09 | Main-text material moved to the supplement (D1), originals kept in storage/; supplement now eight appendices (Appendix 8: further directions) | Log: "Follow-up: main-text material moved to the supplement (D1)" (2026-11-09) |
 | 2026-11-09 | Supplement in seven appendices (old 3 split: identification; consistency and endpoint terms; extensions); unneeded old Appendix 4-5 material set aside in storage/, not deleted; (A1)(ii) and (A2) lose clauses other assumptions imply; (A4)(i) gets a sufficient-condition lemma; H stays the curvature | Log: "Submission-readiness review and pass; first E results" (2026-11-09) |
