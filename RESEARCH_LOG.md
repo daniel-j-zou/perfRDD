@@ -46,6 +46,8 @@ corrected estimate.
 Not in the paper yet: a sentence for §6.5 and location-scale rows for Table
 tab:ds-hetero went to the author on 2026-11-10 for a yes/no decision.
 
+---
+
 ## 2026-11-09 - Follow-up: location-scale bootstrap (E2) (Claude)
 
 Follow-up to the E2 location-scale finding in "Submission-readiness review and pass;
