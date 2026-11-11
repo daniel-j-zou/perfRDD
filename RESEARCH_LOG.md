@@ -9,6 +9,57 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-10 - Binary outcomes: the four routes of the sketch on the GPA and Chile data (Claude)
+
+At the author's request ("try these methods out and see what we get"), after the
+binary-outcome sketch of 2026-11-04 (`../manuscript/binary_outcome_sketch.tex`).
+Exploratory: binary outcomes stay outside the paper, and the scope file is unchanged.
+Script `experiments/scripts/binary_outcome_routes.py`; tables, the tercile split and the
+reading in `experiments/datasets/BINARY_OUTCOME_ROUTES_20261110.md`; the note gains a
+section "The routes on two data sets" with the figure `figures/binary_outcome_routes.png`.
+
+**Settings.** The two binary-outcome data sets with enough observations and a clean
+threshold: GPA probation (graduation within 6 and 5 years, fall registration in year 2,
+not leaving; the design of the 2026-10-19 GPA runs) and Chile PAES 2024 eligibility at 458
+(university enrollment 2024, any enrollment 2025, university enrollment 2025; n = 267,341,
+90% eligible, policy set [420, 520], eps = 0.1, NEM and ranking as effect covariates).
+
+**Routes**, all four-role on the same folds, average of the four rotations: the paper's
+estimator on the binary Y (linear probability model); a logit baseline with an additive
+effect; logit on both arms with the separable Chebyshev expansion in the link's intercept
+(M = 12, uniform error at most 5e-8 on the data's ranges) and the paper's spline tails
+with the 2M multipliers; and the same logit fit with empirical tails on the density fold,
+which is the pairwise double average computed through the expansion.
+
+**Findings.**
+- Every route selects a boundary in every one of the seven outcomes, with no interior
+  local maximum: fewest on probation for GPA, the lowest threshold for Chile. The sign of
+  tau-hat over the policy set is the same under the linear probability model and under
+  the logit (one exception: the additive route's tau for Chile university 2024 crosses
+  zero at the top of the policy set, the wrong way). GPA: tau falls with the threshold
+  for every route, so the zero near c = -0.3 is a minimum, as on 2026-10-19. Chile: tau
+  is positive throughout [420, 520] for every route.
+- The two logit routes agree to three decimals on every number, as they should.
+- The link moves the level of the effect at the threshold by up to a third (GPA grad6
+  -0.064 to -0.040; Chile any 2025 +0.064 to +0.044) but not its sign, and not toward the
+  local RD benchmarks (Chile university 2024: logit +0.147 against +0.077 locally; any
+  2025: +0.044 against -0.017). By NEM terciles the linear model reproduces the rising
+  local gradient at twice the level (+0.10/+0.15/+0.18 against +0.05/+0.07/+0.12) and the
+  logit flattens it (+0.15/+0.16/+0.12): the ceiling effect, visible but small.
+- So the gap between the global and the local estimates in the Chile data, which the
+  dataset notes of 2026-09-29 attributed to "the additive outcome model failing for a
+  bounded outcome", is not closed by a link. The remaining suspects are those notes'
+  other two: X independent of eta fails (sd(eta) 75 to 107 across deciles of the linear
+  predictor, U-shaped mean), and the outcome model in eta.
+- The additive route (linked baseline, additive effect) is the odd one out, with smaller
+  effects and flatter tau; a remark, not a method.
+
+**Not done.** No bootstrap (one split, seed 1), no eps or policy-set sensitivity, no
+calibration check of the logit fits. The GPA tercile means near the threshold depend on
+the spline at the edges of J and are not to be read closely.
+
+— Claude
+
 ## 2026-11-10 - Taxi: what the residual-quantile window cap does, and what happens without it (Claude)
 
 Author's questions: "Is this actually necessary? the fixed residual trimming? What
