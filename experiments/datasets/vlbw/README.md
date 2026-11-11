@@ -1,4 +1,4 @@
-# Very low birth weight (1500 g) — NCHS 2002 birth-cohort linked birth/infant-death file
+# Very low birth weight (1500 g): NCHS 1995-2002 birth-cohort linked birth/infant-death files
 
 | Field | Value |
 |---|---|
@@ -7,7 +7,7 @@
 | **Treatment** | `1{Q < 1500}` (treat below; the estimator scripts mirror the score) |
 | **X** | gestation (weeks, and squared), plurality, sex, mother's age (and squared), Hispanic origin, race, education, marital status, prenatal care month and visits, birth order, tobacco and cigarettes, weight gain, father's age; missing-value flags for education, prenatal care, tobacco, weight gain and father's age |
 | **Y** | infant death within one year (matched death record), binary; about 0.7% overall, 5-10% near 1500 g |
-| **n** | 4,027,475 US births in 2002; the sample keeps reported weights in [500, 5000] g with a known, non-imputed gestation |
+| **n** | 4,027,475 US births in 2002, 31.7 million over 1995-2002; the sample keeps reported weights in [500, 5000] g with a known, non-imputed gestation (`years=` selects the cohorts; the default is 2002 alone) |
 | **Source** | NCHS Vital Statistics Online, public use, no registration |
 | **Extras** | `ventilation` (assisted ventilation under or over 30 minutes), `gestat`, `plural` |
 
@@ -17,21 +17,26 @@ The cohort files from 2003 on (revised birth certificate) suppress birth weight 
 the public-use linked file: in `LinkCO14Guide.pdf` positions 504-508 are a filler and only
 the 14-category recode `BWTR14` remains, whose lowest categories are 227-499, 500-749,
 750-999, 1000-1249, 1250-1499 g. The 1995-2002 cohort files report grams (`DBIRWT`,
-positions 81-84). Almond et al. used 1983-2002. The other 1995-2001 files have the same
-layout and can be added by the same adapter.
+positions 81-84). Almond et al. used 1983-2002. The 1995-2001 files share the 2002 layout
+(record length 232 with CRLF in every file; the year at 7-10, birth weight at 81-84, gestation
+at 74-75, sex at 79 and age at death at 211-213 were checked on each file on 2026-11-11), so
+`build(year)` reads all eight with the same `LAYOUT`.
 
 ## Getting the data
 
 ```
-https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/DVS/cohortlinkedus/LinkCO02US.zip         (92 MB)
-https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Dataset_Documentation/DVS/cohortlinked/LinkCO02Guide.pdf
+https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Datasets/DVS/cohortlinkedus/LinkCO<yy>US.zip      (90-108 MB each, yy = 95 ... 02)
+https://ftp.cdc.gov/pub/Health_Statistics/NCHS/Dataset_Documentation/DVS/cohortlinked/LinkCO<yy>Guide.pdf
 ```
 
-The zip holds `LinkCO02USDEN.dat` (the denominator-plus file: every birth, with the
-death items of the matched death record appended; 4,027,475 records, width 230, CRLF)
-and `LinkCO02USNUM.dat` (the 27,535 linked deaths, width 535). Put both in `data/raw/`;
-the adapter reads only the denominator-plus file. `build()` parses it in about a minute
-and caches `data/processed/vlbw_2002.parquet`.
+Each zip holds `LinkCO<yy>USDen.dat` (the denominator-plus file: every birth, with the
+death items of the matched death record appended; about 4 million records, width 230,
+CRLF), `LinkCO<yy>USNum.dat` (the linked deaths, width 535) and a small unlinked-deaths
+file. Put them in `data/raw/`; the adapter reads only the denominator-plus files (the 2002
+names are upper-case `DEN`/`NUM`). `build(year)` parses one file in about a minute and
+caches `data/processed/vlbw_<year>.parquet`. All eight were downloaded with `curl` on
+2026-11-11 (2002 first, 1995-2001 later the same day) and extracted with Python's `zipfile`
+(`unzip -q` extracted nothing).
 
 `ftp.cdc.gov/robots.txt` is `Disallow: /`. These are public-use files published for
 download, and the author instructed the download ("you download", 2026-11-11), so it
@@ -77,6 +82,18 @@ in `../BINARY_OUTCOME_ROUTES_20261110.md`.
   (sd of the residual 1.74 across deciles of the linear predictor, larger at low
   gestation) and in mean (range -63 to +112 g); one year of data; no driver of the
   cost c in the file.
+
+## Pooled 1995-2002 (2026-11-11)
+
+`sample_frame(weights, years=YEARS)` pools the eight cohorts: 2,138,145 births of 500-2500 g
+(17.0% under 1500 g, survival 95.8%). The routes script runs it as `--settings vlbw --outcomes
+pooled`. The 2002 result replicates: under the logit the survival gain at the threshold is
++0.2 pp at 1800 g, +2.5 at 1500 g, +8.7 at 1200 g; the optimum is 1660-1663 g at c = 0.01,
+1545 g at 0.02 and 1456-1459 g at 0.03 (both logit routes within 3 g), so the 1500 g line is
+optimal for a cost near 0.025. The linear probability model stays at the 1800 g edge at every
+cost (+24 pp at 1800 g, falling to zero at 1200 g); the additive route is negative throughout.
+Bootstrap: `experiments/scripts/binary_outcome_vlbw_boot.py --variant pooled --costs 0.02`.
+Full table in `../BINARY_OUTCOME_ROUTES_20261110.md`.
 
 ## Design notes
 

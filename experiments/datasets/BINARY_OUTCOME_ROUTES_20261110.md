@@ -228,3 +228,42 @@ so every route treats everyone up to 220%; the effect on being insured is zero u
 income ratio weakly (R^2 = 0.16), and the ratio is the Census poverty ratio, not the
 administrative MAGI measure, so the line is fuzzy on both sides. Not usable as a utility
 setting; a health outcome measured after coverage would be needed.
+
+### Very low birth weight pooled over 1995-2002 (2026-11-11): the result replicates
+
+The 1995-2001 NCHS cohort files share the 2002 layout (record length 232; year, weight,
+gestation, sex and age-at-death fields checked on each file), so `vlbw/adapter.py` now takes
+`years=` and the routes script has the variant `vlbw pooled`: 2,138,145 births of 500-2500 g
+with a reported weight and known gestation (17.0% under 1500 g, survival 95.8%), eps 0.1,
+policy set 1200-1800 g, effect covariate gestation. Runs in
+`experiments/runs/binary_outcome_routes_vlbw_pooled_c<cost>/`.
+
+| Route | tau at 1800 g | 1500 g | 1200 g | c = 0 | 0.01 | 0.02 | 0.03 |
+|---|---|---|---|---|---|---|---|
+| lpm | +0.241 | +0.111 | -0.000 | 1800 (edge) | 1800 | 1800 | 1800 |
+| additive | -0.020 | -0.032 | -0.042 | 1200 (edge) | 1200 | 1200 | 1200 |
+| logit_sp | +0.002 | +0.025 | +0.087 | 1800 (edge) | 1660 | 1545 | 1458 |
+| logit_emp | +0.002 | +0.025 | +0.087 | 1800 (edge) | 1663 | 1545 | 1456 |
+
+Against 2002 alone (1653-1667 / 1508-1520 / 1425 g) the optimum moves 10-35 g toward the
+deployed line, the two logit routes now agree within 3 g, and the curves are smoother. The
+1500 g rule is optimal for a cost of about 0.025 survival points per treated infant. The
+utility curve is flat near the optimum: the gain over 1500 g at c = 0.02 is under 0.01 pp of
+survival, so the optimum is sharp only because n is large. Bootstrap at c = 0.02
+(`experiments/scripts/binary_outcome_vlbw_boot.py --variant pooled`, 20 draws, about 3.5
+minutes each): see `experiments/runs/binary_outcome_routes_vlbw_pooled/bootstrap.json`; the
+first five draws lie in 1529-1554 g.
+
+### Chile, the 485 loan line on the PAES scale (2026-11-11): not usable
+
+`chile_cae/adapter.py::load_paes` reuses the `chile_admission` build (PAES 2024, n = 267,341)
+with `threshold=485`, the CAE and FSCU loan requirement for universities on the PAES scale;
+routes setting `cae`, policy set 465-560 so that the 458 application line stays outside,
+effect covariate NEM. The local linear jump in university enrollment at 485 is +1.5 pp (se
+1.5) at bandwidth 10, +2.0 (1.1) at 20, +0.7 (0.9) at 30, against +7 to +8 pp at 458: since
+free tuition (2016) has no score requirement, the loan line hardly binds. The routes' global
+fits put the effect at the line at +14 pp (logit, LPM) with the logit marginal effect falling
+from +15 pp at 465 to +10 pp at 560, the same global-versus-local gap as at 458. The optimum
+is the lower boundary (465) for every cost from 0 to 0.12 under the LPM and both logit routes;
+the additive route flips to the upper edge at c >= 0.03. Not usable; the PSU-era 475 line
+(Solis 2017, before free tuition) remains the candidate and needs the DEMRE files.

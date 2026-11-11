@@ -10,7 +10,7 @@
 | **n** | about 200-250k test takers per admission process; the line sits near the median, so the window is dense |
 | **Effect** | Solis (JPE 2017, "Credit access and college enrollment"): enrollment jumps by nearly 20 points at 475 and persists to years 2 and 3; Card and Solis (NBER w27269) on retakers and persistence |
 | **Cost** | the loan subsidy or scholarship per eligible student (a free parameter for the sweep; DIPRES publishes program costs) |
-| **Status** | waiting for the author's download (2026-11-11); no adapter yet |
+| **Status** | PAES-era line (485) built from the files already in `../chile_admission/data/raw` and run on 2026-11-11: no local effect at 485, see below; the PSU-era files (475 line, 2007-2022) still wait for the author's download |
 
 ## Why this one
 
@@ -41,10 +41,42 @@ unit-level data, and an effect that should fade for students who would enroll an
 3. Optional: the MINEDUC student-benefit files ("Asignación de becas y créditos") give loan
    and scholarship take-up by `mrun` for a fuzzy design.
 
-Both hosts refused automated fetches on 2026-11-11 (connection refused), and the MINEDUC
-host was down on 2026-10-29. Check `robots.txt` before any scripted retry.
+Both hosts refused automated fetches early on 2026-11-11 (connection refused), and the
+MINEDUC host was down on 2026-10-29. Later on 2026-11-11 the MINEDUC pages answered 200
+(the PDT 2021-2022 and PAES 2023-2026 score files and the 2007-2026 enrollment files are
+listed at the two URLs above), but `datosabiertos.mineduc.cl/robots.txt` returns 403, so
+nothing was fetched by script; the DEMRE portal page answers 200 behind a reCAPTCHA. The
+PAES 2023-2025 score files and the 2024-2025 enrollment files are already in
+`../chile_admission/data/raw` (browser downloads of 2026-09-29).
 
-## Plan for the adapter
+## The PAES-era line, built (2026-11-11)
+
+On the PAES scale the loan requirement for universities is an average of 485 in reading
+and mathematics-1 (CAE; the FSCU loan starts at the same score; the official page is
+<https://portal.beneficiosestudiantiles.cl/print/213>). `load_paes(outcome)` reuses the
+`chile_admission` build (PAES 2024 registrants, `PROMEDIO_CM_MAX`, enrollment 2024 and
+2025 by mrun) with `threshold=485`; the routes script has it as setting `cae`, policy set
+465-560 so that the 458 application line stays outside.
+
+Local linear jumps in university enrollment (bandwidth 10 / 20 / 30 points):
+
+| Line | Y | Jump (se) h=10 | h=20 | h=30 |
+|---|---|---|---|---|
+| 458 (application) | univ 2024 | +8.2 pp (1.4) | +7.8 (1.0) | +6.9 (0.8) |
+| 485 (loan) | univ 2024 | +1.5 pp (1.5) | +2.0 (1.1) | +0.7 (0.9) |
+| 485 (loan) | univ 2025 | +3.3 pp (1.6) | +2.2 (1.2) | +1.8 (0.9) |
+
+The loan line no longer moves enrollment: since free tuition (gratuidad, 2016) covers the
+lower six income deciles with no score requirement, the 485 line binds only for students
+above those deciles who need a loan. The global fits of the routes put the effect at the
+line at +14 pp (logit) with a marginal effect that falls from +15 pp at 465 to +10 pp at
+560, seven times the local jump: the same global-versus-local gap as at 458 in
+`chile_admission`. The optimum sits at the lower boundary for any cost below about 0.10
+(`../BINARY_OUTCOME_ROUTES_20261110.md`). The setting is not usable for the side track;
+the PSU-era 475 line (Solis 2017, before gratuidad) remains the candidate and needs the
+DEMRE files.
+
+## Plan for the adapter (PSU years)
 
 `load()` at the test-taker level with Q = the PSU average, `threshold=475`,
 `treatment_rule = Q >= 475`, Y = university enrollment the next year, X as in

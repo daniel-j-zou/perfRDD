@@ -172,3 +172,36 @@ def load(year: int = 2022, outcome: str = "univ") -> RDDSample:
                      f"enrollment in {year + 1}."),
         citation="DEMRE / MINEDUC open data; Solis (JPE 2017)",
     )
+
+
+# ----------------------------------------------------------------------- PAES-era loan line
+# On the PAES scale (admission 2023 onward) the loan requirement for universities is an
+# average of 485 in reading and mathematics-1 (beneficiosestudiantiles.cl, CAE; the FSCU
+# loan starts at the same score). The PAES files and the enrollment files already in
+# ``../chile_admission/data/raw`` carry mrun, so this needs no download.
+THRESHOLD_PAES = 485.0
+
+
+def load_paes(outcome: str = "univ_2024") -> RDDSample:
+    """PAES 2024 registrants (the ``chile_admission`` build) with the 485 loan line.
+    ``outcome`` in univ_2024, any_2024, univ_2025, any_2025."""
+    from experiments.datasets.chile_admission import adapter as A
+    df = A.build()
+    df = df[df[outcome].notna()]
+    return RDDSample(
+        Q=df.Q.to_numpy(float), X=df[A.X_COLS].to_numpy(float), Y=df[outcome].to_numpy(float),
+        threshold=THRESHOLD_PAES, name=f"chile_cae_paes2024_{outcome}", feature_names=list(A.X_COLS),
+        description=("Chile PAES 2024: Q = best reading/mathematics-1 average; treatment = "
+                     "1{Q >= 485} (state-guaranteed loan CAE and FSCU eligibility, ITT); "
+                     f"Y = {outcome}. The application line 458 sits 27 points below."),
+        citation="MINEDUC Centro de Estudios / DEMRE, PAES 2024 and Matricula Ed. Superior; "
+                 "beneficiosestudiantiles.cl (CAE requirements)",
+    )
+
+
+def load_paes_univ_2025() -> RDDSample:
+    return load_paes("univ_2025")
+
+
+def load_paes_any_2025() -> RDDSample:
+    return load_paes("any_2025")

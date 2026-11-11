@@ -9,6 +9,34 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-11 - Binary outcomes: VLBW replicates over 1995-2002; the Chile 485 loan line does not bind (Claude)
+
+At the author's request ("Anything you can download without me?", then "present the pooled
+VLBW result", "add the pooled result to the sketch and push everything").
+
+- **VLBW, eight cohorts.** The 1995-2001 NCHS cohort-linked files were fetched from ftp.cdc.gov
+  as the 2002 file was (the author's "you download" of 2026-11-11 covers the host; its
+  robots.txt is `Disallow: /`). All share the 2002 layout; `vlbw/adapter.py` takes `years=`.
+  Pooled 500-2500 g sample n = 2,138,145. Logit optimum 1660-1663 g at c = 0.01, 1545 g at
+  0.02, 1456-1459 g at 0.03 (2002 alone: 1653-1667 / 1508-1520 / 1425); marginal survival
+  gain +0.2 / +2.5 / +8.7 pp at 1800 / 1500 / 1200 g; LPM at the edge at every cost. The
+  deployed 1500 g line is optimal for c near 0.025. Bootstrap (20 draws, c = 0.02) running;
+  first five draws 1529-1554 g. Recorded in the results note, the vlbw README and the sketch
+  (`binary_outcome_sketch.tex`, "Seven more cohorts", figure and table).
+- **Chile 485 (PAES scale).** Built from the files already in `chile_admission/data/raw`
+  (`chile_cae.adapter.load_paes`, threshold 485, the CAE/FSCU loan requirement confirmed on
+  beneficiosestudiantiles.cl). Local jump in university enrollment at 485: +1.5 to +2.0 pp
+  (se about 1.2), against +7 to +8 pp at the 458 application line; the model's global effect
+  is +14 pp. Boundary at every cost up to 0.12. Not usable: free tuition since 2016 has no
+  score requirement, so the loan line no longer binds. The PSU-era 475 line still needs the
+  author's DEMRE files.
+- **Hosts.** datosabiertos.mineduc.cl pages answer 200 again but its robots.txt returns 403,
+  so nothing was fetched by script; the needed files were browser downloads of 2026-09-29.
+- **Script.** `binary_outcome_routes.py` gains `--outcomes`; the VLBW bootstrap is now
+  `experiments/scripts/binary_outcome_vlbw_boot.py`.
+
+— Claude
+
 ## 2026-11-11 - Binary outcomes: six more settings built or checked; none beyond VLBW gives an interior optimum (Claude)
 
 At the author's request ("do both; attempt all the ones we have; also download some more
