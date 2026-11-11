@@ -493,6 +493,25 @@ SETTINGS = {
     "chile": [("chile", y) for y in ("univ_2024", "any_2025", "univ_2025")],
     "vlbw": [("vlbw", "low")],      # "all" (500-5000 g) leaves no supported window; see the README
     "macro": [("macro", "5000g")],  # the 5000 g macrosomia line in the same file
+    "sba": [("sba", "chargeoff")],
+    "nyc": [("nyc", "next_score"), ("nyc", "closed")],
+    "cps": [("cps", "medicaid"), ("cps", "uninsured")],
+}
+
+# Generic settings through build_sample: module, loader, policy set (score units),
+# effect covariates (feature names), mirror (treat below), survival (flip a bad outcome).
+GENERIC = {
+    ("sba", "chargeoff"): dict(module="experiments.datasets.sba_7a.adapter", loader="load",
+                               policy=(100_000.0, 250_000.0), effect=["term_months"],
+                               mirror=True, survival=True),
+    ("nyc", "next_score"): dict(module="experiments.datasets.nyc_restaurants.adapter", loader="load",
+                                policy=(5.0, 25.0), effect=["prior_score"], mirror=True, survival=True),
+    ("nyc", "closed"): dict(module="experiments.datasets.nyc_restaurants.adapter", loader="load_exit",
+                            policy=(5.0, 25.0), effect=["prior_score"], mirror=True, survival=True),
+    ("cps", "medicaid"): dict(module="experiments.datasets.cps_medicaid.adapter", loader="load",
+                              policy=(80.0, 220.0), effect=["age"], mirror=True, survival=False),
+    ("cps", "uninsured"): dict(module="experiments.datasets.cps_medicaid.adapter", loader="load_uninsured",
+                               policy=(80.0, 220.0), effect=["age"], mirror=True, survival=True),
 }
 
 
@@ -503,6 +522,12 @@ def build(setting: str, y: str, eps: float):
         return build_chile(y, eps=eps)
     if setting == "macro":
         return build_macrosomia(eps=eps)
+    if (setting, y) in GENERIC:
+        import importlib
+        g = GENERIC[(setting, y)]
+        sample = getattr(importlib.import_module(g["module"]), g["loader"])()
+        return build_sample(sample, g["policy"], g["effect"], eps=eps, mirror=g["mirror"],
+                            survival=g["survival"])
     return build_vlbw(y, eps=eps)
 
 

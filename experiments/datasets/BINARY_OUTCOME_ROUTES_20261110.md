@@ -191,3 +191,14 @@ among the treated falls below the quantile among the untreated), because with 0.
 there is no range of the residual where both arms have probability 0.1. A local check at
 5000 g: death -0.5 pp (mean 0.4%) at h = 100 g, ventilation -1.6 pp (mean 4.3%); the outcome is
 rare and the effect small, as the candidate list expected. Dropped.
+
+### NYC restaurant grades, A at 13 points (2026-11-11): not usable
+
+`experiments/datasets/nyc_restaurants/` (DOHMH inspections, 2023-2026 window). Q = the score at
+the cycle's initial inspection, treated = an A (score at most 13, mirrored), Y = the next graded
+inspection stays below 14 (n = 15,000, base 65%) or no inspection within 18 months (n = 10,145,
+which measures the inspection schedule, not exits). Every route puts the optimum at the edge
+(an A only for the lowest scores). The setting fails on its own terms: the covariates explain
+the score poorly (R^2 = 0.14), and the score is adjudicated and manipulated at the line
+(5,744 inspections score 12, 4,806 score 13, 214 score 14: Ho 2012), so neither the density
+of the linear predictor nor the residual's independence is credible. Dropped.
