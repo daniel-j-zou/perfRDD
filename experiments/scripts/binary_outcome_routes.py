@@ -140,6 +140,41 @@ def build_vlbw(variant: str = "low", eps: float = 0.1, effect: str = "gestat"):
     return data, design, {"n": len(Q), "cell": lambda s: float(np.floor(-s)) + 1.0}
 
 
+def build_macrosomia(eps: float = 0.1, weights: tuple = (3500.0, 5500.0)):
+    """The 5000 g macrosomia line in the same NCHS 2002 file: treat above (no mirroring),
+    Y = survival to one year, effect covariate gestation."""
+    from experiments.datasets.vlbw import adapter as V
+    d = V.sample_frame(weights)
+    Q = d.weight.to_numpy(float)
+    X = d[V.X_COLS].to_numpy(float)
+    data = Data(Q, G._standardize(X), G._standardize(d[["gestat"]].to_numpy(float)),
+                1.0 - d.death.to_numpy(float), 4999.5)
+    design = make_design(data, eps, (4500.0, 5400.0))
+    return data, design, {"n": len(Q), "cell": lambda s: float(np.ceil(s))}
+
+
+def build_sample(sample, policy: tuple, effect_cols: list, eps: float = 0.1,
+                 mirror: bool = False, survival: bool = False):
+    """Generic builder from an RDDSample (one score column). ``mirror`` for rules that
+    treat below the threshold; ``survival`` flips a binary Y so that larger is better."""
+    Q = np.asarray(sample.Q, float).reshape(-1)
+    X = np.asarray(sample.X, float)
+    Y = np.asarray(sample.Y, float)
+    names = list(sample.feature_names)
+    ok = np.isfinite(Q) & np.isfinite(Y) & np.isfinite(X).all(1)
+    Q, X, Y = Q[ok], X[ok], Y[ok]
+    if survival:
+        Y = 1.0 - Y
+    thr = float(sample.threshold)
+    if mirror:
+        Q, thr, policy = -Q, -thr, (-policy[1], -policy[0])
+    idx = [names.index(c) for c in effect_cols]
+    data = Data(Q, G._standardize(X), G._standardize(X[:, idx]), Y, thr)
+    design = make_design(data, eps, tuple(policy))
+    sign = -1.0 if mirror else 1.0
+    return data, design, {"n": len(Q), "cell": lambda s: sign * float(s)}
+
+
 # ----------------------------------------------------------------------------- outcome fits
 
 def _design_matrix(data: Data, eta, idx, J):
@@ -457,6 +492,7 @@ SETTINGS = {
     "gpa": [("gpa", y) for y in ("grad6", "grad5", "return2", "stay")],
     "chile": [("chile", y) for y in ("univ_2024", "any_2025", "univ_2025")],
     "vlbw": [("vlbw", "low")],      # "all" (500-5000 g) leaves no supported window; see the README
+    "macro": [("macro", "5000g")],  # the 5000 g macrosomia line in the same file
 }
 
 
@@ -465,6 +501,8 @@ def build(setting: str, y: str, eps: float):
         return build_gpa(y, eps=eps)
     if setting == "chile":
         return build_chile(y, eps=eps)
+    if setting == "macro":
+        return build_macrosomia(eps=eps)
     return build_vlbw(y, eps=eps)
 
 

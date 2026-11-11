@@ -182,3 +182,12 @@ c = 0.01; every draw interior (`bootstrap.json`).
   deciles of the linear predictor; larger spread at low gestation) and in mean (-63 to
   +112 g). The 500-5000 g sample leaves no supported window under the design rules.
   Nothing drives c in the data; it is a free parameter reported as a sweep.
+
+### The 5000 g macrosomia line in the same file (2026-11-11): not usable
+
+Births of 3500-5500 g (n = 1,405,361), treat above 5000 g (0.3% of them), Y = survival.
+The design rules give an empty supported window: J collapses (the quantile of the residual
+among the treated falls below the quantile among the untreated), because with 0.3% treated
+there is no range of the residual where both arms have probability 0.1. A local check at
+5000 g: death -0.5 pp (mean 0.4%) at h = 100 g, ventilation -1.6 pp (mean 4.3%); the outcome is
+rare and the effect small, as the candidate list expected. Dropped.
