@@ -92,7 +92,8 @@ pooled`. The 2002 result replicates: under the logit the survival gain at the th
 1545 g at 0.02 and 1456-1459 g at 0.03 (both logit routes within 3 g), so the 1500 g line is
 optimal for a cost near 0.025. The linear probability model stays at the 1800 g edge at every
 cost (+24 pp at 1800 g, falling to zero at 1200 g); the additive route is negative throughout.
-Bootstrap: `experiments/scripts/binary_outcome_vlbw_boot.py --variant pooled --costs 0.02`.
+Bootstrap (`experiments/scripts/binary_outcome_vlbw_boot.py --variant pooled --costs 0.02`,
+20 draws): 1544 g, sd 8 g, [1529, 1555] g.
 Full table in `../BINARY_OUTCOME_ROUTES_20261110.md`.
 
 ## Design notes

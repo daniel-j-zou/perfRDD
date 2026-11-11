@@ -20,8 +20,8 @@ VLBW result", "add the pooled result to the sketch and push everything").
   Pooled 500-2500 g sample n = 2,138,145. Logit optimum 1660-1663 g at c = 0.01, 1545 g at
   0.02, 1456-1459 g at 0.03 (2002 alone: 1653-1667 / 1508-1520 / 1425); marginal survival
   gain +0.2 / +2.5 / +8.7 pp at 1800 / 1500 / 1200 g; LPM at the edge at every cost. The
-  deployed 1500 g line is optimal for c near 0.025. Bootstrap (20 draws, c = 0.02) running;
-  first five draws 1529-1554 g. Recorded in the results note, the vlbw README and the sketch
+  deployed 1500 g line is optimal for c near 0.025. Bootstrap (20 draws, c = 0.02): 1544 g,
+  sd 8 g, percentile interval [1529, 1555] g (2002 alone: sd 23 g). Recorded in the results note, the vlbw README and the sketch
   (`binary_outcome_sketch.tex`, "Seven more cohorts", figure and table).
 - **Chile 485 (PAES scale).** Built from the files already in `chile_admission/data/raw`
   (`chile_cae.adapter.load_paes`, threshold 485, the CAE/FSCU loan requirement confirmed on

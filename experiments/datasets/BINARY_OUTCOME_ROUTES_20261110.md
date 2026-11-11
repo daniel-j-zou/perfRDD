@@ -251,8 +251,8 @@ deployed line, the two logit routes now agree within 3 g, and the curves are smo
 utility curve is flat near the optimum: the gain over 1500 g at c = 0.02 is under 0.01 pp of
 survival, so the optimum is sharp only because n is large. Bootstrap at c = 0.02
 (`experiments/scripts/binary_outcome_vlbw_boot.py --variant pooled`, 20 draws, about 3.5
-minutes each): see `experiments/runs/binary_outcome_routes_vlbw_pooled/bootstrap.json`; the
-first five draws lie in 1529-1554 g.
+minutes each): mean 1544 g, sd 8 g, percentile interval [1529, 1555] g, every draw interior
+(2002 alone: sd 23, [1476, 1543]). `experiments/runs/binary_outcome_routes_vlbw_pooled/bootstrap.json`.
 
 ### Chile, the 485 loan line on the PAES scale (2026-11-11): not usable
 
