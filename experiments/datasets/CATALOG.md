@@ -396,6 +396,7 @@ Source note: `DOSE_SCHEDULE_DATASETS_20261028.md` (2026-10-28, with entries to 2
 | nyc_restaurants | NYC DOHMH restaurant grades, A at 13 points | binary (next score, inspection gap) | yes (145 MB) | built and run: not usable (manipulated score, weak first stage) |
 | cps_medicaid | CPS ASEC, Medicaid eligibility at 138% of poverty in expansion states | binary (Medicaid, uninsured) | yes (0.45 GB) | built and run: boundary; coverage is take-up |
 | fjc_bankruptcy | bankruptcy means test at the state median income | binary (Chapter 13) | no (IDB paths disallowed; no household size in the file) | checked and not usable |
+| chile_retention | Chile grade retention, MINEDUC average 4.45 (retained below 4.5 under the 1-failed-subject rule) | binary (enrolled next year, completed secondary) and continuous (next-year average, attendance, PAES) | yes (Rendimiento 2002-2025, downloaded 2026-09-28, about 11 GB) | built and run: not usable (fuzzy ITT, heaping and sorting at 4.5, X not independent of the residual) |
 
 Results and verdicts: `BINARY_OUTCOME_ROUTES_20261110.md` (addenda). The 5000 g macrosomia
 line, run from `vlbw/`, is also not usable (no supported window).

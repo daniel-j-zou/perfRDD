@@ -294,3 +294,49 @@ from +15 pp at 465 to +10 pp at 560, the same global-versus-local gap as at 458.
 is the lower boundary (465) for every cost from 0 to 0.12 under the LPM and both logit routes;
 the additive route flips to the upper edge at c >= 0.03. Not usable; the PSU-era 475 line
 (Solis 2017, before free tuition) remains the candidate and needs the DEMRE files.
+
+### Chile grade retention at 4.45 (2026-11-11): not usable
+
+`chile_retention/adapter.py::load_enrolled` (decision year 2017, n = 2,167,129, 1.8% eligible, Y =
+enrolled next year, mean 0.984) and `load_completed` (decision year 2012, n = 1,441,489, 4.7%
+eligible, Y = completed secondary by 2025, mean 0.929); routes setting `retention`, threshold 4.45
+with the score mirrored (eligible for retention below), policy set 3.6-5.4 in grade units, effect
+covariates prior grade average and grade level, Y = 1 the good outcome (no survival flip), eps 0.1,
+c = 0 and 0.02. Each run took under 4 minutes. The table gives the pooled optimum in grade units
+(the mirrored sign undone), whether it sits on the policy boundary, and the marginal effect tau of
+the threshold net of the cost c, in percentage points of the outcome, at five thresholds.
+
+| Outcome | Route | c | Optimum (grade) | Boundary | tau 3.6 | tau 4.0 | tau 4.45 | tau 5.0 | tau 5.4 |
+|---|---|---|---|---|---|---|---|---|---|
+| enrolled next year | LPM | 0 | 5.40 | yes | -14.6 | -8.2 | -2.6 | +5.3 | +10.8 |
+| enrolled next year | LPM | 0.02 | 5.40 | yes | -16.6 | -10.2 | -4.6 | +3.3 | +8.8 |
+| enrolled next year | additive | 0 | 3.99 | no | +1.1 | -0.0 | -1.1 | -2.3 | -3.1 |
+| enrolled next year | additive | 0.02 | 3.60 | yes | -0.9 | -2.0 | -3.1 | -4.3 | -5.1 |
+| enrolled next year | logit (sp) | 0 | 3.72 | no | +2.8 | -2.9 | -4.1 | -4.1 | -4.1 |
+| enrolled next year | logit (sp) | 0.02 | 3.63 | no | +0.8 | -4.9 | -6.1 | -6.1 | -6.1 |
+| enrolled next year | logit (emp) | 0 | 3.72 | no | +3.0 | -2.9 | -4.1 | -4.1 | -4.1 |
+| enrolled next year | logit (emp) | 0.02 | 3.63 | no | +1.0 | -4.9 | -6.1 | -6.1 | -6.1 |
+| completed secondary | LPM | 0 | 3.60 | yes | -16.5 | -11.1 | -7.0 | -1.6 | +2.1 |
+| completed secondary | LPM | 0.02 | 3.60 | yes | -18.5 | -13.1 | -9.0 | -3.6 | +0.1 |
+| completed secondary | additive | 0 | 4.06 | no | +4.2 | +0.5 | -2.9 | -6.9 | -9.6 |
+| completed secondary | additive | 0.02 | 3.83 | no | +2.2 | -1.5 | -4.9 | -8.9 | -11.6 |
+| completed secondary | logit (sp) | 0 | 4.11 | no | +10.1 | +1.7 | -3.6 | -5.2 | -4.7 |
+| completed secondary | logit (sp) | 0.02 | 3.98 | no | +8.1 | -0.3 | -5.6 | -7.2 | -6.7 |
+| completed secondary | logit (emp) | 0 | 4.11 | no | +10.4 | +1.7 | -3.6 | -5.2 | -4.7 |
+| completed secondary | logit (emp) | 0.02 | 3.98 | no | +8.4 | -0.3 | -5.6 | -7.2 | -6.7 |
+
+The local linear jump in the outcome at 4.45 for eligibility (below minus above, robust standard
+errors) is +0.03 pp (0.45) at bandwidth 0.3 and -0.28 pp (0.35) at 0.5 for enrollment, and +0.51 pp
+(0.51) at 0.3 and -0.35 pp (0.40) at 0.5 for completion: zero within noise, as in the earlier checks
+(-0.3 to -1.1 pp). At c = 0 the routes put the effect at 4.45 between -1.1 and -4.1 pp (enrollment) and -2.9
+and -7.0 pp (completion), several times the local jumps, which are zero within noise, so the
+global fits overstate the local effect. The LPM optimum is on the boundary at
+c = 0 (5.4 for enrollment, 3.6 for completion); the logit and additive routes find interior optima
+(3.7 to 4.1 at c = 0), but the gain over the deployed 4.45 is 0.0002 to 0.003 per window student, and
+at c = 0.02 the logit and additive optima move down by 0.1 to 0.2 (3.6 to 4.0). The `effect_at_cutoff` field is
+NaN in these runs because no score value lies within its 0.05 sd band around 4.45 on the 0.1 grid,
+so tau at 4.45 is interpolated from the curve. The earlier session's caveats stand: the score is
+heaped at 4.5 (21 to 51% more students than the neighboring counts imply), students sort across the
+cutoff (prior average, municipal schools, previous retention), and X is not independent of the
+residual (SD of eta rises across deciles of the fitted index), which the global fits assume. Not
+usable as a PerfRDD application; the pattern is the same as in the pre-screen.

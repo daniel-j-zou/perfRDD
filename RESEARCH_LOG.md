@@ -9,6 +9,31 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-11 - Follow-up: Chile grade retention run through the binary routes; not usable (Claude)
+
+Author: "Yes, build it" (the retention setting), with the instruction to delegate easier
+tasks to weaker-model subagents. No build or download was needed: `chile_retention/` already
+exists (2026-09-28, all Rendimiento years, binary loaders `load_enrolled` 2017 and
+`load_completed` 2012, threshold 4.45), which the second scan's table had missed; its row and
+the catalog are corrected. A Sonnet subagent added the `retention` setting to
+`binary_outcome_routes.py` (policy 3.6-5.4, mirrored, effect covariates prior average and
+grade) and ran c = 0 and 0.02; Claude checked the summaries.
+
+- Local jumps at 4.45 are zero within noise (enrolled next year +0.03 (0.45) / -0.28 (0.35) pp
+  at bandwidths 0.3 / 0.5; completed secondary +0.51 (0.51) / -0.35 (0.40)), as in the
+  earlier checks. The routes' global fits put the effect at 4.45 at -1 to -4 pp (enrolled)
+  and -3 to -7 pp (completed): the same global-versus-local gap as in the other Chilean
+  settings. The LPM sits at a boundary; the logit optima are interior (3.7 for enrollment,
+  4.1 for completion at c = 0) with gains under 0.1 pp. With the heaping and sorting at 4.5
+  and X not independent of the residual, the verdict stays: not usable. Table in the results
+  note.
+- Lesson for the scan: the subagents' public-data shortlist reduced, on inspection, to
+  settings this project had already built and rejected. The remaining public candidates with
+  a two-sided treatment are the NC sentencing files (field check pending the author's word on
+  the robots.txt) and MIMIC transfusion (credentialing).
+
+— Claude
+
 ## 2026-11-11 - Follow-up: VLBW with a calibrated cost; SEER steps; a second data scan (Claude)
 
 At the author's request ("Do the VLBW and give me instructions for SEER. What other data

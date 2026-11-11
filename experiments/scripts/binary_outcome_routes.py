@@ -501,6 +501,7 @@ SETTINGS = {
     "sba": [("sba", "chargeoff")],
     "nyc": [("nyc", "next_score"), ("nyc", "closed")],
     "cps": [("cps", "medicaid"), ("cps", "uninsured")],
+    "retention": [("retention", "enrolled_next"), ("retention", "completed")],
 }
 
 # Generic settings through build_sample: module, loader, policy set (score units),
@@ -524,6 +525,13 @@ GENERIC = {
                                policy=(465.0, 560.0), effect=["nem"], mirror=False, survival=False),
     ("cae", "any_2025"): dict(module="experiments.datasets.chile_cae.adapter", loader="load_paes_any_2025",
                                policy=(465.0, 560.0), effect=["nem"], mirror=False, survival=False),
+    # Chile grade retention at 4.45 (retention-eligible below); Y = 1 is the good outcome
+    ("retention", "enrolled_next"): dict(module="experiments.datasets.chile_retention.adapter",
+                                         loader="load_enrolled", policy=(3.6, 5.4),
+                                         effect=["prior_gpa", "grade_level"], mirror=True, survival=False),
+    ("retention", "completed"): dict(module="experiments.datasets.chile_retention.adapter",
+                                     loader="load_completed", policy=(3.6, 5.4),
+                                     effect=["prior_gpa", "grade_level"], mirror=True, survival=False),
 }
 
 
