@@ -219,6 +219,18 @@ only when the author asks; it does not change the sections above.
   (`experiments/datasets/DOSE_SCHEDULE_DATASETS_20261028.md`). Chile SEP is on hold. The
   CWBH data asks users to contact its maintainers for a formal agreement, which needs
   an author decision before any publication.
+- **Binary outcomes** (2026-11-11): a generalized linear outcome model for a binary Y.
+  The routes are in `../manuscript/binary_outcome_sketch.tex`; the separable expansion
+  of the link keeps the paper's one-projection density block. Results so far
+  (`experiments/datasets/BINARY_OUTCOME_ROUTES_20261110.md`): no outcome model gives an
+  interior optimum on GPA or Chile; very low birth weight (`experiments/datasets/vlbw/`,
+  NCHS 2002 cohort, 1500 g, infant survival) gives one under the logit once a per-infant
+  cost is set (1508 g at c = 0.02, bootstrap [1476, 1543] g), and the linear probability
+  model fails there. Next: more data sets with a binary outcome, selected for a
+  treatment that is meaningful (a threshold someone chooses, a documented effect, a
+  plausible cost, an effect that can cross the cost inside the score range); candidate
+  lists go in `experiments/datasets/BINARY_OUTCOME_DATASETS_<date>.md`, and the author
+  picks before anything is built.
 
 ## How we work
 
@@ -301,6 +313,7 @@ asks whether to update the file first.
 | 2026-11-10 | Statistics terms preferred to econometrics terms; Q is "the score" throughout (was "running variable" in seven places) | Author, 2026-11-10; manuscript 01b3fd2 |
 | 2026-11-09 | Main-text material moved to the supplement (D1), originals kept in storage/; supplement now eight appendices (Appendix 8: further directions) | Log: "Follow-up: main-text material moved to the supplement (D1)" (2026-11-09) |
 | 2026-11-09 | Supplement in seven appendices (old 3 split: identification; consistency and endpoint terms; extensions); unneeded old Appendix 4-5 material set aside in storage/, not deleted; (A1)(ii) and (A2) lose clauses other assumptions imply; (A4)(i) gets a sufficient-condition lemma; H stays the curvature | Log: "Submission-readiness review and pass; first E results" (2026-11-09) |
+| 2026-11-11 | Binary outcomes recorded as a next-paper side track: the GLM routes, the VLBW result, and the rule that further data sets are selected for a meaningful treatment with the author choosing before a build | Log: "Binary outcomes: very low birth weight ..." (2026-11-11) and its follow-up (2026-11-11) |
 | 2026-11-04 | Notation reread: renames and one name per object (outcome interval, trim window, trim endpoints, supported population); renames that touch the taxi-theory lemmas held until that port lands | Log: "Notation reread: writing pass and approved renames" (2026-11-04) |
 | 2026-11-04 | R3-E1 becomes a robustness row with an identification caveat, not a co-equal use case (revises the same day's decision); J in §6 stated as fixed, no proof for an estimated J; theory-extension plan agreed | Log: "Taxi theory plan; R3-E1 is weakly identified and its score is not monotone" (2026-11-04) |
 | 2026-11-04 | §2.4 rewritten around "the margin moves up"; (U1) needs log-concave f_eta only when lambda is not constant | Log: "§2.4 rewritten: the margin moves up" (2026-11-04) |

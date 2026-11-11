@@ -9,6 +9,21 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-11 - Follow-up: binary outcomes become a side track in the scope file; data search continues (Claude)
+
+Author decisions (2026-11-11): "Add the VLBW result to the scope file as a side track";
+"Keep finding more datasets to download under this new setting"; the selection rule: "the
+treatment does have to be meaningful". Recorded in `PROJECT_SCOPE.md` under "Side tracks"
+(a "Binary outcomes" bullet) and in its decision history. The working criteria for a
+candidate: a threshold that a decision maker chooses, a treatment with a documented effect
+and a plausible per-unit cost, a binary outcome that is not a rare event, covariates that
+explain the score, public unit-level data, and an effect that can cross the cost inside
+the score range. A first search is being written to
+`experiments/datasets/BINARY_OUTCOME_DATASETS_20261111.md`; the author picks before any
+build. The paper and its scope are unchanged.
+
+— Claude
+
 ## 2026-11-11 - Binary outcomes: very low birth weight (NCHS 2002 cohort) gives an interior optimum under the logit, not under the linear probability model (Claude)
 
 At the author's request ("Yes, build VLBW"; "you download"). Follow-up to the entry of
