@@ -266,6 +266,9 @@ only when the author asks; it does not change the sections above.
   "policy set") and "class of threshold rules" (not "policy class"). Section 1 cites
   the statistics literature on individualized treatment rules (Murphy 2003; Qian and
   Murphy 2011; Zhao et al. 2012) beside policy learning.
+  Third pass (2026-11-11): the outcome-fold regression is the "partially linear fit"
+  (or "partially linear regression"); "outcome model", "outcome equation" and "outcome
+  fold" stay.
   Kept: "representer", "latent ability", "Error in variables" and "Policy learning"
   (keywords), and literature names such as "single-index model", "policy learning",
   "marginal policy change". LaTeX labels keep their old keys. Propose any further
@@ -318,6 +321,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-11 | Section 2.4 shortened: Proposition 2 ((U1)-(U4)) moved to Appendix 3 as Proposition C1, intuition and Remark 1 tightened, original saved in storage/; "outcome fit/regression" renamed "partially linear fit/regression" in all manuscript files outside prelim/ | Author: "Do the 2.4 stuff that you recommend. Then, rename all to partially linear regression/fit." (2026-11-11); manuscript 2d130cf, e5baf6c |
 | 2026-11-11 | Second statistics-terms pass in all manuscript files outside prelim/: first stage -> score regression, generated -> estimated, marginal units -> units at the threshold, policy set -> set of candidate thresholds; cite Murphy 2003, Qian-Murphy 2011, Zhao et al. 2012 in Section 1; keep "latent ability" and the keywords | Author: "1,2,3,4. I'm fine with ability adn error in variables" (2026-11-11); manuscript 0ef0a95, 751904b |
 | 2026-11-10 | Econometrics terms replaced in all manuscript files outside prelim/: index -> linear predictor, sieve -> spline, loading -> gradient/coefficient, welfare -> utility, and cutoff -> threshold, running variable -> score in the notebook, sketches and storage too (mapping under "How we work") | Author: "use linear predictor", "Do all the recommended wording changes", "implement to all files except the locked prelim ones", "Also change cutoff to threshold in those files" (2026-11-10); manuscript 5dc0f8d, merge 55c63e1 |
 | 2026-11-10 | Statistics terms preferred to econometrics terms; Q is "the score" throughout (was "running variable" in seven places) | Author, 2026-11-10; manuscript 01b3fd2 |
