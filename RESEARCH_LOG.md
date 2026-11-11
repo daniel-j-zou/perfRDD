@@ -9,6 +9,37 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-10 - Taxi: what the residual-quantile window cap does, and what happens without it (Claude)
+
+Author's questions: "Is this actually necessary? the fixed residual trimming? What
+happens if I dont?" and "Why don't I just not trim in that case?". The script is
+`taxi_window_cap_check.py` (R2-E1 point estimates, fold seeds 1-3); the counts below come
+from the same data.
+
+- **The eps-window barely trims.** In residual units it is [l0, u0] = [-0.88, 3.50],
+  with sd(eta) = 0.40, and it keeps 99.81% of rides. It drops 878 rides below l0
+  (0.14%) and 300 above u0 (0.05%). The residuals run from -3.9 to 8.65. The cap
+  (central 99%, [-0.76, 1.56]) binds on both sides, so the taxi target is the central
+  99% of rides by residual.
+- **Without the cap**, the window is the eps-window. J then has to reach the 0.01%
+  tails ([-1.16, 5.05]), and the estimate is $12.65-12.67 over seeds 1-3, in the same
+  $12.90 cell (main: $12.87-12.89). Most of the move comes from stretching J: keeping
+  the 99% window but stretching J gives $12.68-12.70.
+- **With no trimming at all** (J = every residual), the spline Gram matrix is singular,
+  and the fit fails.
+- **The tails are where X ⊥ eta fails most.** The model gives P(D=1 | eta) < 0.05 below
+  l0, yet 69% of those rides are treated. It gives > 0.95 above u0, yet 53% are
+  treated. The extreme residuals come mostly from long rides, whose spread is larger
+  (the 1.48 spread ratio). Only 2 rides have no overlap at all (eta > phi0 - min T).
+- **The theory** needs c_f <= f_eta on J, with the window inside J ((A3)). That cannot
+  hold out to residuals of 10-21 sd.
+- **Reading.** For overlap, trimming is barely needed in the taxi data (0.19%). Some
+  residual trimming is needed for the effect fit and the theorem. Its level matters
+  little between 0.25% and 0.5% per tail ($12.86-12.94, Table 6), and by about 20
+  cents once J reaches the 0.01% tails.
+
+---
+
 ## 2026-11-10 - Follow-up: the location-scale fit fails when the effect depends on eta (Claude)
 
 Author: "Do those" (item 5 of the E2 proposals). Follow-up to "location-scale bootstrap
