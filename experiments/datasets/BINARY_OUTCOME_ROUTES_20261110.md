@@ -254,6 +254,33 @@ survival, so the optimum is sharp only because n is large. Bootstrap at c = 0.02
 minutes each): mean 1544 g, sd 8 g, percentile interval [1529, 1555] g, every draw interior
 (2002 alone: sd 23, [1476, 1543]). `experiments/runs/binary_outcome_routes_vlbw_pooled/bootstrap.json`.
 
+### VLBW with a calibrated cost and a wider policy set (2026-11-11, evening)
+
+The cost sweep above chooses the optimum; a cost from the literature does not. Almond, Doyle,
+Kowalski and Williams (2010, QJE) put the extra hospital cost just below 1500 g at about
+$4,000 per infant against about one point of one-year survival (about $550,000 per life
+saved; <https://www.nber.org/papers/w14522>). With a value of a statistical life of $7-10
+million that is c = 4,000 / VSL = 0.0004-0.0006 survival points, far below the sweep. The
+variant `vlbw wide` keeps the pooled 1995-2002 sample and widens the policy set to 1200-2200 g
+(`experiments/runs/binary_outcome_routes_vlbw_wide_c<cost>/`, routes lpm and logit_emp).
+
+| c | logit_emp optimum | tau - c at 2200 / 2000 / 1900 / 1850 / 1800 / 1500 g (pp) | lpm |
+|---|---|---|---|
+| 0 | 1871 g (interior) | -0.90 / -0.34 / -0.09 / +0.06 / +0.24 / +2.47 | 2200 (edge) |
+| 0.0005 | 1855 g | -0.95 / -0.39 / -0.14 / +0.01 / +0.19 / +2.42 | 2200 (edge) |
+| 0.001 | 1840 g | -1.00 / -0.44 / -0.19 / -0.04 / +0.14 / +2.37 | 2200 (edge) |
+| 0.002 | 1812 g | -1.10 / -0.54 / -0.29 / -0.14 / +0.04 / +2.27 | 2200 (edge) |
+
+So under the logit the survival effect of the extra care itself crosses zero at about 1870 g:
+VLBW is a c = 0 setting once the policy set reaches far enough, and a literature cost moves
+the optimum only to 1810-1855 g. The 1500 g line is then far from optimal on this model (the
+gain at c = 0.0005 is about 0.09 pp of survival over the whole population, 0.46 of which sits
+in the window). Two caveats. The negative effect above 1870 g is the treated arm's fit
+evaluated at residuals that treated infants (all under 1500 g) reach only when their predicted
+weight is low, so it is the model's extrapolation across X, not a comparison of treated and
+untreated infants of 2000 g. And the LPM, as before, says treat everyone up to 2200 g.
+Whether to present the calibrated cost or the sweep in the sketch is the author's call.
+
 ### Chile, the 485 loan line on the PAES scale (2026-11-11): not usable
 
 `chile_cae/adapter.py::load_paes` reuses the `chile_admission` build (PAES 2024, n = 267,341)

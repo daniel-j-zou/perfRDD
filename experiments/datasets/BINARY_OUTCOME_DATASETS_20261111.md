@@ -412,6 +412,50 @@ For the settings built so far the answer is no: none has a sign-changing effect.
 candidates that remove the cost question are Oncotype (author's application) and THEOP
 (registration).
 
+## Scan 2 (2026-11-11, evening): education and social science, public data only
+
+At the author's request ("there should be many education or social science settings with
+binary Y"). Three subagents (Sonnet) searched education, social policy and open microdata
+portals, with the rule: unit-level files a US researcher can get as a public download or a
+light registration, no study-plan application. Nothing was downloaded. The education agent's
+own conclusion ("no candidate fully meets the requirements") is too pessimistic: it missed
+the Chilean per-student files, which the portal agent found, and it wrongly reported that
+MINEDUC has no MRUN-level enrollment file (we hold two). Claude's compilation follows.
+
+| # | Setting | Score, threshold (who sets it) | Treatment | Binary Y | Access | Sign change (c = 0 plausible)? | Verdict |
+|---|---|---|---|---|---|---|---|
+| S1 | **Chile grade retention at the 4.0 pass mark** (Diaz, Grau, Reyes and Rivera 2021 on crime; promotion rules in Decreto 67) | annual grade average `PROM_GRAL` (1-7); promoted if at least 4.0 with no failed subject, 4.5 with one, 5.0 with two (ministry rule) | repeat the grade | enrolled next year (dropout), on-time secondary completion, later higher-education enrollment | MINEDUC open data, `Rendimiento por estudiante` 2002-2025 and `Matricula por estudiante` 2009-2026, both by MRUN; browser downloads, as `chile_admission/` was built | yes: retention helps some and pushes others out; which year of school, not whether to spend | **best public candidate**; n in the hundreds of thousands per grade-year; X = prior-year grades and attendance by MRUN; check the rule's subject-failure branches |
+| S2 | Chile program-specific admission cutoffs (PAES `Postulantes` and `Matricula` files, in `chile_admission/data/raw`) | program-weighted score against the last admitted score of the program | admitted to the program applied to, else the next choice | enrolled; enrolled in year 2 | in hand (see `../MULTI_RULE_DATASETS_20261027.md`) | yes: which program, not whether | multi-rule setting; a single-rule version takes one large program |
+| S3 | North Carolina structured sentencing: prior record level and offense class, active prison versus probation (Rose and Shem-Tov 2021 used the grid; NIJ study ICPSR 38817 used the public files) | prior record points (levels I-VI at 2, 6, 10, 14, 18 points) within an offense class, set by the legislature | active sentence versus intermediate or community punishment | reincarcerated or new commitment within 3 years, from the offender ID across files | NC DAC bulk files (12 tables, 35-235 MB), public; `opus.doc.state.nc.us/robots.txt` is `Disallow: /`, so a download needs the author's instruction; the field list is inside the zips (the structure PDF is a one-slide diagram) | yes: incarceration versus supervision | promising but unverified: prior record points may appear only as the level; score integer-valued |
+| S4 | Transfusion at hemoglobin 7 g/dL in intensive care (Bosch et al. 2022, RD in MIMIC-IV and eICU) | lowest hemoglobin, 7.0 g/dL (guideline) | red-cell transfusion (fuzzy, +20 points) | in-hospital death | PhysioNet credentialing: CITI course plus a data use agreement, one to two weeks, no study plan; code release required with publications | yes: transfusion has its own harms | light credentialing, not an application; n about 11k (MIMIC) and 14k (eICU) in the RD samples; X explains hemoglobin weakly |
+| S5 | FEMA Individuals and Households Program registrations (OpenFEMA v2) | verified property loss, FEMA eligibility lines | assistance eligibility or SBA referral | `ihpEligible`, `sbaApproved` (decisions at registration, not later outcomes) | public CSV or Parquet, 26 million rows, no registration | no: a transfer | fresh but the outcomes are decisions, not post-treatment; one-sided |
+| S6 | GSE mortgage files at the 620 credit line (Keys et al. 2010 used non-agency data) | FICO at origination | pricing or securitization terms | serious delinquency | Fannie Mae / Freddie Mac loan-level files, free registration, 56 million loans | loosely | the files hold only purchased loans, so the 620 line is a selection margin; LTV lines are deterministic in X |
+| S7 | Broward COMPAS (ProPublica) | decile score, bands at 5 and 8 | risk label | two-year recidivism | public GitHub file | no clear rule-based treatment | n about 10k; weak |
+| S8 | Brazil ENEM 450 for FIES and ProUni; SISU cutoffs | ENEM score | aid or admission | enrollment | INEP public score files; no student-level link to enrollment after the LGPD re-release; SISU portal returned 403 | one-sided (aid) / two-arm (SISU) | no linkage; dead end unless the SISU file carries score and admission status |
+| S9 | Colombia Saber 11 to Saber Pro linked file (Mendeley, CC BY) | Saber 11 global score | none in the file | module scores (continuous) | public | n/a | a linkage resource, not a design |
+| S10 | US state merit aid (HOPE, Bright Futures, PROMISE), remedial placement (Texas, Florida, Tennessee, CUNY), retention and exit exams (Florida, Chicago, NYC, Massachusetts), exam schools (Boston, NYC, Chicago), gifted programs, COMIPEMS, Romania, Kenya, Ghana, Turkey, Korea, gaokao, Beca 18 | various | various | graduation, enrollment, dropout | all restricted (state, district or ministry agreements), including the Chicago exam-school replication archive (403, likely restricted) | remediation, retention and selective admission are two-sided | the famous designs; not obtainable without agreements |
+| S11 | US Sentencing Commission datafiles | criminal history category, offense level | sentence | none after sentencing in the public file | public | n/a | no outcome |
+| S12 | Florida OBIS public database (Mitchell et al. 2017 used the 44 sentence-point line) | total sentence points, 44 (statute) | prison versus non-prison | reconviction within 3 years | public Access database or text files; `fdc.myflorida.com/robots.txt` disallows generic clients; the scoresheet points are not known to be in the public file | yes | unverified; likely missing the score |
+
+Portals that yielded nothing public: Brazil INEP linkage, Peru (Beca 18, ECE), Kenya KCPE, Romania,
+Colombia SISBEN, Italy INVALSI, UK LSYPE and National Pupil Database, Bondora, NLSY97, ELS:2002,
+HSLS:09, data.ny.gov parole, pretrial PSA, Italian and Czech procurement. Not checked for
+budget: Mexico (COMIPEMS, PLANEA), Chile SIMCE and PACE, India, Indonesia, Turkey, the Nordic
+registers (restricted), IPUMS, Add Health, ECLS, BPS, NPSAS, PSID, NSDUH, BRFSS, MEPS, SIPP,
+Project Data Sphere, Vivli, BioLINCC, Fragile Families, World Bank microdata, DHS, LSMS.
+
+**Reading.** Public unit-level files with a chosen threshold, a treatment with a two-sided
+effect and a later binary outcome exist, but they are few and they are the ones already
+near this project: the Chilean per-student files (S1, S2) are the only open education source
+that links a score to a later outcome by a student ID; the NC offender files (S3) are the one
+open social-policy source with a two-arm rule, pending the field check. S1 is the
+recommendation: the retention rule is a legislative choice, the treatment is which grade the
+student sits in next year (so c = 0 is the natural reading), the base rates are far from the
+ceiling (dropout a few percent per year, completion about 80 percent), and the prior-year
+grade average explains the current one well. Step one is two browser downloads
+(`Rendimiento` for one year and `Matricula por estudiante` for the next) to confirm MRUN and
+the columns `PROM_GRAL`, `ASISTENCIA`, `SIT_FIN`.
+
 ## Not usable (checked and rejected)
 
 - **NCHS 2500 g low-birth-weight line.** Same files as `vlbw/`; Almond, Doyle, Kowalski and

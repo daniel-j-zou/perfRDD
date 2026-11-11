@@ -9,6 +9,38 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-11 - Follow-up: VLBW with a calibrated cost; SEER steps; a second data scan (Claude)
+
+At the author's request ("Do the VLBW and give me instructions for SEER. What other data
+settings are there that don't require an application that have a c = 0", then "there should be
+many education or social science settings with binary Y, check").
+
+- **VLBW, calibrated cost.** Almond et al. (2010): about $4,000 extra per infant below 1500 g,
+  about one survival point, $550,000 per life; with a VSL of $7-10M, c is 0.0004-0.0006, far
+  below the sweep (0.01-0.03). With the policy set widened to 1200-2200 g (`vlbw wide`,
+  pooled 1995-2002) the logit effect crosses zero by itself at about 1870 g: optimum 1871 g at
+  c = 0, 1855 g at 0.0005, 1840 g at 0.001, 1812 g at 0.002; the LPM stays at the 2200 g edge.
+  So VLBW is a c = 0 setting on this model, with the caveat that the negative effect above
+  1870 g is extrapolation across X. Recorded in the results note and the vlbw README; the
+  sketch gains two sentences.
+- **SEER Oncotype.** `seer_oncotype/ACCESS_STEPS.md`: the checked steps (Research Plus via
+  eRA Commons + Login.gov, two business days; the specialized database "Invasive Breast
+  Cancer with Oncotype DX Recurrence Score" through the Data Access Committee with a signing
+  official, DUA and research use statement; US institutions only; 12-month approvals) and a
+  draft research use statement.
+- **Second scan** (`BINARY_OUTCOME_DATASETS_20261111.md`, "Scan 2"): three subagents over
+  education, social policy and open portals. Public, two-sided settings are few: Chilean grade
+  retention at the 4.0 pass mark (MINEDUC per-student files by MRUN, open; the
+  recommendation), Chilean program cutoffs (in hand), NC structured sentencing (public bulk
+  files; robots.txt `Disallow: /`, fields unverified), MIMIC transfusion at 7 g/dL
+  (credentialing). FEMA and the GSE loan files are public but one-sided or selection margins;
+  the famous US education designs are all restricted.
+- **Hosts.** `opus.doc.state.nc.us/robots.txt` is `Disallow: /`; a web-fetch subagent fetched
+  its one-page structure PDF before reading the rule (recorded here; no data file was
+  touched). Nothing else fetched beyond page reads.
+
+— Claude
+
 ## 2026-11-11 - Binary outcomes: VLBW replicates over 1995-2002; the Chile 485 loan line does not bind (Claude)
 
 At the author's request ("Anything you can download without me?", then "present the pooled

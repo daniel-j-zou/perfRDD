@@ -10,7 +10,7 @@
 | **n** | 293,668 tumors with a score, diagnoses 2004-2019, follow-up through 2020 (22-registry file) |
 | **Effect** | TAILORx: no chemotherapy benefit at RS 11-25 overall, benefit above 25, some benefit at 16-25 for women 50 or younger; the benefit rises with the score, the cleanest case of an effect that crosses a cost |
 | **Cost** | chemotherapy's monetary and toxicity cost per patient |
-| **Status** | waiting for the author's access application (2026-11-11); no adapter yet |
+| **Status** | waiting for the author's access application (2026-11-11); adapter skeleton in `adapter.py`; the access steps and a study-plan draft are in `ACCESS_STEPS.md` |
 
 ## Access (author; needs an institutional account, US-based researchers only)
 

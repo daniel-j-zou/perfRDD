@@ -127,17 +127,19 @@ VLBW_POLICY_GRAMS = (1200.0, 1800.0)
 def build_vlbw(variant: str = "low", eps: float = 0.1, effect: str = "gestat"):
     """NCHS cohort files, mirrored score Q = -grams, treated iff weight < 1500 g.
     ``low``: births of 500-2500 g in 2002; ``all``: 500-5000 g in 2002;
-    ``pooled``: 500-2500 g in the 1995-2002 files."""
+    ``pooled``: 500-2500 g in the 1995-2002 files; ``wide``: the same sample with the
+    policy set 1200-2200 g, for costs calibrated from the literature."""
     from experiments.datasets.vlbw import adapter as V
     weights = (500.0, 5000.0) if variant == "all" else (500.0, 2500.0)
-    years = V.YEARS if variant == "pooled" else (2002,)
+    years = V.YEARS if variant in ("pooled", "wide") else (2002,)
     Q, X, Y_death, phi0, d = V.mirrored(weights, years)
     Y = 1.0 - Y_death          # survival, so that a beneficial treatment has a positive effect
     Z = G._standardize(X)
     cols = {"gestat": ["gestat"], "gestat_plural": ["gestat", "twin", "triplet_plus"]}[effect]
     Xe = G._standardize(d[cols].to_numpy(float))
     data = Data(Q, Z, Xe, Y, phi0)
-    policy = (-VLBW_POLICY_GRAMS[1], -VLBW_POLICY_GRAMS[0])
+    grams = (1200.0, 2200.0) if variant == "wide" else VLBW_POLICY_GRAMS
+    policy = (-grams[1], -grams[0])
     design = make_design(data, eps, policy)
     return data, design, {"n": len(Q), "cell": lambda s: float(np.floor(-s)) + 1.0}
 
@@ -493,7 +495,7 @@ def four_role(data: Data, design: M.Design, route: str, seed: int, curves: np.nd
 SETTINGS = {
     "gpa": [("gpa", y) for y in ("grad6", "grad5", "return2", "stay")],
     "chile": [("chile", y) for y in ("univ_2024", "any_2025", "univ_2025")],
-    "vlbw": [("vlbw", "low"), ("vlbw", "pooled")],  # "all" (500-5000 g) leaves no supported window; see the README
+    "vlbw": [("vlbw", "low"), ("vlbw", "pooled"), ("vlbw", "wide")],  # "all" (500-5000 g) leaves no supported window; see the README
     "cae": [("cae", "univ_2024"), ("cae", "univ_2025"), ("cae", "any_2025")],
     "macro": [("macro", "5000g")],  # the 5000 g macrosomia line in the same file
     "sba": [("sba", "chargeoff")],

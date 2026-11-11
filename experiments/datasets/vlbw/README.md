@@ -96,6 +96,12 @@ Bootstrap (`experiments/scripts/binary_outcome_vlbw_boot.py --variant pooled --c
 20 draws): 1544 g, sd 8 g, [1529, 1555] g.
 Full table in `../BINARY_OUTCOME_ROUTES_20261110.md`.
 
+With the policy set widened to 1200-2200 g (`--outcomes wide`) the logit effect crosses zero
+at about 1870 g on its own, so c = 0 gives an interior optimum (1871 g); a cost calibrated from
+Almond et al. ($4,000 per infant, c about 0.0005 survival points) gives 1855 g. The sign
+change above 1870 g is the model's extrapolation across X (no treated infant weighs over
+1500 g). Table in the results note.
+
 ## Design notes
 
 - The rule treats below the threshold. `adapter.mirrored()` returns `Q = -weight` with
