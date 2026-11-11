@@ -121,6 +121,25 @@ def build_chile(y_col: str, effect: str = "nem_ranking", eps: float = 0.1):
     return data, design, {"n": len(data.Q), "cell": lambda s: float(np.ceil(s * 2) / 2)}
 
 
+VLBW_POLICY_GRAMS = (1200.0, 1800.0)
+
+
+def build_vlbw(variant: str = "low", eps: float = 0.1, effect: str = "gestat"):
+    """NCHS 2002 cohort, mirrored score Q = -grams, treated iff weight < 1500 g.
+    ``low``: births of 500-2500 g; ``all``: 500-5000 g."""
+    from experiments.datasets.vlbw import adapter as V
+    weights = (500.0, 2500.0) if variant == "low" else (500.0, 5000.0)
+    Q, X, Y_death, phi0, d = V.mirrored(weights)
+    Y = 1.0 - Y_death          # survival, so that a beneficial treatment has a positive effect
+    Z = G._standardize(X)
+    cols = {"gestat": ["gestat"], "gestat_plural": ["gestat", "twin", "triplet_plus"]}[effect]
+    Xe = G._standardize(d[cols].to_numpy(float))
+    data = Data(Q, Z, Xe, Y, phi0)
+    policy = (-VLBW_POLICY_GRAMS[1], -VLBW_POLICY_GRAMS[0])
+    design = make_design(data, eps, policy)
+    return data, design, {"n": len(Q), "cell": lambda s: float(np.floor(-s)) + 1.0}
+
+
 # ----------------------------------------------------------------------------- outcome fits
 
 def _design_matrix(data: Data, eta, idx, J):
@@ -437,11 +456,16 @@ def four_role(data: Data, design: M.Design, route: str, seed: int, curves: np.nd
 SETTINGS = {
     "gpa": [("gpa", y) for y in ("grad6", "grad5", "return2", "stay")],
     "chile": [("chile", y) for y in ("univ_2024", "any_2025", "univ_2025")],
+    "vlbw": [("vlbw", "low")],      # "all" (500-5000 g) leaves no supported window; see the README
 }
 
 
 def build(setting: str, y: str, eps: float):
-    return build_gpa(y, eps=eps) if setting == "gpa" else build_chile(y, eps=eps)
+    if setting == "gpa":
+        return build_gpa(y, eps=eps)
+    if setting == "chile":
+        return build_chile(y, eps=eps)
+    return build_vlbw(y, eps=eps)
 
 
 def main(argv=None):
@@ -449,6 +473,8 @@ def main(argv=None):
     ap.add_argument("--settings", nargs="+", default=["gpa", "chile"])
     ap.add_argument("--routes", nargs="+", default=list(ROUTES))
     ap.add_argument("--eps", type=float, default=0.1)
+    ap.add_argument("--cost", type=float, default=0.0,
+                    help="per-treated-unit cost c on the outcome's probability scale")
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--sieve", type=int, default=12)
     ap.add_argument("--grid", type=int, default=121)
@@ -459,6 +485,7 @@ def main(argv=None):
     for s in a.settings:
         for setting, y in SETTINGS[s]:
             data, design, meta = build(setting, y, a.eps)
+            design.cost = a.cost
             curves = np.linspace(*design.policy, 61)
             print(f"\n== {setting} {y}: n={meta['n']}, treated={data.D.mean():.3f}, "
                   f"mean Y={data.Y.mean():.3f}, J={np.round(design.J, 3).tolist()}, "
@@ -466,7 +493,7 @@ def main(argv=None):
             for route in a.routes:
                 t0 = time.time()
                 r = four_role(data, design, route, a.seed, curves, a.grid, a.sieve)
-                r.update(setting=setting, outcome=y, n=meta["n"], eps=a.eps,
+                r.update(setting=setting, outcome=y, n=meta["n"], eps=a.eps, cost=a.cost,
                          cell=meta["cell"](r["phi_pooled"]), seconds=round(time.time() - t0, 1),
                          curves=curves.tolist(), phi0=design.phi0)
                 rows.append(r)

@@ -9,6 +9,50 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-11 - Binary outcomes: very low birth weight (NCHS 2002 cohort) gives an interior optimum under the logit, not under the linear probability model (Claude)
+
+At the author's request ("Yes, build VLBW"; "you download"). Follow-up to the entry of
+2026-11-10 below. New dataset `experiments/datasets/vlbw/` (README has the layout, the
+download and the design); the routes script gains `--settings vlbw` and `--cost`; tables in
+`experiments/datasets/BINARY_OUTCOME_ROUTES_20261110.md` (addendum); the note
+`../manuscript/binary_outcome_sketch.tex` gains a section and the figure
+`figures/binary_outcome_vlbw.png`.
+
+**Data.** NCHS 2002 birth-cohort linked birth/infant-death file, public use
+(`LinkCO02US.zip`, 92 MB, fixed width). Downloaded directly with curl on the author's
+instruction although `ftp.cdc.gov/robots.txt` disallows crawlers; recorded in the README.
+The 2003-2015 cohort files suppress birth weight in grams (only a 14-category recode), so
+2002 is the latest usable year; 1995-2001 share the layout. Q = birth weight in grams,
+threshold 1500 g (treat below; the score is mirrored), Y = survival to one year, score
+covariates gestation, plurality, sex and the mother's characteristics with missing flags,
+effect covariate gestation. Sample: reported weights 500-2500 g with known gestation,
+n = 285,610, 16.8% treated, survival 96.0%; eps = 0.1; policy set 1200-1800 g. The
+500-5000 g sample leaves no supported window under the design rules (1.3% treated).
+
+**Findings.**
+- Local check at 1500 g: death -1.5 pp (se 1.2) at h = 50 g, -0.7 pp (0.7) at h = 100 g
+  below the line (Almond et al. 2010's sign); ventilation shows no clear jump in this file.
+- Logit (both routes, agreeing within 12 g): the marginal survival gain grows as the
+  threshold falls, +0.4 pp at 1800 g, +2.1 pp at 1500 g, +7.4 pp at 1200 g. c = 0 gives the
+  top of the policy set; a cost per treated infant in survival units gives an interior
+  optimum: 1653 g (c = 0.01), 1508 g (c = 0.02), 1425 g (c = 0.03). The deployed 1500 g line
+  is optimal at c of about 2 pp. Bootstrap (20 full re-estimation draws, empirical tails):
+  1512 g, sd 23, 95% [1476, 1543] at c = 0.02; 1659 g, sd 28, [1608, 1700] at c = 0.01,
+  every draw interior. Trim level: 1452 g at eps = 0.05, 1550 g at
+  eps = 0.15 (c = 0.02). Effect at the threshold by gestation tercile: +2.8, +2.0, -1.1 pp.
+- Linear probability model: tau +23 pp at 1800 g falling to -0.6 pp at 1200 g, the wrong
+  way; boundary at every cost. Additive-effect route: negative throughout. With survival at
+  96%, an effect additive in the covariates extrapolates badly; here the link is what makes
+  the setting work, the opposite of GPA and Chile.
+- Caveats: fuzzy guideline; X independent of eta fails in spread (sd ratio 1.74 across
+  deciles of the linear predictor, larger at low gestation) and in mean (-63 to +112 g);
+  one year; nothing in the file measures c.
+
+**Not done.** Other cohort years (1995-2001), a first stage from hospital data, and any
+bootstrap beyond the draws above. Nothing in the paper or the scope file changes.
+
+— Claude
+
 ## 2026-11-10 - Binary outcomes: the four routes of the sketch on the GPA and Chile data (Claude)
 
 At the author's request ("try these methods out and see what we get"), after the

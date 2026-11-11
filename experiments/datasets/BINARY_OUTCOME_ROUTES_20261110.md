@@ -137,3 +137,48 @@ at the threshold sit (large eta-hat), and should not be read closely.
 
 Not done: no bootstrap (each route is a point estimate on one split, seed 1), no
 sensitivity to eps or to the policy set, and no check of the logit fit's calibration.
+
+## Addendum (2026-11-11): very low birth weight, where the link matters
+
+A third setting, built at the author's request: the NCHS 2002 birth-cohort linked
+birth/infant-death file (`experiments/datasets/vlbw/`), Q = birth weight in grams, the
+1500 g very-low-birth-weight line (treat below; mirrored score), Y = survival to one year,
+score covariates gestation, plurality, sex and the mother's characteristics, effect
+covariate gestation. Sample: reported weights 500-2500 g with a known gestation
+(n = 285,610; 16.8% treated; survival 96.0%); eps = 0.1; policy set 1200-1800 g.
+Runs: `--settings vlbw --cost c`, outputs in `experiments/runs/binary_outcome_routes_vlbw/`.
+
+Local check at 1500 g (local linear, triangular kernel): death -1.5 pp (se 1.2) at
+h = 50 g, -0.7 pp (0.7) at h = 100 g below the line, the sign of Almond et al. (2010).
+
+| route | tau at 1800 g | at 1500 g | at 1200 g | optimum, c = 0 | c = 0.01 | c = 0.02 | c = 0.03 |
+|---|---|---|---|---|---|---|---|
+| lpm | +0.229 | +0.118 | -0.006 | 1800 (edge) | 1800 | 1800 | 1800 |
+| additive | -0.012 | -0.029 | -0.047 | 1200 (edge) | 1200 | 1200 | 1200 |
+| logit_sp | +0.004 | +0.021 | +0.074 | 1800 (edge) | 1653 | 1508 | 1425 |
+| logit_emp | +0.004 | +0.022 | +0.074 | 1800 (edge) | 1657 | 1520 | 1425 |
+
+tau is the survival gain of the marginal infant (c = 0); the optimum is the pooled
+argmax in grams; the four rotations at c = 0.02 span 1450-1560 g. Trim level (logit_emp,
+c = 0.02): 1452 g at eps = 0.05 (window 93% of the sample), 1550 g at eps = 0.15 (21%).
+Bootstrap (20 full re-estimation draws over births, logit_emp, average of the rotations):
+1512 g, sd 23, percentile 95% [1476, 1543] at c = 0.02; 1659 g, sd 28, [1608, 1700] at
+c = 0.01; every draw interior (`bootstrap.json`).
+
+- **This is the case the note anticipated.** Under the logit the benefit of the extra care
+  grows as weight falls, +0.4 pp of survival at the 1800 g margin to +7.4 pp at 1200 g, an
+  aligned pattern. With c = 0 everyone under 1800 g should be treated; a per-infant cost
+  in survival units makes the crossing interior, and the deployed 1500 g line is the
+  optimum for a cost of about 2 pp. The two logit routes agree within 12 g.
+- **The linear probability model fails here, not just differs.** Survival is 96% on
+  average, so an effect additive in gestation and the other covariates extrapolates to
+  +23 pp at 1800 g and falls the wrong way; the criterion is monotone and the optimum sits
+  at the edge for every cost. The additive-effect route is negative throughout. The link
+  is what makes the setting work, the opposite of the GPA and Chile cases.
+- **Effect by gestation tercile at the threshold (logit):** +2.8, +2.0 and -1.1 pp
+  (least to most mature), as one would expect; the LPM gives +8.9, +15.4 and +28.3.
+- **Caveats.** The 1500 g rule is a guideline, not a statute, and ventilation shows no
+  clear jump in this one-year file. $X\perp\eta$ fails in spread (sd ratio 1.74 across
+  deciles of the linear predictor; larger spread at low gestation) and in mean (-63 to
+  +112 g). The 500-5000 g sample leaves no supported window under the design rules.
+  Nothing drives c in the data; it is a free parameter reported as a sweep.
