@@ -367,6 +367,51 @@ data already on this machine and is the cheapest check.
 - **Judgment.** 1, 2, 3, 4 met; 5 fails (a few hundred respondents near 31; the NLSY AFQT
   is from a norming test, not the enlistment test, so the rule is very fuzzy).
 
+## Settings where a zero cost is reasonable (added 2026-11-11)
+
+Written after the pooled VLBW run, at the author's request ("think if we have settings where
+it is reasonable for the cost to be 0"). With c = 0 an interior optimum needs the effect of
+treatment on Y to change sign across the score, so the harm of treating the wrong units must
+already be inside Y. A transfer of money or care to units that can only gain (GPA, the Chile
+lines, SNAP, Medicaid, VLBW) never does that and always needs a cost. Three families do.
+
+**Treatments with their own toxicity** (the outcome nets the harm):
+
+- Chemotherapy by the Oncotype score (number 1 above): TAILORx found no benefit below 25 and
+  real toxicity, so survival to five years should cross zero inside 11-40. The cleanest case;
+  waits for the author's SEER application.
+- Adjuvant chemotherapy by tumor size, SEER lung (number 10): same logic, but the size is
+  barely explained by X.
+- Transfusion by hemoglobin threshold (7 versus 8 g/dL; restrictive-strategy trials): MIMIC-IV
+  on PhysioNet, credentialed access; the rule is fuzzy and the score is a lab value.
+- Induction or cesarean by estimated fetal weight (the 4000-4500 g macrosomia guideline): the
+  maternal harm is visible only in a composite Y, and the NCHS file has the actual weight,
+  not the estimate the decision used.
+
+**Assignment between two arms that cost about the same** (which arm, not whether to spend):
+
+- Remedial versus regular placement by a placement-test score (Texas and Florida studies;
+  Scott-Clayton and Rodriguez 2015, Martorell and McFarlin 2011): remediation delays the
+  students who did not need it and may help the weakest; Y = on-time degree. Data restricted
+  in those states; a public variant is not known yet.
+- Selective admission by class rank or exam score, THEOP (number 6): mismatch can hurt
+  marginal admits; Y = graduation. Public-use files at the Princeton OPR archive with
+  registration (Claude can register); the rank is coarsened, to verify.
+- Vocational versus academic track by score (Chile: university versus technical enrollment
+  could be recast this way from the files in hand, but that is not the money line, and the
+  458 line shows a one-sided jump).
+- Chapter 7 versus Chapter 13 by the bankruptcy means test (number 12): the public IDB file
+  lacks household size; would need PACER-type data.
+
+**Outcomes defined net of the treatment's downside:** a loan-approval rule with Y = no
+default or bankruptcy afterwards; a UI extension with Y = reemployed at a better wage. The
+SBA file (`sba_7a/`) has Y = repaid, but its treatment is the guarantee level, not approval,
+so the effect never turns negative.
+
+For the settings built so far the answer is no: none has a sign-changing effect. The two
+candidates that remove the cost question are Oncotype (author's application) and THEOP
+(registration).
+
 ## Not usable (checked and rejected)
 
 - **NCHS 2500 g low-birth-weight line.** Same files as `vlbw/`; Almond, Doyle, Kowalski and
