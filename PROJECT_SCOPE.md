@@ -258,9 +258,18 @@ only when the author asks; it does not change the sections above.
     "loading");
   - "utility" (not "welfare"); "independent noise" (not "exogenous noise");
     "confounding" (not "endogeneity").
-  Kept: "representer", "latent ability", and literature names such as "single-index
-  model". LaTeX labels keep their old keys. Propose any further rename to the author
-  first.
+  Second pass (2026-11-11): "score regression" (not "first stage"; "score-regression
+  fold" for I_gamma, "the error in gamma-hat"); "estimated residual / covariate" (not
+  "generated residual / regressor"; "data generated under ..." stays); "units at the
+  threshold" (not "marginal units"; "marginal density" stays; Proposition 1 is the
+  "Threshold-derivative representation"); "set of candidate thresholds" for Phi (not
+  "policy set") and "class of threshold rules" (not "policy class"). Section 1 cites
+  the statistics literature on individualized treatment rules (Murphy 2003; Qian and
+  Murphy 2011; Zhao et al. 2012) beside policy learning.
+  Kept: "representer", "latent ability", "Error in variables" and "Policy learning"
+  (keywords), and literature names such as "single-index model", "policy learning",
+  "marginal policy change". LaTeX labels keep their old keys. Propose any further
+  rename to the author first.
 
 ## Open questions for the author
 
@@ -309,6 +318,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-11 | Second statistics-terms pass in all manuscript files outside prelim/: first stage -> score regression, generated -> estimated, marginal units -> units at the threshold, policy set -> set of candidate thresholds; cite Murphy 2003, Qian-Murphy 2011, Zhao et al. 2012 in Section 1; keep "latent ability" and the keywords | Author: "1,2,3,4. I'm fine with ability adn error in variables" (2026-11-11); manuscript 0ef0a95, 751904b |
 | 2026-11-10 | Econometrics terms replaced in all manuscript files outside prelim/: index -> linear predictor, sieve -> spline, loading -> gradient/coefficient, welfare -> utility, and cutoff -> threshold, running variable -> score in the notebook, sketches and storage too (mapping under "How we work") | Author: "use linear predictor", "Do all the recommended wording changes", "implement to all files except the locked prelim ones", "Also change cutoff to threshold in those files" (2026-11-10); manuscript 5dc0f8d, merge 55c63e1 |
 | 2026-11-10 | Statistics terms preferred to econometrics terms; Q is "the score" throughout (was "running variable" in seven places) | Author, 2026-11-10; manuscript 01b3fd2 |
 | 2026-11-09 | Main-text material moved to the supplement (D1), originals kept in storage/; supplement now eight appendices (Appendix 8: further directions) | Log: "Follow-up: main-text material moved to the supplement (D1)" (2026-11-09) |
