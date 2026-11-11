@@ -202,3 +202,29 @@ which measures the inspection schedule, not exits). Every route puts the optimum
 the score poorly (R^2 = 0.14), and the score is adjudicated and manipulated at the line
 (5,744 inspections score 12, 4,806 score 13, 214 score 14: Ho 2012), so neither the density
 of the linear predictor nor the residual's independence is credible. Dropped.
+
+### SBA 7(a) loans, the $150,000 guarantee notch (2026-11-11): boundary; score manipulated
+
+`experiments/datasets/sba_7a/` (FOIA file, FY2001-2016 resolved standard-program loans,
+n = 348,792; 42% at or below $150,000; charge-off 18%). Treated = the 85% guarantee (at or below
+the line; mirrored score), Y = repaid (1 - charge-off), effect covariate the loan term, policy
+set $100k-$250k. The marginal repayment gain from the higher guarantee rises with the loan size
+under every route (logit: +3.1 pp at $100k, +3.9 pp at $150k, +5.4 pp at $250k), so the optimum
+is the top of the policy set at c = 0 and at c = 0.02 (the additive route is flat and sits at
+the bottom). A cost can only produce an interior minimum here. The score is also manipulated:
+23,842 loans in ($140k, $150k] against 2,563 in ($150k, $160k], 19,824 exactly at $150,000
+(Bachas, Kim and Yannelis 2021), so the density of the linear predictor is not what the model
+assumes near the line. Kept as the negative control it was expected to be.
+
+### CPS ASEC, Medicaid eligibility at 138% of the poverty line (2026-11-11): boundary
+
+`experiments/datasets/cps_medicaid/` (survey years 2016-2020, adults 19-64 in expansion states,
+n = 282,414; 13% income-eligible; Medicaid 15%, uninsured 10%). Treated = income at or below
+138% (mirrored), Y = Medicaid coverage, or insured (1 - uninsured); effect covariate age;
+policy set 80-220% of the poverty line. Coverage is take-up, not an outcome of coverage: the
+marginal effect on Medicaid is flat (logit +10 pp at every threshold; LPM +20 pp) and positive,
+so every route treats everyone up to 220%; the effect on being insured is zero under the logit
+(-0.06 pp) and the routes split between the two edges on noise. The covariates explain the
+income ratio weakly (R^2 = 0.16), and the ratio is the Census poverty ratio, not the
+administrative MAGI measure, so the line is fuzzy on both sides. Not usable as a utility
+setting; a health outcome measured after coverage would be needed.

@@ -9,6 +9,37 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-11 - Binary outcomes: six more settings built or checked; none beyond VLBW gives an interior optimum (Claude)
+
+At the author's request ("do both; attempt all the ones we have; also download some more
+datasets"). Builds by subagents, runs by Claude with `experiments/scripts/binary_outcome_routes.py`
+(generic `build_sample`, `GENERIC` settings); verdicts in
+`experiments/datasets/BINARY_OUTCOME_ROUTES_20261110.md` (addenda) and the new rows in
+`experiments/datasets/CATALOG.md`. Every scripted download checked the host's robots.txt first;
+none touched data.nber.org.
+
+- **Waiting for the author (READMEs with the steps):** `chile_cae/` (PSU 475, the CAE loan;
+  DEMRE and MINEDUC refuse scripted reads) and `seer_oncotype/` (Research Plus application).
+  These two are the candidates that meet every criterion.
+- **Built and run, boundary:** `sba_7a/` (349k resolved loans, the marginal repayment gain
+  rises with loan size, +3.1 to +5.4 pp, so no cost gives a maximum; 19,824 loans sit exactly
+  at $150,000, Bachas et al. 2021) and `cps_medicaid/` (282k adults; coverage is take-up, the
+  effect is flat at +10 pp under the logit; the insured effect is zero).
+- **Built and not usable:** `nyc_restaurants/` (R^2 of the score on X 0.14; 22:1 bunching at
+  13 against 14, Ho 2012).
+- **Checked and not usable:** `fjc_bankruptcy/` (the public IDB file has no household size,
+  so the means-test score cannot be formed; fjc.gov disallows the IDB paths; the DOJ median
+  tables fetcher is kept) and the 5000 g macrosomia line in the NCHS file (0.3% treated, no
+  supported window).
+- **Lesson, again:** the candidate list's criteria predicted every outcome. What separates VLBW
+  is an effect that is largest for the units the rule targets and fades across the score, plus a
+  cost that makes the crossing interior. Settings whose outcome is take-up (Medicaid) or whose
+  score is manipulated (SBA, NYC) cannot do that.
+
+Nothing in the paper or the scope file changes beyond the side-track bullet of this morning.
+
+— Claude
+
 ## 2026-11-11 - Follow-up: binary outcomes become a side track in the scope file; data search continues (Claude)
 
 Author decisions (2026-11-11): "Add the VLBW result to the scope file as a side track";

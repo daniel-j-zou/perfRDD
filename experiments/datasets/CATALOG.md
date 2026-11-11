@@ -385,3 +385,18 @@ Source note: `DOSE_SCHEDULE_DATASETS_20261028.md` (2026-10-28, with entries to 2
 | `MULTI_RULE_DATASETS_20261027.md` | (2026-10-27 to 10-29) Datasets for group-threshold, either-or and two-score rules, in six rounds, with rule checks, readiness numbers, the 2026-10-28 decision to keep continuous Y, a waiting-for-the-author list and a not-usable list. Some of its waiting and "stub" entries are out of date (see nursing_homes, freddie_mac, hmda above). |
 | `DOSE_SCHEDULE_DATASETS_20261028.md` | (2026-10-28, edited to 2026-11-02) Datasets for the continuous-dose extension: required features, method, one results table with a verdict per dataset, lessons, and an author to-do list of downloads. |
 | `BINARY_OUTCOME_ROUTES_20261110.md` | (2026-11-10, addendum 2026-11-11) Exploratory run of four binary-outcome routes on GPA and Chile PAES, and the VLBW addendum. Paper and scope file unchanged; binary outcomes are outside the paper. |
+
+## Added after the catalog was written (2026-11-11)
+
+| folder | setting | outcome | data on this machine | status |
+|---|---|---|---|---|
+| chile_cae | Chile PSU 475 line for the state-guaranteed loan and scholarships (Solis 2017) | binary (enrollment) | no: author downloads from DEMRE by hand | waiting for the author; README has the steps |
+| seer_oncotype | SEER breast cancer, Oncotype DX recurrence score, chemotherapy above 25 | binary (5-year death) | no: SEER Research Plus application | waiting for the author; README has the steps |
+| sba_7a | SBA 7(a) loans, 85% vs 75% guarantee at $150,000 | binary (charge-off) | yes (910 MB FOIA csv) | built and run: boundary, score manipulated (negative control) |
+| nyc_restaurants | NYC DOHMH restaurant grades, A at 13 points | binary (next score, inspection gap) | yes (145 MB) | built and run: not usable (manipulated score, weak first stage) |
+| cps_medicaid | CPS ASEC, Medicaid eligibility at 138% of poverty in expansion states | binary (Medicaid, uninsured) | yes (0.45 GB) | built and run: boundary; coverage is take-up |
+| fjc_bankruptcy | bankruptcy means test at the state median income | binary (Chapter 13) | no (IDB paths disallowed; no household size in the file) | checked and not usable |
+
+Results and verdicts: `BINARY_OUTCOME_ROUTES_20261110.md` (addenda). The 5000 g macrosomia
+line, run from `vlbw/`, is also not usable (no supported window).
+
