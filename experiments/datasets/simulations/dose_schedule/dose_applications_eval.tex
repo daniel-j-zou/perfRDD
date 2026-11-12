@@ -21,8 +21,8 @@ Modifiers $Z$ & #8\\
 
 
 \title{Dose schedules on real data: a first evaluation}
-\author{Claude, for Daniel Zou \quad (2026-10-28; CWBH and Freddie Mac added 2026-11-02)}
-\date{}
+\author{Claude, for Daniel Zou}
+\date{2026-10-28; CWBH and Freddie Mac added 2026-11-02; Section 6 added 2026-11-12}
 
 \begin{document}
 \maketitle
@@ -328,6 +328,50 @@ as weeks paid $\times$ weekly benefit, with the predicted change in weeks.
 
 \includegraphics[width=\linewidth]{redesign_cwbh_weeks.png}
 
+\section*{6. More settings, and which ones a paper can use (2026-11-12)}
+
+You asked for every remaining idea to be tried, and then for interpretability to decide:
+the dose should be a lever someone actually sets, and $\eta=Q-\E(Q\mid X)$ should have a plain
+meaning. Only continuous outcomes count. Eight new datasets (ten settings) were screened (details in
+\texttt{DOSE\_SCHEDULE\_DATASETS\_20261028.md} and each folder's README).
+
+\begin{center}\small
+\begin{tabular}{>{\raggedright}p{2.7cm}>{\raggedright}p{4.6cm}>{\raggedright}p{6.2cm}l}
+\toprule
+Setting & Rule and data & Result & Verdict\tabularnewline
+\midrule
+Heparin (MIMIC-IV demo, 100 patients) & rate change on aPTT: raise below 55\,s, no change 55--90, lower 90--120, hold above 120 & nomogram matches 81\% of 209 titrations; 61\% ``no change''; next aPTT after 7.4\,h; about 137,000 titrations in the full data & promising\tabularnewline
+Insulin (same) & sliding-scale units on glucose & scales differ by patient and must be inferred (75--84\%) & caveats\tabularnewline
+Potassium (same) & KCl on serum potassium & half the draws below 3.5 get none: discretionary & no\tabularnewline
+Medicare low-wage boost & $0.5\max(p_{25}-\text{index},0)$, FY 2020--24; 100\% & wage effect null, same as a placebo & weak\tabularnewline
+Medicare IME & $1.35[(1+r)^{0.405}-1]$; 100\% & reference is a mass at $r=0$; estimates explode & no\tabularnewline
+Massachusetts Ch.\,70 & aid above base $=\max(\text{gap},\text{min.\ aid})$; 83--100\% & few large doses; unstable across seeds & weak\tabularnewline
+Michigan Proposal A & 2x formula and catch-ups; 99.4\% & 77\% of districts at one score; spending effects negative & weak\tabularnewline
+School meals (CEP, Texas) & $\min(1,1.6\,\text{ISP})$ above 40\% (25\% from 2024) & adoption is chosen; small effects; transport rejected & weak\tabularnewline
+SNAP (FoodAPS) & max.\ allotment $-0.3\times$ net income & public file cannot reproduce the benefit & no\tabularnewline
+Workers' comp (KY, MI) & $\min(2/3\text{ wage},\text{cap})$, cap raised & sample drops middle earners: only a before/after comparison & weak\tabularnewline
+\bottomrule
+\end{tabular}
+\end{center}
+
+\textbf{Interpretability of the settings that run.}
+\begin{itemize}
+\item \textbf{UI (CWBH)} is the best. The dose is the replacement rate and cap; $\eta$ is a
+ claimant's pay relative to workers of the same age, sex, race, education, family,
+ industry, work history, state and quarter. $\alpha$ is smooth in $\eta$ and the rotations agree.
+\item \textbf{Heparin} is second, if you obtain the full MIMIC-IV. The dose is the
+ nurse's rate change; $\eta$ is how much more anticoagulated the patient is than the last
+ aPTT, the current rate and patient traits predict (partly lab noise).
+\item \textbf{DSH} reads well ($\eta$: low-income patient share beyond size, teaching and
+ location, i.e.\ safety-net intensity), but its continuous outcome is only volume.
+\item \textbf{LCFF} has a trade-off. With the current $X$ (race shares, last year's score)
+ $\eta$ is opaque. With a plain $X$ (county, size, type, grade mix) $\eta$ is the high-need
+ share relative to similar LEAs in the county, but $R^2$ falls from 0.82 to 0.25 and only
+ LEAs with UPP 0.7--0.85 are supported ($+1.7$ to $+3.5$ points at \$1,000).
+\item \textbf{Taxi} is clean ($\eta$: fare beyond distance and time, mostly traffic) but the
+ policy is trivial.
+\end{itemize}
+
 \section*{Decisions for you}
 \begin{itemize}
 \item Which of UI, DSH and LCFF to develop. UI has the best policy story (optimal benefit
@@ -336,6 +380,11 @@ as weeks paid $\times$ weekly benefit, with the predicted change in weeks.
 \item CWBH data use: whether to write to Bruce Meyer or Patricia Anderson for the agreement
  the readme asks for.
 \item Freddie Mac: drop, or rebuild the fee grids for a local study of the 2023 change.
+\item Whether to apply for MIMIC-IV access (PhysioNet credentialing, CITI course), the
+ step that would make heparin a second application.
+\item Statins: whether U-M has signed the All of Us agreement (check at
+ researchallofus.org, ``Confirm DURA'').
+\item Whether a natural $X$ (lower $R^2$, readable $\eta$) should replace the current LCFF $X$.
 \item UI: reference dose at the cap (34\% of claimants, used here) or the floor (5\%).
 \item LCFF: all LEAs (used here) or districts only; whether to add 2019--20.
 \item CMS dialysis: another session has a duplicate \texttt{esrd\_qip/} folder.

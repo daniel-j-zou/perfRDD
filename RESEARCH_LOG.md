@@ -9,6 +9,53 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - Dose schedules: eight new datasets (ten settings) screened; interpretability becomes a criterion (Claude)
+
+Author: "Try all of these" (the 2026-11-04 list: MIMIC titration, school-finance formulas,
+CEP meals, Medicare wage index and IME, workers' comp, SNAP, EITC, statins), then "A big
+component of success is interpretability. The goal is to present in a paper. I want the
+treatment to make sense, eta to be mostly interpretable." Built by subagents in new folders,
+key numbers re-run here (rule checks reproduce). Details: rows and the new "Interpretability
+ranking" in `experiments/datasets/DOSE_SCHEDULE_DATASETS_20261028.md`; each folder's README.
+
+- **Decisions (author):** only continuous outcomes (2026-11-02, recorded here now); settings
+  are ranked by interpretability: the dose a real lever, eta nameable, a natural X preferred
+  to a higher R^2 (criteria 6-7 in the scan doc).
+- **Promising:** heparin in MIMIC-IV (`mimic_titration`, open demo only): a 4-step nomogram
+  (raise < 55 s, no change 55-90, lower 90-120, hold > 120) matches 81% of 209 titrations,
+  61% at "no change", R^2 0.23, next aPTT after a median 7.4 h; the full data would give about
+  137,000 titrations (95% range 71,000-222,000). Needs the author's PhysioNet credentialing.
+  Insulin sliding scales: per-patient scales inferred (75-84% match). Potassium: discretionary
+  (half the draws below 3.5 get none), does not fit.
+- **Weak or not sticking:** Medicare low-wage-index boost (rule 100%, wage effect null and
+  equal to a placebo); IME (100% rule, reference is a mass at zero residents); Massachusetts
+  Chapter 70 (rule 83-100%, few large doses, unstable across seeds); Michigan Proposal A (rule
+  99.4% over FY 2001-26, 77% of district-years at one score value, spending effects negative;
+  test scores need a manual download); CEP in Texas (57,310 site-years, adoption chosen, the
+  modifier test rejects); SNAP in FoodAPS (the public file cannot reproduce the benefit);
+  workers' comp, Meyer-Viscusi-Durbin data from the R package `wooldridge` (the published
+  sample drops middle earners, so it reduces to their difference in differences).
+- **LCFF with an interpretable X** (county, size, type, grades, disability share; no race
+  shares or lagged score): eta is the high-need share relative to similar LEAs in the county,
+  but R^2 falls from 0.82 to 0.25 and only UPP 0.7-0.85 is supported (+1.7 to +3.5 points at
+  $1,000). Interpretability and support pull against each other there.
+- **Ranking for a paper:** CWBH UI first (pay level relative to similar workers; stable
+  effects), heparin second if the data come, then DSH, LCFF and taxi with caveats.
+- **Access research** (no downloads): All of Us needs U-M's signed DURA (not verified); U-M
+  DataDirect needs faculty sponsorship and an IRB number for record-level data; CPRD cost
+  recovery (2019 figure about GBP 15,000 per study); FoodAPS restricted file via an enclave;
+  EITC credible only with a lagged score (Dahl and Lochner 2012). In March 2026 ACC/AHA
+  replaced the Pooled Cohort Equations with PREVENT and lowered the statin threshold from
+  7.5% to 3%, which would give a second schedule.
+- **Robots.txt slips:** the CEP subagent made one request to ecfr.gov and two to
+  educationdata.urban.org before reading their robots.txt (both disallow those paths);
+  nothing was saved, and it switched to govinfo.gov. MI School Data disallows Anthropic
+  crawlers, so Michigan test scores are an author download. The Chapter 70 FY 2016-22
+  spreadsheets are Internet Archive copies of DESE files (author to accept or request).
+- **Disk:** 9.3 GB free; the new raw data total about 0.6 GB.
+
+— Claude
+
 ## 2026-11-11 - Introduction diagnosis; prior-work facts verified for the rewrite (Claude)
 
 Author: "I want to rethink the introduction ... it does not compare to previous papers

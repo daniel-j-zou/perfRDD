@@ -16,6 +16,16 @@ next paper, outside `PROJECT_SCOPE.md`.
 4. An outcome after the dose, and enough units.
 5. Best: a second schedule for comparable units (another state, year, vendor or rate table),
    which makes the score-direction modifier testable (one one-to-one schedule cannot).
+6. **The outcome is continuous** (author, 2026-11-02): binary outcomes such as exit or default
+   are out.
+7. **Interpretable for a paper** (author, 2026-11-12): "A big component of success is
+   interpretability. The goal is to present in a paper. I want the treatment to make sense,
+   eta to be mostly interpretable." So the dose should be a lever a policymaker or clinician
+   actually sets (a benefit amount, a grant, a drug dose), and X should be a natural set of
+   observable traits, so that eta = Q - E(Q | X) reads as something nameable (earning
+   capacity, need beyond what demographics predict, a patient's response). A higher R^2
+   bought with covariates that make eta opaque (for example last year's outcome) is a bad
+   trade.
 
 ## Method used
 
@@ -50,6 +60,14 @@ Runs: `python -m experiments.scripts.dose_schedule_apply <name>`, logs and JSON 
 | `cms_esrd_qip` (new): dialysis Quality Incentive Program, PY 2014-2024 | Medicare payment cut 0 / 0.5 / 1 / 1.5 / 2% on TPS minus the year's minimum (10-point steps); reproduced for 91,681 of 91,681 facility-years | 57,328 | 0.46 (0.25 within year) | cuts of 0.5-1% for facilities 0-30 points below the minimum | TPS two years later: -0.4 to +1.5 points for a 0.5-1% cut (sd of Y 16.5; rotation sd 0.3-1.4), i.e. no detectable effect; 1.5-2% cuts too rare (768 and 451 facility-years) | 0.04 (se 0.06): not rejected | weak: clean rule and no bunching, but a null effect and rare high doses. Another session has a duplicate `esrd_qip/` (NBER mirror) |
 | `cms_hrrp` (new): readmissions penalty | continuous cut, capped at 3%, from six readmission ratios (multi-score) | 10,608 | 0.14 | not run | not run | not run | weak fit: several scores, 84% already penalised at the heart-failure kink |
 | `nhanes_lunch` (in hand) | free / reduced / paid lunch on the income-poverty ratio | 12,730 | 0.31 | wide | noisy, signs change across bins | not run | does not stick (small n, eligibility not take-up) |
+| `mimic_titration` (new, 2026-11-12; open 100-patient demo only) | heparin: infusion rate change (units/kg/h) on aPTT, a 4-step nomogram (raise < 55 s, no change 55-90, lower 90-120, hold > 120); insulin: sliding-scale units on finger-stick glucose; potassium: KCl on serum K | heparin 209 events (21 patients); insulin 808 / 328; potassium 981 | heparin 0.23, insulin 0.58-0.70, potassium 0.48 | not run beyond potassium (pipeline check only) | heparin nomogram matches 81% of titrations, 61% at "no change", next aPTT after a median 7.4 h; insulin scales differ by patient and must be inferred (75-84% per-patient match); potassium is discretionary (half the draws below 3.5 get none) | - | **heparin promising** (needs full MIMIC-IV: about 137,000 titrations projected); insulin promising with caveats; potassium does not fit |
+| `wc_injury` (new): workers' compensation, KY and MI (Meyer, Viscusi and Durbin 1995; R package `wooldridge`) | weekly benefit = min(2/3 wage, cap), cap raised in each state | 7,150 | 0.35 | little: the published sample drops middle earners, so low and high earners barely overlap in eta (35% KY, 21% MI) | log weeks: high earners +0.20 after the cap rise, low earners +0.01 (MVD's difference in differences) | - | weak: the design reduces to MVD's comparison |
+| `medicare_wage_index` (new): FY 2016-2023 | low-wage-index boost = 0.5 x max(p25 - wage index, 0), FY 2020-24; reproduced 100% | 14,547 hospital-years | 0.71 | wide | log average hourly wage four years on: -0.015 to +0.019 at boosts of 1-3 points, same size as a placebo on FY 2018-19 | absorbed (r2 1.00) | weak: null, abstract dose |
+| `medicare_ime` (new): FY 2005-2024 | IME = c x [(1 + residents per bed)^0.405 - 1]; reproduced 100% | 61,997 | 0.36 | low doses only | log cases noisy, high doses explode | -0.0006 (se 0.0002), r2 0.99 | does not stick: reference is a mass at r = 0 |
+| `ma_chapter70` (new): FY 2016-2025 | aid above base per pupil = max(foundation gap, minimum aid $0-160); reproduced 83-100% by year, every miss a published overlay | 2,268 district-years | 0.90 (0.39 without last year's gap) | most bins up to $250 | MCAS ELA % met: +0.5 to +2.7 at $250 vs $30; unstable across seeds at $500+ | not rejected (r2 0.97) | weak: few large doses, eta opaque |
+| `mi_proposal_a` (new): FY 2001-2024 | foundation-allowance increase above the basic increase (2x formula, catch-ups, equity payments); reproduced 99.4% | 11,349 district-years | 0.31 within year | only near the minimum (77% of district-years sit exactly at it) | change in current spending: negative, -50 to -100 $/pupil at small doses; test scores need a manual download (MI School Data disallows bots) | not rejected | weak |
+| `cep_meals` (new): Texas school sites 2016-2026 | offered free-claiming share = 1{ISP >= 0.40, 0.25 from 2024-25} x min(1, 1.6 ISP) | 57,310 site-years | 0.63 | wide | lunch participation +0.010 to +0.035 at offered 0.64-0.85; adoption is chosen at group and cycle level, no jump at the threshold | -0.545 (se 0.050): rejects | weak |
+| `snap_foodaps` (new): FoodAPS-1 public file, 2012-13 | SNAP benefit = maximum allotment - 0.3 x net income | 1,288 households | 0.34 | - | unstable | - | does not stick: public file cannot reproduce the benefit (15-22% in the recorded $50 bin) |
 
 Partly built: `chile_sep` (Art. 16 tiers verified against the law text for 2008, 2011 and 2012; SIMCE school files and
 covariates in hand). The score Q is blocked: datosabiertos.mineduc.cl and the other MINEDUC hosts did not answer
@@ -58,6 +76,22 @@ from this machine on 2026-10-28, so `load_dose()` raises FileNotFoundError and t
 
 Figures and a short evaluation: `simulations/dose_schedule/dose_applications_eval.tex` (alpha, psi and U
 for UI (Upjohn and CWBH), DSH, LCFF, taxi and Lending Club), made by `experiments/scripts/dose_schedule_figures.py`.
+
+## Interpretability ranking (2026-11-12)
+
+The author's test (criterion 7): does the dose make sense as a lever, and does eta have a
+plain meaning? Settings that run but fail this test are not paper material.
+
+| Setting | Dose | What eta means | Fit for a paper |
+|---|---|---|---|
+| UI, CWBH (and Upjohn) | weekly benefit as a share of the cap: the replacement rate and the cap are the policy | log best-quarter earnings relative to claimants of the same age, sex, race, education, family, industry, work history, state and quarter: pay level relative to similar workers | **best**: stable effects, alpha smooth in eta |
+| Heparin (MIMIC) | change in the heparin rate set by the nomogram | aPTT relative to what the previous aPTT, the current rate and patient traits predict: how much more anticoagulated the patient is than expected | **strong if the full data are obtained**; eta partly includes lab noise |
+| Taxi | the middle tip suggestion | fare beyond distance and time: mostly traffic delay | clean mechanics, trivial policy |
+| Medicare DSH | add-on % of each payment | low-income patient share beyond size, teaching and location: safety-net intensity | readable, but the only continuous outcome is volume |
+| LCFF | concentration grant $ per student | with the current X (race shares, last year's score) opaque; with a plain X (county, size, type, grades) the high-need share relative to similar LEAs in the county, but then R^2 falls to 0.25 and only high-need LEAs are supported (+1.7 to +3.5 points at $1,000, UPP 0.7-0.85) | trade-off between interpretability and support |
+| Insulin (MIMIC) | sliding-scale units | glucose beyond what the last value and insulin predict | scales must be inferred |
+| Lending Club | interest rate | Lending Club's information beyond the borrower data | local only |
+| Others (wage index, IME, Chapter 70, Proposal A, CEP, SNAP, workers' comp) | abstract dose, chosen dose, or rule not reproduced | eta opaque or the score degenerate | no |
 
 ## Lessons so far
 
@@ -87,3 +121,7 @@ for UI (Upjohn and CWBH), DSH, LCFF, taxi and Lending Club), made by `experiment
 | SEDA district test scores (for Title I) | achievement outcomes | entering an e-mail at https://edopportunity.org/opportunity/data/ accepts a data use agreement; download district achievement CSVs into `experiments/datasets/title1/data/raw/seda/` |
 | Chile SEP priority-student files (on hold, author 2026-10-29) | the score Q for `chile_sep` | when datosabiertos.mineduc.cl answers (it may need a Chilean IP), run `experiments.datasets.chile_sep.download`; else ask estadisticas@mineduc.cl, or decide whether Internet Archive copies of the official files are acceptable |
 | Spain MCVL (UI with dependent-based caps) | large administrative UI data | institutional application (https://www.seg-social.es/descarga/es/120853); eligibility of non-EU institutions unclear |
+| **MIMIC-IV full access** (for heparin, insulin) | the best medical setting: about 137,000 heparin titrations projected | PhysioNet account with institutional e-mail (https://physionet.org/register/); CITI "Data or Specimens Only Research" via the "Massachusetts Institute of Technology Affiliates" affiliation (https://physionet.org/about/citi-course/), upload the training report; apply for credentialing with your supervisor as reference (https://physionet.org/settings/credentialing/); sign the DUA (https://physionet.org/sign-dua/mimiciv/3.1/). PhysioNet warned of review delays on 2026-06-18. Steps and export SQL in `mimic_titration/README.md` |
+| All of Us (statins) | LDL before and after statins, the 2026 guideline change (7.5% -> 3% risk) as a second schedule | confirm that U-M has a signed DURA (Confirm DURA tool at https://www.researchallofus.org/register/ or aoudurasupport@vumc.org); then register, verify identity, training, code of conduct; $300 initial credits |
+| Michigan test scores (optional; Proposal A is weak) | outcome for `mi_proposal_a` | MI School Data disallows bots: download M-STEP grades 3-8 district files by hand (https://www.mischooldata.org/grades-3-8-state-testing-includes-psat-data-performance) into `mi_proposal_a/data/raw/mischooldata/` |
+| Chapter 70 archive copies (optional) | FY 2016-22 spreadsheets came from the Internet Archive | say whether archive copies of the official DESE files are acceptable, or ask sfinance@doe.mass.edu |
