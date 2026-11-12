@@ -9,6 +9,29 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-11 - North Carolina sentencing files fetched on the author's instruction; the grid design is feasible, the score is coarse (Claude)
+
+Author: "Yes, fetch them" (the NC DAC offender public-information bulk files; the host's
+robots.txt is `Disallow: /`, recorded in `experiments/datasets/nc_sentencing/README.md`). A
+Sonnet subagent fetched the 13 files once each (about 0.8 GB zipped, 12 GB extracted, in the
+git-ignored `data/raw/`; names of real people are in three tables and nothing prints them),
+read the `.des` layouts and tabulated the Sentence Component table; Claude checked the
+outputs. Findings: `PRPOINTS` and `PRLEVEL` on all 4.85 million sentence components (1.29
+million offenders, convictions to 2026-11-06); `PUNISHTYP` active / intermediate / community;
+for felony sentences convicted after 2011-12-01 the active share jumps from about 0.24 to
+0.81 at the level lines (class E at 5 vs 6 points, F 9 vs 10, G 13 vs 14, H 17 vs 18), fuzzy
+on both sides; later commitments link by offender id at 99% and a new-offense commitment is
+a later row with a new conviction date (revocations are typed through `PENCLASS`). Missing:
+admission type, probation termination reason, education, judge and plea data. For PerfRDD
+the fit is poor: the score is an integer with five lines per class and it is computed from
+prior convictions that the files hold, so the covariates must leave the criminal history out
+or the design degenerates. Kept as a reserve two-sided setting; no regressions or density
+tests were run. Disk is at 99% (8 GB free); the four tables not needed (disciplinary,
+financial, parole review, special conditions; about 4.3 GB) and the zips can be deleted on
+the author's word.
+
+— Claude
+
 ## 2026-11-11 - Follow-up: Chile grade retention run through the binary routes; not usable (Claude)
 
 Author: "Yes, build it" (the retention setting), with the instruction to delegate easier

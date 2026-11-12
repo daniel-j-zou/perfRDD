@@ -1,0 +1,113 @@
+OFNT3AA1 zip contains: OFNT3AA1.des (0.0 MB); OFNT3AA1.dat (559.3 MB)
+APPT7AA1 zip contains: APPT7AA1.des (0.0 MB); APPT7AA1.dat (471.0 MB)
+INMT4AA1 zip contains: INMT4AA1.des (0.0 MB); INMT4AA1.dat (520.8 MB)
+INMT4BB1 zip contains: INMT4BB1.des (0.0 MB); INMT4BB1.dat (178.0 MB)
+OFNT3BB1 zip contains: OFNT3BB1.des (0.0 MB); OFNT3BB1.dat (1230.6 MB)
+OFNT3CE1 zip contains: OFNT3CE1.des (0.0 MB); OFNT3CE1.dat (4548.9 MB)
+OFNT3DE1 zip contains: OFNT3DE1.des (0.0 MB); OFNT3DE1.dat (320.0 MB)
+INMT4CA1 zip contains: INMT4CA1.des (0.0 MB); INMT4CA1.dat (615.1 MB)
+INMT9CF1 zip contains: INMT9CF1.des (0.0 MB); INMT9CF1.dat (2164.5 MB)
+OFNT1BA1 zip contains: OFNT1BA1.des (0.0 MB); OFNT1BA1.dat (1199.9 MB)
+OFNT9BE1 zip contains: OFNT9BE1.des (0.0 MB); OFNT9BE1.dat (51.3 MB)
+APPT9BJ1 zip contains: APPT9BJ1.des (0.0 MB); APPT9BJ1.dat (0.5 MB)
+field lists written to layouts.txt
+
+SC records: 4,849,557; distinct offenders: 1,292,340
+conviction date (CMIMPSDT) min/max: 1900-02-01 2026-11-06 | n valid: 4849547
+effective date (CMSENTDT) min/max: 1900-01-06 2083-09-30
+PRPOINTS: non-missing 4849557 ; values != '000': 2300514
+PRPOINTS top: {'000': 2549043, '005': 569464, '001': 470270, '002': 306898, '003': 183805, '004': 173755, '006': 98363, '007': 74657}
+PRLEVEL non-missing: 3108560
+conviction year counts (1980..2026, every 5th): {1980: 25975, 1985: 53595, 1990: 98379, 1995: 117674, 2000: 130599, 2005: 140608, 2010: 139233, 2015: 102490, 2020: 60247, 2025: 67744}
+
+PUNISHTYP (top 12):
+PUNISHTYP
+COMMUNITY SS (DCC)    1342678
+ACTIVE  SS             708403
+INTERMEDIATE SS        691786
+DWI                    633369
+PRE-SS (FAIR) DCC      417529
+POST RELEASE           326681
+FAIR MISDEMEAN         253345
+PRE-FAIR               216063
+FAIR FELONS            195558
+NON-N.C. OFF.           48999
+NON JUDGMENT CASES      14444
+PSI                       702
+
+CMSNTYPE (top 4):
+CMSNTYPE
+PROBATION                        2937247
+DEPT OF CORR   DIV OF PRISONS    1903613
+INTERSTATE COMPACT                  4350
+REGULAR PAROLE                      3374
+
+CMCMPSTA (top 5):
+CMCMPSTA
+<NA>        2945856
+ACTIVE      1807072
+CORRECT       36212
+AMENDED       24375
+COURT OR      15990
+
+Post-2011 rows (conviction >= 2011-12-01): 1,316,934; PUNISHTYP:
+pt
+COMMUNITY SS (DCC)    492438
+POST RELEASE          275878
+INTERMEDIATE SS       270327
+DWI                   158445
+ACTIVE SS              96884
+NON-N.C. OFF.          18882
+
+active = PUNISHTYP 'ACTIVE SS'; prison per CMSNTYPE in post-2011 rows: {'PROBATION': 869776, 'DEPT OF CORR   DIV OF PRISONS': 445483, 'REGULAR PAROLE': 1642}
+Post-2011 felony SS rows with level and a SS punishment type: 393,390
+
+Share ACTIVE SS by felony class (rows) x prior record level (cols):
+lev     I    II   III    IV     V    VI
+cls                                    
+B1   1.00  0.99  0.99  1.00  1.00  1.00
+B2   0.98  0.98  1.00  1.00  1.00  1.00
+C    0.88  0.91  0.96  0.99  1.00  1.00
+D    0.76  0.90  0.96  0.99  0.99  1.00
+E    0.15  0.18  0.73  0.97  0.99  0.99
+F    0.22  0.19  0.22  0.72  0.83  0.88
+G    0.10  0.10  0.13  0.26  0.88  0.96
+H    0.06  0.07  0.10  0.21  0.28  0.91
+I    0.03  0.03  0.04  0.13  0.18  0.21
+Cell sizes:
+lev      I     II    III     IV     V    VI
+cls                                        
+B1    2850   1101    498    295   163   124
+B2    1050    570    398    222   124   119
+C     1716    968    957    946   753   879
+D     2249   1125    958    832   594   953
+E    11608   5543   1120    727   537   774
+F    15875  10803   7071   1612   919  1005
+G     9497  16594  12708   5738  1055  1180
+H    48183  52799  35428  14638  8891  4180
+I    25619  35081  24880   8625  4397  5859
+
+Share of felony rows whose PRPOINTS falls in the band implied by PRLEVEL (I 0-1, II 2-5, III 6-9, IV 10-13, V 14-17, VI 18+): 0.941
+Active share by PRPOINTS around the grid jump (class: level change at points; n in brackets):
+ E (jump at 6): 3:0.17[1144]  4:0.23[1083]  5:0.24[954]  6:0.81[318]  7:0.79[229]  8:0.81[225]
+ F (jump at 10): 7:0.22[1550]  8:0.26[1529]  9:0.26[1238]  10:0.66[564]  11:0.69[442]  12:0.62[384]
+ G (jump at 14): 11:0.23[1580]  12:0.23[1431]  13:0.24[1080]  14:0.81[392]  15:0.90[268]  16:0.88[209]
+ H (jump at 18): 15:0.26[2551]  16:0.25[2242]  17:0.29[1665]  18:0.86[675]  19:0.88[580]  20:0.88[421]
+
+Post-2011 MISDEMEANOR SS rows by PRLEVEL (misdemeanor levels I-III use conviction counts): {'LEVEL II': 170195, 'LEVEL III': 167839, 'LEVEL I': 81464, 'LEVEL V': 210, 'LEVEL IV': 167, 'LEVEL VI': 56}
+
+Commitments (OFNT3BB1): 3,995,463; CMNEWPD: {'N': 2427678, 'Y': 992701, '': 575084}
+valid CMADMDTE: 992795  valid CMINTDTE: 3483897  adm range: 1921-09-30 2044-12-01
+commitments per offender (share with >=2): 0.57
+offenders with a post-2011 felony SS row: 209,334; with a commitment admitted >30d after first such conviction: 84,315
+INMT4AA1 CIDORNUM: 507,152 distinct ids
+APPT7AA1 CDDORNUM: 1,201,623 distinct ids
+OFNT3AA1 CMDORNUM: 1,300,675 distinct ids
+OFNT3BB1 CMDORNUM: 1,292,419 distinct ids
+INMT4BB1 CIDORNUM: 507,898 distinct ids
+SC ids found in INMT4AA1: 0.391; INMT4AA1 ids found in SC: 0.996
+SC ids found in APPT7AA1: 0.925; APPT7AA1 ids found in SC: 0.995
+SC ids found in OFNT3AA1: 1.000; OFNT3AA1 ids found in SC: 0.993
+SC ids found in OFNT3BB1: 1.000; OFNT3BB1 ids found in SC: 1.000
+SC ids found in INMT4BB1: 0.393; INMT4BB1 ids found in SC: 1.000
+ids in both Inmate and P&P profiles: 408,578

@@ -1,0 +1,38 @@
+fetch PublicTables.pdf expected 9106
+  got 9106
+fetch OFNT3AA1.zip expected 41296982
+  got 41296982
+  extracted OFNT3AA1
+fetch APPT7AA1.zip expected 48349547
+  got 48349547
+  extracted APPT7AA1
+fetch INMT4AA1.zip expected 47501029
+  got 47501029
+  extracted INMT4AA1
+fetch INMT4BB1.zip expected 21525984
+  got 21525984
+  extracted INMT4BB1
+fetch OFNT3BB1.zip expected 139373094
+  got 139373094
+  extracted OFNT3BB1
+fetch OFNT3CE1.zip expected 318405389
+  got 318405389
+  extracted OFNT3CE1
+fetch OFNT3DE1.zip expected 34748442
+  got 34748442
+  extracted OFNT3DE1
+fetch INMT4CA1.zip expected 29926321
+  got 29926321
+  extracted INMT4CA1
+fetch INMT9CF1.zip expected 96234213
+  got 96234213
+  extracted INMT9CF1
+fetch OFNT1BA1.zip expected 67208413
+  got 67208413
+  extracted OFNT1BA1
+fetch OFNT9BE1.zip expected 5445634
+  got 5445634
+  extracted OFNT9BE1
+fetch APPT9BJ1.zip expected 87104
+  got 87104
+  extracted APPT9BJ1
