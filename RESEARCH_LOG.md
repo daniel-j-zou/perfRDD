@@ -63,9 +63,13 @@ text still show the linear design, under four todo boxes.
 Reruns running, `experiments/runs/ds_section5_nonlinear/run_*.sh`:
 - Table 1: bias decomposition, 2000 reps at 16k and 64k, plus 1000 at 32k.
 - Table 3: eps sensitivity.
-- Table 2: coverage at 199 draws, then extended to 999.
 
 Results will follow as a new entry.
+
+Table 2 (bootstrap coverage) is deferred. Author: "lets not do bootstrap for now, but
+leave it as a to do" (2026-11-12). The run stopped with 96 of 500 data sets done at
+n = 4,000 (199 draws, `runs/ds_four_role_coverage_nl/`). `run_coverage.sh` resumes from
+them. Table 2 stays in the linear design under a todo box (manuscript board item).
 
 ## 2026-11-12 - The GLM extension written into the sketch (Claude)
 
