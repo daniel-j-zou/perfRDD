@@ -126,19 +126,38 @@ VLBW_POLICY_GRAMS = (1200.0, 1800.0)
 
 def build_vlbw(variant: str = "low", eps: float = 0.1, effect: str = "gestat"):
     """NCHS cohort files, mirrored score Q = -grams, treated iff weight < 1500 g.
-    ``low``: births of 500-2500 g in 2002; ``all``: 500-5000 g in 2002;
+    Base variants: ``low``: births of 500-2500 g in 2002; ``all``: 500-5000 g in 2002;
     ``pooled``: 500-2500 g in the 1995-2002 files; ``wide``: the same sample with the
-    policy set 1200-2200 g, for costs calibrated from the literature."""
+    policy set 1200-2200 g, for costs calibrated from the literature; ``long`` and
+    ``longwide``: as ``pooled`` and ``wide`` on the 1985-1991 and 1995-2002 files; ``early``:
+    1985-1991 only. The 1983 and 1984 files are left out: in some states they keep a 50%
+    sample of survivors with record weight 2 and every death, so unweighted they overstate
+    infant death (8.5% against 7.9% weighted at 500-2500 g in 1983), and the routes take no
+    record weights. A suffix sets a donut against heaping (Barreca et al. 2011): ``_d1500``
+    drops births recorded at exactly 1500 g, ``_d100`` drops every birth recorded at a
+    multiple of 100 g (the round-gram heaps, which carry higher mortality)."""
     from experiments.datasets.vlbw import adapter as V
-    weights = (500.0, 5000.0) if variant == "all" else (500.0, 2500.0)
-    years = V.YEARS if variant in ("pooled", "wide") else (2002,)
+    base, _, donut = variant.partition("_")
+    weights = (500.0, 5000.0) if base == "all" else (500.0, 2500.0)
+    early = tuple(y for y in V.EARLY_YEARS if y >= 1985)
+    years = {"pooled": V.YEARS, "wide": V.YEARS, "long": early + V.YEARS,
+             "longwide": early + V.YEARS, "early": early}.get(base, (2002,))
     Q, X, Y_death, phi0, d = V.mirrored(weights, years)
+    keep = np.ones(len(Q), bool)
+    grams_w = d.weight.to_numpy(float)
+    if donut == "d1500":
+        keep = grams_w != 1500
+    elif donut == "d100":
+        keep = (grams_w % 100) != 0
+    elif donut:
+        raise ValueError(f"unknown donut {donut!r}")
+    Q, X, Y_death, d = Q[keep], X[keep], Y_death[keep], d.loc[keep]
     Y = 1.0 - Y_death          # survival, so that a beneficial treatment has a positive effect
     Z = G._standardize(X)
     cols = {"gestat": ["gestat"], "gestat_plural": ["gestat", "twin", "triplet_plus"]}[effect]
     Xe = G._standardize(d[cols].to_numpy(float))
     data = Data(Q, Z, Xe, Y, phi0)
-    grams = (1200.0, 2200.0) if variant == "wide" else VLBW_POLICY_GRAMS
+    grams = (1200.0, 2200.0) if base in ("wide", "longwide") else VLBW_POLICY_GRAMS
     policy = (-grams[1], -grams[0])
     design = make_design(data, eps, policy)
     return data, design, {"n": len(Q), "cell": lambda s: float(np.floor(-s)) + 1.0}
@@ -495,7 +514,7 @@ def four_role(data: Data, design: M.Design, route: str, seed: int, curves: np.nd
 SETTINGS = {
     "gpa": [("gpa", y) for y in ("grad6", "grad5", "return2", "stay")],
     "chile": [("chile", y) for y in ("univ_2024", "any_2025", "univ_2025")],
-    "vlbw": [("vlbw", "low"), ("vlbw", "pooled"), ("vlbw", "wide")],  # "all" (500-5000 g) leaves no supported window; see the README
+    "vlbw": [("vlbw", v) for v in ['low', 'pooled', 'wide', 'pooled_d1500', 'pooled_d100', 'wide_d1500', 'wide_d100', 'long_d1500', 'long_d100', 'longwide_d1500', 'longwide_d100', 'early_d1500', 'early_d100', 'long', 'longwide']],  # "all" (500-5000 g) leaves no supported window; see the README
     "cae": [("cae", "univ_2024"), ("cae", "univ_2025"), ("cae", "any_2025")],
     "macro": [("macro", "5000g")],  # the 5000 g macrosomia line in the same file
     "sba": [("sba", "chargeoff")],

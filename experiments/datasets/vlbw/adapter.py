@@ -50,6 +50,153 @@ LAYOUT = {
     "venl30": (160, 160), "ven30m": (161, 161), "aged": (211, 213), "recwt": (223, 230),
 }
 
+# ---------------------------------------------------------------------------------------
+# Early cohorts 1983-1991 (added 2026-11-12). Almond et al. (2010) used 1983-1991 and
+# 1995-2002. The zips ``data/raw/LinkCO<yy>.zip`` hold ``LinkCO<yy>USden.dat`` (never
+# extracted: ``build`` streams it from the zip) and the numerator file. 1-based inclusive
+# positions from LinkCO<yy>Guide.pdf; see README.md, section "Early cohorts 1983-1991".
+#  * 1983-1988 (1978 certificate): record length 91 (93 with CRLF). The denominator record
+#    has the match status at 1 but no death items (no age at death), no tobacco, weight
+#    gain or ventilation; the record weight (91) is 1 or 2 (non-VSCP states are a 50% sample).
+#  * 1989-1991 (1989 revision): denominator-plus record length 225 (227 with CRLF), same
+#    layout as 1995-2002 apart from the positions below (age at death 213-215); every
+#    record has weight 1 (full file; no record-weight field).
+EARLY_YEARS = tuple(range(1983, 1992))
+EARLY_RECLEN = {**{y: 93 for y in range(1983, 1989)}, **{y: 227 for y in range(1989, 1992)}}
+
+_LAYOUT_8388 = {
+    "matchs": (1, 1), "resstat": (11, 11), "state": (27, 28), "csex": (38, 38),
+    "gestat": (39, 40), "dbirwt": (43, 46), "dplural": (50, 50), "fmaps": (53, 54),
+    "ormoth": (55, 56), "mracem": (57, 57), "mage": (58, 59), "meduc": (62, 63),
+    "dmar": (65, 65), "mplbir": (66, 67), "fage": (71, 72), "monpre": (78, 79),
+    "nprevist": (81, 82), "totord": (83, 84), "livord": (86, 87), "recwt": (91, 91),
+}
+_LAYOUT_8991 = {
+    "matchs": (1, 1), "resstat": (11, 11), "state": (24, 25), "mage": (30, 31),
+    "ormoth": (33, 33), "mrace3": (38, 38), "meduc": (39, 40), "dmar": (43, 43),
+    "mplbir": (44, 45), "totord": (47, 48), "livord": (49, 50), "monpre": (51, 52),
+    "nprevist": (54, 55), "fage": (61, 62), "gestflg": (72, 72), "gestat": (73, 74),
+    "csex": (78, 78), "dbirwt": (79, 82), "dplural": (87, 87), "fmaps": (90, 91),
+    "tobacco": (118, 118), "cigar": (119, 120), "wtgain": (126, 127),
+    "venl30": (160, 160), "ven30m": (161, 161), "aged": (213, 215),
+}
+# record weight (91) is 1 or 2 in 1983-84 only; in 1985-87 every record counts once (the guides'
+# record count equals the occurrence count; one 1987 record carries a stray 6 at 91), and in 1988
+# position 91 is the imputed race of mother (codes as position 57), not a weight.
+_NO_RECWT = {k: v for k, v in _LAYOUT_8388.items() if k != "recwt"}
+LAYOUTS = {**{y: LAYOUT for y in YEARS},
+           **{y: _LAYOUT_8388 for y in (1983, 1984)},
+           **{y: _NO_RECWT for y in (1985, 1986, 1987)},
+           1988: {**_NO_RECWT, "mrace_imp": (91, 91)},
+           **{y: _LAYOUT_8991 for y in range(1989, 1992)}}
+
+# 1983-1988 mother's race (position 57, detail) -> MRACE3 of 1995-2002 (1 white, 2 other, 3 black)
+_MRACE3_8388 = {1: 1.0, 2: 3.0, 3: 2.0, 4: 2.0, 5: 2.0, 6: 2.0, 7: 2.0, 8: 2.0, 0: 2.0}   # 9 unknown -> NaN
+
+
+def _early_zip(year: int) -> Path:
+    return RAW / f"LinkCO{year % 100:02d}.zip"
+
+
+def _digits(a: np.ndarray, lo: int, hi: int) -> np.ndarray:
+    """Numeric value of 1-based byte positions lo..hi of every record (NaN if any byte is
+    not a digit, e.g. blank)."""
+    sub = a[:, lo - 1:hi].astype(np.int64)
+    ok = ((sub >= 48) & (sub <= 57)).all(axis=1)
+    v = np.zeros(len(a), dtype=np.int64)
+    for i in range(sub.shape[1]):
+        v = v * 10 + (sub[:, i] - 48)
+    return np.where(ok, v.astype(float), np.nan)
+
+
+def _parse_early_chunk(a: np.ndarray, year: int) -> pd.DataFrame:
+    """One chunk (n x record length bytes) of a 1983-1991 denominator file into the frame
+    columns of ``build``; fields absent in a year are NaN. Code mappings to the 1995-2002
+    coding are listed in README.md (section Early cohorts)."""
+    L = LAYOUTS[year]
+    n = len(a)
+    nan = np.full(n, np.nan)
+    num = lambda c: _digits(a, *L[c]) if c in L else nan
+    early = year <= 1988
+    f = {}
+    f["death"] = ((a[:, 0] == 49) | (a[:, 0] == 50)).astype(float)  # MATCHS 1 matched, 2 late-filed matched death; 3 survivor
+    f["aged"] = nan if early else num("aged")                     # days; no death items in 1983-88
+    f["weight"] = num("dbirwt")                                   # grams, 9999 unknown
+    f["weight_imputed"] = np.zeros(n, bool)                       # no weight imputation flag before 1995
+    f["gestat"] = num("gestat")                                   # 17-47 (17-52 in 1983-88), 99 unknown
+    f["gest_imputed"] = np.zeros(n, bool) if early else (a[:, L["gestflg"][0] - 1] != 32)  # 1 clinical estimate, 2 imputed
+    f["plural"] = num("dplural")                                  # 1983-88: 3 = all higher multiples
+    f["csex"] = num("csex")                                       # 1 male, 2 female (same)
+    f["mage"] = num("mage")
+    if early:
+        o = num("ormoth")                                         # 00 non-Spanish, 01-05 Hispanic, 06-24 ancestry, 88/99 unknown
+        f["ormoth"] = np.where((o == 88) | (o == 99) | np.isnan(o), 9.0,
+                               np.where((o >= 1) & (o <= 5), o, 0.0))
+        r = num("mracem")
+        if "mrace_imp" in L:                                      # 1988: imputed race where position 57 is 9
+            r = np.where(r == 9, num("mrace_imp"), r)
+        f["mrace3"] = pd.Series(r).map(_MRACE3_8388).to_numpy(float)
+    else:
+        f["ormoth"] = num("ormoth")                               # 0 non-Hispanic, 1-5 Hispanic, 9 unknown (same)
+        f["mrace3"] = num("mrace3")
+    f["meduc"] = num("meduc")                                     # years 00-17, 99 unknown (same)
+    f["dmar"] = num("dmar")                                       # 1 married, 2 unmarried (same)
+    f["mplbir"] = num("mplbir")
+    f["livord"] = num("livord")
+    f["totord"] = num("totord")
+    f["monpre"] = num("monpre")
+    f["nprevist"] = num("nprevist")
+    f["fage"] = num("fage")
+    f["fmaps"] = num("fmaps")
+    for c in ("tobacco", "cigar", "wtgain", "venl30", "ven30m"):
+        f[c] = num(c)                                             # 1989+ only (NaN before)
+    f["state"] = pd.Series(a[:, L["state"][0] - 1:L["state"][1]].copy().view(f"S{L['state'][1] - L['state'][0] + 1}").ravel()).str.decode("ascii").str.strip()
+    f["resstat"] = num("resstat")
+    f["recwt"] = num("recwt") if "recwt" in L else np.ones(n)    # 1985-91: every record counts once
+    d = pd.DataFrame(f)
+    d["year"] = year
+    return d[_COLUMNS]
+
+
+_COLUMNS = ["death", "aged", "weight", "weight_imputed", "gestat", "gest_imputed", "plural",
+            "csex", "mage", "ormoth", "mrace3", "meduc", "dmar", "mplbir", "livord", "totord",
+            "monpre", "nprevist", "fage", "fmaps", "tobacco", "cigar", "wtgain", "venl30",
+            "ven30m", "state", "resstat", "recwt", "year"]
+
+
+def _build_early(year: int) -> pd.DataFrame:
+    """Parse a 1983-1991 denominator file by streaming ``LinkCO<yy>USden.dat`` out of the zip
+    (nothing is extracted to disk) and cache ``data/processed/vlbw_<year>.parquet``."""
+    import zipfile
+    zp = _early_zip(year)
+    if not zp.exists():
+        raise FileNotFoundError(f"{zp} missing. See README.md (Early cohorts) for the download.")
+    rl = EARLY_RECLEN[year]
+    parts, tail = [], b""
+    with zipfile.ZipFile(zp) as z:
+        member = next(i for i in z.infolist() if "den" in i.filename.lower())
+        if member.file_size % rl:
+            raise ValueError(f"{member.filename}: size {member.file_size} is not a multiple of {rl}")
+        with z.open(member) as fh:
+            while True:
+                buf = fh.read(rl * 250_000)
+                if not buf:
+                    break
+                buf = tail + buf
+                k = len(buf) // rl * rl
+                tail = buf[k:]
+                a = np.frombuffer(buf[:k], dtype=np.uint8).reshape(-1, rl)
+                if not (a[:, rl - 2] == 13).all():
+                    raise ValueError(f"{year}: records are not {rl} bytes with CRLF")
+                parts.append(_parse_early_chunk(a, year))
+        if tail:
+            raise ValueError(f"{member.filename}: {len(tail)} trailing bytes")
+    df = pd.concat(parts, ignore_index=True)
+    PROCESSED.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(_cache(year), index=False)
+    return df
+
+
 X_COLS = ["gestat", "gestat2", "twin", "triplet_plus", "male", "mage", "mage2", "hispanic",
           "black", "other_race", "educ_years", "educ_missing", "unmarried", "no_prenatal",
           "prenatal_month", "prenatal_missing", "first_birth", "livord", "smoker",
@@ -67,6 +214,8 @@ def build(year: int = 2002, force: bool = False) -> pd.DataFrame:
     year, birth weight, gestation, sex and age-at-death fields of each file)."""
     if _cache(year).exists() and not force:
         return pd.read_parquet(_cache(year))
+    if year in EARLY_YEARS:       # 1983-1991: streamed from the zip, see _build_early
+        return _build_early(year)
     _require(year)
     den = _den(year)
     # fixed width 230 plus the line terminator (CRLF)
