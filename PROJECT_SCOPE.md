@@ -248,7 +248,8 @@ only when the author asks; it does not change the sections above.
   logit effect crosses zero at about 1870 g, so c = 0 is interior there). The write-up of this setting with its method is
   `../manuscript/binary_outcome_vlbw.tex` (2026-11-11). Decision 2026-11-12: the method is the
   logit on both arms (spline tails or empirical tails, the latter the default); the linear probability
-  model is kept only as the contrast and the additive-effect route is dropped. The note's Section 6
+  model is kept only as the contrast and the additive-effect route is dropped. The theory (logit routes and any link) now sits in
+  `../manuscript/binary_outcome_sketch.tex`, Section 3, with the method and the data (2026-11-12); it
   states the theory for the logit routes (expansion bias, four-role CLT with modified role scores,
   U-statistic route, single crossing with a link) with arguments, not full proofs, and the linear probability
   model fails there. The Chile 485 loan line (PAES scale) does not bind and is out. Next: more data sets with a binary outcome, selected for a

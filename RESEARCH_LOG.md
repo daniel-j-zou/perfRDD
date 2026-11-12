@@ -9,6 +9,19 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - The sketch is now the method-and-theory document (Claude)
+
+Author: "can we move theory into the sketch?" and "i want the sketch to state the methodology and
+some data". Manuscript cbb9dac. `binary_outcome_sketch.tex` now reads: target, Method (from the
+VLBW note), Theory (moved from the VLBW note: Propositions 1-5, the coupling lemma, conditions
+(L1)-(L3), (G1)-(G3), (V1)-(V4), (P1)-(P2), what remains), GPA and Chile, very low birth weight (with
+the wider-candidate-set table), summary; 23 pages. `binary_outcome_vlbw.tex` keeps method and data
+and summarizes the theory with a pointer (13 pages). Process note: a `git stash pop` in a scratch
+worktree tried to apply a Codex stash (the stash list is shared across worktrees); the conflict kept
+the entry and nothing was lost, and stash is no longer used in worktrees.
+
+— Claude
+
 ## 2026-11-12 - Link functions made clear in both binary write-ups (Claude)
 
 Author: "rewrite the binary paper writeup to be more clear about this GLM thing and the link
