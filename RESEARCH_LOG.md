@@ -9,6 +9,20 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - Link functions made clear in both binary write-ups (Claude)
+
+Author: "rewrite the binary paper writeup to be more clear about this GLM thing and the link
+functions" (both files). Manuscript 4289a39. `binary_outcome_vlbw.tex` now explains the link in
+plain steps in Section 3.2 (with the straight-line formula for the paper's averaging shortcut, a
+worked example of why a curve breaks it, and the sum-of-products fix) and carries the any-link
+theory in a new Section 6.6 (moved from the sketch); the sketch's Section 5 is a one-page summary
+pointing to it. Symbols: inverse link mu(.), Chebyshev pieces chi_k and xi_k, arm means mu_d; fold
+names follow the paper's "partially linear fold" (subscript beta). A fresh-reader clarity review
+(Sonnet) was applied. New fact used in the text: survival is 97.3% at 1750-1850 g (pooled
+1995-2002), so the care can add at most 2.7 points there, against the linear model's 24.
+
+— Claude
+
 ## 2026-11-12 - Section 5 displayed design: nonlinear alpha and b (Claude)
 
 **Author decision:** "I want a nonlinear alpha and beta in section 5. Use one of the new
