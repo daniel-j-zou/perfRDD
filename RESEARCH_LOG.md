@@ -9,6 +9,26 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - The GLM extension written into the sketch (Claude)
+
+Author: "add the GLM extension to the sketch. I want to see how the theory makes sense."
+`manuscript/binary_outcome_sketch.tex` gains Section 5 (manuscript 027347a), reviewed by an
+independent reviewer (no blocking issues; nine minor and fourteen cosmetic fixes applied; the
+outcome-gradient formula was confirmed by finite differences for probit, complementary log-log
+and two log-link models). Main points: a link separates exactly in its intercept if and only if it
+is an exponential polynomial, so the identity and log links are exact and no distribution function
+is; for outcomes with a log mean the estimator is the paper's with a three-coordinate multiplier
+and no expansion error; for bounded links the expansion rate comes from the width of the strip of
+analyticity (logit pi, complementary log-log pi/2, probit entire); the theory of the binary note
+carries over with the Fisher weight h'^2/V; and new arm-wise conditions (P1)-(P2), the treated
+intercept rising and the untreated falling in the residual and the covariate parts moving apart in
+the linear predictor, make the effect at the threshold monotone for every increasing link with no
+sign condition on the effect. For the identity link only the gap matters (the paper's (U2)). On the
+VLBW fit (P1) fails: the treated intercept also falls with the residual. Checks:
+`experiments/scripts/binary_glm_link_checks.py`.
+
+— Claude
+
 ## 2026-11-12 - Binary outcomes: proof review applied; heaping undoes the 1995-2002 local check; GLM extension (Claude)
 
 At the author's requests ("Apply all", "resume all four and redo the proof fixes", "remove 1 and 2
