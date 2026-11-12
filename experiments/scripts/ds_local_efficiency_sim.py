@@ -48,13 +48,12 @@ from dataclasses import dataclass
 from pathlib import Path
 
 import numpy as np
-from numpy.polynomial import Polynomial
 from scipy.interpolate import BSpline
 from scipy.optimize import minimize_scalar
 
 from experiments.methods.perfrdd import _basis_params
 from experiments.methods.weighted_tails import fit_weighted_tails
-from experiments.scripts.ds_local_efficiency import DESIGNS, Design, Population
+from experiments.scripts.ds_local_efficiency import DESIGNS, Design, Population, curves
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = ROOT / "runs" / "ds_local_efficiency_sim"
@@ -78,7 +77,7 @@ def generate(design: Design, n: int, seed: int) -> Sample:
     T = design.gamma0 + X @ np.asarray(design.gamma_x)
     Q = T + eta
     D = (Q > design.phi0).astype(float)
-    a, b = Polynomial(design.a_coef), Polynomial(design.b_coef)
+    a, b = curves(design)
     sig = np.where(D == 1.0, design.sigma_arm[1], design.sigma_arm[0])
     sig = sig * np.exp(0.5 * design.noise_kappa * eta)
     Y = (b(eta) + X @ np.asarray(design.beta1)

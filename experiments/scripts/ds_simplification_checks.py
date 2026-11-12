@@ -279,6 +279,17 @@ PAPER = GDesign(
     beta2=(0.4, -0.25, 0.15), cost=2.25,
 )
 
+# Section 5 displayed design from 2026-11-12 (ds_local_efficiency "paper_nonlinear"):
+# alpha = 2 + 0.4 e + 0.8 tanh(1.5 e), b = e^2/2 + 0.3 sin(2 e).
+PAPER_NL = GDesign(
+    name="paper_nonlinear", X=PAPER.X, eta=PAPER.eta, gamma0=0.0, gamma_x=PAPER.gamma_x,
+    a=lambda e: 2.0 + 0.4 * np.asarray(e) + 0.8 * np.tanh(1.5 * np.asarray(e)),
+    da=lambda e: 0.4 + 1.2 / np.cosh(1.5 * np.asarray(e)) ** 2,
+    b=lambda e: 0.5 * np.asarray(e) ** 2 + 0.3 * np.sin(2 * np.asarray(e)),
+    db=lambda e: np.asarray(e) + 0.6 * np.cos(2 * np.asarray(e)),
+    beta2=PAPER.beta2, cost=2.25,
+)
+
 _MIX_X = MixX(
     (0.6, 0.4),
     ((-0.6, 0.3), (0.9, -0.45)),
@@ -1049,9 +1060,9 @@ def check_item_c_path(base: GDesign = PAPER) -> dict:
 
 # ============================================================ validation
 
-def check_validate() -> dict:
-    ref = Population(DESIGNS["paper_baseline"]).decomposition()
-    pop = Pop(PAPER)
+def check_validate(base: GDesign = PAPER, key: str = "paper_baseline") -> dict:
+    ref = Population(DESIGNS[key]).decomposition()
+    pop = Pop(base)
     A_g, A_rho = np.asarray(ref["A_g"]), np.asarray(ref["A_rho"])
     return {
         "phi": [pop.phi, ref["phi_star"]], "H": [pop.H, ref["H"]],
@@ -1168,8 +1179,19 @@ def main(argv=None) -> None:
     parser.add_argument("--workers", type=int, default=2)
     parser.add_argument("--seed", type=int, default=20261014)
     parser.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    parser.add_argument("--path-nl", action="store_true",
+                        help="only the pathwise check (item_c_path) and the validation against "
+                             "ds_local_efficiency, in the Section 5 design from 2026-11-12")
     args = parser.parse_args(argv)
     args.out.mkdir(parents=True, exist_ok=True)
+    if args.path_nl:
+        res = {"validate": check_validate(PAPER_NL, "paper_nonlinear"),
+               "item_c_path": check_item_c_path(PAPER_NL)}
+        path = args.out / "checks_path_nonlinear.json"
+        path.write_text(json.dumps(res, indent=2, default=float) + "\n")
+        print(json.dumps(res, indent=2, default=float))
+        print(f"[wrote] {path}")
+        return
     if args.simulate:
         res = simulate(args.n, args.reps, args.workers, args.seed)
         path = args.out / "simulation_summary.json"

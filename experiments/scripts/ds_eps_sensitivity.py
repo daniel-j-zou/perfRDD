@@ -1,7 +1,8 @@
 """How the supported target and the four-role estimator move with the trim level eps.
 
-Displayed design of differing_slopes.tex Section 5 (``paper_baseline``), with the
-policy set Phi = [-1, 1.5] and density interval T = [-3.5, 3.5], so that (DS1)(i)
+Displayed design of differing_slopes.tex Section 5 (``DESIGNS[--design]``, default
+``paper_nonlinear``, the design from 2026-11-12; the run of 2026-10-20 used
+``paper_baseline``), with the policy set Phi = [-1, 1.5] and density interval T = [-3.5, 3.5], so that (DS1)(i)
 holds at every eps in the grid: V_Phi = Phi - [l0, u0] stays inside T down to
 eps = 0.05, and [l0, u0] stays inside J = [-1.75, 1.75].
 
@@ -35,7 +36,7 @@ import numpy as np
 from scipy.optimize import minimize_scalar
 
 from experiments.methods.weighted_tails import fit_weighted_tails
-from experiments.scripts.ds_local_efficiency import DESIGNS, Population
+from experiments.scripts.ds_local_efficiency import DESIGNS, Population, untrimmed_target
 from experiments.scripts.ds_local_efficiency_sim import (
     ROLES, _xt, generate, ols_first_stage, outcome_fit)
 
@@ -43,7 +44,9 @@ ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "runs" / "ds_eps_sensitivity"
 EPS_GRID = (0.05, 0.075, 0.10, 0.125, 0.15, 0.20, 0.25)
 POLICY = (-1.0, 1.5)
-BASE = replace(DESIGNS["paper_baseline"], policy=POLICY, T_support=(-3.5, 3.5))
+# Worker processes read the design at import, so it is passed by environment variable.
+DESIGN_NAME = os.environ.get("DS_EPS_DESIGN", "paper_nonlinear")
+BASE = replace(DESIGNS[DESIGN_NAME], policy=POLICY, T_support=(-3.5, 3.5))
 
 
 def population() -> dict:
@@ -129,14 +132,19 @@ def main(argv=None):
     ap.add_argument("--workers", type=int, default=6)
     ap.add_argument("--seed", type=int, default=20261020)
     ap.add_argument("--out", type=Path, default=OUT)
+    ap.add_argument("--design", choices=sorted(DESIGNS), default=DESIGN_NAME)
     a = ap.parse_args(argv)
+    if a.design != DESIGN_NAME:
+        raise SystemExit(f"set DS_EPS_DESIGN={a.design} in the environment (workers read the "
+                         f"design at import); this process has {DESIGN_NAME}")
+    os.environ["DS_EPS_DESIGN"] = DESIGN_NAME
     reps = a.reps if len(a.reps) == len(a.n) else [a.reps[0]] * len(a.n)
     a.out.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     pop = population()
     print(json.dumps(pop, indent=1), flush=True)
-    result = {"design": "paper_baseline", "policy": POLICY, "J": BASE.J, "T": BASE.T_support,
-              "eps_grid": EPS_GRID, "untrimmed_phi_star": 0.4261829480634599,
+    result = {"design": DESIGN_NAME, "policy": POLICY, "J": BASE.J, "T": BASE.T_support,
+              "eps_grid": EPS_GRID, "untrimmed_phi_star": untrimmed_target(BASE),
               "population": pop, "cells": []}
     for n, R in zip(a.n, reps):
         tasks = [(n, a.seed + 1_000 * i + n) for i in range(R)]

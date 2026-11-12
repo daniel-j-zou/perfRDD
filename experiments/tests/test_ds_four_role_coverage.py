@@ -12,8 +12,11 @@ from experiments.scripts.ds_bias_decomposition import TRUE_TAILS
 class TestTargets(unittest.TestCase):
     def test_coverage_design_targets(self):
         disp = m.population_summary(m.COVERAGE_DESIGNS["displayed"])
-        self.assertAlmostEqual(disp["phi_star"], 0.545103, places=6)
-        self.assertAlmostEqual(disp["V_rotated"], 31.09, places=2)
+        self.assertAlmostEqual(disp["phi_star"], 0.468829, places=6)
+        self.assertAlmostEqual(disp["V_rotated"], 26.68, places=2)
+        lin = m.population_summary(m.COVERAGE_DESIGNS["displayed_linear"])
+        self.assertAlmostEqual(lin["phi_star"], 0.545103, places=6)
+        self.assertAlmostEqual(lin["V_rotated"], 31.09, places=2)
         nl = m.population_summary(m.COVERAGE_DESIGNS["nonlinear"])
         self.assertAlmostEqual(nl["phi_star"], 0.152143, places=6)
 

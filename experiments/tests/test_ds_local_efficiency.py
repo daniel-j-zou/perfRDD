@@ -91,5 +91,40 @@ class LocalEfficiencyPopulationTest(unittest.TestCase):
         self.assertTrue(np.allclose(g1[1:], g3[1:], atol=0.02), (g1, g3))
 
 
+class TestCurve(unittest.TestCase):
+    def test_curve_values_derivatives_and_sum(self):
+        import numpy as np
+        from experiments.scripts.ds_local_efficiency import Curve
+        e = np.linspace(-2.0, 2.0, 41)
+        a = Curve((2.0, 0.4, ("tanh", 0.8, 1.5)))
+        b = Curve((0.0, 0.0, 0.5, ("sin", 0.3, 2.0)))
+        np.testing.assert_allclose(a(e), 2 + 0.4 * e + 0.8 * np.tanh(1.5 * e), atol=1e-14)
+        np.testing.assert_allclose(b(e), 0.5 * e ** 2 + 0.3 * np.sin(2 * e), atol=1e-14)
+        h = 1e-5
+        for c in (a, b, a + b, a.deriv()):
+            fd = (c(e + h) - c(e - h)) / (2 * h)
+            np.testing.assert_allclose(c.deriv()(e), fd, atol=1e-8)
+        np.testing.assert_allclose((a + b)(e), a(e) + b(e), atol=1e-14)
+
+    def test_tagged_spec_breaks_plain_polynomial(self):
+        from numpy.polynomial import Polynomial
+        from experiments.scripts.ds_local_efficiency import DESIGNS
+        with self.assertRaises(ValueError):
+            Polynomial(DESIGNS["paper_nonlinear"].a_coef)
+
+    def test_nonlinear_paper_design_constants(self):
+        from experiments.scripts.ds_local_efficiency import (
+            DESIGNS, Population, bias_constant, untrimmed_target)
+        d = DESIGNS["paper_nonlinear"]
+        res = Population(d).decomposition()
+        self.assertAlmostEqual(res["phi_star"], 0.468829, places=6)
+        self.assertAlmostEqual(res["H"], -0.128227, places=6)
+        self.assertAlmostEqual(res["V_rotated_ols"], 26.677, places=3)
+        self.assertAlmostEqual(abs(res["Abar_intercept"]), 0.0, places=12)
+        self.assertAlmostEqual(untrimmed_target(d), 0.394118, places=6)
+        self.assertAlmostEqual(bias_constant(DESIGNS["paper_baseline"])["B"], 21.568, places=2)
+        self.assertAlmostEqual(bias_constant(d)["B"], 15.969, places=2)
+
+
 if __name__ == "__main__":
     unittest.main()

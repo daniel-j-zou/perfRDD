@@ -60,7 +60,7 @@ DEFAULT_OUT = ROOT / "runs" / "ds_local_efficiency_adaptive_sim"
 
 def generate(design: Design, n: int, seed: int) -> Sample:
     """As ``ds_local_efficiency_sim.generate``, with the design's law of eta."""
-    from numpy.polynomial import Polynomial
+    from experiments.scripts.ds_local_efficiency import curves
     rng = np.random.default_rng(seed)
     dim = len(design.gamma_x)
     X = rng.standard_normal((n, dim)) * np.sqrt(np.asarray(design.sigma_x))
@@ -68,7 +68,7 @@ def generate(design: Design, n: int, seed: int) -> Sample:
     T = design.gamma0 + X @ np.asarray(design.gamma_x)
     Q = T + eta
     D = (Q > design.phi0).astype(float)
-    a, b = Polynomial(design.a_coef), Polynomial(design.b_coef)
+    a, b = curves(design)
     sig = np.where(D == 1.0, design.sigma_arm[1], design.sigma_arm[0])
     sig = sig * np.exp(0.5 * design.noise_kappa * eta)
     Y = (b(eta) + X @ np.asarray(design.beta1)

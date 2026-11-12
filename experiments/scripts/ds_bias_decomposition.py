@@ -45,27 +45,39 @@ from scipy import stats
 from scipy.optimize import minimize_scalar
 
 from experiments.methods.weighted_tails import fit_weighted_tails
-from experiments.scripts.ds_local_efficiency import DESIGNS
+from experiments.scripts.ds_local_efficiency import DESIGNS, Curve, Population, bias_constant
 from experiments.scripts.ds_local_efficiency_sim import (
     ROLES, _xt, generate, ols_first_stage, outcome_fit,
 )
 
 ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = ROOT / "runs" / "ds_bias_decomposition"
-DESIGN = DESIGNS["paper_baseline"]
+# Worker processes read the design at import, so it is passed by environment variable.
+DESIGN_NAME = os.environ.get("DS_BIAS_DESIGN", "paper_nonlinear")
+DESIGN = DESIGNS[DESIGN_NAME]
 GAMMA = np.concatenate(([DESIGN.gamma0], np.asarray(DESIGN.gamma_x)))
 BETA2 = np.asarray(DESIGN.beta2)
 S_BETA = float(BETA2 @ np.asarray(DESIGN.gamma_x))  # beta2' E(X|T=t) = S_BETA * t (Var T = 1)
 Z_EPS = float(stats.norm.ppf(1 - DESIGN.eps))
 L0, U0 = DESIGN.phi0 - Z_EPS, DESIGN.phi0 + Z_EPS
 TLO, THI = DESIGN.T_support
-PHI_STAR = 0.5451028241935099   # Gauss-Legendre quadrature (ds_identification_check.py)
 COMBOS = list(itertools.product((0, 1), repeat=4))  # (G, O, D, E); 1 = estimated
-H_STAR = -0.10753350836035151   # U_eps''(phi*)
+# Target and curvature by Gauss-Legendre quadrature on the trim window
+# (paper_baseline: 0.5451028241935, -0.1075335083604).
+_POP = Population(DESIGN)
+PHI_STAR, H_STAR = float(_POP.phi), float(_POP.H)
+A_TRUE = Curve(DESIGN.a_coef)
 # Second-order argmax bias constant B = d sigma^2 / (2 H^2) - U3 sigma^2 / (2 H^3), with
-# U3 = U_eps'''(phi*), from the analytic four-role variance (ds_local_efficiency.Population)
-# evaluated near phi*: sigma^2 = 0.35950, d sigma^2 / d phi = 0.21209, U3 = 0.0857630.
-B_STAR = 21.568
+# U3 = U_eps'''(phi*), from the analytic four-role variance (ds_local_efficiency.bias_constant;
+# paper_baseline: sigma^2 = 0.35950, d sigma^2 / d phi = 0.21209, U3 = 0.0857630, B = 21.568).
+# Only the main process needs it, so it is computed on first use.
+_B = {}
+
+
+def b_star() -> float:
+    if "B" not in _B:
+        _B.update(bias_constant(DESIGN))
+    return _B["B"]
 
 
 class TrueTails:
@@ -98,7 +110,7 @@ TRUE_TAILS = TrueTails()
 
 
 def a_true(e):
-    return np.polynomial.Polynomial(DESIGN.a_coef)(e)
+    return A_TRUE(e)
 
 
 def criterion_pieces(s, folds, gamma_hat):
@@ -227,8 +239,9 @@ def summarize(rows, n):
                      ("combined_minus_score", (4 * P - A) / 3 - PHI_STAR - score_term)):
         paired[label] = {"sqrtN": float(np.sqrt(n) * d.mean()),
                          "se": float(np.sqrt(n) * d.std(ddof=1) / np.sqrt(len(d)))}
-    paired["predicted"] = {"4B": 4 * B_STAR / np.sqrt(n), "B": B_STAR / np.sqrt(n),
-                           "3B": 3 * B_STAR / np.sqrt(n), "combined": 0.0}
+    B = b_star()
+    paired["predicted"] = {"B_constant": B, "4B": 4 * B / np.sqrt(n), "B": B / np.sqrt(n),
+                           "3B": 3 * B / np.sqrt(n), "combined": 0.0}
     out["paired"] = paired
     return out
 
@@ -277,8 +290,14 @@ def main(argv=None) -> None:
     ap.add_argument("--workers", type=int, default=7)
     ap.add_argument("--seed", type=int, default=20261014)
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
+    ap.add_argument("--design", choices=sorted(DESIGNS), default=DESIGN_NAME)
     args = ap.parse_args(argv)
+    if args.design != DESIGN_NAME:
+        raise SystemExit(f"set DS_BIAS_DESIGN={args.design} in the environment (workers read "
+                         f"the design at import); this process has {DESIGN_NAME}")
+    os.environ["DS_BIAS_DESIGN"] = DESIGN_NAME
     args.out.mkdir(parents=True, exist_ok=True)
+    print(f"design {DESIGN_NAME}: phi* = {PHI_STAR:.6f}, H = {H_STAR:.6f}", flush=True)
     results = []
     for i, n in enumerate(args.n):
         tasks = [(n, args.seed + 100_000 * i + r) for r in range(args.reps)]
@@ -288,7 +307,10 @@ def main(argv=None) -> None:
         summ = summarize(rows, n)
         results.append(summ)
         print(json.dumps(summ, indent=1), flush=True)
-    (args.out / "summary.json").write_text(json.dumps(results, indent=1))
+    b_star()
+    meta = {"design": DESIGN_NAME, "phi_star": PHI_STAR, "H": H_STAR, "bias_constant": dict(_B),
+            "density_spline_bias_sqrtN": {str(n): density_spline_bias(n) for n in args.n}}
+    (args.out / "summary.json").write_text(json.dumps({"meta": meta, "cells": results}, indent=1))
 
 
 if __name__ == "__main__":

@@ -296,8 +296,14 @@ def designs() -> list[Design]:
                       a=lambda e: 0.35 + 0.90 * e, lam=lambda t: 0.80 * t, dlam=lambda t: 0.80 + 0 * t,
                       c=0.25, phi0=0.0, eps=0.10, phi_lo=-3.0, phi_hi=3.0, sigma_T2=1.0, s_beta=0.80))
     # Displayed Section 5 design: T = (X1+X2+X3)/sqrt3, beta2 = (0.4,-0.25,0.15) => lam(t) = (0.3/sqrt3) t.
+    # From 2026-11-12 alpha(e) = 2 + 0.4 e + 0.8 tanh(1.5 e) (ds_local_efficiency "paper_nonlinear");
+    # the linear alpha(e) = 2 + e used until then is kept as displayed_section5_linear.
     sb = 0.3 / np.sqrt(3.0)
     out.append(Design("displayed_section5", fe, dfe, qe, fT, dfT, qT,
+                      a=lambda e: 2.0 + 0.4 * e + 0.8 * np.tanh(1.5 * e),
+                      lam=lambda t: sb * t, dlam=lambda t: sb + 0 * t,
+                      c=2.25, phi0=0.0, eps=0.10, phi_lo=-3.0, phi_hi=3.0, sigma_T2=1.0, s_beta=sb))
+    out.append(Design("displayed_section5_linear", fe, dfe, qe, fT, dfT, qT,
                       a=lambda e: 2.0 + e, lam=lambda t: sb * t, dlam=lambda t: sb + 0 * t,
                       c=2.25, phi0=0.0, eps=0.10, phi_lo=-3.0, phi_hi=3.0, sigma_T2=1.0, s_beta=sb))
     # Non-Gaussian: logistic T and eta, nonlinear increasing lam, cubic a.

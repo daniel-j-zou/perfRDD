@@ -4,9 +4,14 @@ Closes the simulation gaps in the todo box of ``differing_slopes.tex`` Section 5
 
 Designs (``--design``):
 
-* ``displayed``: the Section 5.1 design (``ds_local_efficiency.DESIGNS["paper_baseline"]``),
-  X ~ N(0, I_3), gamma = (0, 1, 1, 1)/sqrt3, alpha = 2 + eta, b = eta^2/2,
-  sigma = 0.5, c = 2.25, eps = 0.1; target 0.545103.
+* ``displayed``: the Section 5.1 design from 2026-11-12
+  (``ds_local_efficiency.DESIGNS["paper_nonlinear"]``), X ~ N(0, I_3),
+  gamma = (0, 1, 1, 1)/sqrt3, alpha = 2 + 0.4 eta + 0.8 tanh(1.5 eta),
+  b = eta^2/2 + 0.3 sin(2 eta), sigma = 0.5, c = 2.25, eps = 0.1; target 0.468829.
+* ``displayed_linear``: the Section 5.1 design until 2026-11-12
+  (``DESIGNS["paper_baseline"]``, alpha = 2 + eta, b = eta^2/2; target 0.545103).
+  Runs made before 2026-11-12 under the key ``displayed`` (e.g.
+  ``runs/ds_four_role_coverage_999``) used this design.
 * ``nonlinear``: the Section 5.3 design, T = X_1, X ~ N(0, I_2),
   alpha = 0.35 + 0.9 eta + 0.35 (eta^2 - 1), b = 0.2 + 0.6 eta + 0.5 (eta^2 - 1),
   beta1 = (0.3, -0.2), beta2 = (0.8, 0.25), sigma = 0.5, c = 0.25, eps = 0.1;
@@ -36,7 +41,7 @@ replacement, splits the resample into four new random blocks and re-runs every
 fit.  For each arm we form 95% percentile and normal (estimate +- 1.96 bootstrap
 s.d.) intervals.  As a cross-check only, we also report the coverage of
 estimate +- 1.96 sqrt(V / n) with the analytic first-order variance V
-(sigma^2/H^2 = 31.09 in the displayed design; Var psi_U / H^2 for the oracle).
+(sigma^2/H^2 = 26.68 in the displayed design; Var psi_U / H^2 for the oracle).
 
 Diagnostic (``--scheme within``): keep the data set's own split and resample
 within each of the four blocks, so no observation is copied into two roles.
@@ -67,7 +72,6 @@ from pathlib import Path
 from typing import Callable, Dict, List
 
 import numpy as np
-from numpy.polynomial import Polynomial
 from scipy import optimize, stats
 from scipy.interpolate import BSpline
 from scipy.optimize import minimize_scalar
@@ -75,7 +79,7 @@ from scipy.special import ndtr
 
 from experiments.methods.trimmed_quadrature import trimmed_normal_mean
 from experiments.methods.weighted_tails import fit_weighted_tails
-from experiments.scripts.ds_local_efficiency import DESIGNS, Design, Population
+from experiments.scripts.ds_local_efficiency import DESIGNS, Curve, Design, Population
 from experiments.scripts.ds_local_efficiency_sim import (
     ROLES, Sample, _ls, _xt, generate, ols_first_stage, outcome_fit,
 )
@@ -85,7 +89,8 @@ DEFAULT_OUT = ROOT / "runs" / "ds_four_role_coverage"
 Z95 = float(stats.norm.ppf(0.975))
 
 COVERAGE_DESIGNS: Dict[str, Design] = {
-    "displayed": DESIGNS["paper_baseline"],
+    "displayed": DESIGNS["paper_nonlinear"],
+    "displayed_linear": DESIGNS["paper_baseline"],
     "nonlinear": Design(
         name="nonlinear_ab",
         sigma_x=(1.0, 1.0), gamma0=0.0, gamma_x=(1.0, 0.0), sigma_eta=1.0,
@@ -96,7 +101,7 @@ COVERAGE_DESIGNS: Dict[str, Design] = {
         note="differing_slopes.tex Section 5.3 nonlinear alpha, b design",
     ),
 }
-LINEAR_ARM = {"displayed": False, "nonlinear": True}
+LINEAR_ARM = {"displayed": False, "displayed_linear": False, "nonlinear": True}
 
 
 # ------------------------------------------------------------ truth
@@ -131,7 +136,7 @@ class TrueTails:
 
 def target_by_quadrature(design: Design, pop: Population) -> float:
     """phi*_eps as the zero of Z(phi) = -U_eps'(phi), by adaptive quadrature on [l0, u0]."""
-    a = Polynomial(design.a_coef)
+    a = Curve(design.a_coef)
     beta2 = np.asarray(design.beta2, dtype=float)
 
     def Z(phi):
@@ -246,7 +251,7 @@ def _avg_and_pooled(criteria: List[Callable], grid: np.ndarray, vals=None) -> tu
 @dataclass(frozen=True)
 class Truth:
     gamma: np.ndarray
-    a: Polynomial
+    a: Curve
     beta2: np.ndarray
     tails: TrueTails
     window: tuple
@@ -254,7 +259,7 @@ class Truth:
 
 def make_truth(design: Design, pop: dict) -> Truth:
     return Truth(gamma=np.concatenate(([design.gamma0], np.asarray(design.gamma_x))),
-                 a=Polynomial(design.a_coef), beta2=np.asarray(design.beta2, dtype=float),
+                 a=Curve(design.a_coef), beta2=np.asarray(design.beta2, dtype=float),
                  tails=TrueTails(design), window=(pop["l0"], pop["u0"]))
 
 
@@ -443,6 +448,11 @@ def run_cell(design_key: str, n: int, reps: int, n_boot: int, seed: int, workers
     done = {r["rep"] for r in rows}
     old = {}
     if extend_from is not None:
+        prev = extend_from / f"{design_key}_summary{_suffix(scheme)}.json"
+        if prev.exists():
+            params = json.loads(prev.read_text()).get("design_params")
+            if params is not None and params != repr(COVERAGE_DESIGNS[design_key]):
+                raise ValueError(f"{prev} was run with another design: {params}")
         old = {r["rep"]: r for r in _load_rows(extend_from / path.name)}
     tasks = [(design_key, n, r, seed + 104_729 * n + r, n_boot, pop, scheme, linear_arm,
               old.get(r)) for r in range(reps) if r not in done]

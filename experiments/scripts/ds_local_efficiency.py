@@ -52,6 +52,67 @@ ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_OUT = ROOT / "runs" / "ds_local_efficiency"
 
 
+class Curve:
+    """Polynomial plus tanh / sine terms, closed under d/de and +; picklable.
+
+    ``spec`` is a coefficient tuple: leading numbers are polynomial coefficients
+    (constant first), followed by tagged terms (kind, amp, freq) meaning
+    amp * kind(freq * e), kind in {"tanh", "sin", "cos", "sech2", "sech2tanh"}
+    (sech2(x) = 1/cosh(x)^2, sech2tanh(x) = tanh(x)/cosh(x)^2).  A spec with a
+    tagged term makes ``Polynomial(spec)`` raise, so code that still reads the
+    coefficients as a polynomial fails loudly instead of dropping the term.
+    """
+
+    _FUN = {"tanh": np.tanh, "sin": np.sin, "cos": np.cos,
+            "sech2": lambda x: 1.0 / np.cosh(x) ** 2,
+            "sech2tanh": lambda x: np.tanh(x) / np.cosh(x) ** 2}
+
+    def __init__(self, spec=(0.0,)):
+        spec = tuple(spec)
+        nums = [x for x in spec if not isinstance(x, (tuple, list))]
+        terms = [tuple(x) for x in spec if isinstance(x, (tuple, list))]
+        if spec[:len(nums)] != tuple(nums):
+            raise ValueError("polynomial coefficients must precede tagged terms")
+        self.poly = Polynomial(nums if nums else [0.0])
+        self.terms = tuple((str(k), float(a), float(f)) for k, a, f in terms)
+        for k, _, _ in self.terms:
+            if k not in self._FUN:
+                raise ValueError(f"unknown term {k!r}")
+
+    def __call__(self, e):
+        e = np.asarray(e, dtype=float)
+        out = self.poly(e)
+        for k, a, f in self.terms:
+            out = out + a * self._FUN[k](f * e)
+        return out
+
+    def deriv(self) -> "Curve":
+        new = []
+        for k, a, f in self.terms:
+            if k == "tanh":
+                new.append(("sech2", a * f, f))
+            elif k == "sin":
+                new.append(("cos", a * f, f))
+            elif k == "cos":
+                new.append(("sin", -a * f, f))
+            elif k == "sech2":
+                new.append(("sech2tanh", -2.0 * a * f, f))
+            else:
+                raise NotImplementedError(f"derivative of {k}")
+        return Curve(tuple(self.poly.deriv().coef) + tuple(new))
+
+    def __add__(self, other: "Curve") -> "Curve":
+        return Curve(tuple((self.poly + other.poly).coef) + self.terms + other.terms)
+
+    def is_polynomial(self) -> bool:
+        return not self.terms
+
+
+def curves(design: "Design") -> Tuple[Curve, Curve]:
+    """(alpha, b) of a design as Curves."""
+    return Curve(design.a_coef), Curve(design.b_coef)
+
+
 @dataclass(frozen=True)
 class Design:
     name: str
@@ -59,8 +120,8 @@ class Design:
     gamma0: float
     gamma_x: Tuple[float, ...]
     sigma_eta: float
-    a_coef: Tuple[float, ...]           # a(e) = sum_k a_coef[k] e^k
-    b_coef: Tuple[float, ...]
+    a_coef: Tuple                       # Curve spec: a(e) = sum_k a_coef[k] e^k + tagged terms
+    b_coef: Tuple
     beta1: Tuple[float, ...]
     beta2: Tuple[float, ...]
     sigma_arm: Tuple[float, float]      # outcome noise s.d. on arms 0 and 1
@@ -82,7 +143,8 @@ class Design:
 
 
 DESIGNS: Dict[str, Design] = {
-    # Displayed design of differing_slopes.tex Section 5 (target 0.5451).
+    # Displayed design of differing_slopes.tex Section 5 up to 2026-11-12 (target 0.5451):
+    # linear alpha.  Kept so that the runs and summaries recorded with it reproduce.
     "paper_baseline": Design(
         name="paper_baseline",
         sigma_x=(1.0, 1.0, 1.0), gamma0=0.0,
@@ -90,7 +152,20 @@ DESIGNS: Dict[str, Design] = {
         a_coef=(2.0, 1.0), b_coef=(0.0, 0.0, 0.5),
         beta1=(0.3, -0.2, 0.1), beta2=(0.4, -0.25, 0.15),
         sigma_arm=(0.5, 0.5), cost=2.25,
-        note="differing_slopes.tex Section 5 displayed design",
+        note="differing_slopes.tex Section 5 displayed design until 2026-11-12 (linear alpha)",
+    ),
+    # Displayed design of differing_slopes.tex Section 5 from 2026-11-12: the same
+    # design with an S-shaped alpha and a baseline that is not a polynomial.
+    "paper_nonlinear": Design(
+        name="paper_nonlinear",
+        sigma_x=(1.0, 1.0, 1.0), gamma0=0.0,
+        gamma_x=tuple(np.ones(3) / np.sqrt(3.0)), sigma_eta=1.0,
+        a_coef=(2.0, 0.4, ("tanh", 0.8, 1.5)),
+        b_coef=(0.0, 0.0, 0.5, ("sin", 0.3, 2.0)),
+        beta1=(0.3, -0.2, 0.1), beta2=(0.4, -0.25, 0.15),
+        sigma_arm=(0.5, 0.5), cost=2.25,
+        note="differing_slopes.tex Section 5 displayed design from 2026-11-12: "
+             "alpha = 2 + 0.4 e + 0.8 tanh(1.5 e), b = e^2/2 + 0.3 sin(2 e)",
     ),
     # The paper design with non-Gaussian eta (variance 1 in both cases).
     "paper_t5": Design(
@@ -217,8 +292,7 @@ class Population:
         self.kappa = self.Sigma @ self.gx                 # Cov(X, T)
         self.sT = float(np.sqrt(self.gx @ self.Sigma @ self.gx))
         self.beta2 = np.asarray(design.beta2, dtype=float)
-        self.a = Polynomial(design.a_coef)
-        self.b = Polynomial(design.b_coef)
+        self.a, self.b = curves(design)
         self.da, self.db = self.a.deriv(), self.b.deriv()
         self.c_fun = (self.b, self.a + self.b)            # arm-wise baseline c_d
         self.dc_fun = (self.db, self.da + self.db)
@@ -443,6 +517,53 @@ class Population:
                                      / np.diag(self.var_eta * np.linalg.inv(V_X))).tolist(),
             "I_eta_times_var_eta": self.I_eta * self.var_eta,
         }
+
+
+def sigma2_at(design: Design, phi: float) -> float:
+    """Summed role-score variance (OLS first stage) at a threshold phi, scores centred."""
+    pop = Population(design)
+    pop.phi = float(phi)
+    r = pop.decomposition()
+    v = r["variances"]
+    return (v["psi_U"] - r["means"]["psi_U"] ** 2 + v["psi_o"] + v["psi_T"]
+            + v["psi_gamma_ols"])
+
+
+def bias_constant(design: Design, h: float = 1e-3) -> Dict[str, float]:
+    """Second-order argmax bias constant of the rotated estimators (formal expansion).
+
+    B = d sigma^2/d phi / (2 H^2) - U''' sigma^2 / (2 H^3) at phi*_eps; the average
+    of the four rotated thresholds has bias 4B/n and the pooled maximizer B/n
+    (RESEARCH_LOG 2026-10-14).  Central differences with step h.
+    """
+    pop = Population(design)
+    phi, H = pop.phi, pop.H
+    s0 = sigma2_at(design, phi)
+    ds2 = (sigma2_at(design, phi + h) - sigma2_at(design, phi - h)) / (2 * h)
+    U3 = -(pop.dZ(phi + h) - pop.dZ(phi - h)) / (2 * h)       # U' = -Z
+    return {"phi_star": phi, "H": H, "sigma2": s0, "dsigma2": ds2, "U3": U3,
+            "B_slope": ds2 / (2 * H ** 2), "B_third": -U3 * s0 / (2 * H ** 3),
+            "B": ds2 / (2 * H ** 2) - U3 * s0 / (2 * H ** 3)}
+
+
+def untrimmed_target(design: Design) -> float:
+    """Untrimmed optimum phi*: the zero of Z on Phi with the window replaced by the line."""
+    pop = Population(design)
+    sd = pop.sig_eta
+    e, w = _gl_nodes([-12 * sd, 12 * sd], pieces=48)
+    w = w * pop.f_eta(e)
+
+    def Z(phi):
+        F = (pop.a(e) - design.cost) * pop.g(phi - e) + pop.rho(phi - e) @ pop.beta2
+        return float(np.sum(w * F))
+    lo, hi = design.policy
+    grid = np.linspace(lo, hi, 601)
+    vals = np.array([Z(x) for x in grid])
+    roots = [brentq(Z, grid[i], grid[i + 1], xtol=1e-14) for i in range(len(grid) - 1)
+             if vals[i] < 0.0 <= vals[i + 1]]
+    if len(roots) != 1:
+        raise ValueError(f"expected one untrimmed maximizer, found {roots}")
+    return float(roots[0])
 
 
 def mc_projection_check(design: Design, n: int = 400_000, seed: int = 1,
