@@ -456,9 +456,96 @@ def dsh_free(outcome="log_cases"):
                "Medicare DSH, budget-neutral without a family: add-on by DPP bin (utility: next year's Medicare cases)")
 
 
+def _cross(fits, evaluate, schedules):
+    """M[r, c]: change in utility of the schedule chosen with rotation r's fit, evaluated with rotation c's
+    fit on c's evaluation fold; S[r, c]: its spending over today's under that fit."""
+    M = np.zeros((3, 3))
+    S = np.zeros((3, 3))
+    for r in range(3):
+        for c, fc in enumerate(fits):
+            M[r, c], S[r, c] = evaluate(fc, np.array(schedules[r]))
+    return M, S
+
+
+def free_cross():
+    """Cross-evaluation of the free schedules: does a schedule chosen with one rotation's fit keep its gain
+    under the other rotations' fits (whose outcome fits use other folds)? Needs cwbh_free and dsh_free."""
+    out = {}
+    # UI: change in weeks paid
+    cfg = app.cwbh(argparse.Namespace(x="linear", outcome="weeks_paid", seed=0))
+    p = cfg["prob"]
+    fits = rotation_fits(p, cluster=cfg["cluster"])
+    o = json.load(open(FIG / "redesign_cwbh_free.json"))
+    edges = np.array(o["edges"])
+    a_today = np.clip(np.exp(p.Q), p.a_lo, 1.0)
+
+    def ev_ui(fc, sched):
+        fit, eta, ev = fc
+        idx = np.where(ev & p.in_range)[0]
+        b = np.clip(np.searchsorted(edges, p.Q[idx], side="right") - 1, 0, len(edges) - 2)
+        a1 = sched[b]
+        w1 = p.Y[idx] + ds.gain(fit, eta[idx], p.Z[idx], a1, 1.0) - ds.gain(fit, eta[idx], p.Z[idx], a_today[idx], 1.0)
+        return (w1 - p.Y[idx]).mean(), (w1 * a1).sum() / (p.Y[idx] * a_today[idx]).sum()
+    for kind in ("free", "monotone"):
+        M, S = _cross(fits, ev_ui, [r["dose"] for r in o[kind]])
+        out[f"ui_{kind}"] = dict(change=M.tolist(), spend=S.tolist())
+    # DSH: 100 x change in log Medicare cases
+    cfg = app.dsh(argparse.Namespace(x="linear", outcome="log_cases", seed=0))
+    p = cfg["prob"]
+    from experiments.datasets.medicare_dsh import adapter as ad
+    s = ad.load_dose(outcome="log_cases")
+    fn = s.feature_names
+    w = np.nan_to_num(np.exp(s.X[:, fn.index("log_cases_lag")]) * s.X[:, fn.index("cmi")])
+    capped = s.extras["capped_class"].astype(bool)
+    pop = (p.Q <= 45) & (w > 0)
+    fits = rotation_fits(p, cluster=cfg["cluster"])
+    o = json.load(open(FIG / "redesign_dsh_free_log_cases.json"))
+    edges = np.array(o["edges"])
+    abar = p.basis.a_bar
+
+    def ev_dsh(fc, sched):
+        fit, eta, ev = fc
+        idx = np.where(ev & p.in_range & pop)[0]
+        b = np.clip(np.searchsorted(edges, p.Q[idx], side="right") - 1, 0, len(edges) - 2)
+        a1 = np.where(capped[idx], np.minimum(sched[b], 12.0), sched[b])
+        d = (ds.gain(fit, eta[idx], p.Z[idx], np.minimum(a1, abar), 0.0)
+             - ds.gain(fit, eta[idx], p.Z[idx], np.minimum(p.A[idx], abar), 0.0))
+        return 100 * d.mean(), (w[idx] * a1).sum() / (w[idx] * p.A[idx]).sum()
+    for kind in ("free", "monotone"):
+        M, S = _cross(fits, ev_dsh, [r["dose"] for r in o[kind]])
+        out[f"dsh_{kind}"] = dict(change=M.tolist(), spend=S.tolist())
+    json.dump(out, open(FIG / "redesign_free_cross.json", "w"), indent=1)
+    off = ~np.eye(3, dtype=bool)
+    print("own-fit vs cross-evaluated change (mean, range of the six cross values), spending range under other fits")
+    for k, v in out.items():
+        M, S = np.array(v["change"]), np.array(v["spend"])
+        print(f"  {k:14s} own {np.diag(M).mean():+.3f}  cross {M[off].mean():+.3f} ({M[off].min():+.3f} to "
+              f"{M[off].max():+.3f})  spending {S[off].min():.3f}-{S[off].max():.3f}", flush=True)
+    fig, axes = plt.subplots(1, 2, figsize=(9, 3.2))
+    for ax, (setting, unit) in zip(axes, (("ui", "change in weeks paid (lower is better)"),
+                                          ("dsh", "change in Medicare cases, % (higher is better)"))):
+        for i, kind in enumerate(("free", "monotone")):
+            M = np.array(out[f"{setting}_{kind}"]["change"])
+            ax.scatter(np.full(3, i - 0.08), np.diag(M), color=COLORS[0], s=28,
+                       label="fit that chose it" if i == 0 else None)
+            ax.scatter(np.full(6, i + 0.08), M[off], color=COLORS[1], marker="x", s=30,
+                       label="other rotations' fits" if i == 0 else None)
+        ax.axhline(0, color="#8a8984", lw=0.8)
+        ax.set_xticks([0, 1])
+        ax.set_xticklabels(["free", "free, monotone"])
+        ax.set_xlim(-0.5, 1.5)
+        ax.set_ylabel(unit, fontsize=8)
+        ax.set_title("UI (CWBH)" if setting == "ui" else "Medicare DSH", fontsize=9)
+    axes[0].legend(frameon=False, fontsize=7)
+    fig.tight_layout()
+    fig.savefig(FIG / "redesign_free_cross.png", dpi=170, bbox_inches="tight")
+    plt.close(fig)
+
+
 MAKERS = {"lcff": lambda: lcff("ela"), "lcff_math": lambda: lcff("math"), "dsh": lambda: dsh("exit"),
           "dsh_cases": lambda: dsh("log_cases"), "ui": ui, "cwbh": cwbh,
-          "cwbh_free": cwbh_free, "dsh_free": dsh_free}
+          "cwbh_free": cwbh_free, "dsh_free": dsh_free,
+          "free_cross": free_cross}
 
 
 def main():

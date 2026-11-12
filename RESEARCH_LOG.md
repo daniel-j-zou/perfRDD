@@ -9,6 +9,28 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - Follow-up: the free UI schedule holds up under cross-evaluation; DSH does not (Claude)
+
+Author: "does it work?", then "yes, add it to the note and log." Check (maker `free_cross` in
+`experiments/scripts/dose_schedule_redesign.py`; output `simulations/dose_schedule/redesign_free_cross.{png,json}`):
+each rotation's free schedule is evaluated with the other two rotations' fits on their own
+evaluation folds. The rotations fit the outcome on different folds, so noise-chasing loses its
+gain; the folds share other roles, so this is a stability check, not a test.
+
+| Schedule | Own fit (3) | Other fits (6) | Spending, other fits |
+|---|---|---|---|
+| UI free | -0.32 weeks (-0.39 to -0.25) | -0.29 (-0.36 to -0.18) | 1.00-1.03 |
+| UI free, monotone | -0.29 (-0.32 to -0.23) | -0.29 (-0.41 to -0.17) | 0.99-1.03 |
+| DSH free | +5.0% cases (+1.5 to +7.7) | +1.7% (+0.3 to +4.1) | 1.00-1.10 |
+| DSH free, monotone | +2.6% (+0.8 to +5.9) | +0.6% (-3.1 to +5.1) | 0.99-1.02 |
+
+The UI gain (2% of weeks paid at today's budget, money moved from claimants below 0.59 of the
+kink to those at 0.65-0.99) is stable; overspending works against it. The DSH free schedules are
+mostly noise. Written into `manuscript/dose_schedule_applications.tex` (Overleaf 2e58b01,
+CHANGELOG 0913df8): Section 1.4, Table 3, DSH text, Fig. 7.
+
+— Claude
+
 ## 2026-11-12 - Dose schedules: budget-neutral schedules without a family (Claude)
 
 Author: "Write this in there, and try this unrestricted setting that still keeps a budget
