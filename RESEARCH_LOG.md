@@ -9,6 +9,32 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - VLBW: the round-hundred donut and the 1985-2002 sample move the optimum little (Claude)
+
+Follow-up to the heaping entry. Route `logit_emp`, seed 1, four rotations. The "d100" variants drop
+every birth recorded at a multiple of 100 g, the round-gram heaps (Barreca et al. 2011 donut).
+Runs `experiments/runs/binary_outcome_routes_vlbw_{pooled,wide,long,longwide,early}_d100_c*`
+(git-ignored); `pooled_d1500_c0.02` drops only the 1500 g cell. Optima in grams; "edge" is the top
+of the candidate set; costs in survival points.
+
+| cost | 1995-2002, no donut | 1995-2002, d100 | 1985-2002, d100 | 1985-1991, d100 |
+|---|---|---|---|---|
+| 0 (1200-2200 g set) | 1869 | 1857 | 2039 | - |
+| 0.05 (1200-2200 g set) | 1852 | 1841 | 2019 | - |
+| 1 | 1663 | 1658 | 1717 | 1800 edge |
+| 2 | 1545 | 1540 | 1570 | 1757 |
+| 3 | 1456 | 1451 | 1470 | 1539 |
+
+- The donut moves the 1995-2002 optima by at most 12 g; dropping only the 1500 g cell gives 1544 g
+  at cost 2 (1545 g with it). Heaping does not drive the method's result, although it undoes the
+  1995-2002 local jump.
+- Adding 1985-1991 moves the optima up by 15-60 g at costs 1-3 and by about 180 g at zero cost.
+  The early years alone put them higher still (1757 g at cost 2), consistent with lower survival
+  then and so more room for the care to help heavier infants.
+- The linear probability model sits at the top edge in every run.
+
+— Claude
+
 ## 2026-11-12 - Section 5 nonlinear design: Tables 1 and 3 rerun, the paper updated (Claude)
 
 Follow-up to "Section 5 displayed design: nonlinear alpha and b" below. Author: "update the
