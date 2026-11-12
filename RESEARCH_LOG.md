@@ -9,6 +9,21 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - Dose schedules: UI and DSH written up in Overleaf (Claude)
+
+Author: "Please write these up somewhere in the overleaf. Start with a quick overview of the
+intensities methodology." New note `manuscript/dose_schedule_applications.tex` (Overleaf commit
+df90d75, CHANGELOG 72b9805): method overview, the CWBH unemployment-insurance application and
+the Medicare DSH application with next year's Medicare cases as the outcome. The DSH
+budget-neutral redesign on cases is now saved in the repo
+(`simulations/dose_schedule/redesign_dsh_log_cases.{png,json}`, from
+`dose_schedule_redesign dsh_cases`): a linear add-on from DPP 0 (slope 0.39) gives +4.5% cases
+(rotations +1.1 to +10.5%), from 5% gives +2.1%; every start at or below 11.25% gains in all
+three rotations. Open check named in the note: whether the DSH volume effect (about +1% cases
+per point of add-on) survives a placebo on pre-dose cases.
+
+— Claude
+
 ## 2026-11-12 - Dose schedules: eight new datasets (ten settings) screened; interpretability becomes a criterion (Claude)
 
 Author: "Try all of these" (the 2026-11-04 list: MIMIC titration, school-finance formulas,
