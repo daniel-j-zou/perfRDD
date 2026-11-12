@@ -9,6 +9,82 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - Taxi §6: all hours tried and set aside; daytime kept; Q = sqrt(fare) (Claude)
+
+Author requests and decisions (2026-11-12, Taxi session):
+- "use all hours, but daytime as an indicator. Make it clear that this is an extension of
+  the original research since we dont need strict limits on the specific fares or other
+  restrictions since we are not doing RDD with a neighbordhood";
+- "lets use \qrt{fare} as its more interpretable";
+- after the figures below, "Back to daytime".
+
+**Verified: what the VTS terminal switches on.** Checked in the public tip data
+(VTS credit-card rides, daytime and grid restrictions otherwise as in the main sample).
+The check counts the shares of tips equal to \$2/\$3/\$4 and to 20/25/30% of each
+candidate base, by fare cell.
+- *Surcharge rides.* The menu switches at fare + surcharge >= \$15: from a fare of
+  \$14.90 with the \$0.50 night surcharge and from \$14.10 with the \$1 weekday-evening
+  surcharge. The percentages are taken of fare + surcharge.
+- *Exactly \$15.00.* A base of exactly \$15.00 (night, fare \$14.50; 6,997 rides) is
+  mixed: about 73% still show the dollar menu. Coding those rides untreated moves the
+  all-hours estimate from \$12.42 to \$12.47.
+- *Toll rides* (\$4.15). The switch is at fare + toll >= \$15, but the percentages use the
+  fare alone.
+- *Daytime without surcharge.* The Haggag--Paci daytime hours coincide with the
+  no-surcharge hours: one daytime ride has a surcharge. 14,724 weekday-evening rides
+  have none recorded, and they switch at a fare of \$15.
+
+**All-hours specification (code 03fa3a7, `taxi_section6.py --sample allhours`).**
+- *Specification.* Every hour (n = 1,422,111). The score is sqrt(fare + surcharge), with
+  hour indicators for every hour, their weekend interactions, distance and log distance.
+  The effect is linear in distance and a daytime indicator. Tolls and off-grid fares
+  stay out.
+- *Point estimates* (no bootstrap):
+
+  | Score | All hours | Daytime sample |
+  |---|---|---|
+  | Main (square root) | \$12.42, cell \$12.50 | \$12.87 |
+  | Same, without the daytime term | \$12.38 | |
+  | Dollar, linear in distance (S1-E1) | \$10.59 | \$11.87 |
+  | Dollar, distance and log distance (S2-E1) | \$10.51 | \$11.76 |
+  | Location-scale (Poisson) | \$10.26 | \$12.45 |
+  | Common slope | lower end, \$6.00 | |
+
+- *Effect terms.* The daytime shift is -\$0.045 per ride (point estimate). The distance
+  slope is \$0.23/mile.
+- *Diagnostics (square-root score).*
+  - R^2 of eta-hat on the rich covariates is 0.210, against 0.093 on the daytime sample.
+    Of the 0.210, 0.202 comes from a spline in log distance alone, 0.04 from hours, and
+    0.04 more when the spline is allowed to differ off daytime hours.
+  - The sd of eta-hat by hour is 0.16-0.31 sqrt($), against 0.14-0.22 on the daytime
+    sample. The dollar score shows the same pattern (about 1.4 by day, 1.8-2.0 from 4pm
+    to midnight).
+  - The location-scale residual keeps R^2 = 0.160 (near 0 on the daytime sample).
+- *Reading.* Haggag--Paci's daytime restriction also serves X independent of eta. The
+  specifications disagree much more on all hours, so the author kept the daytime sample.
+- *Two code issues found.*
+  - A J-tail refit on all hours hit an exactly singular outcome design.
+    `outcome_fit` now falls back to minimum-norm least squares and logs the constant
+    columns; old results are unchanged.
+  - The point results are now saved before the refits.
+
+**Q = sqrt(fare) instead of 2(sqrt(fare) - 1).** On the daytime sample both give
+phi = \$12.866630665 (equal to 1e-12), the same gain and the same alpha-hat values; only
+eta's unit halves. The code keeps the Box-Cox form; the paper figure converts.
+
+**Paper (manuscript 1295258, changelog 747da86).** The main numbers are unchanged.
+- §6.1 frames keeping every fare as an extension (no RDD neighborhood). It gives the
+  diagnostics above as the reason the daytime restriction stays.
+- The all-hours row (\$12.42) is in Table `taxi-robust`.
+- Appendix 5's eta-scale constants are recomputed on the sqrt(fare) scale: sd 0.202,
+  J [-0.410, 1.032], window [-0.379, 0.780], a1 0.174, a2 0.477.
+- `811.tex` is synced.
+- `taxi_window_cap_check.py` remains a daytime-sample check that no paper text cites.
+- Run outputs (git-ignored): `runs/taxi_section6_allhours/`,
+  `runs/taxi_section6_allhours_rows/` (S1-E1, S2-E1), `runs/taxi_locscale_row_allhours/`.
+
+---
+
 ## 2026-11-12 - The sketch is now the method-and-theory document (Claude)
 
 Author: "can we move theory into the sketch?" and "i want the sketch to state the methodology and

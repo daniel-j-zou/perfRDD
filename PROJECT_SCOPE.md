@@ -5,7 +5,7 @@ session by reading this file, then the newest entries in `RESEARCH_LOG.md` and
 `../manuscript/TODO.md`.
 
 - **Last reviewed with the author:** 2026-11-04, a full refresh pass (Claude)
-- **Covers decisions up to:** research log entries of 2026-11-04 ("Taxi theory plan; R3-E1 is weakly identified and its score is not monotone")
+- **Covers decisions up to:** research log entries of 2026-11-04 ("Taxi theory plan; R3-E1 is weakly identified and its score is not monotone"); later dated rows in the decision log below were added without a review
 
 This file holds author decisions only. Evidence and derivations stay in `RESEARCH_LOG.md`;
 tasks stay in `../manuscript/TODO.md`. Every item below can be traced through the
@@ -165,7 +165,9 @@ decision history at the end. How to change this file is described in "Updating t
 - **Taxi model:** the treatment effect is nonlinear in eta and linear in the covariates (no
   functions of distance in the D*X block), and eta should carry meaning.
 - **Taxi specification** (2026-10-27, "for now"): the paper's use case is R2-E1. The fare
-  is on the square-root scale (Box-Cox 1/2), the score has distance and log distance plus
+  is on the square-root scale (the paper writes Q = sqrt(fare), 2026-11-12; the code uses
+  Box-Cox 1/2), the sample is the daytime rides with every fare (2026-11-12: kept after an
+  all-hours trial), the score has distance and log distance plus
   the indicators, and the effect is linear in distance. It replaces the 2026-10-20 plan to
   report S1-E1 and S2-E1 (dollar scale) side by side. The theory for it is the taxi
   extension under "Theory".
@@ -350,6 +352,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-12 | Taxi §6: daytime sample kept as the main sample after an all-hours trial (score on fare + surcharge, daytime in the effect: \$12.42, but the score model fits worse at night), all hours a robustness row; §6.1 frames keeping every fare as an extension (no RDD neighborhood); the paper writes Q = sqrt(fare) | Author: "use all hours, but daytime as an indicator. Make it clear that this is an extension ..."; "lets use \qrt{fare}"; "Back to daytime" (2026-11-12); log "Taxi §6: all hours tried and set aside"; manuscript 1295258 |
 | 2026-11-12 | Section 5 displayed design: alpha(eta) = 2 + 0.4 eta + 0.8 tanh(1.5 eta), b(eta) = eta^2/2 + 0.3 sin(2 eta) ("beta" read as b); Tables 1 and 3 rerun in it; the bootstrap coverage rerun (Table 2) deferred as a to-do; §5.4 reframed as the small-sample design | Author: "I want a nonlinear alpha and beta in section 5. Use one of the new ones. Choose a good one, and make the changes now"; "push"; "lets not do bootstrap for now, but leave it as a to do" (2026-11-12); code d98ecd8, manuscript 1454fb6 |
 | 2026-11-12 | Outcome fold renamed the "partially linear fold", subscript o -> beta in the paper (I_beta, P_beta, psi_beta, n_beta, E_beta); "regression fold" was not used because it would clash with the score-regression fold | Author's choice when asked (2026-11-12); manuscript b31c8f4 |
 | 2026-11-12 | Introduction trimmed to about 1,400 printed words: proof-tools sentence moved to the §4 opening; policy learning folded into the bounds group (they need overlap); the "covariate composition" item dropped from §1's contributions list (the supporting point in "Main contribution" above is no longer listed there) | Author: "do all of those" (2026-11-12); manuscript a4bd465 |
