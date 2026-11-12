@@ -23,3 +23,7 @@ Archived so far: see the table kept at the end of this file.
 
 | Dataset | Archived | Local copy |
 |---|---|---|
+| chile_retention (12.1 GB) | 2026-11-12, rclone check passed | kept |
+| freddie_mac (5.7 GB) | 2026-11-12, rclone check passed | kept |
+| nc_sentencing (13.2 GB) | 2026-11-12, rclone check passed | kept |
+| vlbw (8.7 GB) | 2026-11-12, rclone check passed | kept |
