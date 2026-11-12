@@ -9,6 +9,27 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-11 - VLBW write-up with the method: manuscript/binary_outcome_vlbw.tex (Claude)
+
+Author: "write up the best working setting, along with a description of the methodology".
+A Sonnet subagent drafted the note from the sketch, the vlbw README, the results note and the
+routes script; Claude reviewed every line, verified the design constants against
+`make_design` (margin 0.7 sd, outcome-interval tails 0.25%, window cap 0.5%, T interval
+0.05%), fixed the cost arithmetic (Almond et al.'s $4,000 per infant and $550,000 per life
+imply a 0.73-point mortality drop; VSL 7-10 million, HHS 2016), filled the expansion errors
+(2.3e-9 in 2002, 4.6e-9 pooled) and added the pooled local estimate at 1500 g: death lower
+by 0.91 pp (se 0.44) at 50 g and 0.46 (0.26) at 100 g. That last number matters: pooled, the
+logit's effect at the line (+2.5 pp) is 2.7 times the local jump and outside its two-se
+range, so the 2002 agreement (2.1 vs 1.5, se 1.2) was partly noise. The note states this as a
+caveat; the global-versus-local comparison should be part of any application. Pushed as
+manuscript 0d761cf (11 pages; PDF copy in `work/binary_outcome_vlbw.pdf`).
+
+Storage: rclone (Homebrew) with a Dropbox remote authorized by the author; archive layout and
+commands in `experiments/datasets/STORAGE.md`; the upload of the four largest folders is
+running. No local copy has been removed.
+
+— Claude
+
 ## 2026-11-11 - North Carolina sentencing files fetched on the author's instruction; the grid design is feasible, the score is coarse (Claude)
 
 Author: "Yes, fetch them" (the NC DAC offender public-information bulk files; the host's
