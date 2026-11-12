@@ -9,6 +9,55 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - Binary outcomes: proof review applied; heaping undoes the 1995-2002 local check; GLM extension (Claude)
+
+At the author's requests ("Apply all", "resume all four and redo the proof fixes", "remove 1 and 2
+from the sketch", "Can you show how this can be extended to a GLM").
+
+- **Proof review of Section 6 of `manuscript/binary_outcome_vlbw.tex`** (manuscript e9917e7). Five
+  independent reviewers (logic twice, citations, notation, numerics) found 4 blocking issues: the
+  curvature claim of the unique-optimum proposition did not follow from strict monotonicity
+  (counterexample Lambda = (e+t-phi*)^3); the primitive logit conditions contradicted the note's own
+  c = 0 result; the data reading of (V4) was false at c = 0; the outcome gradient A_out missed the
+  slope channel. All fixed, with two re-review rounds. Proposition 4 now needs a derivative margin;
+  the primitive conditions need a positive cost; one combined outcome representer; Proposition 1
+  places the maximizers only. Not checked: the four external sources (not in the library), (L2) for
+  the penalized logistic spline fit.
+- **Crossing conditions on the fitted model** (`experiments/scripts/binary_vlbw_conditions.py`, pooled
+  1995-2002, one rotation): c0 falls across the window (4.11 to 2.00); the gap of the arm logits is
+  nonnegative for only 54% of units; Lambda rises in the linear predictor everywhere but falls in the
+  residual on 12% of grid steps. So the sufficient conditions fail, although the fitted tau-hat crosses
+  zero once. Recorded in the note.
+- **Sketch** (`binary_outcome_sketch.tex`, manuscript 9a8d08c): only the two logit routes remain, with
+  new figures (`experiments/scripts/binary_outcome_logit_figures.py`).
+- **Heaping at 1500 g** (`experiments/scripts/vlbw_heaping_check.py`, output
+  `experiments/runs/vlbw_heaping_check.txt`). Most weights are ounce conversions (about 10,000 births
+  each at 1446, 1474, 1503, 1531 g); round-gram heaps carry higher mortality (exactly 1500 g: 8.3% vs
+  4.2% at 1490-1499 g in 1995-2002). Local linear jump in death at 1500 g, 50 g bandwidth: 1995-2002
+  -0.71 pp (se 0.51), with 1500 g dropped -0.21 (0.51); 1985-1991 -3.04 (0.85), dropped -2.54 (0.85),
+  1495-1505 dropped -2.29 (1.31). So the earlier "validation" of the 1995-2002 logit (+2.5 pp at the line
+  against -0.9 pp locally) rested on the heap, as Barreca, Guldi, Lindo and Waddell (2011) found; the
+  local effect is real in 1985-1991. Routes reruns without round-hundred heaps (variants `_d100`) on
+  1995-2002, 1985-2002 and 1985-1991 are running.
+- **Early cohorts** 1983-1991 added to `vlbw/adapter.py` (subagent; verified against the guides). The
+  routes use 1985 onward: 1983-84 keep a 50% sample of survivors in some states (record weight 2), and
+  the routes take no weights (unweighted death 8.5% vs 7.9% weighted in 1983).
+- **Dead ends:** Freddie Mac credit-score pricing lines (no local jump at 660-740, bunching, R2 0.10;
+  `freddie_mac/BINARY_ROUTES_20261112.md`); Brazil SINASC/SIM (public files carry no birth-record key,
+  so births and infant deaths link only probabilistically, about 70%; `brazil_vlbw/README.md`); the
+  meaningful-eta web scan found nothing open beyond these.
+- **GLM extension** (explained to the author in chat): with mu_d = h(c_d(eta) + X'delta_d), expand the
+  inverse link in its intercept, h(z+v) = sum_k phi_k(z) psi_k(v); multiplier (1, psi_k(v0), psi_k(v1)),
+  effect vector (-c, -phi_k(c0), phi_k(c1)); the outcome fold is a penalized GLM partially linear fit with
+  Fisher weight h'(a)^2/V(mu). Expansion error at M = 12 on [-3,3]: logit 2.0e-5, probit 1.2e-4,
+  cloglog 1.1e-3. The log link is exactly separable with one term (e^{z+v} = e^z e^v): multiplier
+  (1, e^{X'delta0}, e^{X'delta1}), no approximation, covering Poisson, negative binomial and log-mean
+  positive outcomes. With a log link W = e^{a0}(e^Delta - 1), so the sign of the effect is the sign of
+  Delta and the crossing conditions reduce to conditions on Delta. Not yet written into the sketch
+  (offered).
+
+— Claude
+
 ## 2026-11-12 - Follow-up: the free UI schedule holds up under cross-evaluation; DSH does not (Claude)
 
 Author: "does it work?", then "yes, add it to the note and log." Check (maker `free_cross` in
