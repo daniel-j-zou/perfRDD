@@ -16,6 +16,10 @@ Routes (one four-role estimator each, same folds, average of the four rotations)
              the paper's spline tails (note, Section 5);
   logit_emp  the same logit fit with empirical tails on the index fold, which is the
              pairwise double average of the note's Section 4 computed through the sieve.
+  logit_lo   the same logit fit, effect on the log-odds scale, W = a1 - a0 =
+             c1(eta) - c0(eta) + X_e'beta2: affine in X, so the paper's estimator applies
+             with no expansion; the cost is in log-odds units (2026-11-12; not in the
+             default list, ask for it with --routes logit_lo).
 
 Run (from code/):
     python -m experiments.scripts.binary_outcome_routes --settings gpa chile --out experiments/runs/binary_outcome_routes
@@ -27,6 +31,7 @@ import json
 import os
 import time
 from dataclasses import dataclass
+from types import SimpleNamespace
 from pathlib import Path
 
 for _var in ("OMP_NUM_THREADS", "OPENBLAS_NUM_THREADS", "MKL_NUM_THREADS",
@@ -393,11 +398,17 @@ def rotation(data: Data, design: M.Design, folds: dict, route: str, M_sieve: int
     near = np.abs(data.Q[U] - design.phi0) <= 0.05 * float(np.std(data.Q))
     extra = {}
 
-    if route in ("lpm", "additive"):
+    if route in ("lpm", "additive", "logit_lo"):
         if route == "lpm":
             fit = M.outcome_fit(data, eta, folds["outcome"], design)
-        else:
+        elif route == "additive":
             fit = fit_additive(data, eta, folds["outcome"], design)
+        else:
+            # logit on both arms, but the effect taken on the log-odds scale:
+            # W = a1 - a0 = c1(eta) - c0(eta) + X_e'beta2, affine in X, so the paper's
+            # estimator applies exactly; the cost is in log-odds units
+            lf = fit_logit(data, eta, folds["outcome"], design)
+            fit = SimpleNamespace(alpha=lambda ee, lf=lf: lf.c(ee, 1) - lf.c(ee, 0), beta2=lf.beta2)
         tails = fit_weighted_tails(T_idx, data.X[folds["index"]], design.T_support)
         amc = fit.alpha(e) - design.cost
         b2 = fit.beta2

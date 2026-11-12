@@ -9,6 +9,43 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - VLBW: the effect on the log-odds scale against the probability scale (Claude)
+
+Author: "run the log-odds version on VLBW and give me the figures here and results, side by
+side". New route `logit_lo` in `experiments/scripts/binary_outcome_routes.py`: the same logit
+fit on both arms, with the effect taken as W = a1 - a0 = c1(eta) - c0(eta) + X_e'beta2 and the
+cost in log-odds units. W is affine in X, so the paper's estimator applies with no expansion.
+Pooled 1995-2002, candidate set 1200-2200 g, seed 1, four rotations. Runs
+`experiments/runs/binary_outcome_routes_vlbw_wide_logodds_c0` and `_c0.5`. The comparison is
+`experiments/scripts/binary_vlbw_logodds_compare.py`, which writes `optima.txt` and the figure
+to `experiments/runs/binary_vlbw_logodds_compare/` (git-ignored).
+
+- Effect at the threshold at c = 0, probability points / log-odds: 1200 g 8.7 / 0.89, 1500 g
+  2.5 / 0.57, 1800 g 0.2 / 0.17, 2000 g -0.3 / -0.10, 2200 g -0.9 / -0.47. The log-odds effect
+  falls almost linearly in weight. The ratio of the two, about F'(a) of the marginal infants,
+  falls from 0.097 at 1200 g to 0.043 at 1500 g and 0.014 at 1800 g; that is the ceiling.
+- At zero cost the optimum is 1929 g on the log-odds scale (rotations 1892-1964) and 1869 g on
+  the probability scale (1830-1916). So the interior optimum at zero cost is not only the
+  ceiling: the fitted log-odds effect itself changes sign near 1920 g, through the negative
+  gestation slope (beta2 = -0.49 per sd) carried to heavier infants.
+- With costs matched at 1500 g (c_lo = c_prob / 0.0433), 1, 2 and 3 survival points become
+  0.23, 0.46 and 0.69 log-odds. The optima are 1748, 1580 and 1392 g, against 1663, 1545 and
+  1456 g on the probability scale. The log-odds optima spread further in both directions because
+  its effect curve is close to a straight line, while the probability curve is convex.
+- On a linear route the cost enters as -c times the treated share, so the runs at 0 and 0.5
+  give the optimum at every cost. Check: derived 1553 g at 0.5, and the run gives 1553 g.
+- Conditions, on the same fit (`binary_vlbw_conditions/conditions_wide_seed1.json`): the gap
+  c1 - c0 rises from -0.30 to +0.49 over the window with one dip of 0.03 (residual 424-512 g),
+  and E(X_e'beta2 | T = t) rises in every bin. So the paper's crossing conditions nearly hold on
+  the log-odds scale, whereas the arm-wise (P1) fails on the probability scale. The log-odds tau
+  is monotone over the whole grid.
+- Reading: the log-odds version is the paper's estimator exactly, and its optima sit within
+  35-90 g of the probability-scale ones. What it gives up is the utility: a constant log-odds
+  cost values the same odds change equally for an infant at 89% and at 99% survival, so the
+  cost cannot be stated in survivors.
+
+— Claude
+
 ## 2026-11-12 - Taxi §6: all hours tried and set aside; daytime kept; Q = sqrt(fare) (Claude)
 
 Author requests and decisions (2026-11-12, Taxi session):
