@@ -145,8 +145,9 @@ decision history at the end. How to change this file is described in "Updating t
 - **Displayed design** (2026-11-12): nonlinear alpha and b,
   alpha(eta) = 2 + 0.4 eta + 0.8 tanh(1.5 eta), b(eta) = eta^2/2 + 0.3 sin(2 eta), the rest
   as before; target phi*_eps = 0.468829 (0.545103 with the old linear alpha). The
-  second (quadratic) design stays as the small-sample check. Its bootstrap coverage
-  rerun is a deferred to-do; Table 2 stays in the linear design until then.
+  second (quadratic) design stays as the small-sample check. Rerunning the bootstrap
+  coverage table (Table 2) in the new displayed design is a deferred to-do; the table
+  stays in the linear design until then.
 - **To do** (2026-10-20):
   - rerun the coverage tables with 999-draw percentile intervals (the run finished on
     2026-10-23; the port into §5 is left);
