@@ -140,8 +140,12 @@ decision history at the end. How to change this file is described in "Updating t
   Nothing else. The linear-in-eta negative control in the paper's §5.3 table is dropped
   (2026-10-20).
 - **Gaps closed** (2026-10-19 and 2026-10-20): the four-role run with the spline outcome
-  fit; the displayed design at its own optimum (phi* ~ 0.545103); bootstrap coverage for
+  fit; the displayed design at its own optimum; bootstrap coverage for
   the rotated estimator; the nonlinear alpha, b design.
+- **Displayed design** (2026-11-12): nonlinear alpha and b,
+  alpha(eta) = 2 + 0.4 eta + 0.8 tanh(1.5 eta), b(eta) = eta^2/2 + 0.3 sin(2 eta), the rest
+  as before; target phi*_eps = 0.468829 (0.545103 with the old linear alpha). The
+  second (quadratic) design stays as the small-sample check.
 - **To do** (2026-10-20):
   - rerun the coverage tables with 999-draw percentile intervals (the run finished on
     2026-10-23; the port into §5 is left);
@@ -343,6 +347,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-12 | Section 5 displayed design: alpha(eta) = 2 + 0.4 eta + 0.8 tanh(1.5 eta), b(eta) = eta^2/2 + 0.3 sin(2 eta) ("beta" read as b); Tables 1-3 rerun in it; §5.4 reframed as the small-sample design | Author: "I want a nonlinear alpha and beta in section 5. Use one of the new ones. Choose a good one, and make the changes now"; "push" (2026-11-12); code d98ecd8, manuscript 1454fb6 |
 | 2026-11-12 | Outcome fold renamed the "partially linear fold", subscript o -> beta in the paper (I_beta, P_beta, psi_beta, n_beta, E_beta); "regression fold" was not used because it would clash with the score-regression fold | Author's choice when asked (2026-11-12); manuscript b31c8f4 |
 | 2026-11-12 | Introduction trimmed to about 1,400 printed words: proof-tools sentence moved to the §4 opening; policy learning folded into the bounds group (they need overlap); the "covariate composition" item dropped from §1's contributions list (the supporting point in "Main contribution" above is no longer listed there) | Author: "do all of those" (2026-11-12); manuscript a4bd465 |
 | 2026-11-12 | Introduction and abstract rewritten (admissions running example, taxi at the end); prior-work comparisons corrected (Marinescu et al. credited and compared; policy-learning contrast is overlap; Rokkanen, Yata, Bertanha added); abstract follows the body, no symbols, alphabetical key words | Author: "Yes, fix and rewrite this whole thing ... Fix all prior work. Abstract should match the body"; "Do the same with the abstract"; "yes" (2026-11-11/12); manuscript e6da428 |

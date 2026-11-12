@@ -9,6 +9,64 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - Section 5 displayed design: nonlinear alpha and b (Claude)
+
+**Author decision:** "I want a nonlinear alpha and beta in section 5. Use one of the new
+ones. Choose a good one, and make the changes now"; then "push" (2026-11-12). "Beta" is
+read as the baseline b(eta), since a nonlinear beta_2 in X would leave the model.
+
+Choice. Of the three candidates offered on 2026-11-04 (all monotone on the window, one
+crossing), alpha(eta) = 2 + 0.4 eta + 0.8 tanh(1.5 eta): S-shaped, slope 1.6 at 0 and about
+0.4 in the tails, strictly increasing, and away from the edge of Phi. The quadratic
+candidate put phi*_eps at 0.94, near the edge of Phi = [-1.5, 1.5], and lies in the spline
+space. For the baseline, b(eta) = eta^2/2 + 0.3 sin(2 eta), so neither curve is a
+polynomial. Everything else is unchanged (X ~ N(0, I_3), gamma = (0,1,1,1)/sqrt3,
+beta_1, beta_2, sigma = 0.5, c = 2.25, eps = 0.1, J, T, Phi).
+
+Population (code d98ecd8, `ds_local_efficiency` design "paper_nonlinear"):
+
+| | linear alpha (until now) | new |
+| --- | ---: | ---: |
+| phi*_eps | 0.545103 | 0.468829 |
+| H | -0.107534 | -0.128227 |
+| untrimmed phi* | 0.4262 | 0.3941 |
+| Var psi_U, psi_beta, psi_T, psi_gamma | 0.0145, 0.2181, 0.0434, 0.0834 | 0.0251, 0.2186, 0.0552, 0.1397 |
+| sigma^2/H^2 (rotated / fixed) | 31.09 / 124.4 | 26.68 / 106.7 |
+| oracle Var psi_U/H^2 | 1.256 | 1.524 |
+| bias constant B (slope + third-derivative parts) | 21.6 (9.2 + 12.4) | 15.97 (6.49 + 9.48) |
+| dphi*/deps | 1.707 | 1.162 |
+
+- Identification ((U1)-(U4)): alpha' >= 0.4, so (U1)-(U3) hold on R; (U4) on [-3, 3] with
+  tau(-3) = -1.54, tau(3) = 1.04; the endpoint condition would need Phi to contain
+  [-7.22, 10.11]. min tau' on [-3, 3] = 0.297, at -3 (the script's coarse grid gives
+  0.301 because it misses the endpoint; the paper's 0.297 for the old design was also
+  right). C_alpha, C_lambda, B_eps = 0.411, 0.059, 0.055; pi = 0.919, tau_out = 0.448,
+  chi(l0) = -1.226, chi(u0) = 0.888; gap/bound 0.0747/0.0750.
+- eps grid (Phi = [-1, 1.5], T = [-3.5, 3.5]): target 0.420, 0.442, 0.469, 0.500, 0.537,
+  0.625, 0.740 and first-order V 18.4, 21.9, 26.7, 33.4, 42.5, 72.5, 129.0 at
+  eps = 0.05, ..., 0.25.
+- Pathwise check: finite difference -0.006806911 against E(psi_T s), relative error
+  3.5e-11.
+
+Checks of the code:
+- The old design reproduces phi* 0.5451028, H -0.1075335, B 21.568 and the eps table
+  exactly.
+- `ds_simplification_checks.Pop` writes alpha, b and their derivatives by hand. It agrees
+  with `Population` for the new design to 1e-16 (phi, H, b_l, b_u, A_U, A_out, A_dens,
+  Abar).
+- 22 unit tests pass.
+
+Paper: manuscript 1454fb6. §5.1 and Appendix 7 (identification, design table, pathwise
+check) are updated. §5.4 is reframed as the small-sample design. Tables 1-3 and their
+text still show the linear design, under four todo boxes.
+
+Reruns running, `experiments/runs/ds_section5_nonlinear/run_*.sh`:
+- Table 1: bias decomposition, 2000 reps at 16k and 64k, plus 1000 at 32k.
+- Table 3: eps sensitivity.
+- Table 2: coverage at 199 draws, then extended to 999.
+
+Results will follow as a new entry.
+
 ## 2026-11-12 - The GLM extension written into the sketch (Claude)
 
 Author: "add the GLM extension to the sketch. I want to see how the theory makes sense."
