@@ -52,6 +52,39 @@ the end. Fix all prior work. Abstract should match the body."
 
 Rewrite in progress (Fable writer; worktree `ms-intro`).
 
+## 2026-11-12 - Decision: the logit routes are the method; theory section written for them (Claude)
+
+Author: "I am only interested in routes 3 and 4, since they actually make sense" and "Please fix
+the note and the theory." A Sonnet subagent trimmed `manuscript/binary_outcome_vlbw.tex` (LPM
+as the contrast, additive route dropped); Claude wrote Section 6, "Theory for the logit routes":
+- Proposition 1, expansion bias: for the logistic link the Chebyshev interpolant in the
+  intercept on [-A, A] has uniform error C rho^-M with rho = pi/A + (1 + pi^2/A^2)^(1/2),
+  uniformly in the slope argument because the poles sit at imaginary distance pi; A = 3 gives
+  rho = 2.50 and 2.5^-12 = 1.7e-5 against the computed 2.0e-5. M_n of order log n makes the
+  bias o(n^-1/2).
+- Proposition 2, spline tails: the paper's estimator with multiplier Psi = (1, psi_k(v_0),
+  psi_k(v_1)) and effect vector nu = (-c, -phi_k(c_0), phi_k(c_1)); the four-role CLT holds with
+  psi_o = -r_out (Y - m_D) - A_delta' phi_delta (variance-function weights in the representer;
+  a gradient in the arm slopes through the multipliers), psi_T with the new r_T and Psi, A_out with
+  F'(a_D). Conditions (L1)-(L3) added to (A1)-(A7). Not proved: (L2) for the penalized logistic
+  spline fit, uniform-in-M bookkeeping.
+- Proposition 3, empirical tails: the criterion is a two-sample U-statistic of degrees (1,1);
+  its Hoeffding projections are psi_U and the density part of psi_T; the degenerate part is
+  O_p(n^-1) uniformly (Nolan-Pollard 1987, Sherman 1994); Sherman's argmax theorem handles
+  the step criterion; same limit as the spline route. Not proved: the maximal inequalities with
+  estimated nuisances.
+- Lemma (coupling) and Proposition 4, single crossing with a link: under log-concave g and
+  f_eta, the quantile coupling of eta_phi across thresholds has increments in [0, phi - phi'],
+  so both eta and T rise; hence Lambda(e, t) = E(W | eta = e, T = t) monotone in each argument
+  gives tau_eps nondecreasing, strict under (V3), one zero under (V4). Primitive logit
+  conditions: c_0 nonincreasing and c_1 - c_0 nondecreasing in eta, the covariate indices
+  monotone in T, and both arm indices nonnegative (survival above one half), where the ceiling
+  is the mechanism of the fading effect.
+Pushed as manuscript (see CHANGELOG, 2026-11-12); 18 pages. Suggested next step: a proof review
+of Section 6 with the proof-review skill before any of it moves into the paper.
+
+— Claude
+
 ## 2026-11-11 - VLBW write-up with the method: manuscript/binary_outcome_vlbw.tex (Claude)
 
 Author: "write up the best working setting, along with a description of the methodology".

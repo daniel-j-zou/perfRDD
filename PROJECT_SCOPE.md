@@ -228,7 +228,11 @@ only when the author asks; it does not change the sections above.
   cost is set (2002: 1508 g at c = 0.02, bootstrap [1476, 1543] g; pooled 1995-2002,
   n = 2.1M: 1545 g at c = 0.02, bootstrap [1529, 1555] g, 1500 g optimal near c = 0.025; with the policy set widened to 2200 g the
   logit effect crosses zero at about 1870 g, so c = 0 is interior there). The write-up of this setting with its method is
-  `../manuscript/binary_outcome_vlbw.tex` (2026-11-11), and the linear probability
+  `../manuscript/binary_outcome_vlbw.tex` (2026-11-11). Decision 2026-11-12: the method is the
+  logit on both arms (spline tails or empirical tails, the latter the default); the linear probability
+  model is kept only as the contrast and the additive-effect route is dropped. The note's Section 6
+  states the theory for the logit routes (expansion bias, four-role CLT with modified role scores,
+  U-statistic route, single crossing with a link) with arguments, not full proofs, and the linear probability
   model fails there. The Chile 485 loan line (PAES scale) does not bind and is out. Next: more data sets with a binary outcome, selected for a
   treatment that is meaningful (a threshold someone chooses, a documented effect, a
   plausible cost, an effect that can cross the cost inside the score range); candidate
