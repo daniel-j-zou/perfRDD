@@ -60,7 +60,7 @@ def rich_features(df: pd.DataFrame) -> np.ndarray:
     hr = np.floor(df["hour_of_day"].to_numpy(float)).astype(int)
     dow = df["day_of_week"].to_numpy(int)
     pc = np.clip(df["Passenger_Count"].to_numpy(int), 1, 6)
-    H = np.eye(24)[hr][:, 7:20]
+    H = np.eye(24)[hr][:, [h for h in range(24) if h != 6]]   # daytime data: same span as 7-19
     W = np.eye(7)[dow][:, 1:]
     P = np.eye(7)[pc][:, 2:]
     return np.column_stack([np.ones(len(d)), S, H, W, P, H * (dow >= 5)[:, None]])

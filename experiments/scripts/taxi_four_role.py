@@ -73,7 +73,18 @@ ROLES = ("gamma", "outcome", "index", "utility")
 # ----------------------------------------------------------------------------- data
 
 def load_frame(sample: str) -> pd.DataFrame:
-    """Haggag--Paci restrictions; ``full`` drops only their $5--$25 fare range."""
+    """VTS credit-card rides, January 2009.
+
+    ``restricted``: the Haggag--Paci restrictions (daytime, no tolls, taxes or surcharges,
+    fares on the meter grid, fares $5--$25). ``full``: the same without the $5--$25 range
+    (the Section 6 main sample until 2026-11-12). ``allhours``: every hour of the day
+    (Section 6 main sample from 2026-11-12, author decision). The terminal switches
+    menus, and computes the percentages, on the fare plus the time-of-day surcharge
+    ($0.50 at night, $1 on weekday evenings), so ``Fare_Amt`` is that base amount and
+    the meter fare is kept as ``meter_fare``; ``daytime`` marks the Haggag--Paci daytime
+    hours. Tolls (the menu switches on fare + toll but the percentages use the fare) and
+    off-grid fares (mostly the $45 airport flat fare) stay out.
+    """
     raw = pd.read_parquet(DATA_PATH)
     if sample == "restricted":
         df = prepare_haggag_paci_frame(raw, vendor="VTS")
@@ -92,12 +103,32 @@ def load_frame(sample: str) -> pd.DataFrame:
         df = df.loc[keep].copy()
         df["hour_of_day"] = hour.loc[keep]
         df["day_of_week"] = day.loc[keep]
+    elif sample == "allhours":
+        df = raw[raw["Payment_Type"].astype(str).str.upper() == "CREDIT"].copy()
+        pickup = pd.to_datetime(df["Trip_Pickup_DateTime"])
+        hour = pickup.dt.hour + pickup.dt.minute / 60.0 + pickup.dt.second / 3600.0
+        day = pickup.dt.dayofweek.astype(float)
+        daytime = (((day < 5) & (hour >= 6) & (hour < 16))
+                   | ((day >= 5) & (hour >= 6) & (hour < 20)))
+        surcharge = df["surcharge"].fillna(0.0)
+        units = np.rint((df["Fare_Amt"] - 2.5) / 0.4)
+        keep = ((pickup < pd.Timestamp("2009-11-01"))
+                & df["Tolls_Amt"].fillna(0.0).eq(0.0) & df["mta_tax"].fillna(0.0).eq(0.0)
+                & surcharge.isin([0.0, 0.5, 1.0]) & (df["Fare_Amt"] >= 2.5)
+                & np.isclose(df["Fare_Amt"], 2.5 + 0.4 * units, atol=1e-6))
+        df = df.loc[keep].copy()
+        df["hour_of_day"] = hour.loc[keep]
+        df["day_of_week"] = day.loc[keep]
+        df["daytime"] = daytime.loc[keep].astype(float)
+        df["meter_fare"] = df["Fare_Amt"]
+        df["Fare_Amt"] = df["Fare_Amt"] + surcharge.loc[keep]
     else:
         raise ValueError(sample)
     cols = ["Trip_Distance", "Passenger_Count", "hour_of_day", "day_of_week",
             "Fare_Amt", "Tip_Amt"]
     df = df[df[cols].notna().all(axis=1)]
-    fare, tip = df["Fare_Amt"].to_numpy(float), df["Tip_Amt"].to_numpy(float)
+    fare = df["meter_fare" if "meter_fare" in df else "Fare_Amt"].to_numpy(float)
+    tip = df["Tip_Amt"].to_numpy(float)
     entry_error = (tip / fare > 1.0) & (tip >= 10.0)
     df = df.loc[~entry_error & (df["Trip_Distance"].to_numpy(float) > 0)]
     return df.reset_index(drop=True)
@@ -127,9 +158,10 @@ def _standardize(M):
     return (M - M.mean(0)) / M.std(0)
 
 
-def score_covariates(df: pd.DataFrame, kind: str = "spline") -> np.ndarray:
-    """Distance terms (``kind``) plus hour, day-of-week, weekday-hour x weekend and
-    group-ride indicators.  ``linear``: distance; ``distlog``: distance and log
+def score_covariates(df: pd.DataFrame, kind: str = "spline", hour_set: str = "day") -> np.ndarray:
+    """Distance terms (``kind``) plus hour, day-of-week, hour x weekend and group-ride
+    indicators. ``hour_set``: ``day`` for the daytime samples (hours 6-19), ``all`` for
+    the all-hours sample (every hour, each also interacted with the weekend).  ``linear``: distance; ``distlog``: distance and log
     distance (the meter's $2/mile plus a time charge growing with log distance);
     ``spline``: cubic B-spline in log distance with knots at the quintiles."""
     d = df["Trip_Distance"].to_numpy(float)
@@ -143,9 +175,15 @@ def score_covariates(df: pd.DataFrame, kind: str = "spline") -> np.ndarray:
         dist = _bspline_cols(np.log(d), [0.2, 0.4, 0.6, 0.8])
     else:
         raise ValueError(kind)
-    hours = np.column_stack([hr == h for h in range(7, 20)]).astype(float)   # base 6am
     days = np.column_stack([dow == k for k in range(1, 7)]).astype(float)    # base Monday
-    weekend_hours = hours[:, :9] * (dow >= 5)[:, None]   # 16-19h occur only on weekends
+    if hour_set == "day":
+        hours = np.column_stack([hr == h for h in range(7, 20)]).astype(float)   # base 6am
+        weekend_hours = hours[:, :9] * (dow >= 5)[:, None]   # 16-19h occur only on weekends
+    elif hour_set == "all":
+        hours = np.column_stack([hr == h for h in range(24) if h != 6]).astype(float)
+        weekend_hours = hours * (dow >= 5)[:, None]
+    else:
+        raise ValueError(hour_set)
     group = (df["Passenger_Count"].to_numpy(float) >= 2).astype(float)
     return _standardize(np.column_stack([dist, hours, days, weekend_hours, group]))
 
@@ -154,6 +192,8 @@ def effect_covariates(df: pd.DataFrame, kind: str = "distance") -> np.ndarray:
     d = df["Trip_Distance"].to_numpy(float)
     if kind == "distance":
         return _standardize(d)
+    if kind == "distance+daytime":          # main from 2026-11-12 (all-hours sample)
+        return _standardize(np.column_stack((d, df["daytime"].to_numpy(float))))
     if kind == "none":                      # common slope: placeholder, not used
         return _standardize(d)
     if kind == "distance2":                 # robustness: curvature in distance
@@ -200,10 +240,10 @@ class Data:
 
 
 def make_data(df: pd.DataFrame, lam: float, effect: str = "distance",
-              baseline: str = "flexible", score: str = "spline") -> Data:
+              baseline: str = "flexible", score: str = "spline", hour_set: str = "day") -> Data:
     fare = df["Fare_Amt"].to_numpy(float)
     Zb = None if baseline == "flexible" else linear_baseline_covariates(df)
-    return Data(boxcox(fare, lam), score_covariates(df, score), effect_covariates(df, effect),
+    return Data(boxcox(fare, lam), score_covariates(df, score, hour_set), effect_covariates(df, effect),
                 df["Tip_Amt"].to_numpy(float), fare, lam, Zb)
 
 
@@ -288,7 +328,16 @@ def outcome_fit(data: Data, eta, idx, design: Design) -> OutcomeFit:
     if design.effect:
         cols.append(D[:, None] * data.X[keep])
     A = np.column_stack(cols)
-    coef = np.linalg.solve(A.T @ A, A.T @ data.Y[keep])
+    try:
+        coef = np.linalg.solve(A.T @ A, A.T @ data.Y[keep])
+    except np.linalg.LinAlgError:
+        # Rank-deficient design within the fold and J (an empty spline interval or a
+        # covariate constant there): minimum-norm least squares, and say which columns.
+        dead = np.flatnonzero(np.ptp(A, axis=0) == 0).tolist()
+        print(f"  outcome_fit: singular design; constant columns {dead} of {A.shape[1]} "
+              f"(spline columns per arm {B.shape[1]}, J {np.round(design.J, 3).tolist()}); "
+              f"minimum-norm least squares", flush=True)
+        coef = np.linalg.lstsq(A, data.Y[keep], rcond=None)[0]
     nb = B.shape[1]
     beta2 = (coef[2 * nb + data.baseline.shape[1]:] if design.effect
              else np.zeros(data.X.shape[1]))

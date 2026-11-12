@@ -3,6 +3,10 @@
 Robustness row only (scope, 2026-10-22: "location-scale first stage kept as a taxi
 robustness check only"); the paper's theory does not cover it.
 
+``--sample`` (default ``daytime``, the paper's row) picks the sample, score hours and
+effect columns of ``taxi_section6.SAMPLES`` (output in runs/taxi_locscale_row/;
+``--sample allhours`` writes to runs/taxi_locscale_row_allhours/).
+
 Everything is R2-E1 (``taxi_section6.py``) except the first stage:
 
 * Q = 2(sqrt(fare) - 1); score covariates distance, log distance, hour, day-of-week,
@@ -64,7 +68,9 @@ from experiments.scripts import taxi_four_role as M
 from experiments.scripts import taxi_score_scales as S
 from experiments.scripts import taxi_section6 as R6
 
-OUT = M.ROOT / "runs" / "taxi_locscale_row"
+OUT = M.ROOT / "runs" / "taxi_locscale_row"            # daytime sample
+OUTS = {"daytime": OUT, "allhours": M.ROOT / "runs" / "taxi_locscale_row_allhours"}
+CFG = R6.SAMPLES["daytime"]                          # set from --sample in main()
 SPEC = "R2-E1"
 LAM, SCORE = R6.SPECS[SPEC]
 STAGE = {"poisson": "locscale_pois", "harvey": "locscale", "additive": "additive"}
@@ -81,7 +87,7 @@ MAIN = "ls_poisson"
 # ----------------------------------------------------------------------------- setup
 
 def scale_covariates(df, data, kind):
-    return M.score_covariates(df, "spline") if kind == "spline" else data.Z
+    return M.score_covariates(df, "spline", CFG["hours"]) if kind == "spline" else data.Z
 
 
 def central(z, D, q, both_arms=False):
@@ -263,7 +269,7 @@ def point(df, key, seed=1):
     t0 = time.time()
     fit, zs, both = VARIANTS[key]
     stage = STAGE[fit]
-    data = M.make_data(df, LAM, R6.EFFECT, score=SCORE)
+    data = M.make_data(df, LAM, CFG["effect"], score=SCORE, hour_set=CFG["hours"])
     Zs = scale_covariates(df, data, zs)
     design, dinfo = make_design(data, Zs, stage, both_arms=both)
     fare_grid = np.linspace(*M.POLICY_DOLLARS, 73)
@@ -271,14 +277,14 @@ def point(df, key, seed=1):
     r = four_role(data, design, seed, Zs, stage, curves=M.boxcox(fare_grid, LAM),
                   alpha_grid=alpha_grid, both_arms=both)
     dol = lambda p: M.dollars(p, LAM)
-    sd_mile = float(df["Trip_Distance"].std(ddof=0))
+    sd_eff = df[CFG["effect_cols"]].to_numpy(float).std(0)
     row = {"key": key, "scale_fit": fit, "scale_covariates": zs, "both_arms": both, "stage": stage,
            "phi": dol(r["phi_avg"]), "cell": M.fare_cell(dol(r["phi_avg"]), data.fare),
            "phi_pooled": dol(r["phi_pooled"]), "rotations": [dol(p) for p in r["phi_rotations"]],
            "own_cell": M.fare_cell(dol(r["own_cutoff"]), data.fare),
            "at_boundary": r["at_boundary"], "local_maxima": r["local_maxima"],
            "gain_cents": 100 * r["gain_vs_deployed"], "beta2_per_sd": r["beta2"],
-           "beta2_per_mile": [b / sd_mile for b in r["beta2"]],
+           "beta2_per_mile": [b / sd for b, sd in zip(r["beta2"], sd_eff)],   # [0]: per mile
            "window": r["window"], "window_share": r["window_share"],
            "trim_binds": r["trim_binds"], "design": dinfo,
            "fare_grid": fare_grid.tolist(), "U": r["U"].tolist(),
@@ -316,7 +322,7 @@ def _draw(b):
 def bootstrap(df, key, boot, workers, seed, out):
     fit, zs, both = VARIANTS[key]
     stage = STAGE[fit]
-    data = M.make_data(df, LAM, R6.EFFECT, score=SCORE)
+    data = M.make_data(df, LAM, CFG["effect"], score=SCORE, hour_set=CFG["hours"])
     Zs = scale_covariates(df, data, zs)
     design, _ = make_design(data, Zs, stage, both_arms=both)
     curves = M.boxcox(np.linspace(*M.POLICY_DOLLARS, 73), LAM)
@@ -346,11 +352,11 @@ def summarize(key, out, boot):
     rows = [r for r in rows if r["b"] < boot]
     pts = json.loads((out / "point.json").read_text())["rows"]
     est = next(r for r in pts if r["key"] == key)
-    fares = np.unique(M.load_frame("full")["Fare_Amt"].to_numpy(float))
+    fares = np.unique(M.load_frame(CFG["frame"])["Fare_Amt"].to_numpy(float))
     s = R6.summarize_boot(est, rows, fares)
     s["seconds_per_draw_median"] = float(np.median([r["seconds"] for r in rows]))
     # pair with the main specification's draws (same resample and split for each b)
-    main_path = M.ROOT / "runs" / "taxi_section6" / f"{SPEC}_draws.jsonl"
+    main_path = CFG["out"] / f"{SPEC}_draws.jsonl"
     main = {r["b"]: r["phi"] for r in R6._load(main_path)}
     common = [r for r in rows if r["b"] in main]
     if common:
@@ -395,11 +401,15 @@ def main(argv=None):
     ap.add_argument("--workers", type=int, default=2)
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--summarize", action="store_true")
-    ap.add_argument("--out", type=Path, default=OUT)
+    ap.add_argument("--sample", default="daytime", choices=list(R6.SAMPLES))
+    ap.add_argument("--out", type=Path, default=None, help="default: the sample's run folder")
     a = ap.parse_args(argv)
+    global CFG
+    CFG = R6.SAMPLES[a.sample]
+    a.out = a.out or OUTS[a.sample]
     a.out.mkdir(parents=True, exist_ok=True)
     if a.point:
-        df = M.load_frame("full")
+        df = M.load_frame(CFG["frame"])
         path = a.out / "point.json"
         res = json.loads(path.read_text()) if path.exists() else {"rows": []}
         res.update(spec=SPEC, lam=LAM, score=SCORE, eps=R6.EPS, tail=R6.TAIL,
@@ -410,7 +420,7 @@ def main(argv=None):
             res["rows"] = [r for r in res["rows"] if r["key"] != key] + [row]
             path.write_text(json.dumps(res, indent=1) + "\n")
     if a.boot:
-        df = M.load_frame("full")
+        df = M.load_frame(CFG["frame"])
         bootstrap(df, a.boot_key, a.boot, a.workers, a.seed, a.out)
         summarize(a.boot_key, a.out, a.boot)
     elif a.summarize:
