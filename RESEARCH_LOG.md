@@ -9,6 +9,37 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - Dose schedules: budget-neutral schedules without a family (Claude)
+
+Author: "Write this in there, and try this unrestricted setting that still keeps a budget
+constraint." New makers `cwbh_free` and `dsh_free` in `experiments/scripts/dose_schedule_redesign.py`:
+20 score bins, each with its own dose from a grid, chosen to optimise summed predicted utility
+under today's budget by a price on spending (bisection, then a blend of the two solutions on
+either side of the budget, because many bins switch at the same price; without the blend the
+monotone DSH run overspent by up to 54%). Only doses with bin coverage >= 90% plus the bin's
+current dose are allowed; a monotone version uses dynamic programming. Outputs:
+`simulations/dose_schedule/redesign_{cwbh_free,dsh_free_log_cases}.{png,json}`.
+
+- **UI:** free -0.32 weeks (rotations -0.39 to -0.25), monotone -0.29 (-0.32 to -0.23), spending
+  1.00-1.02 of today's. The schedule cuts claimants below 0.59 of the kink to their lowest
+  supported benefit and raises 0.65-0.99 of the kink to 0.95 of the cap: low earners to middle
+  earners, the reverse of the family's best member (cap 0.85, rate x1.86), which keeps only 50%
+  of claimants inside their bin's supported doses (65% at cap 0.90, 74% at 0.95, 93% today; the
+  unit-level `support_share` used in the family figure says 84%). Caps below 0.85 are infeasible
+  because today's weeks-weighted benefit is 0.80 of the cap.
+- **DSH (next year's Medicare cases):** free +5.0% (rotations +1.5 to +7.7%) but erratic, bin doses
+  jumping between 0 and 20% and differing across rotations; monotone +2.6% (+0.8 to +5.9%),
+  below the family's start at 0 (+4.5%). The family's start-0 design keeps 77% of hospitals
+  inside their bin's supported add-ons (unit-level measure 92%).
+- **Lesson:** with the outcome as the only utility, budget-neutral optima are corners (the edge of
+  the family or of the support). Written into `manuscript/dose_schedule_applications.tex`
+  (Overleaf b993c10, CHANGELOG ff2f29a), Section 1.4 and the UI and DSH redesign paragraphs.
+- The two support measures disagree: `support_share` bins doses into 20 quantile cells of the
+  fitting fold, which at the cap (45% of UI claims) mixes near-cap doses with the cap; the bin
+  coverage uses a dose band of +/-4% of the dose range and is stricter.
+
+— Claude
+
 ## 2026-11-12 - Follow-up: introduction and abstract rewritten, pushed (Claude)
 
 Follow-up to "Introduction diagnosis; prior-work facts verified for the rewrite" below.

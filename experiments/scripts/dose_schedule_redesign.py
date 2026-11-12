@@ -14,6 +14,12 @@ a curve in the other parameter:
   theta keeps predicted UI dollars paid (including the behavioural response, from the
   dollars-paid fit) at the status quo. U(kappa) = change in weeks paid.
 
+Free versions (cwbh_free, dsh_free): no family. The score range is cut into bins and each bin
+gets its own dose from a grid, chosen to optimise the summed utility subject to the same budget,
+by a price lam on spending (Lagrangian; bisection on lam). Only doses supported in the bin
+(coverage >= 90%) and the bin's current dose are allowed. The monotone version also requires the
+dose not to fall as the score rises (dynamic programming over bins).
+
 All changes are against the status quo, per role rotation (evaluation fold), with the share of
 units whose new dose is supported for their eta. Figures and numbers go to
 experiments/datasets/simulations/dose_schedule/.
@@ -247,8 +253,212 @@ def cwbh():
          "UI (CWBH), budget-neutral: same predicted UI dollars, lower cap, higher rate", better="lower")
 
 
+def _pick(L, C, lam, allowed, monotone):
+    """Dose index per bin minimising L - lam C over allowed doses (non-decreasing in the bin if monotone)."""
+    obj = np.where(allowed, L - lam * C, np.inf)
+    if not monotone:
+        return obj.argmin(1)
+    B, G = obj.shape
+    best, back = obj[0].copy(), []
+    for b in range(1, B):
+        idx = np.zeros(G, int)
+        cur = 0
+        for g in range(G):
+            if best[g] < best[cur]:
+                cur = g
+            idx[g] = cur
+        back.append(idx)
+        best = obj[b] + best[idx]
+    j = np.zeros(B, int)
+    j[-1] = int(np.argmin(best))
+    for b in range(B - 1, 0, -1):
+        j[b - 1] = back[b - 1][j[b]]
+    return j
+
+
+def free_redesign(L, C, allowed, monotone, bound=1e4, iters=100):
+    """Minimise sum_b L[b, j_b] subject to sum_b C[b, j_b] = 1 (C is spending over today's spending).
+
+    Spending rises with the price lam, so lam is found by bisection; the returned design spends at
+    least today's budget (the dose grid is discrete).
+    """
+    lo, hi = -bound, bound
+    rows = np.arange(L.shape[0])
+    for _ in range(iters):
+        lam = 0.5 * (lo + hi)
+        j = _pick(L, C, lam, allowed, monotone)
+        if C[rows, j].sum() < 1.0:
+            lo = lam
+        else:
+            hi = lam
+    # Many bins can switch at the same price, so spending jumps past the budget. Blend the two
+    # solutions on either side of the budget: bins below m keep the cheaper solution, bins from m up
+    # take the dearer one, with the largest m that still spends the budget.
+    j_lo, j_hi = _pick(L, C, lo, allowed, monotone), _pick(L, C, hi, allowed, monotone)
+    best = j_hi
+    for m in range(len(rows), -1, -1):
+        j = np.concatenate([j_lo[:m], j_hi[m:]])
+        if monotone:
+            j = np.maximum.accumulate(j)
+        if C[rows, j].sum() >= 1.0:
+            best = j
+            break
+    return best, float(C[rows, best].sum()), hi
+
+
+def _free_run(prob, fits, edges, grid, unit_dose, today, loss, cost, pop, min_cov=0.90):
+    """Run the free redesign in each rotation. unit_dose(a, idx) maps a bin dose to each unit's dose;
+    loss(fit, eta, idx, a_units) and cost(idx, a_units, loss_units) return unit-level arrays."""
+    _, eta_all, _ = ds.first_stage(prob.Q, prob.X, np.ones(len(prob.Q), bool))
+    cov = ds.coverage(eta_all, prob.A, prob.Q, edges, grid, prob.basis.a_ref, band=0.04)
+    out = {"free": [], "monotone": []}
+    B = len(edges) - 1
+    for fit, eta, ev in fits:
+        idx = np.where(ev & prob.in_range & pop)[0]
+        b = np.clip(np.searchsorted(edges, prob.Q[idx], side="right") - 1, 0, B - 1)
+        a0 = today(idx)
+        l0 = loss(fit, eta, idx, a0)
+        c0 = cost(idx, a0, l0).sum()
+        L = np.zeros((B, len(grid)))
+        C = np.zeros((B, len(grid)))
+        for k, a in enumerate(grid):
+            au = unit_dose(a, idx)
+            lu = loss(fit, eta, idx, au)
+            L[:, k] = np.bincount(b, lu, B) / len(idx)
+            C[:, k] = np.bincount(b, cost(idx, au, lu), B) / c0
+        allowed = cov >= min_cov
+        for bb in range(B):
+            m = b == bb
+            if m.any():
+                allowed[bb, np.argmin(np.abs(grid - np.median(a0[m])))] = True
+        for name, mono in (("free", False), ("monotone", True)):
+            j, spend, lam = free_redesign(L, C, allowed, mono)
+            change = L[np.arange(B), j].sum() - l0.sum() / len(idx)
+            out[name].append(dict(change=float(change), spend=spend, price=float(lam),
+                                  dose=[float(grid[k]) for k in j]))
+    out["allowed_lo"] = [float(grid[allowed_row(cov, r, min_cov)][0]) if allowed_row(cov, r, min_cov).any() else None
+                         for r in range(B)]
+    out["allowed_hi"] = [float(grid[allowed_row(cov, r, min_cov)][-1]) if allowed_row(cov, r, min_cov).any() else None
+                         for r in range(B)]
+    out["edges"] = [float(e) for e in edges]
+    out["grid"] = [float(g) for g in grid]
+    for name in ("free", "monotone"):
+        ch = [r["change"] for r in out[name]]
+        print(f"  {name}: change {np.mean(ch):.4g} (rotations {min(ch):.4g} to {max(ch):.4g}); spending "
+              f"{[round(r['spend'], 3) for r in out[name]]}", flush=True)
+        for r in out[name]:
+            print("    doses by bin:", r["dose"], flush=True)
+    return out
+
+
+def allowed_row(cov, r, min_cov):
+    return cov[r] >= min_cov
+
+
+def _free_plot(name, out, xs, today_x, today_a, family, xlab, ylab, title, xlog=False):
+    fig, ax = plt.subplots(figsize=(7.5, 3.8))
+    lo = np.array([np.nan if v is None else v for v in out["allowed_lo"]])
+    hi = np.array([np.nan if v is None else v for v in out["allowed_hi"]])
+    ax.fill_between(xs, lo, hi, step="mid", color="#d9d8d2", alpha=0.7, label="supported doses (coverage >= 90%)")
+    ax.plot(today_x, today_a, color="#5f5e5a", lw=1.5, label="status quo")
+    if family is not None:
+        ax.plot(family[0], family[1], color=COLORS[1], lw=1.5, ls="--", label=family[2])
+    for r in out["free"]:
+        ax.step(xs, r["dose"], where="mid", color=COLORS[0], lw=0.7, alpha=0.5)
+    ax.step(xs, np.mean([r["dose"] for r in out["free"]], 0), where="mid", color=COLORS[0], lw=2,
+            label="free, by score bin (mean of rotations)")
+    ax.step(xs, np.mean([r["dose"] for r in out["monotone"]], 0), where="mid", color=COLORS[2], lw=1.5,
+            label="free and monotone (mean of rotations)")
+    if xlog:
+        ax.set_xscale("log")
+        ticks = [t for t in (0.3, 0.5, 0.7, 1.0, 1.5, 2.0, 3.0) if xs.min() * 0.8 <= t <= xs.max() * 1.25]
+        ax.set_xticks(ticks)
+        ax.set_xticklabels([f"{t:g}" for t in ticks])
+        ax.minorticks_off()
+    ax.set_xlabel(xlab)
+    ax.set_ylabel(ylab)
+    ax.legend(frameon=False, fontsize=7, loc="best")
+    fig.suptitle(title, fontsize=9, x=0.01, ha="left")
+    fig.savefig(FIG / f"redesign_{name}.png", dpi=170, bbox_inches="tight")
+    plt.close(fig)
+
+
+def cwbh_free():
+    """UI without a family: a benefit per score bin (20 bins, grid 0.25-1.00 by 0.025), same predicted
+    UI dollars (weeks paid x benefit, with predicted weeks); utility = weeks paid (lower is better)."""
+    cfg = app.cwbh(argparse.Namespace(x="linear", outcome="weeks_paid", seed=0))
+    p = cfg["prob"]
+    floor = p.a_lo
+    fits = rotation_fits(p, cluster=cfg["cluster"])
+    edges = np.quantile(p.Q, np.linspace(0, 1, 21))
+    edges[-1] += 1e-9
+    grid = np.round(np.arange(0.25, 1.0001, 0.025), 3)
+    x = np.exp(p.Q)
+    a_today = np.clip(x, floor, 1.0)
+    g0 = {}
+
+    def loss(fit, eta, idx, a):
+        key = id(fit)
+        if key not in g0:
+            g0[key] = ds.gain(fit, eta[idx], p.Z[idx], a_today[idx], 1.0)
+        return p.Y[idx] + ds.gain(fit, eta[idx], p.Z[idx], a, 1.0) - g0[key]
+
+    out = _free_run(p, fits, edges, grid, unit_dose=lambda a, idx: np.full(len(idx), a),
+                    today=lambda idx: a_today[idx], loss=loss, cost=lambda idx, a, weeks: weeks * a,
+                    pop=np.ones(len(p.Q), bool))
+    json.dump(out, open(FIG / "redesign_cwbh_free.json", "w"), indent=1)
+    xs = np.exp(0.5 * (edges[:-1] + edges[1:]))
+    q = np.exp(np.linspace(p.Q.min(), p.Q.max(), 300))
+    fam = json.load(open(FIG / "redesign_cwbh_weeks.json"))["best"]
+    _free_plot("cwbh_free", out, xs, q, np.clip(q, floor, 1.0),
+               (q, np.clip(fam["s"] * q, floor, fam["x"]), f"family: cap {fam['x']:.2f}, rate x{fam['s']:.2f}"),
+               "earnings / cap kink (log scale)", "weekly benefit / today's cap",
+               "UI (CWBH), budget-neutral without a family: benefit by score bin", xlog=True)
+
+
+def dsh_free(outcome="log_cases"):
+    """DSH without a family: an add-on per DPP bin (20 bins among DPP <= 45, grid 0-20 by 0.5; the 12%
+    cap still applies to the capped class), same add-on dollars (lagged cases x case-mix index);
+    utility = 100 x change in log Medicare cases (higher is better)."""
+    cfg = app.dsh(argparse.Namespace(x="linear", outcome=outcome, seed=0))
+    p = cfg["prob"]
+    from experiments.datasets.medicare_dsh import adapter as ad
+    s = ad.load_dose(outcome=outcome)
+    fn = s.feature_names
+    w = np.nan_to_num(np.exp(s.X[:, fn.index("log_cases_lag")]) * s.X[:, fn.index("cmi")])
+    capped = s.extras["capped_class"].astype(bool)
+    pop = (p.Q <= 45) & (w > 0)
+    fits = rotation_fits(p, cluster=cfg["cluster"])
+    edges = np.quantile(p.Q[pop], np.linspace(0, 1, 21))
+    edges[-1] += 1e-9
+    grid = np.round(np.arange(0.0, min(20.0, p.basis.a_bar) + 1e-9, 0.5), 2)
+    g0 = {}
+
+    def unit_dose(a, idx):
+        return np.where(capped[idx], np.minimum(a, 12.0), a)
+
+    def loss(fit, eta, idx, a):
+        key = id(fit)
+        if key not in g0:
+            g0[key] = ds.gain(fit, eta[idx], p.Z[idx], np.minimum(p.A[idx], p.basis.a_bar), 0.0)
+        return -100.0 * (ds.gain(fit, eta[idx], p.Z[idx], np.minimum(a, p.basis.a_bar), 0.0) - g0[key])
+
+    out = _free_run(p, fits, edges, grid, unit_dose=unit_dose, today=lambda idx: p.A[idx], loss=loss,
+                    cost=lambda idx, a, l: w[idx] * a, pop=pop)
+    json.dump(out, open(FIG / f"redesign_dsh_free_{outcome}.json", "w"), indent=1)
+    xs = 0.5 * (np.array(edges[:-1]) + np.array(edges[1:]))
+    q = np.linspace(0, 45, 301)
+    sq = np.where(q < 15, 0, np.where(q < 20.2, 2.5 + 0.65 * (q - 15), 5.88 + 0.825 * (q - 20.2)))
+    fam = json.load(open(FIG / f"redesign_dsh_{outcome}.json"))["best"]
+    _free_plot(f"dsh_free_{outcome}", out, xs, q, sq,
+               (q, fam["s"] * np.maximum(q - fam["x"], 0), f"family: start {fam['x']:.1f}%, slope {fam['s']:.2f}"),
+               "DPP (%)", "DSH add-on (%), large urban hospitals",
+               "Medicare DSH, budget-neutral without a family: add-on by DPP bin (utility: next year's Medicare cases)")
+
+
 MAKERS = {"lcff": lambda: lcff("ela"), "lcff_math": lambda: lcff("math"), "dsh": lambda: dsh("exit"),
-          "dsh_cases": lambda: dsh("log_cases"), "ui": ui, "cwbh": cwbh}
+          "dsh_cases": lambda: dsh("log_cases"), "ui": ui, "cwbh": cwbh,
+          "cwbh_free": cwbh_free, "dsh_free": dsh_free}
 
 
 def main():
