@@ -9,6 +9,54 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - Section 5 nonlinear design: Tables 1 and 3 rerun, the paper updated (Claude)
+
+Follow-up to "Section 5 displayed design: nonlinear alpha and b" below. Author: "update the
+other parts". Full numbers in
+`experiments/datasets/simulations/DS_SECTION5_NONLINEAR_20261112.md`; paper manuscript
+59409f5 (§5.2, §5.3, Appendix 7).
+
+Verified findings (design `paper_nonlinear`):
+- **Table 1** (2000 reps): n Var for fixed / average / pooled is 112.2 / 28.28 / 27.63 at
+  n = 16,000 and 106.7 / 26.08 / 25.99 at n = 64,000, against 106.7 / 26.68 / 26.68. The
+  sqrt(n) bias of the average is 0.632 (0.119), then 0.289 (0.114): it halves, and at 64k it is
+  0.06 sd. At n = 32,000 (1000 reps), the average has 26.10 and the fixed assignment 116.2
+  (+9%, about 2 MC se).
+- **Second order (Remark ds-bias), B = 15.969.** Both parts are positive: U''' = 0.091
+  contributes +9.48, d sigma^2/d phi = 0.213 contributes +6.49. Pairing each replication with
+  its own score term:
+
+  | n | average | 4B/sqrt n | pooled | B/sqrt n | combination |
+  |---|---|---|---|---|---|
+  | 16k | 0.526 (0.012) | 0.505 | 0.131 (0.006) | 0.126 | -0.000 (0.007) |
+  | 64k | 0.254 (0.006) | 0.252 | 0.063 (0.003) | 0.063 | -0.001 (0.003) |
+  | 32k | 0.369 (0.012) | 0.357 | 0.084 (0.005) | 0.089 | |
+
+  The score term (= the combination's bias) is 0.11 (0.12) and 0.03 (0.11), not
+  distinguishable from zero. The partially linear fit's splines only approximate alpha and b
+  now, but its own score term is 0.08 (0.09) and 0.03 (0.09). The density spline score bias by
+  quadrature is +0.0125 and -0.0055.
+- **Table 3** (eps 0.05-0.25; 2000 reps at 16k, 1000 at 64k):
+  - The slope between eps = 0.075 and 0.125 is 1.163, against 1.162 from Cor ds-eps.
+  - n Var / V is 1.065-1.118 at 16k and 0.912-0.960 at 64k.
+  - The bias at 64k is at most 1.26 (0.12 sd).
+  - Edge hits are 1.1% at 16k and eps = 0.25, and none at 64k.
+  - The paired step from 0.10 to 0.125 has sd 0.0076 (16k) and 0.0035 (64k), against 0.042
+    and 0.020 for the level.
+- **Why Table 3's eps = 0.10 bias (0.28 at 16k) is below Table 1's (0.63).** Table 3 uses the
+  density interval [-3.5, 3.5], which changes the density basis. Its spline score bias by
+  quadrature is -0.197 at 16k, against +0.0125 on [-3, 3]. The paper now says so in
+  Appendix 7. The data sets differ too (seeds 20261020 and 20261014).
+- The n = 32,000 run drew a low score term: the oracle's score term, an exact mean-zero
+  average, is -0.099 (0.038), so its bias numbers are not reported. Its paired second-order
+  parts are as predicted.
+
+Paper: Tables 1 and 3, §5.2 and §5.3, and Appendix 7's trim-level and second-order paragraphs
+now use the new design. Two todo boxes remain, for the deferred Table 2 coverage rerun: one
+before the Table 2 paragraph, one before Appendix 7's implementation paragraph. Table 2's
+caption now names the previous design. Board sub-items closed; the parent item stays open
+for the coverage rerun.
+
 ## 2026-11-12 - VLBW: the effect on the log-odds scale against the probability scale (Claude)
 
 Author: "run the log-odds version on VLBW and give me the figures here and results, side by
