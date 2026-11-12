@@ -9,6 +9,49 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-11 - Introduction diagnosis; prior-work facts verified for the rewrite (Claude)
+
+Author: "I want to rethink the introduction ... it does not compare to previous papers
+correctly." Four Fable 5.1 readers (a Biometrika referee, an applied statistician, a
+prior-work checker, a structure editor) read §1 cold. The author then approved a rewrite:
+"Yes, fix and rewrite this whole thing. Use admissions as a intuitive argument and taxi at
+the end. Fix all prior work. Abstract should match the body."
+
+**Verified facts (sources read by Claude or the checker):**
+- **Marinescu, Triantafillou & Kording (2022, PLOS ONE)**, Table 2, from the local PDF
+  `~/Downloads/marinescu2022_rd_threshold_optimization.pdf`:
+  - same data as §6: January 2009 NYC yellow-cab rides of the \$15-rule vendor, from
+    Haggag & Paci, restricted to fares of \$5-\$25 (453,371 rides below \$15 and 54,269
+    above);
+  - local linear regression: c* = \$11.109; bootstrap mean 10.829 (SE 0.777, 100
+    draws); conservative threshold \$11.721;
+  - Gaussian-process regression: \$12.048; bootstrap 14.172 (SE 2.458);
+  - the objective is "the cumulative average treatment effect over all treated units",
+    and "the optimal threshold occurs at a value of the running variable where the LATE
+    is zero";
+  - the search is restricted to c - h <= t <= c + h (IK bandwidth \$4.54).
+
+  Our §6 estimate is \$12.87 [12.56, 13.18], on the same month and vendor but with all
+  fares. The paper had not compared the two estimates, although this log flagged the
+  shared data in September.
+- **Policy-learning contrast.** Section 1 said those methods use rules on observed
+  covariates while ours thresholds a score containing the unobserved residual. That is
+  wrong: the score is observed, and Kitagawa-Tetenov cover eligibility scores. The real
+  obstacle is no overlap under a deterministic rule, as Ben-Michael et al. and Zhang et
+  al. say.
+- **Wibisono et al.** have a nonparametric alpha_0(X, eta). Our effect model is narrower.
+  The difference is the target: they stay at the deployed threshold and need no X ⊥ eta.
+- **Missing closest work, now in references.bib:**
+  - Rokkanen (2015), Columbia DP 1415-03: latent-factor RD extrapolation, and the
+    effects of shifting admission cutoffs;
+  - Yata (2021, rev. 2025), arXiv:2111.04926: a minimax-regret rule for changing an RD
+    eligibility cutoff;
+  - Bertanha (2020), J. Econometrics 218(1): RD with many thresholds.
+- **Novelty claim.** It holds only as the full conjunction, "under a score model".
+  Marinescu et al. already point-estimate an optimal threshold from one cutoff.
+
+Rewrite in progress (Fable writer; worktree `ms-intro`).
+
 ## 2026-11-11 - VLBW write-up with the method: manuscript/binary_outcome_vlbw.tex (Claude)
 
 Author: "write up the best working setting, along with a description of the methodology".
