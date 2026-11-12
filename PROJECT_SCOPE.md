@@ -288,6 +288,9 @@ only when the author asks; it does not change the sections above.
   Third pass (2026-11-11): the outcome-fold regression is the "partially linear fit"
   (or "partially linear regression"); "outcome model", "outcome equation" and "outcome
   fold" stay.
+  Fourth pass (2026-11-12): the outcome fold is the "partially linear fold", with
+  subscript beta (I_beta, P_beta, psi_beta, n_beta, E_beta; the role set
+  {gamma, beta, T, U}). A_out, L_out and r_out keep "out".
   Kept: "representer", "latent ability", "Error in variables" and "Policy learning"
   (keywords), and literature names such as "single-index model", "policy learning",
   "marginal policy change". LaTeX labels keep their old keys. Propose any further
@@ -340,6 +343,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-12 | Outcome fold renamed the "partially linear fold", subscript o -> beta in the paper (I_beta, P_beta, psi_beta, n_beta, E_beta); "regression fold" was not used because it would clash with the score-regression fold | Author's choice when asked (2026-11-12); manuscript b31c8f4 |
 | 2026-11-12 | Introduction trimmed to about 1,400 printed words: proof-tools sentence moved to the §4 opening; policy learning folded into the bounds group (they need overlap); the "covariate composition" item dropped from §1's contributions list (the supporting point in "Main contribution" above is no longer listed there) | Author: "do all of those" (2026-11-12); manuscript a4bd465 |
 | 2026-11-12 | Introduction and abstract rewritten (admissions running example, taxi at the end); prior-work comparisons corrected (Marinescu et al. credited and compared; policy-learning contrast is overlap; Rokkanen, Yata, Bertanha added); abstract follows the body, no symbols, alphabetical key words | Author: "Yes, fix and rewrite this whole thing ... Fix all prior work. Abstract should match the body"; "Do the same with the abstract"; "yes" (2026-11-11/12); manuscript e6da428 |
 | 2026-11-11 | Second length pass from a whole-paper cut review: all main-text cuts (incl. abstract sentence 2 and the §1 confounding sentence; §2.3 trimming sentences moved to §6.2; knot rules to Appendix 2), supplement cuts except Appendix 1's list and the Appendix 2 outline; Appendix 7 kept. Main text ends on page 18 (about 10,000 printed words); PDF 65 pages. Removed text in storage/trimmed2_w*_20261111.tex | Author: "Yes, all in main. Keep lsit of appendices and the outline. Do all the others." (2026-11-11); manuscript c16103a, 3efca18 |
