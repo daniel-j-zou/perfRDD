@@ -9,6 +9,23 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - Follow-up: introduction and abstract rewritten, pushed (Claude)
+
+Follow-up to "Introduction diagnosis; prior-work facts verified for the rewrite" below.
+The rewritten §1 and abstract are on master (manuscript e6da428). The old text is in
+`storage/old_introduction_20261111.tex`.
+
+- **§1.** A Fable 5.1 writer drafted it. Cold re-reads followed by a referee and by an
+  applied statistician, then an accuracy check: no wrong numbers; eight wording fixes,
+  applied.
+- **Abstract.** Three readers and one cold test, all on Opus after the Fable limit was
+  reached. The final wording is by Claude.
+- **Open.** §1 is about 1,530 printed words, against about 1,285 before; the author may
+  trim it toward 1,400.
+- **Process note.** Checking Yata, Claude queried the arXiv export API before reading its
+  robots.txt, which disallows all agents. It was not used again; arxiv.org/abs pages
+  are fine.
+
 ## 2026-11-12 - Dose schedules: UI and DSH written up in Overleaf (Claude)
 
 Author: "Please write these up somewhere in the overleaf. Start with a quick overview of the

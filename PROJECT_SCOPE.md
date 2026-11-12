@@ -202,6 +202,18 @@ decision history at the end. How to change this file is described in "Updating t
     one deterministic cutoff and gives a root-n limit for it.
 
   Reading brief: https://claude.ai/code/artifact/ba824b8e-f3cc-4d05-8c5b-0112bc3e5706.
+- **Revised 2026-11-12 (author: "Fix all prior work"; manuscript e6da428).** §1 now:
+  - credits Marinescu et al. (2022) for the same objective, the zero-local-effect
+    condition, and an optimal threshold from one cutoff with bootstrap SEs, on the same
+    January 2009 taxi rides (\$11.11; compared with \$12.87 in §6.4);
+  - states the policy-learning contrast as "needs overlap" (the score is observed);
+  - says Wibisono et al. have a nonparametric effect at the deployed threshold, without
+    X ⊥ eta;
+  - adds Rokkanen (2015), Yata (2021) and Bertanha (2020);
+  - words the novelty claim "under a score model".
+
+  §1 order: target, then difficulty, gap, idea, purpose, optimum and why root-n, price,
+  prior work grouped by what it gives up, tools, contributions, taxi.
 
 ## Out of scope (future work)
 
@@ -328,6 +340,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-12 | Introduction and abstract rewritten (admissions running example, taxi at the end); prior-work comparisons corrected (Marinescu et al. credited and compared; policy-learning contrast is overlap; Rokkanen, Yata, Bertanha added); abstract follows the body, no symbols, alphabetical key words | Author: "Yes, fix and rewrite this whole thing ... Fix all prior work. Abstract should match the body"; "Do the same with the abstract"; "yes" (2026-11-11/12); manuscript e6da428 |
 | 2026-11-11 | Second length pass from a whole-paper cut review: all main-text cuts (incl. abstract sentence 2 and the §1 confounding sentence; §2.3 trimming sentences moved to §6.2; knot rules to Appendix 2), supplement cuts except Appendix 1's list and the Appendix 2 outline; Appendix 7 kept. Main text ends on page 18 (about 10,000 printed words); PDF 65 pages. Removed text in storage/trimmed2_w*_20261111.tex | Author: "Yes, all in main. Keep lsit of appendices and the outline. Do all the others." (2026-11-11); manuscript c16103a, 3efca18 |
 | 2026-11-11 | Future work and Appendix 8 removed (saved in storage/); length pass: Remarks 3-4 to Appendix 2, Section 5.3 table to Appendix 7, Section 4.1 and 6.5 discussion shortened (assumption remarks to Appendix 4), Section 1 literature tightened, Appendices 1 and 6 shortened; Appendix 7's numerical checks kept for now. Main text now ends on page 20 (about 12,000 printed words) | Author: "please remove any future work"; "trim all of those in the main and trim. G and H. keep F for now" (2026-11-11); manuscript 76983c7, 31918a5, c8030d5 |
 | 2026-11-11 | Section 2.4 shortened: Proposition 2 ((U1)-(U4)) moved to Appendix 3 as Proposition C1, intuition and Remark 1 tightened, original saved in storage/; "outcome fit/regression" renamed "partially linear fit/regression" in all manuscript files outside prelim/ | Author: "Do the 2.4 stuff that you recommend. Then, rename all to partially linear regression/fit." (2026-11-11); manuscript 2d130cf, e5baf6c |
