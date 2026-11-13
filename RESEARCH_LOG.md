@@ -9,6 +9,28 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-12 - VLBW: the same estimator at other birth-weight lines finds an effect only at 1500 g (Claude)
+
+Subagent run, checked against the saved results. Script `experiments/scripts/binary_vlbw_lines.py`,
+note `experiments/datasets/vlbw/OTHER_LINES_20261112.md` (tables and a reading per line), outputs
+`experiments/runs/binary_vlbw_lines/line_<L>.json` (git-ignored). Pooled 1995-2002, D = 1{weight < L},
+candidates L +- 300 g, routes `logit_emp` and `lpm` at costs 0 and 1 point, plus local linear jumps
+in death and ventilation at L.
+
+- 1000 g: no effect at the line (logit tau -0.6 points, optimum at an edge); local death jump -1.7
+  points at h = 50 but 0.0 at h = 100.
+- 1250 g: not a clean placebo. Logit tau is +1 to +2.4 points throughout and the optimum is the top
+  edge, 1550 g, because the candidate set reaches the real 1500 g line; the local jump is not zero
+  either. A placebo here needs a candidate set that excludes 1500 g.
+- 2000 g and 2500 g: no positive effect. Logit tau is -1.2 and -1.0 points at the line and falls
+  above it; the interior optima (1794 g; 2377 g at cost 0, 2214 g at cost 1) are where tau crosses
+  zero. Small but nonzero local death drops (-0.6 points, 3 se; -0.37 points, 4 se), no ventilation jump.
+- 1500 g reference reproduces the routes script (1663 g at cost 1). Its logit tau, +2.5 points at
+  the line, is larger than the local jump supports on its own (-0.7 points, 1.4 se).
+- The linear probability model is at an edge or extrapolates wildly on every line.
+
+— Claude
+
 ## 2026-11-12 - VLBW: the round-hundred donut and the 1985-2002 sample move the optimum little (Claude)
 
 Follow-up to the heaping entry. Route `logit_emp`, seed 1, four rotations. The "d100" variants drop
