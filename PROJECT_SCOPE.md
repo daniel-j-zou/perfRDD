@@ -147,7 +147,9 @@ decision history at the end. How to change this file is described in "Updating t
   as before; target phi*_eps = 0.468829 (0.545103 with the old linear alpha). The
   second (quadratic) design stays as the small-sample check. Rerunning the bootstrap
   coverage table (Table 2) in the new displayed design is a deferred to-do; the table
-  stays in the linear design until then.
+  stays in the linear design until then, and the paper says so in prose (its todo boxes
+  are commented out, author 2026-11-13). Heavy simulations will run on a computing
+  cluster that the author will set up (2026-11-13); this rerun is the first.
 - **To do** (2026-10-20):
   - rerun the coverage tables with 999-draw percentile intervals (the run finished on
     2026-10-23; the port into §5 is left);
