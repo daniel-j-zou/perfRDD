@@ -9,6 +9,41 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-16 - Table 2 at n = 64,000: 500 data sets (Claude)
+
+From the weekly scope review below (author: "Table 2: more n = 64k data sets", first
+priority this week).
+- **Run:** Great Lakes array 66197214 (75 tasks x 4 CPUs, one round of 4 replications
+  each, replications 200-499) and merge 66197215 (`R64=500`), commit 8a5b464; scripts
+  `experiments/cluster/ds_section5_64k_extend_array.sbatch` and the merge job. Tasks ran
+  772-1140 s (median 827 s); about 70 CPU-hours. 40 of 75 tasks started within about two
+  minutes despite the low fair-share priority (279 against a queue median of 10,200), since
+  short 4-CPU tasks are backfilled.
+- **Run directory:** `experiments/runs/ds_four_role_coverage_nl_999_n64k500/`, a copy of the
+  2026-11-15 shards plus the new ones; the original `ds_four_role_coverage_nl_999/` is
+  unchanged. Checked locally: 500 distinct replications (0-499) at 64k, and the original 200
+  rows are identical inside the new file; the 4k and 16k merged files equal the old ones.
+  Copied back through the screen session (21,368,891-byte archive, sha256 3f4e046a...c331,
+  matched; shard jsonl left out, as the merged file holds them).
+
+| n = 64,000 | sqrt(n) bias (MC se) | n Var | n Var* | percentile | normal | analytic (check) |
+|---|---:|---:|---:|---:|---:|---:|
+| rotated average, 500 | +0.56 (0.24) | 28.29 | 26.93 | 0.952 | 0.956 | 0.942 |
+| rotated average, 200 (old) | +0.81 (0.36) | 26.3 | 27.2 | 0.970 | 0.970 | 0.955 |
+| pooled maximizer, 500 | +0.38 (0.24) | 28.09 | 26.73 | 0.952 | 0.958 | 0.950 |
+| oracle, 500 | +0.03 (0.06) | 1.59 | 1.52 | 0.938 | 0.938 | 0.942 |
+
+- Coverage moves to about 0.95 (it was 0.97 with 200 data sets, within 1.5 Monte Carlo
+  standard errors of 0.95). The Monte Carlo n Var, 28.3, is 6% above the first-order 26.68,
+  about one Monte Carlo standard error (sqrt(2/500) = 6.3%). The bootstrap variance is 4.8%
+  below the Monte Carlo one.
+
+Paper: manuscript aa8cd7e (§5.2 Table `ds-coverage-displayed`, its paragraph, Appendix 7's
+pooled sentence). FYI found in the build: five references to `rem:ds-check` print "??" since
+that remark was commented out on Overleaf (9320f71, 2026-11-12).
+
+---
+
 ## 2026-11-16 - Weekly scope review (Claude)
 
 A full refresh pass, the first since 2026-11-04. Three rounds of questions plus a follow-up.

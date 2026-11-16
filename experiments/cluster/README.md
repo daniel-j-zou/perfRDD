@@ -128,6 +128,8 @@ the array script for the submit commands and the run log below for what was subm
 | 2026-11-15 | 66191339 | taxi robustness bootstrap array, 40 tasks x 8 CPUs, 3 GB/CPU, commit 6f46d92, out `experiments/runs/taxi_robust_boot` | every task 20 min or less; about 90 CPU-hours |
 | 2026-11-15 | 66191340 | taxi merge, afterok:66191339 | 999 of 999 draws in all 9 rows; intervals in the 2026-11-15 research-log entry |
 | 2026-11-16 | none | copy back through the tab (`gl_fetch_parts.sh`) | 67,010,654-byte archive, sha256 matched; unpacked into local `experiments/runs/` (git-ignored) |
+| 2026-11-16 | 66197214 | Table 2 at 64k, replications 200-499: 75 tasks x 4 CPUs, one round each, commit 8a5b464, out `experiments/runs/ds_four_role_coverage_nl_999_n64k500` | 772-1140 s (median 827); about 70 CPU-hours; 40 tasks started within two minutes |
+| 2026-11-16 | 66197215 | merge, afterok:66197214, `R64=500` | 500 / 500 / 500 data sets; copied back (21 MB archive, sha256 matched) |
 
 Lesson (2026-11-15): seconds per replication at n = 64k ranged from 796 to 1637 across
 standard nodes, a factor of two, so a time limit of 1.7 times the median was too tight for
