@@ -21,7 +21,11 @@ gives the same data set):
     law ``mixture``: X1 = standardized 0.7 N(-0.4, 0.7^2) + 0.3 N(1.0, 0.8^2).
 
 So alpha(eta) = 2 + eta, b(eta) = eta^2 / 2, beta1 = (0.3, -0.2, 0.1) and
-beta2 = 0 (common slopes); the estimator still fits the full D X block and
+beta2 = 0 (common slopes).  Since 2026-11-15 the default effect is that of the
+Section 5 displayed design, alpha(eta) = 2 + 0.4 eta + 0.8 tanh(1.5 eta) and
+b(eta) = eta^2/2 + 0.3 sin(2 eta) (environment variable DS_NG_EFFECT=nonlinear,
+output runs/four_role_nongaussian_nl); DS_NG_EFFECT=linear reproduces the
+2026-11-09 run bit for bit.  Either way the estimator still fits the full D X block and
 rho_X.  Estimator settings are those of Section 5.1: least-squares first
 stage, J = [-1.75, 1.75], T = [-3, 3], Phi = [-1.5, 1.5] on a 61-point grid
 refined by a bounded scalar optimizer, knot rules max{3, [m^{11/60}]} and
@@ -58,13 +62,12 @@ from concurrent.futures import ProcessPoolExecutor
 from pathlib import Path
 
 import numpy as np
-from numpy.polynomial import Polynomial
 from scipy.integrate import quad
 from scipy.optimize import brentq, minimize_scalar
 from scipy.stats import norm, t as student_t
 
 from experiments.methods.weighted_tails import fit_weighted_tails
-from experiments.scripts.ds_local_efficiency import _gl_nodes
+from experiments.scripts.ds_local_efficiency import Curve, _gl_nodes
 from experiments.scripts.ds_local_efficiency_sim import (
     ROLES, Sample, _xt, ols_first_stage, outcome_fit,
 )
@@ -74,7 +77,17 @@ from experiments.scripts.hard_trim_robustness_smoke import (
 )
 
 ROOT = Path(__file__).resolve().parent.parent
-DEFAULT_OUT = ROOT / "runs" / "four_role_nongaussian"
+# Worker processes read the effect at import, so it is passed by environment variable.
+EFFECT = os.environ.get("DS_NG_EFFECT", "nonlinear")
+EFFECTS = {
+    "linear": ((2.0, 1.0), (0.0, 0.0, 0.5)),                    # 2 + eta, eta^2/2
+    "nonlinear": ((2.0, 0.4, ("tanh", 0.8, 1.5)),               # Section 5 design
+                  (0.0, 0.0, 0.5, ("sin", 0.3, 2.0))),
+}
+if EFFECT not in EFFECTS:
+    raise ValueError(f"DS_NG_EFFECT must be one of {sorted(EFFECTS)}, not {EFFECT!r}")
+DEFAULT_OUT = ROOT / "runs" / ("four_role_nongaussian" if EFFECT == "linear"
+                               else "four_role_nongaussian_nl")
 LAWS = ("t5", "mixture")
 EPS = 0.10
 COST = 2.25
@@ -83,8 +96,7 @@ J = (-1.75, 1.75)
 T_SUPPORT = (-3.0, 3.0)
 POLICY = (-1.5, 1.5)
 SIGMA_Y = 0.5
-A_COEF = (2.0, 1.0)            # alpha(eta) = 2 + eta
-B_COEF = (0.0, 0.0, 0.5)       # b(eta) = eta^2 / 2
+A_COEF, B_COEF = EFFECTS[EFFECT]
 BETA2 = np.zeros(3)
 T5_NU = 5.0
 T5_SCALE = float(np.sqrt(T5_NU / (T5_NU - 2.0)))
@@ -185,8 +197,8 @@ class NonGaussianPopulation:
     def __init__(self, law: str):
         self.law = law
         self.T = IndexLaw(law)
-        self.a = Polynomial(A_COEF)
-        self.b = Polynomial(B_COEF)
+        self.a = Curve(A_COEF)
+        self.b = Curve(B_COEF)
         self.da, self.db = self.a.deriv(), self.b.deriv()
         self.dc_fun = (self.db, self.da + self.db)      # c_0 = b, c_1 = a + b
         self.dim = 3
@@ -438,6 +450,9 @@ def gaussian_port_check() -> dict:
 
 # ---------------------------------------------------------------- simulation
 
+A_TRUE, B_TRUE = Curve(A_COEF), Curve(B_COEF)
+
+
 def generate(law: str, n: int, seed: int) -> Sample:
     """``hard_trim_robustness_smoke.make_sample`` (correct outcome), same RNG order."""
     rng = np.random.default_rng(seed)
@@ -446,7 +461,10 @@ def generate(law: str, n: int, seed: int) -> Sample:
     T = X @ GAMMA_OLD
     Q = T + eta
     D = (Q > 0.0).astype(float)
-    Y = D * (2.0 + eta) + 0.5 * eta ** 2 + X @ BETA1_OLD
+    if EFFECT == "linear":
+        Y = D * (2.0 + eta) + 0.5 * eta ** 2 + X @ BETA1_OLD     # bit-identical to 2026-11-09
+    else:
+        Y = D * A_TRUE(eta) + B_TRUE(eta) + X @ BETA1_OLD
     Y += rng.normal(0.0, 0.5, size=n)
     return Sample(X=X, Q=Q, D=D, Y=Y)
 
@@ -662,7 +680,8 @@ def main(argv=None) -> None:
                       f"{mc['V_rotated_mc_sum']:.3f})", flush=True)
         print(f"[population done in {time.time() - t0:.1f}s]", flush=True)
     pops = {k: v for k, v in pops.items() if k in LAWS}
-    meta = {"script": "experiments/scripts/ds_four_role_nongaussian.py", "seed": args.seed,
+    meta = {"script": "experiments/scripts/ds_four_role_nongaussian.py", "effect": EFFECT,
+            "a_coef": repr(A_COEF), "b_coef": repr(B_COEF), "seed": args.seed,
             "n": args.n, "reps": args.reps, "workers": args.workers}
     if args.population_only:
         return

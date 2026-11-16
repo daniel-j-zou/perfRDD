@@ -69,3 +69,12 @@ September runs (Codex) used the older scripts in this folder; their results are 
 
 `ds_section5_coverage_array.sbatch` and `ds_section5_coverage_merge.sbatch`; see the header of
 the array script for the submit commands and the run log below for what was submitted.
+
+## Run log
+
+| Date | Job | What | Result |
+|---|---|---|---|
+| 2026-11-15 | 66189298 | test, debug partition | failed: cluster `srsd` env has no matplotlib; `~/envs/perfrdd` made |
+| 2026-11-15 | 66189320 | test, debug, 2 CPUs, 2 reps x 10 fits per n | 17 s; 0.095 / 0.245 / 0.82 s per fit; MaxRSS 190 MB; billing 5009 (2 CPUs) |
+| 2026-11-15 | 66189342 | Table 2 array, 60 tasks x 4 CPUs, commit 499e8bb, out `experiments/runs/ds_four_role_coverage_nl_999` | submitted |
+| 2026-11-15 | 66189353 | merge, afterok:66189342 | submitted |
