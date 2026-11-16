@@ -9,6 +9,74 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-15 - Great Lakes set up for agents; §5 Table 2 and the non-Gaussian check rerun in the nonlinear design (Claude)
+
+**Author decisions (2026-11-13 to 2026-11-15):** heavy simulations go to the Great Lakes
+cluster ("we will push simulations to the cluster"); account `stats_dept1` ("use the
+statsdept ones"); parallelize, and do not over-request time or memory; run the simulations
+still in the linear design ("Run those too"); bootstrap the taxi robustness rows (follow-up
+entry to come).
+
+**Cluster setup** (full procedure in `experiments/cluster/README.md`):
+- SSH multiplexing, used by Codex in September, no longer works. Every extra session on a
+  shared connection closes right after the banner (exit 254), sftp included; the docs say
+  every interactive session needs password plus Okta. The author now logs in once inside a
+  `screen` session in a Terminal-panel tab, and the agent drives it with
+  `experiments/cluster/gl_screen.sh`.
+- Python: `~/envs/perfrdd` (venv on the cluster's Python 3.8.20 with numpy 1.24.4,
+  scipy 1.10.1, matplotlib 3.7.5, pandas 2.0.3, pyarrow 17.0.0), the versions of the local
+  `srsd` env. The cluster's own `~/.conda/envs/srsd` is a different environment.
+- Code: `~/src/perfRDD`, a clone of the public GitHub repo, updated by fast-forward. The
+  ignored taxi parquet was sent through the session in base64, with a matching SHA-256.
+- Speed: 1.5-1.9 times slower per core than the author's idle Mac; per-node speed varies by
+  a factor of two. Billing is 2504.5 units per CPU-minute, about $0.015 per CPU-hour.
+- Code changes, each verified to reproduce single runs exactly:
+  - `ds_four_role_coverage.py --rep-start` and `taxi_section6.py --boot-start` split runs
+    into array shards;
+  - `taxi_section6.py --eps/--tail/--window-tail` and `--sample restricted` refit the
+    robustness rows;
+  - `ds_four_role_nongaussian.py` reads `DS_NG_EFFECT` (`linear` reproduces the
+    2026-11-09 rows bit for bit).
+
+**Table 2** (job 66189342, 60 tasks × 4 CPUs, plus merge 66191051). Design `displayed`
+(paper_nonlinear), 999 full re-estimation draws, no failed draws, about 93 CPU-hours.
+
+| n | arm | sqrt(n) bias | n Var | n Var* | percentile | normal | analytic |
+|---|---|---|---:|---:|---:|---:|---:|
+| 4,000 | average | 1.40 (0.24) | 29.31 | 33.65 | 0.966 | 0.958 | 0.932 |
+| 4,000 | pooled | 0.57 (0.23) | 25.71 | 29.92 | 0.956 | 0.964 | 0.956 |
+| 4,000 | oracle | -0.02 (0.05) | 1.43 | 1.53 | 0.958 | 0.964 | 0.960 |
+| 16,000 | average | 0.53 (0.24) | 29.21 | 27.96 | 0.938 | 0.936 | 0.938 |
+| 16,000 | pooled | 0.12 (0.24) | 28.57 | 27.16 | 0.934 | 0.932 | 0.936 |
+| 16,000 | oracle | -0.01 (0.06) | 1.57 | 1.53 | 0.936 | 0.930 | 0.934 |
+| 64,000 | average | 0.81 (0.36) | 26.32 | 27.16 | 0.970 | 0.970 | 0.955 |
+| 64,000 | pooled | 0.62 (0.36) | 26.08 | 26.96 | 0.970 | 0.975 | 0.965 |
+| 64,000 | oracle | 0.09 (0.09) | 1.45 | 1.53 | 0.955 | 0.955 | 0.950 |
+
+First-order 26.68 (rotated) and 1.524 (oracle). Coverage standard error 0.010 (500 sets) and
+0.015 (200). Every interval is within about two standard errors of 0.95; the worst is the
+oracle normal interval at 16k, 0.930 (2.1 se).
+
+**Non-Gaussian check** (job 66189654, 8 CPUs, 5 min 42 s). Same plan as 2026-11-09 with the
+§5.1 alpha and b.
+
+| design | phi* | H | V rotated | n | n Var fixed / avg / pooled | sqrt(n) bias avg |
+|---|---:|---:|---:|---:|---|---|
+| t5 | 0.453062 | -0.1290 | 26.97 | 64,000 | 124.4 / 25.6 / 25.5 | -0.20 (0.36) |
+| mixture | 0.527287 | -0.0541 | 146.06 | 256,000 | 477.4 / 133.5 / 129.7 | 1.51 (0.82) |
+
+- The population port check equals `Population` exactly, and a 2M-draw Monte Carlo agrees.
+- Mixture edge share: 10.9% of rotated thresholds at n = 4,000, none from 64,000 on.
+- RMSE slopes from n = 16,000 on: -0.57 to -0.48.
+- 200 replications give a Monte Carlo se of about 10% on n Var.
+
+**Paper:** manuscript d733c15 (Table 2, §5.2, Appendix 7). The two hidden `DEFERRED` boxes
+are deleted.
+
+**Raw data:** jsonl shards and summaries are in the cluster clone under
+`experiments/runs/ds_four_role_coverage_nl_999/` and `four_role_nongaussian_nl/`. They are
+not yet copied back; the author asked to keep all raw data.
+
 ## 2026-11-12 - VLBW: the same estimator at other birth-weight lines finds an effect only at 1500 g (Claude)
 
 Subagent run, checked against the saved results. Script `experiments/scripts/binary_vlbw_lines.py`,
