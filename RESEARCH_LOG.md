@@ -44,6 +44,15 @@ author's proof read-through, and side-track work on binary outcomes and dose sch
 Scope file: `PROJECT_SCOPE.md` updated (both dates, simulations, taxi specification,
 computing, dose schedules, decision history). Next review: 2026-11-23.
 
+**Correction (Claude, same day):** the third cluster option was offered without checking
+the paper. The quadratic small-sample design already has bootstrap coverage
+(Appendix 7, `tab:ds-nonlinear-bootstrap`: n = 800 to 12,800, 500 data sets per row, 300 at
+12,800, 999 draws), and its alpha and b are its own, so the 2026-11-12 change of the
+displayed design does not touch it. That run is dropped from the scope file and the board;
+the author was told. Also: the mixture design converges slowly (11% of thresholds on the
+edge of Phi at n = 4,000), so its coverage run needs n = 256,000, which the 190 CPU-hour
+estimate left out; the run will be sized from a test job before submission.
+
 ---
 
 ## 2026-11-15 - Taxi robustness rows: 999-draw bootstrap intervals from Great Lakes (Claude)

@@ -150,7 +150,8 @@ decision history at the end. How to change this file is described in "Updating t
   the Great Lakes cluster (2026-11-15, manuscript d733c15); every §5 table now uses it.
 - **Coverage runs to add** (2026-11-16): Table 2 at n = 64,000 grows from 200 to 500
   data sets; 999-draw bootstrap coverage for the t5 and mixture designs (now point
-  estimates only) and for the quadratic small-sample design.
+  estimates only). The quadratic small-sample design already has its coverage table
+  (`tab:ds-nonlinear-bootstrap`, 500 data sets per n, 999 draws), so it gets no new run.
 
 ## Application
 
@@ -356,7 +357,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
-| 2026-11-16 | Weekly review: taxi use case R2-E1 is final ("for now" dropped); computing rule added under "How we work" (Great Lakes, stats_dept1, parallel arrays sized from a test job, no over-request, keep all raw data); dose-schedule candidates ranked by interpretability; §5 status updated (Table 2 and the non-Gaussian check in the nonlinear design; the 2026-10-20 to-do list done); coverage runs added (64k to 500 data sets, t5/mixture and quadratic designs); the unreviewed rows of 2026-11-09 to 2026-11-12 confirmed; every other section confirmed unchanged | Log: "Weekly scope review" (2026-11-16) |
+| 2026-11-16 | Weekly review: taxi use case R2-E1 is final ("for now" dropped); computing rule added under "How we work" (Great Lakes, stats_dept1, parallel arrays sized from a test job, no over-request, keep all raw data); dose-schedule candidates ranked by interpretability; §5 status updated (Table 2 and the non-Gaussian check in the nonlinear design; the 2026-10-20 to-do list done); coverage runs added (64k to 500 data sets, t5 and mixture designs; the quadratic design, also chosen, already has its coverage table); the unreviewed rows of 2026-11-09 to 2026-11-12 confirmed; every other section confirmed unchanged | Log: "Weekly scope review" (2026-11-16) |
 | 2026-11-12 | Taxi §6: daytime sample kept as the main sample after an all-hours trial (score on fare + surcharge, daytime in the effect: \$12.42, but the score model fits worse at night), all hours a robustness row; §6.1 frames keeping every fare as an extension (no RDD neighborhood); the paper writes Q = sqrt(fare) | Author: "use all hours, but daytime as an indicator. Make it clear that this is an extension ..."; "lets use \qrt{fare}"; "Back to daytime" (2026-11-12); log "Taxi §6: all hours tried and set aside"; manuscript 1295258 |
 | 2026-11-12 | Section 5 displayed design: alpha(eta) = 2 + 0.4 eta + 0.8 tanh(1.5 eta), b(eta) = eta^2/2 + 0.3 sin(2 eta) ("beta" read as b); Tables 1 and 3 rerun in it; the bootstrap coverage rerun (Table 2) deferred as a to-do; §5.4 reframed as the small-sample design | Author: "I want a nonlinear alpha and beta in section 5. Use one of the new ones. Choose a good one, and make the changes now"; "push"; "lets not do bootstrap for now, but leave it as a to do" (2026-11-12); code d98ecd8, manuscript 1454fb6 |
 | 2026-11-12 | Outcome fold renamed the "partially linear fold", subscript o -> beta in the paper (I_beta, P_beta, psi_beta, n_beta, E_beta); "regression fold" was not used because it would clash with the score-regression fold | Author's choice when asked (2026-11-12); manuscript b31c8f4 |
