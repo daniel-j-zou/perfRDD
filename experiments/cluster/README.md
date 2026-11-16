@@ -39,6 +39,16 @@ September runs (Codex) used the older scripts in this folder; their results are 
   ```
 
   Globus (endpoint `umich#greatlakes`) is the alternative for big transfers.
+- **Sending a file up through the logged-in session** (no second login; used 2026-11-15 for
+  the 10.9 MB taxi parquet, 5 seconds): encode locally with `base64 -b 76 -i <file> -o
+  <file>.b64` and append Ctrl-D (`printf '\004' >> <file>.b64`); paste
+  `stty -echo; base64 -d > <dest>.part; stty echo; echo XFER_RECV_END` into the session,
+  then paste the encoded file; wait for `XFER_RECV_END`, compare `sha256sum` with
+  `shasum -a 256` locally, and rename `.part`.
+- **Always give `screen -X readbuf` and `hardcopy` absolute paths.** Relative paths are
+  resolved from the directory screen started in. A failed `readbuf` leaves the old buffer,
+  and `paste .` then re-sends the previous command (on 2026-11-15 this resubmitted a rerun
+  and a merge job, which had to be cancelled).
 
 ## Accounts, storage and rules
 
@@ -88,4 +98,11 @@ the array script for the submit commands and the run log below for what was subm
 | 2026-11-15 | 66189298 | test, debug partition | failed: cluster `srsd` env has no matplotlib; `~/envs/perfrdd` made |
 | 2026-11-15 | 66189320 | test, debug, 2 CPUs, 2 reps x 10 fits per n | 17 s; 0.095 / 0.245 / 0.82 s per fit; MaxRSS 190 MB; billing 5009 (2 CPUs) |
 | 2026-11-15 | 66189342 | Table 2 array, 60 tasks x 4 CPUs, commit 499e8bb, out `experiments/runs/ds_four_role_coverage_nl_999` | submitted |
-| 2026-11-15 | 66189353 | merge, afterok:66189342 | submitted |
+| 2026-11-15 | 66189353 | merge, afterok:66189342 | cancelled: tasks 44 and 57 (n = 64k) on slow nodes (gl3311, gl3369) would time out |
+| 2026-11-15 | 66189654 | non-Gaussian t5/mixture, nonlinear effect, 8 CPUs | 5 min 42 s; out `experiments/runs/four_role_nongaussian_nl` |
+| 2026-11-15 | 66191050 | rerun of array tasks 44, 57 (afterany:66189342), resumes from their saved rows | submitted |
+| 2026-11-15 | 66191051 | merge, afterok:66191050 | submitted |
+
+Lesson (2026-11-15): seconds per replication at n = 64k ranged from 796 to 1637 across
+standard nodes, a factor of two, so a time limit of 1.7 times the median was too tight for
+the slowest nodes. Allow about 2.5 times the median, or make shards one round long.

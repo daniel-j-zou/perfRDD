@@ -22,38 +22,46 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=8
-#SBATCH --mem-per-cpu=2G
-#SBATCH --time=01:00:00
-#SBATCH --array=0-35
+#SBATCH --mem-per-cpu=3G
+#SBATCH --time=00:50:00
+#SBATCH --array=0-39
 #SBATCH --requeue
 
 set -euo pipefail
 
-# Row name and the arguments that refit its design variation.
+# Sizes from the test job 66191143 (debug, 2 CPUs, all-hours sample, 2026-11-15): setup
+# (data, point estimate, diagnostics) 2.7 min, 61 s per draw per CPU, peak 5.5 GB with two
+# workers. Draws scale with n: about 27 s for the daytime rows (n = 633,616) and 23 s for the
+# $5-$25 sample. So the all-hours row gets 8 shards of 125 draws and the others 4 of 250,
+# about 15-20 minutes each on 8 CPUs; the limit allows 2.5 times that for slow nodes.
+# About 90 CPU-hours in all (about $1.35 at 2504.5 billing units per CPU-minute).
+#
+# Row name | draws per shard | arguments that refit the row's design variation.
 ROWS=(
-  "allhours|--sample allhours"
-  "eps0.075|--eps 0.075"
-  "eps0.10|--eps 0.10"
-  "Jtail0.0005|--tail 0.0005"
-  "Jtail0.001|--tail 0.001"
-  "Jtail0.004|--tail 0.004"
-  "Jwin0.001-0.002|--tail 0.001 --window-tail 0.002"
-  "Jwin0.005-0.01|--tail 0.005 --window-tail 0.01"
-  "restricted|--sample restricted"
+  "allhours|125|--sample allhours"
+  "eps0.075|250|--eps 0.075"
+  "eps0.10|250|--eps 0.10"
+  "Jtail0.0005|250|--tail 0.0005"
+  "Jtail0.001|250|--tail 0.001"
+  "Jtail0.004|250|--tail 0.004"
+  "Jwin0.001-0.002|250|--tail 0.001 --window-tail 0.002"
+  "Jwin0.005-0.01|250|--tail 0.005 --window-tail 0.01"
+  "restricted|250|--sample restricted"
 )
 BOOT=999
-PER_SHARD=250                       # 4 shards per row: 0-249, 250-499, 500-749, 750-998
-SHARDS_PER_ROW=$(( (BOOT + PER_SHARD - 1) / PER_SHARD ))
-ROW=$(( SLURM_ARRAY_TASK_ID / SHARDS_PER_ROW ))
-SHARD=$(( SLURM_ARRAY_TASK_ID % SHARDS_PER_ROW ))
-if (( ROW >= ${#ROWS[@]} )); then
-    echo "array index ${SLURM_ARRAY_TASK_ID} has no row" >&2
+TASKS=()                            # one entry per shard: row index and first draw
+for ((r = 0; r < ${#ROWS[@]}; r++)); do
+    IFS='|' read -r _ per _ <<< "${ROWS[$r]}"
+    for ((a = 0; a < BOOT; a += per)); do TASKS+=("$r $a $per"); done
+done
+if (( SLURM_ARRAY_TASK_ID >= ${#TASKS[@]} )); then
+    echo "array index ${SLURM_ARRAY_TASK_ID} has no shard (only ${#TASKS[@]})" >&2
     exit 1
 fi
-NAME="${ROWS[$ROW]%%|*}"
-read -r -a ARGS <<< "${ROWS[$ROW]#*|}"
-A=$(( SHARD * PER_SHARD ))
-B=$(( A + PER_SHARD < BOOT ? A + PER_SHARD : BOOT ))
+read -r ROW A PER <<< "${TASKS[$SLURM_ARRAY_TASK_ID]}"
+IFS='|' read -r NAME _ ARGSTR <<< "${ROWS[$ROW]}"
+read -r -a ARGS <<< "${ARGSTR}"
+B=$(( A + PER < BOOT ? A + PER : BOOT ))
 
 OUT="${OUT:?set OUT to the run directory}"
 SHARD_OUT="${OUT}/${NAME}/shards/b${A}-${B}"

@@ -7,7 +7,7 @@
 set -u
 cmd="$1"; timeout="${2:-60}"
 tag="GL$RANDOM$RANDOM"
-dir=/tmp/claude-505/gl; mkdir -p "$dir"
+dir=/tmp/claude-505/gl; mkdir -p "$dir"  # absolute: screen resolves relative paths from its own cwd
 buf="$dir/buf_$tag.txt"; hc="$dir/hc_$tag.txt"
 printf 'echo %s_S; %s\necho %s_E\n' "$tag" "$cmd" "$tag" > "$buf"
 screen -S gl -X readbuf "$buf" && screen -S gl -X paste . || { echo "screen session gl not reachable"; exit 2; }
