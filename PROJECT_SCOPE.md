@@ -4,8 +4,8 @@ The current agreed scope and methodology of the paper, in one place. Start every
 session by reading this file, then the newest entries in `RESEARCH_LOG.md` and
 `../manuscript/TODO.md`.
 
-- **Last reviewed with the author:** 2026-11-04, a full refresh pass (Claude)
-- **Covers decisions up to:** research log entries of 2026-11-04 ("Taxi theory plan; R3-E1 is weakly identified and its score is not monotone"); later dated rows in the decision log below were added without a review
+- **Last reviewed with the author:** 2026-11-16, a full refresh pass (Claude)
+- **Covers decisions up to:** research log entry of 2026-11-16 ("Weekly scope review")
 
 This file holds author decisions only. Evidence and derivations stay in `RESEARCH_LOG.md`;
 tasks stay in `../manuscript/TODO.md`. Every item below can be traced through the
@@ -145,17 +145,12 @@ decision history at the end. How to change this file is described in "Updating t
 - **Displayed design** (2026-11-12): nonlinear alpha and b,
   alpha(eta) = 2 + 0.4 eta + 0.8 tanh(1.5 eta), b(eta) = eta^2/2 + 0.3 sin(2 eta), the rest
   as before; target phi*_eps = 0.468829 (0.545103 with the old linear alpha). The
-  second (quadratic) design stays as the small-sample check. Rerunning the bootstrap
-  coverage table (Table 2) in the new displayed design is a deferred to-do; the table
-  stays in the linear design until then, and the paper says so in prose (its todo boxes
-  are commented out, author 2026-11-13). Heavy simulations will run on a computing
-  cluster that the author will set up (2026-11-13); this rerun is the first.
-- **To do** (2026-10-20):
-  - rerun the coverage tables with 999-draw percentile intervals (the run finished on
-    2026-10-23; the port into §5 is left);
-  - in the nonlinear design, reword the small-n excess in §5 (2026-10-22): the analytic
-    4.73 is right and the excess is a small-n density-basis effect, gone by n = 12,800.
-    No larger-n cells are added.
+  second (quadratic) design stays as the small-sample check. The bootstrap coverage
+  table (Table 2) and the non-Gaussian check of Appendix 7 were rerun in this design on
+  the Great Lakes cluster (2026-11-15, manuscript d733c15); every §5 table now uses it.
+- **Coverage runs to add** (2026-11-16): Table 2 at n = 64,000 grows from 200 to 500
+  data sets; 999-draw bootstrap coverage for the t5 and mixture designs (now point
+  estimates only) and for the quadratic small-sample design.
 
 ## Application
 
@@ -166,7 +161,8 @@ decision history at the end. How to change this file is described in "Updating t
   kept for a comparison subsection.
 - **Taxi model:** the treatment effect is nonlinear in eta and linear in the covariates (no
   functions of distance in the D*X block), and eta should carry meaning.
-- **Taxi specification** (2026-10-27, "for now"): the paper's use case is R2-E1. The fare
+- **Taxi specification** (2026-10-27; final since 2026-11-16): the paper's use case is
+  R2-E1. The fare
   is on the square-root scale (the paper writes Q = sqrt(fare), 2026-11-12; the code uses
   Box-Cox 1/2), the sample is the daytime rides with every fare (2026-11-12: kept after an
   all-hours trial), the score has distance and log distance plus
@@ -238,7 +234,9 @@ only when the author asks; it does not change the sections above.
   (`experiments/datasets/MULTI_RULE_DATASETS_20261027.md`). Continuous outcomes only
   (author, 2026-10-28).
 - **Dose schedules:** the continuous-dose estimator on real data
-  (`experiments/datasets/DOSE_SCHEDULE_DATASETS_20261028.md`). Chile SEP is on hold. The
+  (`experiments/datasets/DOSE_SCHEDULE_DATASETS_20261028.md`). Candidate settings are
+  ranked by interpretability: the dose a real lever, eta nameable, a natural X preferred
+  to a higher R^2 (author, 2026-11-12). Chile SEP is on hold. The
   CWBH data asks users to contact its maintainers for a formal agreement, which needs
   an author decision before any publication.
 - **Binary outcomes** (2026-11-11): a generalized linear outcome model for a binary Y.
@@ -275,6 +273,11 @@ only when the author asks; it does not change the sections above.
 - **811 outline** (2026-10-27): `../manuscript/811.tex` is the author's outline of the
   paper for the 811 writing course. A manuscript push that changes the paper's sections,
   contents or status also updates it.
+- **Computing** (author, 2026-11-13 to 2026-11-15; confirmed 2026-11-16): heavy
+  simulations run on Great Lakes under `stats_dept1`, split into parallel array tasks
+  sized from a short test job, asking for no more time or memory than needed; all raw
+  results are copied back to the Mac and kept. Procedure in
+  `experiments/cluster/README.md`.
 - **Statistics vocabulary** (2026-11-10): the author prefers terms from statistics to
   terms from econometrics, in every manuscript file outside `prelim/`. Approved
   mapping:
@@ -309,8 +312,7 @@ only when the author asks; it does not change the sections above.
 
 ## Open questions for the author
 
-- None open. The R3-E1 identification question was answered on 2026-11-04 (robustness
-  row).
+- None open (2026-11-16 review).
 
 ## Updating this file
 
@@ -354,6 +356,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-16 | Weekly review: taxi use case R2-E1 is final ("for now" dropped); computing rule added under "How we work" (Great Lakes, stats_dept1, parallel arrays sized from a test job, no over-request, keep all raw data); dose-schedule candidates ranked by interpretability; §5 status updated (Table 2 and the non-Gaussian check in the nonlinear design; the 2026-10-20 to-do list done); coverage runs added (64k to 500 data sets, t5/mixture and quadratic designs); the unreviewed rows of 2026-11-09 to 2026-11-12 confirmed; every other section confirmed unchanged | Log: "Weekly scope review" (2026-11-16) |
 | 2026-11-12 | Taxi §6: daytime sample kept as the main sample after an all-hours trial (score on fare + surcharge, daytime in the effect: \$12.42, but the score model fits worse at night), all hours a robustness row; §6.1 frames keeping every fare as an extension (no RDD neighborhood); the paper writes Q = sqrt(fare) | Author: "use all hours, but daytime as an indicator. Make it clear that this is an extension ..."; "lets use \qrt{fare}"; "Back to daytime" (2026-11-12); log "Taxi §6: all hours tried and set aside"; manuscript 1295258 |
 | 2026-11-12 | Section 5 displayed design: alpha(eta) = 2 + 0.4 eta + 0.8 tanh(1.5 eta), b(eta) = eta^2/2 + 0.3 sin(2 eta) ("beta" read as b); Tables 1 and 3 rerun in it; the bootstrap coverage rerun (Table 2) deferred as a to-do; §5.4 reframed as the small-sample design | Author: "I want a nonlinear alpha and beta in section 5. Use one of the new ones. Choose a good one, and make the changes now"; "push"; "lets not do bootstrap for now, but leave it as a to do" (2026-11-12); code d98ecd8, manuscript 1454fb6 |
 | 2026-11-12 | Outcome fold renamed the "partially linear fold", subscript o -> beta in the paper (I_beta, P_beta, psi_beta, n_beta, E_beta); "regression fold" was not used because it would clash with the score-regression fold | Author's choice when asked (2026-11-12); manuscript b31c8f4 |

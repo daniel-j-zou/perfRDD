@@ -9,6 +9,43 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-16 - Weekly scope review (Claude)
+
+A full refresh pass, the first since 2026-11-04. Three rounds of questions plus a follow-up.
+
+**Decisions (author, 2026-11-16):**
+- **Computing rule** for "How we work", added as proposed: "Heavy simulations run on Great
+  Lakes under stats_dept1, split into parallel array tasks sized from a short test job,
+  asking for no more time or memory than needed; all raw results are copied back to the
+  Mac and kept." (This confirms the decisions of 2026-11-13 to 2026-11-15.)
+- **Taxi use case:** R2-E1 is final; "for now" is dropped.
+- **Unreviewed decision rows** of 2026-11-09 to 2026-11-12: "Confirm all".
+- **Clean-ups:** update the §5 status in the scope file (Table 2 and the non-Gaussian check
+  now in the nonlinear design; the 2026-10-20 to-do list done); close the board items on
+  spline-size cross-validation and the analytic-variance check (both done 2026-10-21) and
+  the September taxi audit item. The two generic dataset-screen items stay open.
+- **Dose schedules:** the 2026-11-12 interpretability ranking (the dose a real lever, eta
+  nameable, a natural X preferred to a higher R^2) goes into the side-track bullet.
+- **Refresh pass:** goal (journal submission in Biometrika style, no venue or date), model,
+  target and theory, estimator and inference, simulations, application, positioning and
+  out of scope: all "Still right".
+- **Proof read-through:** the author's own task, this week.
+- **Cluster runs** (all three chosen): Table 2 at n = 64,000 from 200 to 500 data sets
+  (Monte Carlo SE of the bias 0.36 to about 0.23, about 85 CPU-hours); 999-draw bootstrap
+  coverage for the t5 and mixture designs (about 190 CPU-hours); bootstrap coverage for the
+  quadratic small-sample design (to be sized from a test job).
+
+**Open questions:** none.
+
+**Priorities this week, in the author's order:** cluster runs first (they run in the
+background); then the draft to the advisors (final read, references, figures, PDF), the
+author's proof read-through, and side-track work on binary outcomes and dose schedules.
+
+Scope file: `PROJECT_SCOPE.md` updated (both dates, simulations, taxi specification,
+computing, dose schedules, decision history). Next review: 2026-11-23.
+
+---
+
 ## 2026-11-15 - Taxi robustness rows: 999-draw bootstrap intervals from Great Lakes (Claude)
 
 Follow-up to the entry below. Author: "yes bootstrap the taxi robustness rows too".
