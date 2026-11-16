@@ -31,14 +31,32 @@ September runs (Codex) used the older scripts in this folder; their results are 
   waits (`while squeue ... | grep -q .; do sleep 30; done`) keep the tab busy, so tell the
   author not to type there meanwhile. Raise the scrollback first
   (`screen -S gl -X scrollback 20000`) before printing long output.
-- **Copying results back.** Large files cannot go through the tab. The author copies them
-  with the transfer host, which needs the password and Duo but no Okta push:
+- **Copying results back through the logged-in session** (no second login; used 2026-11-16
+  for the 67 MB archive of the 2026-11-15 runs). On the cluster, pack the run directories
+  (`tar czf ~/xfer_runs.tgz -C experiments/runs <dirs>`; leave out shard copies that the
+  merged files repeat), note `sha256sum`, then split the encoded archive and list the parts'
+  md5:
+
+  ```bash
+  mkdir ~/xfer && cd ~/xfer && base64 -w 76 ~/xfer_runs.tgz | split -l 40000 -d -a 3 - part_ && md5sum part_*
+  ```
+
+  Save that md5 list locally (one `md5  part_NNN` per line), raise the scrollback
+  (`screen -S gl -X scrollback 100000`; a 40,000-line part wraps to about 80,000 rows in
+  the 48-column tab), and run, outside the sandbox,
+  `experiments/cluster/gl_fetch_parts.sh <md5 list> '~/xfer' <local dir>`. Each part takes
+  about 8 seconds (about 280 KB/s) and is checked against its md5; a rerun skips parts
+  already copied. Then `cat part_0* | base64 -D > xfer_runs.tgz`, compare `shasum -a 256`
+  with the cluster's, list it with `tar tzf`, and unpack into `experiments/runs/` with
+  `tar xkzf` (`-k` never overwrites).
+- **Copying results back with a second login.** The author can also copy with the transfer
+  host, which needs the password and Duo but no Okta push:
 
   ```bash
   scp -r <uniqname>@greatlakes-xfer.arc-ts.umich.edu:src/perfRDD/experiments/runs/<run> experiments/runs/
   ```
 
-  Globus (endpoint `umich#greatlakes`) is the alternative for big transfers.
+  Globus (endpoint `umich#greatlakes`) is the alternative for very large transfers.
 - **Sending a file up through the logged-in session** (no second login; used 2026-11-15 for
   the 10.9 MB taxi parquet, 5 seconds): encode locally with `base64 -b 76 -i <file> -o
   <file>.b64` and append Ctrl-D (`printf '\004' >> <file>.b64`); paste
@@ -49,6 +67,9 @@ September runs (Codex) used the older scripts in this folder; their results are 
   resolved from the directory screen started in. A failed `readbuf` leaves the old buffer,
   and `paste .` then re-sends the previous command (on 2026-11-15 this resubmitted a rerun
   and a merge job, which had to be cancelled).
+- **Wait before reading a `hardcopy` file.** `screen -X hardcopy` returns before screen has
+  written the file, so a script that reads it at once can see a half-written copy (on
+  2026-11-16 this made half the parts wait out a 5-minute timeout). Pause a second first.
 
 ## Accounts, storage and rules
 
@@ -100,8 +121,13 @@ the array script for the submit commands and the run log below for what was subm
 | 2026-11-15 | 66189342 | Table 2 array, 60 tasks x 4 CPUs, commit 499e8bb, out `experiments/runs/ds_four_role_coverage_nl_999` | submitted |
 | 2026-11-15 | 66189353 | merge, afterok:66189342 | cancelled: tasks 44 and 57 (n = 64k) on slow nodes (gl3311, gl3369) would time out |
 | 2026-11-15 | 66189654 | non-Gaussian t5/mixture, nonlinear effect, 8 CPUs | 5 min 42 s; out `experiments/runs/four_role_nongaussian_nl` |
-| 2026-11-15 | 66191050 | rerun of array tasks 44, 57 (afterany:66189342), resumes from their saved rows | submitted |
-| 2026-11-15 | 66191051 | merge, afterok:66191050 | submitted |
+| 2026-11-15 | 66191050 | rerun of array tasks 44, 57 (afterany:66189342), resumes from their saved rows | not needed: both tasks had finished (about 1014 s per rep); the rerun found every rep done |
+| 2026-11-15 | 66191051 | merge, afterok:66191050 | done 22:13; 500 / 500 / 200 data sets, 999 draws; summary in `displayed_summary.json` |
+| 2026-11-15 | 66191101, 66191102 | rerun and merge resubmitted by a failed relative-path `readbuf` | rerun found every rep done; merge cancelled; merged files checked equal to the shards |
+| 2026-11-15 | 66191143 | taxi bootstrap test, debug, 2 CPUs, all-hours sample, out `experiments/runs/taxi_boot_test` | setup 2.7 min, 61 s per draw per CPU, peak 5.5 GB |
+| 2026-11-15 | 66191339 | taxi robustness bootstrap array, 40 tasks x 8 CPUs, 3 GB/CPU, commit 6f46d92, out `experiments/runs/taxi_robust_boot` | every task 20 min or less; about 90 CPU-hours |
+| 2026-11-15 | 66191340 | taxi merge, afterok:66191339 | 999 of 999 draws in all 9 rows; intervals in the 2026-11-15 research-log entry |
+| 2026-11-16 | none | copy back through the tab (`gl_fetch_parts.sh`) | 67,010,654-byte archive, sha256 matched; unpacked into local `experiments/runs/` (git-ignored) |
 
 Lesson (2026-11-15): seconds per replication at n = 64k ranged from 796 to 1637 across
 standard nodes, a factor of two, so a time limit of 1.7 times the median was too tight for

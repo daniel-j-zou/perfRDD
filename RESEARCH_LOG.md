@@ -9,6 +9,57 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-15 - Taxi robustness rows: 999-draw bootstrap intervals from Great Lakes (Claude)
+
+Follow-up to the entry below. Author: "yes bootstrap the taxi robustness rows too".
+- **Run:** Great Lakes array 66191339 (40 tasks × 8 CPUs, 3 GB/CPU; all-hours row in 8
+  shards of 125 draws, the others in 4 of 250) and merge 66191340. Commit 6f46d92. Sizes
+  came from debug test 66191143: setup 2.7 min, 61 s per draw per CPU on the all-hours
+  sample, 5.5 GB peak with 2 workers. Every task ran 20 minutes or less; about 90
+  CPU-hours. Draw b keeps R2-E1's seeds, so it uses the same resample and split as the main
+  row's draw b. On a 1-draw shard this reproduces the stored S1-E1 draw in every recorded
+  field.
+- **Not rerun** (intervals already on file): the main row [12.56, 13.18], S1-E1, S2-E1, R3-E1
+  and the location-scale row [12.00, 12.81].
+- **Not bootstrapped:**
+  - the four other fold seeds: draw b would use seeds s + 1000 + b, which is the main
+    row's draw b + s - 1, so the intervals would repeat the main one;
+  - the common slope: its estimate is on the edge of Phi.
+
+| row | phi-hat | 95% pct | 90% pct | sd | draws by cell |
+|---|---:|---|---|---:|---|
+| eps 0.075 | 13.00 | [12.71, 13.30] | [12.76, 13.25] | 0.153 | 12.90: 233, 13.30: 739, 13.70: 27 |
+| eps 0.10 | 13.08 | [12.70, 13.38] | [12.75, 13.34] | 0.177 | 12.90: 201, 13.30: 717, 13.70: 80 |
+| J tail 0.0005 | 12.92 | [12.59, 13.20] | [12.63, 13.16] | 0.158 | 12.90: 481, 13.30: 510 |
+| J tail 0.001 | 12.94 | [12.62, 13.26] | [12.67, 13.22] | 0.160 | 12.90: 387, 13.30: 600 |
+| J tail 0.004 | 12.88 | [12.58, 13.18] | [12.63, 13.15] | 0.155 | 12.90: 504, 13.30: 490 |
+| J+window 0.001/0.002 | 12.92 | [12.61, 13.24] | [12.65, 13.20] | 0.160 | 12.90: 418, 13.30: 570 |
+| J+window 0.005/0.01 | 12.93 | [12.64, 13.23] | [12.68, 13.19] | 0.153 | 12.90: 400, 13.30: 595 |
+| $5-$25 sample | 13.15 | [12.90, 13.36] | [12.94, 13.32] | 0.119 | 13.30: 886, 13.70: 86 |
+| all hours | 12.42 | [12.18, 12.69] | [12.23, 12.64] | 0.128 | 12.50: 565, 12.60: 193 |
+
+- No draw hits the edge of Phi in any row.
+- Every design-variation interval contains the main estimate $12.87 and lies within
+  [12.58, 13.38].
+- The all-hours interval overlaps the main one only from $12.56 to $12.69. Its cells lie on a
+  different lattice because the base amount includes the surcharge.
+
+Paper: manuscript a87a21a. Appendix 5 Table `taxi-robust` gains a 95% interval column, filled
+for every row except the fold assignments and the common slope, and the text gives the new
+intervals. Raw draws and summaries are in `experiments/runs/taxi_robust_boot/`.
+
+**Raw data copied back (2026-11-16):** one archive (67,010,654 bytes; sha256 f8f916b2…f0f,
+matched) holds `ds_four_role_coverage_nl_999/` (merged jsonl, summary, 60 shard
+directories without their duplicate jsonl, 66 job logs), `four_role_nongaussian_nl/`,
+`taxi_robust_boot/` (merged draws and summary per row, shard summaries, provenance and logs, without
+the shard draw files the merged files repeat), and the two test runs `ds5_cov_test/` and
+`taxi_boot_test/`. It came through the logged-in screen session with
+`experiments/cluster/gl_fetch_parts.sh`, md5-checked per part, and is unpacked into the
+local, git-ignored `experiments/runs/`. Checked after unpacking: 500 / 500 / 200 data sets
+in the Table 2 files, 999 draws in each of the 9 taxi rows, and every taxi interval equal to
+the paper's table. The full copies, shard files included, stay in the cluster clone
+(`~/src/perfRDD/experiments/runs/`).
+
 ## 2026-11-15 - Great Lakes set up for agents; §5 Table 2 and the non-Gaussian check rerun in the nonlinear design (Claude)
 
 **Author decisions (2026-11-13 to 2026-11-15):** heavy simulations go to the Great Lakes
