@@ -26,8 +26,19 @@ September runs (Codex) used the older scripts in this folder; their results are 
   The agent pastes commands into that session (`screen -S gl -X readbuf <file>` then
   `screen -S gl -X paste .`) and reads the output with `screen -S gl -X hardcopy -h <file>`,
   between marker lines it prints before and after each command. The agent never sees the
-  password, and the author sees every command in the tab. A helper that does this is in the
-  session notes of 2026-11-15; copy it into a repo if it is needed again.
+  password, and the author sees every command in the tab. The helper is `gl_screen.sh`
+  (`gl_screen.sh '<command>' [timeout_seconds]`); run it outside the command sandbox. Long
+  waits (`while squeue ... | grep -q .; do sleep 30; done`) keep the tab busy, so tell the
+  author not to type there meanwhile. Raise the scrollback first
+  (`screen -S gl -X scrollback 20000`) before printing long output.
+- **Copying results back.** Large files cannot go through the tab. The author copies them
+  with the transfer host, which needs the password and Duo but no Okta push:
+
+  ```bash
+  scp -r <uniqname>@greatlakes-xfer.arc-ts.umich.edu:src/perfRDD/experiments/runs/<run> experiments/runs/
+  ```
+
+  Globus (endpoint `umich#greatlakes`) is the alternative for big transfers.
 
 ## Accounts, storage and rules
 

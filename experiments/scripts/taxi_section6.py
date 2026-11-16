@@ -61,6 +61,15 @@ resumes from them. ``--figures`` redraws the figures from the saved results.
 
 Results for each specification are merged into ``<out>/summary.json``.
 
+Bootstrap intervals for the robustness rows (author, 2026-11-15: "bootstrap the taxi
+robustness rows too"): ``--eps``, ``--tail`` and ``--window-tail`` refit the design
+variation of a row, and ``--sample restricted`` is the $5--$25 sample of the
+comparisons; draw b keeps the main specification's seeds, so it uses the same resample
+and split as R2-E1's draw b. ``--boot-start a --boot b`` runs draws a..b-1 only (one
+shard, for a Slurm array task, each shard in its own ``--out``); concatenating the
+shards' ``<spec>_draws.jsonl`` and rerunning with the full ``--boot`` gives the summary
+(``experiments/cluster/taxi_robust_boot_array.sbatch``).
+
 Run (from code/; ``--sample daytime`` is the default):
     python -m experiments.scripts.taxi_section6 --specs R2-E1 --boot 999 --workers 6
     python -m experiments.scripts.taxi_section6 --sample allhours --specs R2-E1 --boot 0
@@ -96,6 +105,9 @@ from experiments.scripts import taxi_four_role_grid as G
 
 OUT = M.ROOT / "runs" / "taxi_section6"          # daytime sample
 SAMPLES = {
+    "restricted": {"frame": "restricted", "hours": "day", "effect": "distance",
+                   "effect_cols": ["Trip_Distance"],
+                   "out": M.ROOT / "runs" / "taxi_section6_restricted"},
     "allhours": {"frame": "allhours", "hours": "all", "effect": "distance+daytime",
                  "effect_cols": ["Trip_Distance", "daytime"],
                  "out": M.ROOT / "runs" / "taxi_section6_allhours"},
@@ -172,11 +184,12 @@ def _load(path: Path):
     return [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
 
 
-def bootstrap(spec, data, design, seed, curve_grid, alpha_grid, boot, workers, out):
+def bootstrap(spec, data, design, seed, curve_grid, alpha_grid, boot, workers, out,
+              boot_start=0):
     path = out / f"{spec}_draws.jsonl"
     rows = _load(path)
     done = {r["b"] for r in rows}
-    todo = [b for b in range(boot) if b not in done]
+    todo = [b for b in range(boot_start, boot) if b not in done]
     if todo:
         t0 = time.time()
         print(f"[{spec}] bootstrap: {len(done)} done, running {len(todo)}", flush=True)
@@ -260,7 +273,8 @@ def robustness_tasks():
     return tasks
 
 
-def run(boot, workers, seed, out, specs, sample=SAMPLE, robust=True):
+def run(boot, workers, seed, out, specs, sample=SAMPLE, robust=True, eps=EPS, tail=TAIL,
+        window_tail=WINDOW_TAIL, boot_start=0):
     out.mkdir(parents=True, exist_ok=True)
     cfg = SAMPLES[sample]
     df = M.load_frame(cfg["frame"])
@@ -269,12 +283,13 @@ def run(boot, workers, seed, out, specs, sample=SAMPLE, robust=True):
     path = out / "summary.json"
 
     def head(res):
-        res.update(eps=EPS, fare_grid=curve_grid.tolist(), sample=sample, n=int(len(df)))
+        res.update(eps=eps, tail=tail, window_tail=window_tail, fare_grid=curve_grid.tolist(),
+                   sample=sample, n=int(len(df)))
         res.pop("lambda", None)                 # now recorded per specification
     _save(path, head)
     t0 = time.time()
     for spec in specs:
-        data, design = build(df, spec, sample=sample)
+        data, design = build(df, spec, eps=eps, tail=tail, window_tail=window_tail, sample=sample)
         alpha_grid = np.linspace(design.window[0], design.window[1], 61)
         est = estimate(data, design, seed, curve_grid, alpha_grid)
         est["eta_grid"] = alpha_grid.tolist()
@@ -309,7 +324,8 @@ def run(boot, workers, seed, out, specs, sample=SAMPLE, robust=True):
                                                        for r in rob), flush=True)
             _save(path, put)
         if boot:
-            rows = bootstrap(spec, data, design, seed, curve_grid, alpha_grid, boot, workers, out)
+            rows = bootstrap(spec, data, design, seed, curve_grid, alpha_grid, boot, workers, out,
+                             boot_start)
             est["boot"] = summarize_boot(est, rows, data.fare, effect_sd)
             b = est["boot"]
             print(f"[{spec}] B={b['B']} sd {b['sd']:.3f} 95% pct [{b['pct95'][0]:.2f}, "
@@ -457,6 +473,11 @@ def main(argv=None):
     ap.add_argument("--figures", action="store_true", help="redraw figures from summary.json")
     ap.add_argument("--comparisons", action="store_true",
                     help="common-slope and restricted-sample rows for the first --specs entry")
+    ap.add_argument("--eps", type=float, default=EPS, help="trim level (robustness rows)")
+    ap.add_argument("--tail", type=float, default=TAIL, help="tail excluded from J")
+    ap.add_argument("--window-tail", type=float, default=WINDOW_TAIL, help="window cap tail")
+    ap.add_argument("--boot-start", type=int, default=0,
+                    help="first bootstrap draw: run draws boot-start..boot-1 only (one shard)")
     a = ap.parse_args(argv)
     a.out = a.out or SAMPLES[a.sample]["out"]
     if a.figures:
@@ -468,7 +489,8 @@ def main(argv=None):
     if a.comparisons:
         comparisons(a.seed, a.out, a.specs[0], a.sample)
         return
-    run(a.boot, a.workers, a.seed, a.out, a.specs, a.sample, robust=not a.no_robust)
+    run(a.boot, a.workers, a.seed, a.out, a.specs, a.sample, robust=not a.no_robust,
+        eps=a.eps, tail=a.tail, window_tail=a.window_tail, boot_start=a.boot_start)
 
 
 if __name__ == "__main__":
