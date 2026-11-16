@@ -50,6 +50,12 @@ Rows are appended to ``<out>/<design>_n<n>.jsonl`` as replications finish, and a
 rerun resumes from them.  ``--report`` prints the markdown tables of a finished
 run.
 
+Each replication's seed depends only on (seed, n, rep), so a cell can be split
+across Slurm array tasks with ``--rep-start a --reps b`` (replications a..b-1),
+each task writing to its own ``--out``; concatenating the shards' jsonl files
+into one directory and rerunning with the full ``--reps`` gives the same summary
+as one run (see ``experiments/cluster/ds_section5_coverage_array.sbatch``).
+
 Run:
     python -m experiments.scripts.ds_four_role_coverage --design displayed \
         --n 4000 16000 --reps 500 --boot 199 --workers 7
@@ -442,7 +448,7 @@ def _suffix(scheme: str) -> str:
 
 def run_cell(design_key: str, n: int, reps: int, n_boot: int, seed: int, workers: int,
              out: Path, pop: dict, scheme: str = "resplit", linear_arm=None,
-             extend_from: Path = None) -> dict:
+             extend_from: Path = None, rep_start: int = 0) -> dict:
     path = out / f"{design_key}_n{n}{_suffix(scheme)}.jsonl"
     rows = _load_rows(path)
     done = {r["rep"] for r in rows}
@@ -455,7 +461,7 @@ def run_cell(design_key: str, n: int, reps: int, n_boot: int, seed: int, workers
                 raise ValueError(f"{prev} was run with another design: {params}")
         old = {r["rep"]: r for r in _load_rows(extend_from / path.name)}
     tasks = [(design_key, n, r, seed + 104_729 * n + r, n_boot, pop, scheme, linear_arm,
-              old.get(r)) for r in range(reps) if r not in done]
+              old.get(r)) for r in range(rep_start, reps) if r not in done]
     if tasks:
         print(f"[{design_key}] n={n}: {len(done)} done, running {len(tasks)}", flush=True)
         t0 = time.perf_counter()
@@ -507,6 +513,9 @@ def main(argv=None) -> None:
     ap.add_argument("--design", choices=sorted(COVERAGE_DESIGNS), default="displayed")
     ap.add_argument("--n", type=int, nargs="+", default=[4000, 16000])
     ap.add_argument("--reps", type=int, default=500)
+    ap.add_argument("--rep-start", type=int, default=0,
+                    help="first replication index: run replications rep-start..reps-1 only "
+                         "(one shard of a cell, for a Slurm array task)")
     ap.add_argument("--boot", type=int, default=199)
     ap.add_argument("--seed", type=int, default=20261019)
     ap.add_argument("--workers", type=int, default=7)
@@ -537,7 +546,7 @@ def main(argv=None) -> None:
     for n in args.n:
         cell = run_cell(args.design, n, args.reps, args.boot, args.seed, args.workers,
                         args.out, pop, args.scheme, False if args.no_linear else None,
-                        args.extend_from)
+                        args.extend_from, args.rep_start)
         result["cells"][str(n)] = cell
         summary_path.write_text(json.dumps(result, indent=1) + "\n")
         print(json.dumps(cell, indent=1), flush=True)
