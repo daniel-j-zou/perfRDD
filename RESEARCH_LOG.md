@@ -72,6 +72,16 @@ paper. Run ablations as needed."
   coverage .942/.952, .954/.950, .950/.948; bias -0.01, -0.03, -0.03 s.d.; bootstrap/MC
   variance 0.98, 1.08, 0.99; oracle .928-.966; no failed draws. In the paper as
   manuscript f6f8b17. Rows in `runs/ds_r2bal_taxi_like_999/` (sha256 checked).
+- **Follow-up (09:10), location-scale row under the day bootstrap** (same day draws and
+  splits as the main specification, `taxi_cluster_boot.py --spec ls_poisson`, jobs
+  66278466/66278467): days: location-scale [$11.82, $12.96], paired difference with the
+  main estimate [-$0.78, -$0.15], negative in all 999 draws; day-hours: [$12.02, $12.81],
+  [-$0.72, -$0.19]. The day shocks move both estimates, so the paired interval barely widens
+  (rides: [-$0.75, -$0.17]). In the paper as manuscript 888130c (§6.4).
+- **Left on the cluster for the author to delete** (agent deletions there are blocked):
+  transfer copies `~/xfer_ngcov.tgz`, `~/xfer/`, `~/xfer_md5.txt`, `~/xfer_cb*`,
+  `~/xfer_r2s*`, `~/xfer_r2raw*` (about 2 GB), `~/xfer_tl*`, `~/xfer_ls*`; the worktree
+  `~/src/perfRDD_b` (remove with `git -C ~/src/perfRDD worktree remove ~/src/perfRDD_b`).
 
 ## 2026-11-17 - Bootstrap coverage in the t5 and mixture designs; camera-ready corrections (Claude)
 
