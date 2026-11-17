@@ -17,6 +17,10 @@
 #       --export=ALL,OUT=$OUT,SET=short experiments/cluster/ds_r2_balance_coverage_array.sbatch
 #   sbatch --dependency=afterok:<long id>:<short id> --output=$OUT/logs/%x_%j.out \
 #       --export=ALL,OUT=$OUT experiments/cluster/ds_r2_balance_coverage_merge.sbatch
+# The taxi_like design (R^2 0.925, 11% treated, eps 0.05) has its own sets, run with
+# --cpus-per-task=8: SET=taxi_small (n = 64k, 256k; 126 tasks) and SET=taxi_big (the taxi
+# n = 633,616; 63 tasks, --mem-per-cpu=2G), merged with DESIGNS=taxi_like
+# NS="64000 256000 633616" in the merge job's --export.
 #SBATCH --job-name=ds-r2bal
 #SBATCH --account=stats_dept1
 #SBATCH --partition=standard
@@ -49,6 +53,11 @@ case "${SET:?set SET to short or long}" in
         for d in $DESIGNS; do
             add_cell "$d" 256000 500 8     # 63 shards, 1 round of 8 workers
         done ;;
+    taxi_small)                            # taxi_like at 64k and 256k: 126 shards (8 CPUs)
+        add_cell taxi_like 64000 500 8
+        add_cell taxi_like 256000 500 8 ;;
+    taxi_big)                              # taxi_like at the taxi n: 63 shards (8 CPUs)
+        add_cell taxi_like 633616 500 8 ;;
     *) echo "unknown SET=${SET}" >&2; exit 1 ;;
 esac
 

@@ -32,6 +32,8 @@ Designs (key ``r2<100 R^2>_<bal|unbal>``, e.g. ``r2_90_unbal``):
   - T = [-3 s, 3 s] (three standard deviations of T);
   - Phi = [-3 s + u + b s, 3 s + l - b s] with b = 3 - z_{0.9} - 1.5 = 0.218, so that the
     argument set {phi - eta} stays inside T with the Section 5 buffer.
+* ``taxi_like``: R^2 = 0.925, 11% treated and eps = 0.05, the taxi values, with the
+  same rules; run at n = 64k, 256k and the taxi sample size 633,616.
 * Every design uses the same seeds (seed + 104729 n + rep, seed 20261019 as in
   Table 2), so the data sets are common random numbers across designs, and the
   r2_50_bal cell reproduces Table 2 data set by data set (checked by ``--check``).
@@ -146,17 +148,19 @@ def _unbal_cost(base: Design, s: float, window, phi_t: float) -> float:
     return num / den
 
 
-def make_spec(r2: float, balance: str) -> Spec:
-    key = design_key(r2, balance)
+def make_spec(r2: float, balance: str, eps: float = None, key: str = None) -> Spec:
+    eps = BASE.eps if eps is None else eps
+    key = design_key(r2, balance) if key is None else key
     if key == "r2_50_bal":
         d = BASE
         z = float(norm.ppf(1.0 - d.eps))
         return Spec(key, r2, balance, 1.0, d, (-z, z), (-z, z), False)
     s = float(np.sqrt(r2 / (1.0 - r2)))
     sq = float(np.sqrt(1.0 + s * s))
-    z = float(norm.ppf(1.0 - BASE.eps))
+    z = float(norm.ppf(1.0 - BASE.eps))       # the Section 5 buffer uses eps = 0.1
+    zw = float(norm.ppf(1.0 - eps))           # the overlap window uses the design's eps
     phi0 = 0.0 if balance == "bal" else float(norm.ppf(1.0 - SHARE[balance])) * sq
-    overlap = (phi0 - s * z, phi0 + s * z)
+    overlap = (phi0 - s * zw, phi0 + s * zw)
     qc = float(norm.ppf(1.0 - WINDOW_TAIL))
     qj = float(norm.ppf(1.0 - J_TAIL))
     window = (max(overlap[0], -qc), min(overlap[1], qc))
@@ -171,8 +175,9 @@ def make_spec(r2: float, balance: str) -> Spec:
         cost = _unbal_cost(BASE, s, window, phi_t)
     d = dataclasses.replace(
         BASE, name=key, gamma_x=tuple(s * np.ones(3) / np.sqrt(3.0)), cost=float(cost),
-        phi0=phi0, J=J, T_support=T_support, policy=policy,
-        note=f"R^2 = {r2}, treated share {SHARE[balance]} (ds_r2_balance_coverage)")
+        eps=eps, phi0=phi0, J=J, T_support=T_support, policy=policy,
+        note=f"R^2 = {r2}, treated share {SHARE[balance]}"
+             + ("" if eps == BASE.eps else f", eps {eps}") + " (ds_r2_balance_coverage)")
     if not (J[0] < window[0] < window[1] < J[1]):
         raise ValueError(f"{key}: window {window} not inside J {J}")
     return Spec(key, r2, balance, s, d, window, overlap, capped)
@@ -180,6 +185,9 @@ def make_spec(r2: float, balance: str) -> Spec:
 
 SPECS: Dict[str, Spec] = {design_key(r2, b): make_spec(r2, b)
                           for b in ("bal", "unbal") for r2 in R2_GRID}
+# The closest stylized analog of the taxi data (Section 6): first-stage R^2 0.925, 11% of
+# units treated, eps = 0.05; run up to the taxi sample size n = 633,616.
+SPECS["taxi_like"] = make_spec(0.925, "unbal", eps=0.05, key="taxi_like")
 
 
 def population(spec: Spec) -> dict:
