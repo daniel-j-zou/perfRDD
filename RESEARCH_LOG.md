@@ -40,17 +40,22 @@ corrections below).
   maximizer at 16,000 (24% above); within 2% at the largest n. Fixed assignment n Var
   105 (t5, 64k) and 618 (mixture, 256k) against 108 and 584.
 - **Paper:** manuscript c1593c0 (Appendix 7 table `tab:ds-ng-coverage` and paragraph;
-  one sentence in §5.2). The existing paragraph's numbers from the 200-replication run
-  (different data sets) are unchanged; they agree with the new run within Monte Carlo
-  error except the mixture fixed-assignment n Var at 256k (477 there, 618 here, against
-  584 predicted).
+  one sentence in §5.2). The existing paragraph's numbers came from the 200-replication
+  run (different data sets) and disagreed visibly with the new table (mixture
+  fixed-assignment n Var at 256k: 477 there, 618 here, against 584 predicted); on the
+  author's "fix those" they now come from the 500-data-set run (manuscript 67a45ef), and
+  §5.2 says the rotated estimators are within about 3% of their first-order variances
+  (was 11%). RMSE log-log slopes from n = 16,000 on: -0.58 to -0.48.
 - **Camera-ready corrections** (manuscript dfa9d9b): §5.3 now says Phi was narrowed to
   [-1, 1.5] and T widened to [-3.5, 3.5] (as in `ds_eps_sensitivity.py` and Appendix 7);
   the taxi location-scale paired difference is -$0.42 = 12.445 - 12.867 (was -$0.45, the
   mean of the 999 paired bootstrap differences), interval kept, and §7 says 42 cents.
   Also 57b1b88 (rem:ds-check references removed) and 7be1a87 (proofread wording).
-- **Cluster:** `~/xfer_64k.tgz` and `~/xfer/` deleted (author's approval); the new
-  `~/xfer_ngcov.tgz`, `~/xfer/` and the shard rows are still on the cluster.
+- **Cluster:** `~/xfer_64k.tgz` and `~/xfer/` deleted (author's approval). Deleting the
+  new transfer copies (`~/xfer_ngcov.tgz`, `~/xfer/`, `~/xfer_md5.txt`) was blocked by the
+  agent's permission check and is left to the author. The shard rows stay on the cluster.
+- **Nothing else is queued for the cluster:** the scope file and the task board list no
+  other simulation for this paper.
 
 ## 2026-11-16 - Table 2 at n = 64,000: 500 data sets (Claude)
 
