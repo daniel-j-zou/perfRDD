@@ -9,6 +9,66 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-17 - Coverage across the first-stage R^2 and the treated share; taxi bootstrap by day (Claude)
+
+Author, 2026-11-17: "do more sims that match this 1) unbalanced treatment setting and 2)
+different first stage R^2 from 0.1 to 0.9", then, going to sleep: "free reign to run
+different code on the cluster, with no regard to cost, as long as it makes it a better
+paper. Run ablations as needed."
+
+- **Designs** (`experiments/scripts/ds_r2_balance_coverage.py`, commits 3a63926 and d34400a):
+  the Section 5 design with T = s (X1 + X2 + X3)/sqrt3, so R^2 = s^2/(1 + s^2) in
+  {0.1, 0.3, 0.5, 0.7, 0.9}; `bal`: phi0 = 0, c = 2.25; `unbal`: phi0 at the 89th
+  percentile of Q (11% treated) and c (3.06-3.20) set so that the target treats 16%
+  (below phi0, and alpha - c changes sign inside the window, as in the taxi data).
+  Windows scale with s: J = phi0 -+ 1.75 s (both arms >= 0.04) inside the central 99.5% of
+  eta; T = [-3s, 3s]; Phi the widest interval whose argument set stays in T with the
+  Section 5 buffer. Trim window capped at the central 99% of eta-hat on the evaluation fold
+  (the taxi rule); the cap binds for r2_90_bal and unbal with R^2 >= 0.5, where the target is
+  that of the capped window and no first-order variance is computed. r2_50_bal is the
+  Section 5 design: on the cluster its estimates equal Table 2's rows exactly. Targets
+  checked by direct maximization of U (six digits). Same seeds as Table 2 in every design
+  (common random numbers). `taxi_like`: R^2 0.925, 11% treated, eps 0.05 (target 3.631,
+  c 2.503, window [-1.298, 2.576], 90% of units).
+- **Runs:** arrays 66272512 (256k, 630 x 8 CPUs) and 66272513 (4k/16k/64k, 850 x 4 CPUs),
+  merge 66272514: 40 cells x 500 data sets x 999 draws, no failed draws, about 3,500
+  CPU-hours (about $53). taxi_like: 66272837/66272838, merge 66272839 (running at the time
+  of writing; see the follow-up below). Main cluster clone held at 2cf665f while tasks were
+  queued; new code ran from the worktree `~/src/perfRDD_b`.
+- **Results, rotated average** (coverage percentile/normal; bias in s.d.; bootstrap/MC
+  variance), at n = 4k / 16k / 64k / 256k:
+
+  | design | 4k | 16k | 64k | 256k |
+  |---|---|---|---|---|
+  | r2_10_bal | .964/.936; +.21; 1.04 | .952/.944; +.14; .97 | .950/.964; +.13; 1.02 | .926/.936; +.12; .94 |
+  | r2_30_bal | .966/.968; +.21; 1.08 | .920/.924; +.09; .87 | .940/.944; +.09; .98 | .948/.950; +.11; .99 |
+  | r2_50_bal | .966/.958; +.26; 1.15 | .938/.936; +.10; .96 | .952/.956; +.10; .95 | .962/.958; +.10; 1.05 |
+  | r2_70_bal | .946/.962; +.34; 1.06 | .936/.936; +.10; .89 | .956/.956; +.11; 1.07 | .954/.958; +.08; 1.05 |
+  | r2_90_bal | .918/.942; +.59; 1.01 | .938/.934; +.13; .89 | .954/.948; +.13; 1.04 | .942/.944; +.04; .99 |
+  | r2_10_unbal | .988/.910; +.40; 1.01 | .968/.930; -.20; 1.00 | .940/.936; -.16; .95 | .956/.954; -.04; 1.03 |
+  | r2_30_unbal | .996/.964; .00; 1.07 | .968/.948; -.16; 1.08 | .942/.952; -.03; 1.04 | .932/.942; .00; .95 |
+  | r2_50_unbal | .996/.948; -.20; 1.00 | .954/.954; -.25; 1.11 | .962/.966; -.07; 1.15 | .952/.954; .00; 1.00 |
+  | r2_70_unbal | .966/.956; -.48; 1.05 | .944/.966; -.30; 1.23 | .936/.938; -.10; .95 | .946/.948; +.01; 1.03 |
+  | r2_90_unbal | .980/.956; -.44; 1.04 | .942/.944; -.19; .98 | .946/.958; -.04; .97 | .948/.946; +.17; 1.09 |
+
+  Half treated: 0.918-0.968 everywhere. 11% treated: at 4k 6-38% of rotated thresholds and
+  29-83% of bootstrap draws on the edge of Phi, percentile interval overcovers; from 16k
+  0.930-0.968, from 64k 0.932-0.966. At 256k, every design: bias <= 0.17 s.d., bootstrap
+  variance within 9% of MC. Where the first-order variance exists, MC n Var at 256k is within
+  8% of it. Oracle covers 0.922-0.964 in every cell. n Var at 256k: 17.2 (R^2 0.1) to 358
+  (0.9); per Var Q 12.6-15.5 up to R^2 0.7 and 35.8 at 0.9.
+- **Taxi bootstrap by day** (`taxi_cluster_boot.py`, jobs 66272616/66272617, 999 draws):
+  days (31 clusters) [$12.42, $13.28], s.d. 1.39 x the ride bootstrap's (0.155), gain over
+  $15 0.44-0.93 cents, positive in every draw, every draw below $15; day-hours (337)
+  [$12.53, $13.17], s.d. 1.04 x. Rows in `runs/taxi_cluster_boot/` (sha256 checked).
+- **Paper:** manuscript 19365d7 (taxi day bootstrap: §6.3, Table `tab:taxi-robust`,
+  Appendix 5, §7), ca4d2de (§5.2: Tables 1 and 2 use different data sets and agree within
+  error, a weakness from the review), 0aeca55 (§5.5 and Appendix 7 part with
+  `tab:ds-r2-coverage`, `tab:ds-r2-bias`, designs-table row).
+- **Data:** summaries, logs and provenance copied (sha256 checked) to
+  `runs/ds_r2_balance_coverage_999/`; the 1.3 GB of merged rows are being copied as an
+  844 MB archive; shard rows stay on the cluster.
+
 ## 2026-11-17 - Bootstrap coverage in the t5 and mixture designs; camera-ready corrections (Claude)
 
 Author, 2026-11-16: "Do all sims. Camera ready by tomorrow"; 2026-11-17: "do both" (the two

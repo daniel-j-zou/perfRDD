@@ -5,7 +5,7 @@ session by reading this file, then the newest entries in `RESEARCH_LOG.md` and
 `../manuscript/TODO.md`.
 
 - **Last reviewed with the author:** 2026-11-16, a full refresh pass (Claude)
-- **Covers decisions up to:** research log entry of 2026-11-16 ("Weekly scope review")
+- **Covers decisions up to:** research log entry of 2026-11-17 ("Coverage across the first-stage R^2 and the treated share; taxi bootstrap by day")
 
 This file holds author decisions only. Evidence and derivations stay in `RESEARCH_LOG.md`;
 tasks stay in `../manuscript/TODO.md`. Every item below can be traced through the
@@ -153,6 +153,14 @@ decision history at the end. How to change this file is described in "Updating t
   t5 and mixture designs (done 2026-11-17, manuscript c1593c0: Appendix 7 table
   `tab:ds-ng-coverage`). The quadratic small-sample design already has its coverage table
   (`tab:ds-nonlinear-bootstrap`, 500 data sets per n, 999 draws), so it gets no new run.
+- **Designs like the application** (author, 2026-11-17: "do more sims that match this
+  1) unbalanced treatment setting and 2) different first stage R^2 from 0.1 to 0.9", then
+  free rein overnight for runs and ablations that make the paper better): ten designs
+  built from the Section 5 design (R^2 0.1-0.9; half or 11% of units treated), plus a
+  taxi-like design (R^2 0.925, 11% treated, eps 0.05, up to n = 633,616), with the taxi
+  window cap; 500 data sets x 999 draws per cell. In the paper as §5.5 and an Appendix 7
+  part (manuscript 0aeca55). The taxi application also reports a bootstrap that resamples
+  days and day-hours (manuscript 19365d7).
 
 ## Application
 
@@ -358,6 +366,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-17 | Simulations add designs like the application: first-stage R^2 0.1-0.9 and 11% treated (author's request), and a taxi-like design; the taxi intervals add a day-resampling bootstrap (author: free rein overnight to run what makes the paper better) | Log: "Coverage across the first-stage R^2 and the treated share; taxi bootstrap by day" (2026-11-17) |
 | 2026-11-16 | Weekly review: taxi use case R2-E1 is final ("for now" dropped); computing rule added under "How we work" (Great Lakes, stats_dept1, parallel arrays sized from a test job, no over-request, keep all raw data); dose-schedule candidates ranked by interpretability; §5 status updated (Table 2 and the non-Gaussian check in the nonlinear design; the 2026-10-20 to-do list done); coverage runs added (64k to 500 data sets, t5 and mixture designs; the quadratic design, also chosen, already has its coverage table); the unreviewed rows of 2026-11-09 to 2026-11-12 confirmed; every other section confirmed unchanged | Log: "Weekly scope review" (2026-11-16) |
 | 2026-11-12 | Taxi §6: daytime sample kept as the main sample after an all-hours trial (score on fare + surcharge, daytime in the effect: \$12.42, but the score model fits worse at night), all hours a robustness row; §6.1 frames keeping every fare as an extension (no RDD neighborhood); the paper writes Q = sqrt(fare) | Author: "use all hours, but daytime as an indicator. Make it clear that this is an extension ..."; "lets use \qrt{fare}"; "Back to daytime" (2026-11-12); log "Taxi §6: all hours tried and set aside"; manuscript 1295258 |
 | 2026-11-12 | Section 5 displayed design: alpha(eta) = 2 + 0.4 eta + 0.8 tanh(1.5 eta), b(eta) = eta^2/2 + 0.3 sin(2 eta) ("beta" read as b); Tables 1 and 3 rerun in it; the bootstrap coverage rerun (Table 2) deferred as a to-do; §5.4 reframed as the small-sample design | Author: "I want a nonlinear alpha and beta in section 5. Use one of the new ones. Choose a good one, and make the changes now"; "push"; "lets not do bootstrap for now, but leave it as a to do" (2026-11-12); code d98ecd8, manuscript 1454fb6 |
