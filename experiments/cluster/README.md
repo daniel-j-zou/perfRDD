@@ -139,6 +139,14 @@ the array script for the submit commands and the run log below for what was subm
 | 2026-11-17 | 66267586 | (result) | all 330 completed; 182-1131 s (median 668) |
 | 2026-11-17 | 66267587 | merge, afterok:66267585:66267586 | done; 500 distinct data sets in all 7 cells, 999 draws, no failed draws; about 600 CPU-hours in all |
 | 2026-11-17 | none | copy back through the tab (`gl_fetch_parts.sh`, 41 parts) | 91,240,593-byte archive (merged rows, summaries, logs, shard provenance; shard rows left on the cluster), sha256 matched; unpacked into local `experiments/runs/ds_nongaussian_coverage_999/`, archive kept in its `transfer/`; summaries recomputed locally from the rows agree to 1e-6 |
+| 2026-11-17 | 66272450 | R^2/treated-share coverage test, debug, 8 CPUs, commit 3a63926, out `experiments/runs/ds_r2bal_test` | r2_50_bal equals Table 2's rows exactly (difference 0); 0.37-0.6 s per fit at 64k, 1.4-2.1 s at 256k; MaxRSS 580 MB |
+| 2026-11-17 | 66272512 | R^2/treated-share coverage, `SET=long` (10 designs at 256k), 630 tasks x 8 CPUs, `--time=02:00:00`, commit 3a63926, out `experiments/runs/ds_r2_balance_coverage_999` | submitted 03:20 |
+| 2026-11-17 | 66272513 | the same, `SET=short` (10 designs at 4k/16k/64k), 850 tasks x 4 CPUs, 75 min limit | submitted |
+| 2026-11-17 | 66272514 | merge, afterok:66272512:66272513 | submitted |
+| 2026-11-17 | 66272616, 66272617 | taxi bootstrap resampling days / day-hours (`taxi_cluster_boot.py`), 8 CPUs x 3 GB, 999 draws each, out `experiments/runs/taxi_cluster_boot` | submitted |
+| 2026-11-17 | 66272733 | taxi_like test, debug, 8 CPUs, n = 633,616 | 8.0-8.2 s per fit; MaxRSS 1.4 GB |
+| 2026-11-17 | 66272837, 66272838 | taxi_like coverage (R^2 0.925, 11% treated, eps 0.05): `SET=taxi_big` (633,616; 63 tasks x 8 CPUs, 2 GB/CPU, 6 h) and `SET=taxi_small` (64k, 256k; 126 tasks x 8 CPUs, 2 h); commit d34400a from the worktree `~/src/perfRDD_b` (so the queued tasks above keep commit 3a63926's code), out `~/src/perfRDD/experiments/runs/ds_r2bal_taxi_like_999` | submitted |
+| 2026-11-17 | 66272839 | merge, afterok:66272837:66272838, `DESIGNS=taxi_like NS="64000 256000 633616"` | submitted |
 
 Lesson (2026-11-15): seconds per replication at n = 64k ranged from 796 to 1637 across
 standard nodes, a factor of two, so a time limit of 1.7 times the median was too tight for
