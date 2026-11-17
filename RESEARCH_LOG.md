@@ -65,9 +65,13 @@ paper. Run ablations as needed."
   Appendix 5, §7), ca4d2de (§5.2: Tables 1 and 2 use different data sets and agree within
   error, a weakness from the review), 0aeca55 (§5.5 and Appendix 7 part with
   `tab:ds-r2-coverage`, `tab:ds-r2-bias`, designs-table row).
-- **Data:** summaries, logs and provenance copied (sha256 checked) to
-  `runs/ds_r2_balance_coverage_999/`; the 1.3 GB of merged rows are being copied as an
-  844 MB archive; shard rows stay on the cluster.
+- **Data:** summaries, logs, provenance and the merged rows (844 MB archive) copied and
+  checked by sha256 into `runs/ds_r2_balance_coverage_999/` (summaries recomputed locally
+  agree to 1e-6); shard rows stay on the cluster.
+- **Follow-up (08:30), taxi_like:** 500 data sets x 999 draws at 64k / 256k / 633,616:
+  coverage .942/.952, .954/.950, .950/.948; bias -0.01, -0.03, -0.03 s.d.; bootstrap/MC
+  variance 0.98, 1.08, 0.99; oracle .928-.966; no failed draws. In the paper as
+  manuscript f6f8b17. Rows in `runs/ds_r2bal_taxi_like_999/` (sha256 checked).
 
 ## 2026-11-17 - Bootstrap coverage in the t5 and mixture designs; camera-ready corrections (Claude)
 

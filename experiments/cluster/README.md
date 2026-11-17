@@ -147,7 +147,18 @@ the array script for the submit commands and the run log below for what was subm
 | 2026-11-17 | 66272733 | taxi_like test, debug, 8 CPUs, n = 633,616 | 8.0-8.2 s per fit; MaxRSS 1.4 GB |
 | 2026-11-17 | 66272837, 66272838 | taxi_like coverage (R^2 0.925, 11% treated, eps 0.05): `SET=taxi_big` (633,616; 63 tasks x 8 CPUs, 2 GB/CPU, 6 h) and `SET=taxi_small` (64k, 256k; 126 tasks x 8 CPUs, 2 h); commit d34400a from the worktree `~/src/perfRDD_b` (so the queued tasks above keep commit 3a63926's code), out `~/src/perfRDD/experiments/runs/ds_r2bal_taxi_like_999` | submitted |
 | 2026-11-17 | 66272839 | merge, afterok:66272837:66272838, `DESIGNS=taxi_like NS="64000 256000 633616"` | submitted |
+| 2026-11-17 | 66272616, 66272617 | (result) | 32 min each; days [$12.42, $13.28], day-hours [$12.53, $13.17]; copied back (sha256 matched) |
+| 2026-11-17 | 66272512, 66272513, 66272514 | (result) | all 630 + 850 tasks completed, merge done 07:03; 40 cells x 500 data sets x 999 draws, no failed draws, about 3,500 CPU-hours; summaries and the 844 MB archive of merged rows copied back (sha256 matched; summaries recomputed locally agree to 1e-6); shard rows left on the cluster |
+| 2026-11-17 | 66274792 | interim summary from shard rows (`ds_r2_balance_peek.py`), debug | monitoring only |
+| 2026-11-17 | 66276359 | packing the merged rows (tar + gzip, base64 parts), debug, 2 CPUs | 2.6 min; 371 parts, about 8 s each through the tab |
+| 2026-11-17 | 66272837, 66272838, 66272839 | (result) | taxi_like: 633,616 tasks ran 2.2-3.5 h; merge done about 08:20; copied back (63 MB, sha256 matched) |
+| 2026-11-17 | 66277857, 66277858 | location-scale row on the day / day-hour draws, run from `~/src/perfRDD_b` | failed in 3 s: the worktree has no taxi data (git-ignored), so every worker died loading it |
+| 2026-11-17 | 66278466, 66278467 | the same, rerun from `~/src/perfRDD` (updated to 3aca0c1 once no task was queued) | submitted |
 
 Lesson (2026-11-15): seconds per replication at n = 64k ranged from 796 to 1637 across
 standard nodes, a factor of two, so a time limit of 1.7 times the median was too tight for
 the slowest nodes. Allow about 2.5 times the median, or make shards one round long.
+
+Lesson (2026-11-17): a second worktree keeps queued tasks on their commit, but it has none
+of the git-ignored inputs (the taxi parquet, saved runs); jobs that read them must run from
+the main clone or be given absolute paths.
