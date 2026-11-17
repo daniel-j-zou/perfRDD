@@ -130,6 +130,11 @@ the array script for the submit commands and the run log below for what was subm
 | 2026-11-16 | none | copy back through the tab (`gl_fetch_parts.sh`) | 67,010,654-byte archive, sha256 matched; unpacked into local `experiments/runs/` (git-ignored) |
 | 2026-11-16 | 66197214 | Table 2 at 64k, replications 200-499: 75 tasks x 4 CPUs, one round each, commit 8a5b464, out `experiments/runs/ds_four_role_coverage_nl_999_n64k500` | 772-1140 s (median 827); about 70 CPU-hours; 40 tasks started within two minutes |
 | 2026-11-16 | 66197215 | merge, afterok:66197214, `R64=500` | 500 / 500 / 500 data sets; copied back (21 MB archive, sha256 matched) |
+| 2026-11-17 | none | login screen session ended overnight ("[screen is terminating]"); one login node refused port 22 on the first retry | author logged in again; cluster copies `~/xfer_64k.tgz` and `~/xfer/` deleted (author's approval, 2026-11-16) |
+| 2026-11-17 | 66267571 | non-Gaussian coverage test, debug, 4 CPUs, 4 data sets x 19 draws, t5 at 4k/16k/64k and mixture at 256k, commit f88b5d1, out `experiments/runs/ds_ng_cov_test` (gl3053) | 75 s; 0.061 / 0.175 / 0.62 / 2.52 s per fit; MaxRSS 317 MB; about 590 CPU-hours for the full run |
+| 2026-11-17 | 66267585 | non-Gaussian coverage, `SET=long` (mixture 256k), 125 tasks x 4 CPUs, `--time=01:50:00`, commit f88b5d1, out `experiments/runs/ds_nongaussian_coverage_999` | submitted; 60 tasks running within a minute |
+| 2026-11-17 | 66267586 | non-Gaussian coverage, `SET=short` (t5 and mixture at 4k/16k/64k), 330 tasks x 4 CPUs, 50 min limit | submitted |
+| 2026-11-17 | 66267587 | merge, afterok:66267585:66267586 | submitted |
 
 Lesson (2026-11-15): seconds per replication at n = 64k ranged from 796 to 1637 across
 standard nodes, a factor of two, so a time limit of 1.7 times the median was too tight for
