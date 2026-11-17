@@ -135,6 +135,10 @@ the array script for the submit commands and the run log below for what was subm
 | 2026-11-17 | 66267585 | non-Gaussian coverage, `SET=long` (mixture 256k), 125 tasks x 4 CPUs, `--time=01:50:00`, commit f88b5d1, out `experiments/runs/ds_nongaussian_coverage_999` | submitted; 60 tasks running within a minute |
 | 2026-11-17 | 66267586 | non-Gaussian coverage, `SET=short` (t5 and mixture at 4k/16k/64k), 330 tasks x 4 CPUs, 50 min limit | submitted |
 | 2026-11-17 | 66267587 | merge, afterok:66267585:66267586 | submitted |
+| 2026-11-17 | 66267585 | (result) | all 125 completed; 2328-3011 s (median 2574) for one round of 4 data sets at 256k |
+| 2026-11-17 | 66267586 | (result) | all 330 completed; 182-1131 s (median 668) |
+| 2026-11-17 | 66267587 | merge, afterok:66267585:66267586 | done; 500 distinct data sets in all 7 cells, 999 draws, no failed draws; about 600 CPU-hours in all |
+| 2026-11-17 | none | copy back through the tab (`gl_fetch_parts.sh`, 41 parts) | 91,240,593-byte archive (merged rows, summaries, logs, shard provenance; shard rows left on the cluster), sha256 matched; unpacked into local `experiments/runs/ds_nongaussian_coverage_999/`, archive kept in its `transfer/`; summaries recomputed locally from the rows agree to 1e-6 |
 
 Lesson (2026-11-15): seconds per replication at n = 64k ranged from 796 to 1637 across
 standard nodes, a factor of two, so a time limit of 1.7 times the median was too tight for

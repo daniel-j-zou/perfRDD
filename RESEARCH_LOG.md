@@ -9,6 +9,49 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-17 - Bootstrap coverage in the t5 and mixture designs; camera-ready corrections (Claude)
+
+Author, 2026-11-16: "Do all sims. Camera ready by tomorrow"; 2026-11-17: "do both" (the two
+corrections below).
+- **Run:** `experiments/scripts/ds_nongaussian_coverage.py` (commit f88b5d1), nonlinear
+  effect, epsilon = 0.1, 500 data sets per cell, 999 full re-estimation draws each.
+  Great Lakes test 66267571 (debug, 4 CPUs): 0.061 / 0.175 / 0.62 / 2.52 s per fit at
+  4k / 16k / 64k / 256k, MaxRSS 317 MB. Arrays 66267585 (mixture 256k, 125 x 4 CPUs,
+  median 43 min) and 66267586 (330 x 4 CPUs, median 11 min), merge 66267587; about 600
+  CPU-hours (about $9). No failed draws. Rows in `experiments/runs/ds_nongaussian_coverage_999/`
+  (local copy checked by sha256; summaries recomputed locally agree to 1e-6).
+- **Results** (rotated average; pooled maximizer in the summaries and the paper's table):
+
+  | design | n | sqrt(n) bias (se) | n Var | n Var* | percentile | normal |
+  |---|---:|---:|---:|---:|---:|---:|
+  | t5 | 4,000 | 6.03 (0.29) | 41.9 | 45.5 | 0.864 | 0.924 |
+  | t5 | 16,000 | 0.95 (0.25) | 31.8 | 30.7 | 0.940 | 0.942 |
+  | t5 | 64,000 | 0.07 (0.24) | 27.6 | 28.0 | 0.952 | 0.948 |
+  | mixture | 4,000 | 8.98 (0.63) | 197 | 182 | 0.930 | 0.898 |
+  | mixture | 16,000 | 4.97 (0.63) | 198 | 216 | 0.956 | 0.958 |
+  | mixture | 64,000 | 3.02 (0.58) | 168 | 181 | 0.954 | 0.966 |
+  | mixture | 256,000 | 0.77 (0.55) | 149 | 151 | 0.944 | 0.938 |
+
+  First-order n Var 26.97 (t5) and 146.1 (mixture). From n = 16,000 on, both intervals
+  and both estimators cover 0.938-0.966 (coverage se 0.0097). At 4,000 coverage is low:
+  in t5 the bias is about 0.9 SD and every percentile miss lies above the target; in the
+  mixture 12% of rotated thresholds and 43% of bootstrap draws touch the edge of Phi.
+  Bootstrap variance within 10% of the Monte Carlo variance except the mixture pooled
+  maximizer at 16,000 (24% above); within 2% at the largest n. Fixed assignment n Var
+  105 (t5, 64k) and 618 (mixture, 256k) against 108 and 584.
+- **Paper:** manuscript c1593c0 (Appendix 7 table `tab:ds-ng-coverage` and paragraph;
+  one sentence in §5.2). The existing paragraph's numbers from the 200-replication run
+  (different data sets) are unchanged; they agree with the new run within Monte Carlo
+  error except the mixture fixed-assignment n Var at 256k (477 there, 618 here, against
+  584 predicted).
+- **Camera-ready corrections** (manuscript dfa9d9b): §5.3 now says Phi was narrowed to
+  [-1, 1.5] and T widened to [-3.5, 3.5] (as in `ds_eps_sensitivity.py` and Appendix 7);
+  the taxi location-scale paired difference is -$0.42 = 12.445 - 12.867 (was -$0.45, the
+  mean of the 999 paired bootstrap differences), interval kept, and §7 says 42 cents.
+  Also 57b1b88 (rem:ds-check references removed) and 7be1a87 (proofread wording).
+- **Cluster:** `~/xfer_64k.tgz` and `~/xfer/` deleted (author's approval); the new
+  `~/xfer_ngcov.tgz`, `~/xfer/` and the shard rows are still on the cluster.
+
 ## 2026-11-16 - Table 2 at n = 64,000: 500 data sets (Claude)
 
 From the weekly scope review below (author: "Table 2: more n = 64k data sets", first

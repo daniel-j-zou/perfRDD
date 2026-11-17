@@ -150,7 +150,8 @@ decision history at the end. How to change this file is described in "Updating t
   the Great Lakes cluster (2026-11-15, manuscript d733c15); every §5 table now uses it.
 - **Coverage runs to add** (2026-11-16): Table 2 at n = 64,000 grows from 200 to 500
   data sets (done 2026-11-16, manuscript aa8cd7e); 999-draw bootstrap coverage for the
-  t5 and mixture designs (now point estimates only). The quadratic small-sample design already has its coverage table
+  t5 and mixture designs (done 2026-11-17, manuscript c1593c0: Appendix 7 table
+  `tab:ds-ng-coverage`). The quadratic small-sample design already has its coverage table
   (`tab:ds-nonlinear-bootstrap`, 500 data sets per n, 999 draws), so it gets no new run.
 
 ## Application
