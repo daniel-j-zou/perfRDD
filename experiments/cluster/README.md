@@ -154,6 +154,11 @@ the array script for the submit commands and the run log below for what was subm
 | 2026-11-17 | 66272837, 66272838, 66272839 | (result) | taxi_like: 633,616 tasks ran 2.2-3.5 h; merge done about 08:20; copied back (63 MB, sha256 matched) |
 | 2026-11-17 | 66277857, 66277858 | location-scale row on the day / day-hour draws, run from `~/src/perfRDD_b` | failed in 3 s: the worktree has no taxi data (git-ignored), so every worker died loading it |
 | 2026-11-17 | 66278466, 66278467 | the same, rerun from `~/src/perfRDD` (updated to 3aca0c1 once no task was queued) | 44 and 40 min; day: location-scale [$11.82, $12.96], paired difference [-$0.78, -$0.15]; day-hour: [$12.02, $12.81], [-$0.72, -$0.19]; copied back (sha256 matched) |
+| 2026-11-18 | none | login screen session had ended; author logged in again (tab "great lakes login") | scratch check for the author: `/scratch/stats_dept_root/stats_dept1/zoudj` and `stats_dept2/zoudj` are empty (one entry each); all PerfRDD runs are under `/home` |
+| 2026-11-18 | 66381766 | review-ablation test (`ds_review_ablations.py`), debug, 8 CPUs, commit dd7bbcd, out `experiments/runs/ds_review_test` | 69 s; 2.3-2.7 s per fit at 256k, 0.6 s at 64k; MaxRSS 837 MB with 4 workers |
+| 2026-11-18 | 66381844 | review ablations, `SET=long` (11 designs at 256k), 693 tasks x 8 CPUs, 2 GB/CPU, `--time=03:00:00`, commit dd7bbcd, out `experiments/runs/ds_review_ablations_999` | submitted |
+| 2026-11-18 | 66381846 | the same, `SET=short` (16k, 64k), 869 tasks x 4 CPUs, 90 min limit | submitted |
+| 2026-11-18 | 66381847 | merge, afterok:66381844:66381846 | submitted; about 5,200 CPU-hours expected in all |
 
 Lesson (2026-11-15): seconds per replication at n = 64k ranged from 796 to 1637 across
 standard nodes, a factor of two, so a time limit of 1.7 times the median was too tight for
