@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-18 - Local copies of three archived datasets removed (Claude)
+
+Author: "cut the ones that are on dropbox", after a review of old files in the Codex and
+ClaudeOS folders (disk 97% full, 13 GB free).
+- `freddie_mac/data` had gained `cache/freddie_default36_2010_2019.parquet` (10 MB, 2026-11-12)
+  after its archive, so `relocate_data --archive --only freddie_mac` ran first: 39 of 39 files
+  match on Dropbox.
+- `relocate_data --remove-local --only chile_retention nc_sentencing freddie_mac` reran
+  `rclone check` on each (112, 38 and 39 matching files, 0 differences) and then removed the
+  local `data/` folders (31.9 GB). Each keeps `data/ARCHIVED.txt` with the fetch command; the
+  printed `--remote dropbox:PerfRDD-data/` (trailing slash) works. Free disk: 13 GB -> 43 GB.
+- `vlbw` is archived too but stays local, because the binary-outcome work uses it this week.
+  The table in `experiments/datasets/STORAGE.md` is updated.
+- Restore any of them with
+  `python -m experiments.datasets.relocate_data --fetch --only <dataset>` from `code/`.
+
+— Claude
+
 ## 2026-11-17 - Follow-up: the index form is rejected within arms; grid search fixed (Claude)
 
 Author: "both" (test the index form; fix the grid search).

@@ -1,0 +1,2 @@
+Data archived at dropbox:PerfRDD-data/chile_retention/data. Restore with
+python -m experiments.datasets.relocate_data --fetch --remote dropbox:PerfRDD-data/ --only chile_retention
