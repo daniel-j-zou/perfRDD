@@ -236,7 +236,15 @@ class ArmFit:
         return expit(self.c(e, 1) + v + x @ self.beta2) - expit(self.c(e, 0) + v)
 
 
-def fit_logit(data: Data, eta, idx, design: M.Design, ridge: float = 1e-3, iters: int = 40) -> ArmFit:
+# Ridge on the summed log-likelihood of the arm fit, as a multiple of n/p. It was 1e-3 until
+# 2026-11-17; that penalty does not vanish per observation and makes the fit inconsistent
+# (manuscript/binary_outcome_vlbw.tex, Section 2.3). The default is now no penalty;
+# --ridge 1e-3 reproduces the earlier runs.
+LOGIT_RIDGE = 0.0
+
+
+def fit_logit(data: Data, eta, idx, design: M.Design, ridge: float | None = None, iters: int = 40) -> ArmFit:
+    ridge = LOGIT_RIDGE if ridge is None else ridge
     keep, D, B, info = _design_matrix(data, eta, idx, design.J)
     Zb, X, Y = data.baseline[keep], data.X[keep], data.Y[keep]
     A = np.column_stack([(1 - D)[:, None] * B, D[:, None] * B, Zb, D[:, None] * X])
@@ -256,7 +264,10 @@ def fit_logit(data: Data, eta, idx, design: M.Design, ridge: float = 1e-3, iters
         grad = A.T @ (Y - m) - lam * theta
         w = m * (1 - m)
         H = (A * w[:, None]).T @ A + lam * np.eye(p)
-        step = np.linalg.solve(H, grad)
+        try:
+            step = np.linalg.solve(H, grad)
+        except np.linalg.LinAlgError:
+            step = np.linalg.lstsq(H, grad, rcond=None)[0]
         t = 1.0
         while t > 1e-4:
             th = theta + t * step
@@ -593,8 +604,13 @@ def main(argv=None):
     ap.add_argument("--seed", type=int, default=1)
     ap.add_argument("--sieve", type=int, default=12)
     ap.add_argument("--grid", type=int, default=121)
+    ap.add_argument("--ridge", type=float, default=None,
+                    help="ridge of the logit arm fit as a multiple of n/p (default LOGIT_RIDGE = 0)")
     ap.add_argument("--out", type=Path, default=DEFAULT_OUT)
     a = ap.parse_args(argv)
+    global LOGIT_RIDGE
+    if a.ridge is not None:
+        LOGIT_RIDGE = a.ridge
     a.out.mkdir(parents=True, exist_ok=True)
     rows = []
     for s in a.settings:

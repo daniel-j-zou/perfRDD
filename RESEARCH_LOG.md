@@ -9,6 +9,35 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-17 - Follow-up: VLBW rerun with no ridge; the effect no longer crosses zero (Claude)
+
+Author: "Rerun it, but I currently do not care about the application results", and "I care
+mainly about 1) whether the model is set up in a reasonable way and 2) whether it can be
+estimated in a consistent manner". `fit_logit` now defaults to no penalty (`LOGIT_RIDGE = 0`,
+`--ridge 1e-3` reproduces the earlier runs; a least-squares fallback guards a singular Newton
+step). Reruns, empirical tails, seed 1, four rotations, outputs
+`experiments/runs/binary_outcome_routes_vlbw_{low,pooled,wide}_r0_c<cost>/` (git-ignored; the
+route field reads "logit_sp logit_emp" because zsh passed the two names as one string, which
+the code runs as empirical tails):
+- Gross effect at the threshold (c = 0), pooled: 4.28, 3.15, 2.16 points at 1200, 1500,
+  1800 g; 1.46 at 2000 g and 1.14 at 2200 g (2002: 3.58, 2.80, 1.99 at 1200, 1500, 1800 g).
+  Monotone in the threshold up to finite-difference noise (largest reversal 0.004 points).
+- Optima: pooled 1800 g (edge) at costs 0, 0.01, 0.02 and 1546 g at 0.03 (rotations
+  1520-1571); 2002 1800 g at 0 and 0.01, 1798 g at 0.02, 1445 g at 0.03; wide set 2200 g (edge)
+  at 0, 0.0005, 0.001, 0.002. The deployed line is optimal for a cost near 3.2 points.
+- So the zero crossing near 1870 g and the interior optima at 1545 g (cost 2) and 1855 g
+  (calibrated cost) reported on 2026-11-11 and 11-12 were artifacts of the ridge.
+- Condition checks (`experiments/runs/binary_vlbw_conditions_r0/`): Lambda(e,t) > 0 in every
+  cell (0.7 to 7.0 points); Delta = a1 - a0 >= 0 for 99.95% of window units; Lambda nondecreasing
+  in e on 96.5% of steps, in t on 45.5% (beta2 = +0.78 now makes E(X_e'beta2 | T = t) fall in t);
+  c0 falls, c1 falls on 90% of steps, so (P1) still fails.
+- Not rerun: the bootstrap, the figures, the donut, other-line and log-odds runs, and the
+  sketch's VLBW section. The note (manuscript 1862326) summarizes the rerun in the red TODO and
+  the uniqueness paragraph of Section 2.3; its applied text is not updated, at the author's
+  instruction. The author shortened the note's abstract on Overleaf (3801cb3); kept.
+
+— Claude
+
 ## 2026-11-17 - VLBW note: identification and consistency written and reviewed; the code's ridge makes the arm fit inconsistent (Claude)
 
 Author: "most important is the set up and theory, especially whether we can consistently
