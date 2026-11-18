@@ -9,6 +9,22 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-18 - Follow-up: old worktrees and duplicate files moved to the Trash (Claude)
+
+Author: "Yes, cut them" (the rest of the cleanup list).
+- 27 git worktrees in `../work/` (Codex branches of 2026-09-28 to 2026-10-07: 13 of `code`,
+  14 of `manuscript`) moved to the macOS Trash, then `git worktree prune` in both repos. Before
+  the move, every worktree's HEAD was an ancestor of `origin/main` or `origin/master`, and its
+  only uncommitted files were LaTeX build output plus one folder of PDF-check screenshots. The
+  local and remote branches are kept. `../work/pairwise-tail` stays: `theory/pairwise-tail`
+  has a commit (5bc4974, 2026-09-23) that is on no remote.
+- Outside the repos: an unpacked app bundle in the Codex chat folder
+  `~/Documents/Codex/2026-09-09/.../work/` (617 MB) and `~/Documents/ClaudeOS/68ba0172758fda27f31bbbdd`,
+  an older clone of the same Overleaf project whose HEAD (2026-05-31) is in `origin/master`.
+- About 1.4 GB returns when the Trash is emptied.
+
+— Claude
+
 ## 2026-11-18 - Local copies of three archived datasets removed (Claude)
 
 Author: "cut the ones that are on dropbox", after a review of old files in the Codex and
