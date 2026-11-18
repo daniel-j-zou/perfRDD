@@ -9,6 +9,60 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-18 - GLM note: the root-n limit through a general strategy, checked by simulation (Claude)
+
+Author: "Attempt it yes, but the goal is to come up with a general strategy to solve these
+problems. additional restrictions like a window cap binds can be dealt with later. Make sure the
+actual theorem works."; "by paper, i mean your GLM". Manuscript f8472c8 (new Section 3 of
+`binary_outcome_vlbw.tex`); details in `../manuscript/CHANGELOG.md`.
+- **Strategy.** The criterion is the utility evaluated at estimated pieces. The pieces are:
+  - the score coefficient;
+  - the empirical laws of the residual and of the covariates;
+  - the outcome fit;
+  - the window.
+
+  Given gamma-hat, each later piece estimates its population value at gamma-hat from an
+  independent fold. So the error is one role score per fold (the derivative of U'(phi*) in that
+  piece, written as a fold average) plus A-bar'(gamma-hat - gamma), where A-bar is the derivative
+  of the composite population map. A general assembly result (via Sherman 1993) turns a local
+  quadratic expansion into the limit, for one assignment and for the rotated estimators.
+  Invariance under an intercept shift gives the zero intercept and uncorrelated scores. A
+  change of the estimator changes only the rows of the pieces it touches.
+- **GLM scores.** These are the paper's scores, with W-bar = mu(a1) - mu(a0) and the Fisher inner
+  product E{S mu'(a_D) f g}. A_out = E[S mu' r_out (b' + D alpha') X~].
+- **Lemma (former (L2)).** It is argued for a canonical-link spline fit without a penalty, at the
+  estimated residual. The key fact: the units crossing the ends of J and the moving regressor drop
+  out at first order, because the model is right. The tolerated ridge on the code's basis is
+  lambda_n = o(n^{1/2}/K_n), not o(n^{1/2}).
+- **Simulation** (`experiments/scripts/binary_glm_clt_check.py`; runs in
+  `experiments/runs/binary_glm_clt_check/n40000` and `n160000`). Design: logit, X ~ N(0, I_2),
+  T = 0.6 X1 + 0.4 X2, eta ~ N(0, 0.49), phi0 = 0, eps = 0.1, no caps, phi* = 0.3.
+  - Formula: H = -0.0750 and sigma^2 = 0.3050, of which psi_beta carries 97%. The sd of
+    sqrt(n)(phi_hat - phi*) is 14.72 for one assignment and 7.36 rotated.
+  - n = 40,000 (1000 samples):
+    - sd ratios: 1.00 (one assignment), 1.03 (rotated average), 1.02 (pooled maximizer);
+    - coverage of formula intervals: 94.9%, 94.7%, 94.7%.
+  - n = 160,000 (400 samples):
+    - sd ratios: 0.99, 1.02, 1.01;
+    - coverage: 95.8%, 93.5%, 93.5%.
+  - The error correlates 0.991 and 0.994 with the theorem's linear term. The difference has sd
+    2.01 and 1.61, against 14.8 for the error.
+  - Regressing the error on the four fold terms gives coefficients near one (U 1.00 / 0.94,
+    beta 1.00 / 0.99, T 0.98 / 0.98, gamma 1.06 / 1.03).
+  - The rotations are nearly uncorrelated (max 0.055), and Shapiro-Wilk p >= 0.14.
+  - A_out matches a finite difference of the population fit: (0.14802, 0.04269, 0.05156) vs
+    (0.14804, 0.04273, 0.05151).
+  - The intercept of A-bar is -1.2e-9.
+- **Review.** An independent reviewer differenced the whole composite map in a second design. All
+  three coordinates of A-bar matched the formula, and a fixed upper cap gave e1'A-bar = -b_u
+  (0.0011477 vs 0.0011471). It found two errors, fixed before the push:
+  - the lemma assumed smoothness of the best fit at gamma-hat that the conditions do not give,
+    and now uses a Lipschitz argument;
+  - the code's cap is a quantile given the treatment status, so moving it to the evaluation fold
+    does not give the paper's capped window.
+- **Deferred by the author.** A binding window cap, open on the task board. The theorem assumes no
+  cap binds. Section 3.6 says what each cap rule changes.
+
 ## 2026-11-18 - Follow-up: the sketch now matches the GLM note; the upper window cap binds on VLBW (Claude)
 
 Author: "make the sketch consistent with this too" (after the one-predictor rewrite of the GLM
