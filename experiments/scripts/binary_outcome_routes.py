@@ -500,6 +500,36 @@ def rotation(data: Data, design: M.Design, folds: dict, route: str, M_sieve: int
                float(np.mean(eff_all[inside])), (l_hat, u_hat), float(inside.mean()), extra)
 
 
+def _argmax(f, lo, hi, m=121, fine=81):
+    """Maximize f on [lo, hi]: a grid of m points, then a fine grid of `fine` points over the two
+    grid intervals next to the best grid point, then a bounded scalar search from there. The
+    best point evaluated is returned, so the result is never worse than the grid maximizer.
+    (taxi_four_role._argmax returns the scalar search's result without that comparison, which
+    on the step-function criterion of empirical tails can lose up to two grid steps; it is
+    shared with the taxi runs and is left unchanged.) Returns (argmax, at_boundary, n_local)."""
+    from scipy.optimize import minimize_scalar
+    grid = np.linspace(lo, hi, m)
+    vals = np.array([f(x) for x in grid])
+    k = int(np.argmax(vals))
+    n_local = int(np.sum((vals[1:-1] > vals[:-2]) & (vals[1:-1] > vals[2:])))
+    a, b = grid[max(k - 1, 0)], grid[min(k + 1, m - 1)]
+    cand_x, cand_v = [grid[k]], [vals[k]]
+    if fine and b > a:
+        fg = np.linspace(a, b, fine)
+        fv = np.array([f(x) for x in fg])
+        j = int(np.argmax(fv))
+        cand_x.append(fg[j]); cand_v.append(fv[j])
+        h = (b - a) / (fine - 1)
+        a2, b2 = max(a, fg[j] - h), min(b, fg[j] + h)
+        if b2 > a2:
+            res = minimize_scalar(lambda x: -f(x), bounds=(a2, b2), method="bounded",
+                                  options={"xatol": 1e-8})
+            cand_x.append(float(res.x)); cand_v.append(-float(res.fun))
+    i = int(np.argmax(cand_v))
+    x = float(cand_x[i])
+    return x, bool(k in (0, m - 1)), n_local
+
+
 def four_role(data: Data, design: M.Design, route: str, seed: int, curves: np.ndarray,
               grid_points: int = 121, M_sieve: int = 12) -> dict:
     blocks = np.array_split(np.random.default_rng(seed).permutation(len(data.Q)), 4)
@@ -508,9 +538,9 @@ def four_role(data: Data, design: M.Design, route: str, seed: int, curves: np.nd
         folds = {r: blocks[(j + k) % 4] for j, r in enumerate(M.ROLES)}
         rot = rotation(data, design, folds, route, M_sieve)
         rots.append(rot)
-        phis.append(M._argmax(rot.value, *design.policy, m=grid_points)[0])
+        phis.append(_argmax(rot.value, *design.policy, m=grid_points)[0])
     pooled = lambda x: float(np.mean([r.value(x) for r in rots]))
-    phi_pool, at_bound, n_local = M._argmax(pooled, *design.policy, m=grid_points)
+    phi_pool, at_bound, n_local = _argmax(pooled, *design.policy, m=grid_points)
     cuts = np.unique(data.Q)
     cuts = cuts[(cuts >= design.policy[0]) & (cuts <= design.policy[1])]
     if len(cuts) > 400:

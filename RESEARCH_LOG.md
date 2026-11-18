@@ -9,6 +9,33 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-17 - Follow-up: the index form is rejected within arms; grid search fixed (Claude)
+
+Author: "both" (test the index form; fix the grid search).
+- **Index form** (`experiments/scripts/binary_vlbw_index_check.py`, pooled, one rotation, seed 1,
+  no penalty, 438,901 units on the partially linear fold, 74,822 treated; output
+  `experiments/runs/binary_vlbw_index_check/`, git-ignored). Within each arm, on the covariates
+  the arm reaches, the routes' model (constant slopes delta_d) against V1, a gestation slope that
+  varies with eta (B-spline, 22 extra terms), and V2, a linear eta-by-covariate term for every
+  covariate (50 extra terms): LR 327 (p 4e-56) and 589 (p 5e-93); deviance gain 0.7 and 1.3 per
+  1000 units. The extrapolated mean effect F(a1) - F(a0) on the evaluation fold moves: untreated
+  1500-1800 g 2.57 -> 2.40 (V1) -> 1.99 (V2) points; treated 1200-1500 g 3.76 -> 2.52 -> 1.14; near
+  the line (1450-1550 g) 3.10 -> 2.61 -> 1.93. So constant slopes are rejected where they can be
+  checked, and the counterfactual effects lean on them by up to 2.6 points.
+- Reading for the model: identification (Proposition 1 of the VLBW note) works one residual at a
+  time, so a varying-coefficient model a_d = c_d(eta) + X'delta_d(eta) is identified by the same
+  argument under (I3). What it costs is the sum-of-products shortcut (the covariate part then
+  depends on eta); the pairwise average with binned residuals still computes the criterion.
+- **Grid search.** `binary_outcome_routes._argmax` now evaluates a 121-point grid, then an
+  81-point grid over the two intervals next to the best grid point, then a bounded scalar search,
+  and returns the best point evaluated (never worse than the grid maximizer). The shared
+  `taxi_four_role._argmax` is unchanged. Pooled, cost 0.03: 1545.59 g against 1545.58 g with the
+  old search.
+- The VLBW note is not yet updated with either result; the author was asked whether to add a
+  plain statement of how the link and the nonparametric pieces enter (given in chat).
+
+— Claude
+
 ## 2026-11-17 - Follow-up: VLBW rerun with no ridge; the effect no longer crosses zero (Claude)
 
 Author: "Rerun it, but I currently do not care about the application results", and "I care
