@@ -6,12 +6,15 @@
 # shards equal one run.
 #
 # Two shard sets, submitted as two arrays because their run times differ:
-#   SET=short  every design at n = 16k and 64k: 869 tasks (4 CPUs)
-#   SET=long   every design at n = 256k: 693 tasks of one round (8 data sets on 8 CPUs)
+#   SET=short  every design at n = 16k and 64k: 869 tasks (4 CPUs), 999 draws
+#   SET=long   the seven designs whose point is large-n behavior (LONG_DESIGNS: groups,
+#              effect interaction, X-eta dependence) at n = 256k: 441 tasks of one round
+#              (8 data sets on 8 CPUs), with BOOT=499 draws (author, 2026-11-18: the
+#              cheaper option, about 2,000 CPU-hours in all instead of 5,200)
 # Submit from the repository root on Great Lakes (see the README run log):
 #   OUT=experiments/runs/ds_review_ablations_999; mkdir -p $OUT/logs
-#   sbatch --array=0-692 --cpus-per-task=8 --mem-per-cpu=2G --time=03:00:00 \
-#       --output=$OUT/logs/%x_%A_%a.out --export=ALL,OUT=$OUT,SET=long \
+#   sbatch --array=0-440 --cpus-per-task=8 --mem-per-cpu=2G --time=02:00:00 \
+#       --output=$OUT/logs/%x_%A_%a.out --export=ALL,OUT=$OUT,SET=long,BOOT=499 \
 #       experiments/cluster/ds_review_ablations_array.sbatch
 #   sbatch --array=0-868 --output=$OUT/logs/%x_%A_%a.out --export=ALL,OUT=$OUT,SET=short \
 #       experiments/cluster/ds_review_ablations_array.sbatch
@@ -30,6 +33,8 @@
 set -euo pipefail
 
 DESIGNS="cluster_g31 interact_k10 interact_k20 grid_h27 flat_l50 flat_l25 skew hetero_a148 hetero_b148 hetero_ca hetero_cb"
+LONG_DESIGNS="cluster_g31 interact_k10 interact_k20 hetero_a148 hetero_b148 hetero_ca hetero_cb"
+BOOT="${BOOT:-999}"
 SHARDS=()
 add_cell() {  # design, n, replications, replications per shard
     local design=$1 n=$2 reps=$3 size=$4 a b
@@ -45,7 +50,7 @@ case "${SET:?set SET to short or long}" in
             add_cell "$d" 64000 500 8      # 63 shards, 2 rounds
         done ;;
     long)
-        for d in $DESIGNS; do
+        for d in $LONG_DESIGNS; do
             add_cell "$d" 256000 500 8     # 63 shards, 1 round of 8 workers
         done ;;
     *) echo "unknown SET=${SET}" >&2; exit 1 ;;
@@ -68,11 +73,11 @@ PY="${PY:-$HOME/envs/perfrdd/bin/python}"
 {
     echo "date=$(date -u +%Y-%m-%dT%H:%M:%SZ) host=$(hostname)"
     echo "job=${SLURM_JOB_ID} array=${SLURM_ARRAY_JOB_ID}_${SLURM_ARRAY_TASK_ID} set=${SET}"
-    echo "design=${DESIGN} n=${N} reps=${A}..$((B - 1)) cpus=${SLURM_CPUS_PER_TASK}"
+    echo "design=${DESIGN} n=${N} reps=${A}..$((B - 1)) boot=${BOOT} cpus=${SLURM_CPUS_PER_TASK}"
     echo "commit=$(git rev-parse HEAD) python=$("$PY" --version 2>&1)"
     git status --short --untracked-files=no
 } > "${SHARD_OUT}/provenance.txt"
 
 srun --cpu-bind=cores "$PY" -m experiments.scripts.ds_review_ablations \
-    --design "$DESIGN" --n "$N" --rep-start "$A" --reps "$B" --boot 999 \
+    --design "$DESIGN" --n "$N" --rep-start "$A" --reps "$B" --boot "$BOOT" \
     --workers "${SLURM_CPUS_PER_TASK}" --out "${SHARD_OUT}"
