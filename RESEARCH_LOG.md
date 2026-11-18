@@ -9,6 +9,48 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-17 - VLBW note: identification and consistency written and reviewed; the code's ridge makes the arm fit inconsistent (Claude)
+
+Author: "most important is the set up and theory, especially whether we can consistently
+estimate things and why", then "Apply all". Manuscript 6884290 (task board 48b891f). New
+Section 2 of `manuscript/binary_outcome_vlbw.tex`:
+- Proposition 1 (identification, (I1)-(I3)): the residual is observed; X independent of eta gives
+  product support, so both arms occur at every residual of the window; the arm's linear
+  predictor is identified on its own covariate region, (c_d(e), delta_d) = Sigma_d(e)^{-1}
+  E[Xtilde mu^{-1}{m(X,e)} 1{X in A_d(e)}]; the index form in X carries it to covariates the arm
+  does not reach. Without that form U(phi) - U(phi0) is not point identified.
+- Proposition 2 (consistency, (C1)-(C5)): score regression and capped window; the arm fit
+  (population log-likelihood maximized only at the truth, curvature from the eigenvalue bound of
+  Sigma_d(e), sieve error O(K^{-1}), generated regressor O_p(K n^{-1/2}), penalty
+  O(lambda K/n), concavity localization; needs K_n = o(n^{1/4}) and lambda_n K_n^2 = o(n));
+  tails; uniform convergence of the criterion; argmax (van der Vaart 1998, Thm 5.7, not checked
+  against the source).
+- Proof review: three reviewers (logic, notation, simulation), then a second round. Blocking
+  findings fixed: the model is now stated for potential outcomes E{Y(d)|X,eta} at every X, and
+  the target window carries the caps (in VLBW the upper cap binds). About twenty minor fixes
+  applied. The code's grid search (121 points, bounded search over the two neighbouring
+  intervals, returned without comparison) makes the estimate consistent only up to two grid
+  steps.
+- **Finding: the ridge in `fit_logit` (lambda = 1e-3 n/p, penalty lambda|theta|^2/2) does not
+  vanish per observation, so the arm fit is not consistent as coded.** One rotation of the pooled
+  VLBW sample (seed 1; `experiments/scripts/binary_vlbw_ridge_check.py`, outputs
+  `experiments/runs/binary_vlbw_ridge_check*/`, git-ignored), ridge 1e-3 against 1e-4, 1e-5,
+  1e-6, 0 (settled by 1e-5): beta2 -0.49 -> +0.78; c1 up by as much as 1.9 on the window; the mean
+  fitted effect of the infants within 0.05 sd of the line 2.77 -> 3.36 points (log-odds 0.57 ->
+  1.23); fitted survival near the line 0.930 -> 0.952 against 0.959 observed. Stylized simulation
+  (`experiments/scripts/binary_ridge_sim.py`, 8 replications, n = 20k to 1.28M): with the code's
+  ridge the errors of beta2 (+0.25), of c1 (sup 1.2) and of the near-threshold effect (-0.017,
+  five times the true 0.0035) stay flat; with no ridge they shrink (sup c1 0.85 -> 0.12); a ridge
+  of sqrt(n)/10 is consistent but still badly shrunk at these n.
+- Consequence: every VLBW number in the note, the sketch and the logs of 2026-11-11 to 11-12
+  (optima, tau curves, bootstrap, condition checks, other lines, donut and log-odds runs) comes
+  from the ridge fit. The note's Results carry a red TODO; the rerun with a vanishing ridge is
+  on the task board, awaiting the author.
+- Chile comparison in the note corrected: the global logit is about twice the local jump
+  (+0.147 vs +0.077; +0.129 vs +0.052), not "seven times".
+
+— Claude
+
 ## 2026-11-17 - Coverage across the first-stage R^2 and the treated share; taxi bootstrap by day (Claude)
 
 Author, 2026-11-17: "do more sims that match this 1) unbalanced treatment setting and 2)
