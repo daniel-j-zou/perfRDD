@@ -9,6 +9,34 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-18 - Follow-up: the sketch now matches the GLM note; the upper window cap binds on VLBW (Claude)
+
+Author: "make the sketch consistent with this too" (after the one-predictor rewrite of the GLM
+note, manuscript bcb946f). Manuscript 2aab8da; details in `../manuscript/CHANGELOG.md`.
+- `binary_outcome_sketch.tex` now uses the GLM note's model, notation and estimator. Its
+  root-n theory (Propositions 1-5) is restated in (b, alpha, beta). An independent reviewer
+  checked ell_out, A_out (now with b' + D alpha'), the zero intercept, the item-1 remainder, (L2),
+  conditions (i)-(iii), (P1)/(P2) and the link cases, and found no error.
+- **Window cap.** The review found, and a direct check confirmed, that on the pooled VLBW data
+  the upper cap binds in all four rotations (seed 1): the cap is 651.5 g of residual, the
+  0.995 quantile among the untreated computed on the full sample, and the uncapped endpoint
+  phi_0 - Q_eps(T-hat) would be 821.9-823.6 g. The lower cap does not bind. The sketch's limit
+  theorem used the paper's quantile endpoints. A binding cap held fixed would drop its quantile
+  score from psi_T and its term from A-bar, and break the zero intercept of A-bar. A cap computed
+  as a residual quantile moves with the residuals but adds a score that is not derived.
+  Proposition 2 now assumes that neither cap binds; the binding case is listed as open in both
+  notes. Consistency (the GLM note, Proposition 2) is unaffected: it holds the caps at their
+  population values.
+- No-ridge readings added to the sketch (from `experiments/runs/binary_vlbw_conditions_r0/`):
+  - b falls from 4.20 to 2.32 across the window.
+  - alpha stays in [1.38, 1.85] and is nondecreasing on only 40% of steps.
+  - Condition (ii) fails: the mean of X_e'beta2 given T falls from 1.16 to -1.33 because
+    beta2 = +0.78 > 0; X'beta1 falls from 0.23 to -1.64, but not at every step.
+  - (P2) fails: the mean of v_1(X) given T falls from 1.39 to -2.97.
+  - (V4) holds only at c = 0.03 on the 1200-1800 g set.
+
+— Claude
+
 ## 2026-11-18 - Follow-up: old worktrees and duplicate files moved to the Trash (Claude)
 
 Author: "Yes, cut them" (the rest of the cleanup list).
