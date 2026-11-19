@@ -264,7 +264,7 @@ only when the author asks; it does not change the sections above.
   CWBH data asks users to contact its maintainers for a formal agreement, which needs
   an author decision before any publication.
 - **Binary outcomes** (2026-11-11): a generalized linear outcome model for a binary Y.
-  The routes are in `../manuscript/binary_outcome_sketch.tex`; the separable expansion
+  Everything is in `../manuscript/binary_outcome_vlbw.tex`, the GLM note (see 2026-11-18 below); the separable expansion
   of the link keeps the paper's one-projection density block. Results so far
   (`experiments/datasets/BINARY_OUTCOME_ROUTES_20261110.md`): no outcome model gives an
   interior optimum on GPA or Chile; very low birth weight (`experiments/datasets/vlbw/`,
@@ -274,11 +274,12 @@ only when the author asks; it does not change the sections above.
   logit effect crosses zero at about 1870 g, so c = 0 is interior there). The write-up of this setting with its method is
   `../manuscript/binary_outcome_vlbw.tex` (2026-11-11). Decision 2026-11-12: the method is the
   logit on both arms (spline tails or empirical tails, the latter the default); the linear probability
-  model is kept only as the contrast and the additive-effect route is dropped. The theory (logit routes and any link) now sits in
-  `../manuscript/binary_outcome_sketch.tex`, Section 3, with the method and the data (2026-11-12); it
-  states the theory for the logit routes (expansion bias, four-role CLT with modified role scores,
-  U-statistic route, single crossing with a link) with arguments, not full proofs, and the linear probability
-  model fails there. The Chile 485 loan line (PAES scale) does not bind and is out. Next: more data sets with a binary outcome, selected for a
+  model is kept only as the contrast and the additive-effect route is dropped. Decision 2026-11-18: the GLM note is the
+  only binary-outcome document. It proves identification and consistency, gives the root-n limit
+  through a general strategy with a simulation check, and holds the split bound, the exact-split
+  theorem and the single-crossing conditions (which fail on the VLBW data); other links are in its
+  Appendix B. The earlier sketch, `binary_outcome_sketch.tex`, was folded in and deleted (last version
+  manuscript d0d9f22). The linear probability model fails on the VLBW data. The Chile 485 loan line (PAES scale) does not bind and is out. Next: more data sets with a binary outcome, selected for a
   treatment that is meaningful (a threshold someone chooses, a documented effect, a
   plausible cost, an effect that can cross the cost inside the score range); candidate
   lists go in `experiments/datasets/BINARY_OUTCOME_DATASETS_<date>.md`, and the author

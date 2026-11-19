@@ -2,8 +2,8 @@
 
 For a generalized linear outcome model on both arms,
 m_d(X, eta) = F(c_d(eta) + X'delta_d), the paper's one-projection density block
-(multiplier X~) does not apply, because the effect is not affine in X. The note
-manuscript/binary_outcome_sketch.tex proposes expanding the link in its intercept,
+(multiplier X~) does not apply, because the effect is not affine in X. The GLM note
+manuscript/binary_outcome_vlbw.tex (Section 1.4; formerly binary_outcome_sketch.tex) expands the link in its intercept,
 
     F(c + v) = sum_{k<=M} phi_k(c) psi_k(v) + e_M(c, v),
 

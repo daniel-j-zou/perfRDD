@@ -9,6 +9,29 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-18 - Binary outcomes: the sketch folded into the GLM note and deleted (Claude)
+
+Author: "what is the point of maintaining the glm sketch?", then "yes, fold those into the note and
+delete the sketch". Manuscript 105109f; details in `../manuscript/CHANGELOG.md`.
+- **Decision.** `../manuscript/binary_outcome_vlbw.tex` (the GLM note) is the only binary-outcome
+  document. `binary_outcome_sketch.tex` is deleted; its last version is manuscript d0d9f22. The
+  scope file's binary side track says so.
+- **Moved into the note.** The split-error bound with its proof (Appendix A.1, Proposition 4) and
+  the exact-split theorem with its proof (Appendix B, Proposition 5). Both were reviewed when they
+  were in the sketch (entry of 2026-11-18, "the sketch now matches the GLM note") and were moved
+  unchanged except for notation. The single-crossing conditions are in Section 2.3 as a paragraph:
+  the conditions are stated without the proof, followed by the data check, where they fail.
+- **Not carried over** (git history only):
+  - the sketch's root-n argument that mapped onto the paper's proof, superseded by the note's
+    Theorem 1;
+  - the any-link theory, (G1)-(G3) and (P1)-(P2); the note's Appendix B keeps the short version;
+  - the GPA and Chile tables, still in `experiments/datasets/BINARY_OUTCOME_ROUTES_20261110.md`.
+- **Code pointers.** The docstrings of `binary_outcome_routes.py`, `binary_glm_link_checks.py`,
+  `binary_link_sieve_check.py` and `binary_outcome_logit_figures.py` and the dataset note now name the
+  GLM note. The sketch's three figures are unused and were left in the manuscript repo.
+
+— Claude
+
 ## 2026-11-18 - Follow-up: any near-maximizer replaces the grid maximizer (Claude)
 
 Follow-up to "Review-6 change items applied" (2026-11-18). The author asked whether the

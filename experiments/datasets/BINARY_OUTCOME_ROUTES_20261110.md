@@ -1,7 +1,8 @@
 # Binary outcomes: the four routes on the GPA and Chile data (2026-11-10)
 
 Exploratory run at the author's request (Claude). The routes are those of
-`manuscript/binary_outcome_sketch.tex`; the paper and the scope file are unchanged
+`manuscript/binary_outcome_sketch.tex` (folded into `manuscript/binary_outcome_vlbw.tex` and deleted
+on 2026-11-18); the paper and the scope file are unchanged
 (binary outcomes are outside the paper). Script:
 `experiments/scripts/binary_outcome_routes.py`; outputs in the git-ignored
 `experiments/runs/binary_outcome_routes/` (`summary.json`, with the U and tau curves).

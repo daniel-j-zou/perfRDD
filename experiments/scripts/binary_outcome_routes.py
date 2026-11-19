@@ -1,4 +1,4 @@
-"""Binary outcomes: the routes of manuscript/binary_outcome_sketch.tex on real data.
+"""Binary outcomes: the routes of manuscript/binary_outcome_vlbw.tex (the GLM note) on real data.
 
 Exploratory (Claude, 2026-11-10, at the author's request). The scope file keeps binary
 outcomes outside the paper; nothing here changes the paper.

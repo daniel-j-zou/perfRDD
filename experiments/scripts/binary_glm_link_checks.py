@@ -1,4 +1,5 @@
-"""Checks behind Section 5 of manuscript/binary_outcome_sketch.tex (a generalized linear outcome model).
+"""Checks behind Appendices A.1 and B of manuscript/binary_outcome_vlbw.tex (items 1 and 2; item 3
+backed the any-link uniqueness conditions of the former binary_outcome_sketch.tex, deleted 2026-11-18).
 
 1. Chebyshev error of the separable expansion of z -> h(z+v) on [-3,3], v in [-6,6], for the
    logit, complementary log-log and probit links, against the rate rho^-M set by the strip width.
