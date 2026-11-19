@@ -9,6 +9,48 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-18 - Review-6 change items applied (Claude)
+
+Author: "render them as todo boxes on the actual latex file so I can check them off", then
+"For the ones with x, please fix them. Then, remove the boxes for clarity". The review is
+`../work/session_context/differing_slopes.review-6.md`. Proposals were drafted by eight
+helpers and checked by four independent reviewers; all are in its proposals folder.
+Manuscript 55af80a (boxes) and 5a071bc (applied, boxes removed); details in
+`../manuscript/CHANGELOG.md`.
+- **Decisions.**
+  - Applied: m1, m2, m4, m5, m6, m10, m11, m13, m14, m15, m17, m18, m20, m21, m31,
+    m41, m45, m46, m47, m48, m49, m52, m53, m54, m55, m56, m57, m60, m61, o1, o5, o7,
+    o17, o23. The renames, the price and the new §1 order are recorded in
+    PROJECT_SCOPE.md.
+  - m12 declined ("I don't want them to refer to anything for now").
+  - o8: no change.
+  - m42 and o16: a todo box before Figure 1, for a simulation session.
+  - s3: an Oxford comma in the running head.
+  - Open: 22 unmarked change items, and the author items.
+- **Verified findings that the review did not contain.**
+  - Appendix 6's simulations do not use the four-role estimator. The 2026-09-08 battery
+    (`experiments/runs/differing_slopes_full_{baseline,quadratic}_20260908.json`) has
+    only oracle, full-sample and five-fold cross-fit arms. Proposition E1 (Appendix 5)
+    says it keeps "the four-role estimator". This bears on author item m19.
+  - Appendix 6's common-slope miss, "0.40 to 0.52", comes from the older run with eta
+    known (`differing_slopes_simulation.py`, n = 400-3,200, 150 replications). The
+    2026-09-08 battery gives 0.43-0.50 for both fits. This is open as m50.
+  - With Monte Carlo errors printed, the common-slope means at n = 2,000 sit 2.0-2.6
+    standard errors below the target, and the oracle 2.1 below. It looks like noise
+    from shared draws, but it would show if m50 is applied.
+  - Proposition C1 still names the zero of tau_eps "phi*_eps" before Proposition 1
+    identifies it, the pattern m14 removed from (A1)(iii).
+  - The new R^2 table (m60): at R^2 = 0.1 with half the units treated and n = 4,000,
+    10% of the rotated thresholds are on the edge of Phi. The text does not mention it.
+  - The January 2009 TLC file has 1,528,292 VTS credit-card rides (raw parquet,
+    vendor_name == VTS and Payment_Type == CREDIT; equal to `vts_credit.parquet`). The
+    paper's §6.1 now gives this count.
+  - Haggag and Paci keep the vendors anonymous ("Vendor", "Competitor") and say the TLC
+    provided the data, according to the summary in `../manuscript/taxi_write-up.tex`.
+    So §6.1 keeps the record codes VTS and CMT.
+  - The `printer` option of biometrika.cls removes the 62pt overfull-vbox warning on
+    every page. The rendered pages are pixel-identical.
+
 ## 2026-11-18 - GLM note: the root-n limit through a general strategy, checked by simulation (Claude)
 
 Author: "Attempt it yes, but the goal is to come up with a general strategy to solve these

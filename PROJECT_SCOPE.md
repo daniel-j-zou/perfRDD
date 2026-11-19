@@ -60,6 +60,12 @@ decision history at the end. How to change this file is described in "Updating t
   subscript on representers and loadings (r_out, r_T, L_T, A_U, A_T, F*, s*, ...), Gram
   matrix Sigma_K, B of Lemma ds-rout = ell_2, Block D's G_a(q) (G_gamma = G), quantile
   influence zeta_p, f_T -> g, bare S. "Threshold", never "cutoff" (author, 2026-11-04).
+  Renames of 2026-11-18 (review-6 m20, author marked "x", manuscript 5a071bc): quantiles
+  q_p and \hat q_p (not Q_p); the fold index q is gone (the four roles are written out);
+  grid mesh Delta_n (not h_n); boundary masses B_l, B_u, B_v (not b_l, b_u, b_v); the
+  regression function m (not m_0) and the knot-rule count n_min; zeta_gamma (not
+  varphi_gamma). Known clashes the author accepted: Delta_n beside Delta = \hat S - S
+  (Appendix 4), and B_l, B_u, B_v beside B(Z), c_B and calB. s* is kept (m35 open).
 - **Target:** the hard-trimmed utility maximizer phi*_eps. The trim level eps is fixed and
   chosen by the user. Present phi*_eps as the optimal cutoff for the population the data
   supports. Add a remark relating it to phi*, and show sensitivity to eps in the
@@ -206,8 +212,9 @@ decision history at the end. How to change this file is described in "Updating t
 - **Closest prior work (decided 2026-10-20; the paper's §1 follows this):**
   - Zhang, Ben-Michael & Imai, and Ben-Michael et al. (JASA 2025): they bound the
     unidentified counterfactual and give safety and regret guarantees. Our score model
-    buys point identification and a root-n limit, at the price of X independent of eta
-    and an effect linear in X.
+    buys point identification and a root-n limit, at the price of three assumptions,
+    named in §1 since 2026-11-18 (review-6 m5): X independent of eta, an outcome model
+    linear in X, and stability of that model across thresholds.
   - Eckles et al. (Biometrika 2025): the identifying idea is framed through them. The
     covariate index randomizes treatment given eta, and it is observed and may enter
     outcomes.
@@ -228,8 +235,12 @@ decision history at the end. How to change this file is described in "Updating t
   - adds Rokkanen (2015), Yata (2021) and Bertanha (2020);
   - words the novelty claim "under a score model".
 
-  §1 order: target, then difficulty, gap, idea, purpose, optimum and why root-n, price,
-  prior work grouped by what it gives up, tools, contributions, taxi.
+  §1 order (revised 2026-11-18, review-6 m4; author: "x, but also make the edit"):
+  target and question; difficulty (no overlap, regression discontinuity is local); score
+  models, which do not choose a threshold; prior work grouped by what it gives up, then
+  work that extrapolates without optimizing; one paragraph with the gap sentence, the
+  idea, the Eckles et al. comparison, the price and the supported population;
+  contributions (no pointers, author 2026-11-18); taxi. The "purpose" sentence is gone.
 
 ## Out of scope (future work)
 
@@ -315,6 +326,13 @@ only when the author asks; it does not change the sections above.
   Fourth pass (2026-11-12): the outcome fold is the "partially linear fold", with
   subscript beta (I_beta, P_beta, psi_beta, n_beta, E_beta; the role set
   {gamma, beta, T, U}). A_out, L_out and r_out keep "out".
+  Fifth pass (2026-11-18, review-6 m21, m49, m55; author marked "x"): the psi's are the
+  "role influence functions" (not "role scores"); F* and F_phi the "(supported)
+  derivative integrand" (not "score integrand"); "first-order term" (not "score term");
+  "fit of the linear predictor" (not "first stage"), "estimated residuals" (not
+  "first-stage residuals"); one name per estimator, "rotated average" and "pooled
+  maximizer". "Score" now means only Q and the score regression (the likelihood scores
+  of the pathwise remark excepted).
   Kept: "representer", "latent ability", "Error in variables" and "Policy learning"
   (keywords), and literature names such as "single-index model", "policy learning",
   "marginal policy change". LaTeX labels keep their old keys. Propose any further
@@ -366,6 +384,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-18 | Review-6 writing pass: the author marked the change items in check-off boxes; 34 applied, among them the §1 reorder (prior work before the gap, "purpose" sentence dropped), the price as three assumptions, i.i.d. observations stated in §2.1 and §4.1, and the renames above (q_p, Delta_n, B_l/B_u/B_v, m, n_min, zeta_gamma; role influence functions, derivative integrand, rotated average, pooled maximizer, fit of the linear predictor); m12 (contribution pointers) declined; Figure 1 redraw left as a todo box | Log: "Review-6 change items applied" (2026-11-18); manuscript 5a071bc |
 | 2026-11-17 | Simulations add designs like the application: first-stage R^2 0.1-0.9 and 11% treated (author's request), and a taxi-like design; the taxi intervals add a day-resampling bootstrap (author: free rein overnight to run what makes the paper better) | Log: "Coverage across the first-stage R^2 and the treated share; taxi bootstrap by day" (2026-11-17) |
 | 2026-11-16 | Weekly review: taxi use case R2-E1 is final ("for now" dropped); computing rule added under "How we work" (Great Lakes, stats_dept1, parallel arrays sized from a test job, no over-request, keep all raw data); dose-schedule candidates ranked by interpretability; §5 status updated (Table 2 and the non-Gaussian check in the nonlinear design; the 2026-10-20 to-do list done); coverage runs added (64k to 500 data sets, t5 and mixture designs; the quadratic design, also chosen, already has its coverage table); the unreviewed rows of 2026-11-09 to 2026-11-12 confirmed; every other section confirmed unchanged | Log: "Weekly scope review" (2026-11-16) |
 | 2026-11-12 | Taxi §6: daytime sample kept as the main sample after an all-hours trial (score on fare + surcharge, daytime in the effect: \$12.42, but the score model fits worse at night), all hours a robustness row; §6.1 frames keeping every fare as an extension (no RDD neighborhood); the paper writes Q = sqrt(fare) | Author: "use all hours, but daytime as an indicator. Make it clear that this is an extension ..."; "lets use \qrt{fare}"; "Back to daytime" (2026-11-12); log "Taxi §6: all hours tried and set aside"; manuscript 1295258 |
