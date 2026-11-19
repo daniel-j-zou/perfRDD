@@ -3,7 +3,9 @@ roles, refit everything, and report percentile intervals of the rotated average 
 
     python -m experiments.scripts.binary_outcome_vlbw_boot --variant pooled --costs 0.02 --draws 20
 
-Writes ``experiments/runs/binary_outcome_routes_vlbw_<variant>/bootstrap.json``.
+Writes ``bootstrap.json`` to ``--out``, by default ``experiments/runs/binary_outcome_routes_vlbw_<variant>/``
+(where the runs with the earlier ridge, 2026-11-11, wrote theirs). The fit uses
+``binary_outcome_routes.LOGIT_RIDGE``, which is 0 since 2026-11-17; the value is recorded in the output.
 """
 from __future__ import annotations
 
@@ -24,10 +26,11 @@ def main(argv=None):
     ap.add_argument("--costs", type=float, nargs="+", default=[0.02, 0.01])
     ap.add_argument("--draws", type=int, default=20)
     ap.add_argument("--eps", type=float, default=0.1)
+    ap.add_argument("--out", type=Path, default=None, help="output folder")
     a = ap.parse_args(argv)
     data, design, meta = R.build_vlbw(a.variant, eps=a.eps)
     curves = np.linspace(*design.policy, 31)
-    out_dir = Path("experiments/runs") / f"binary_outcome_routes_vlbw_{a.variant}"
+    out_dir = a.out or Path("experiments/runs") / f"binary_outcome_routes_vlbw_{a.variant}"
     out_dir.mkdir(parents=True, exist_ok=True)
     out = {}
     for cost in a.costs:
@@ -39,7 +42,8 @@ def main(argv=None):
             draws.append(-r["phi_avg"])
             print(f"c={cost} draw {b}: {-r['phi_avg']:.1f} g ({time.time() - t0:.0f}s)", flush=True)
         d = np.array(draws)
-        out[str(cost)] = {"route": a.route, "n": meta["n"], "draws": d.tolist(), "mean": float(d.mean()),
+        out[str(cost)] = {"route": a.route, "ridge": R.LOGIT_RIDGE, "n": meta["n"], "draws": d.tolist(),
+                          "mean": float(d.mean()),
                           "sd": float(d.std(ddof=1)),
                           "pct": [float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))]}
         print(f"c={cost}: mean {d.mean():.1f}, sd {d.std(ddof=1):.1f}, "

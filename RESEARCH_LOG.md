@@ -9,6 +9,38 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - Bootstrap of the VLBW probability-scale optimum without the penalty (Claude)
+
+Author, 2026-11-19: "rerun the bootstrap for the no-ridge fit".
+
+- **Script** `experiments/scripts/binary_outcome_vlbw_boot.py`: new `--out` option, so the
+  rerun does not overwrite the 2026-11-11 ridge results in
+  `experiments/runs/binary_outcome_routes_vlbw_<variant>/`; the output now records
+  `binary_outcome_routes.LOGIT_RIDGE` (0 since 2026-11-17). Each draw resamples the births,
+  redraws the split (seed 50,000 + b) and refits everything (score regression, Bernoulli
+  sieve fit, four rotations, probability scale with empirical tails, route `logit_emp`).
+- **Runs** (local Mac; outputs gitignored):
+  `experiments/runs/binary_outcome_vlbw_boot_r0_low/` (2002, 100 draws per cost, 68 min
+  per cost while sharing the CPU) and `experiments/runs/binary_outcome_vlbw_boot_r0_pooled/`
+  (pooled 1995-2002, 50 draws, 4.5 h).
+- **Results** (optimal weight line, g):
+
+  | data | cost | point estimate | bootstrap mean | sd | 95% percentile interval | draws at an edge |
+  |---|---|---|---|---|---|---|
+  | pooled, n = 2,138,145 | 0.03 | 1546 | 1538.7 | 20.8 | [1502, 1578] | 0 of 50 |
+  | 2002, n = 285,610 | 0.03 | 1445 | 1386.7 | 73.2 | [1252, 1508] | 2 of 100 at 1200 |
+  | 2002 | 0.02 | 1798 | 1762.5 | 40.5 | [1637, 1800] | 6 of 100 at 1800 |
+
+- **Reading.** The intervals are about as wide as the rotation ranges in Table `tab:poc`
+  ([1520, 1571] pooled, [1277, 1571] in 2002 at 0.03). The bootstrap mean sits below the
+  point estimate in 2002 by 58 g (0.8 sd) and by 7 g pooled; not investigated. The sd ratio,
+  3.5, is larger than the root-n ratio of the sample sizes, 2.7, consistent with a flatter
+  utility in 2002 but not checked.
+- **Note:** `binary_outcome_vlbw.tex` §6 now gives these intervals and drops the "bootstrap
+  not rerun" caveat (manuscript ceba77e).
+
+---
+
 ## 2026-11-19 - Follow-up: X-eta dependence scaled from zero to 1.5 times the taxi strength; full-sample reuse in §5.2 (Claude)
 
 Author, 2026-11-19: "Lets definitely do 1, and mention what happens to full sample reuse
