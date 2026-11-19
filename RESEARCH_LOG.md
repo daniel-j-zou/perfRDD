@@ -28,7 +28,8 @@ delete the sketch". Manuscript 105109f; details in `../manuscript/CHANGELOG.md`.
   - the GPA and Chile tables, still in `experiments/datasets/BINARY_OUTCOME_ROUTES_20261110.md`.
 - **Code pointers.** The docstrings of `binary_outcome_routes.py`, `binary_glm_link_checks.py`,
   `binary_link_sieve_check.py` and `binary_outcome_logit_figures.py` and the dataset note now name the
-  GLM note. The sketch's three figures are unused and were left in the manuscript repo.
+  GLM note. The sketch's three figures were deleted from the manuscript repo on 2026-11-19, at the
+  author's request (manuscript 3c880bf); this script regenerates them.
 
 — Claude
 

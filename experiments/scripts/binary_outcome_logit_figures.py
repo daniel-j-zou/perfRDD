@@ -1,5 +1,5 @@
 """Figures of the two logit routes for the former manuscript/binary_outcome_sketch.tex (2026-11-12;
-the sketch was deleted on 2026-11-18 and no manuscript file uses these figures now).
+the sketch was deleted on 2026-11-18 and these figures were removed from the manuscript on 2026-11-19).
 
 Reads the saved runs under experiments/runs/ (binary_outcome_routes, binary_outcome_routes_vlbw/cost_*,
 binary_outcome_routes_vlbw_pooled_c*) and writes binary_outcome_routes_logit.png,
