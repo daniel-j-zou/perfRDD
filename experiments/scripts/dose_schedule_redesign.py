@@ -521,9 +521,10 @@ def free_cross():
         M, S = np.array(v["change"]), np.array(v["spend"])
         print(f"  {k:14s} own {np.diag(M).mean():+.3f}  cross {M[off].mean():+.3f} ({M[off].min():+.3f} to "
               f"{M[off].max():+.3f})  spending {S[off].min():.3f}-{S[off].max():.3f}", flush=True)
-    fig, axes = plt.subplots(1, 2, figsize=(9, 3.2))
-    for ax, (setting, unit) in zip(axes, (("ui", "change in weeks paid (lower is better)"),
-                                          ("dsh", "change in Medicare cases, % (higher is better)"))):
+    panels = (("ui", "UI (CWBH)", "change in weeks paid (lower is better)"),
+              ("dsh", "Medicare DSH", "change in Medicare cases, % (higher is better)"))
+
+    def panel(ax, setting, title, unit, legend):
         for i, kind in enumerate(("free", "monotone")):
             M = np.array(out[f"{setting}_{kind}"]["change"])
             ax.scatter(np.full(3, i - 0.08), np.diag(M), color=COLORS[0], s=28,
@@ -535,11 +536,22 @@ def free_cross():
         ax.set_xticklabels(["free", "free, monotone"])
         ax.set_xlim(-0.5, 1.5)
         ax.set_ylabel(unit, fontsize=8)
-        ax.set_title("UI (CWBH)" if setting == "ui" else "Medicare DSH", fontsize=9)
-    axes[0].legend(frameon=False, fontsize=7)
+        ax.set_title(title, fontsize=9)
+        if legend:
+            ax.legend(frameon=False, fontsize=7)
+
+    fig, axes = plt.subplots(1, 2, figsize=(9, 3.2))
+    for k, (ax, (setting, title, unit)) in enumerate(zip(axes, panels)):
+        panel(ax, setting, title, unit, legend=k == 0)
     fig.tight_layout()
     fig.savefig(FIG / "redesign_free_cross.png", dpi=170, bbox_inches="tight")
     plt.close(fig)
+    for setting, title, unit in panels:                     # one panel per setting, for separate notes
+        fig, ax = plt.subplots(figsize=(4.6, 3.2))
+        panel(ax, setting, title, unit, legend=True)
+        fig.tight_layout()
+        fig.savefig(FIG / f"redesign_free_cross_{setting}.png", dpi=170, bbox_inches="tight")
+        plt.close(fig)
 
 
 MAKERS = {"lcff": lambda: lcff("ela"), "lcff_math": lambda: lcff("math"), "dsh": lambda: dsh("exit"),

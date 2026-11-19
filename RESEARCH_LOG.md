@@ -9,6 +9,21 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - Decision: UI is the dose-schedule application; DSH set aside (Claude)
+
+Author, after a side-by-side comparison: "ok remove the dsh from the draft, but keep the
+information somewhere." Unemployment insurance (CWBH) is the application of
+`manuscript/dose_schedule_applications.tex` (Overleaf 9381575, CHANGELOG 0aa7fa7). The Medicare DSH
+material is kept, verbatim, in the standalone note `manuscript/dose_schedule_dsh.tex`, with a
+section on why it was set aside: its only continuous outcome is volume, with a response close to
+one for one with price and no placebo check yet; 19,061 hospital-years with support at DPP 15-30%
+only; alpha and the free schedules are noise (cross-evaluated +1.7% from +5.0%); the window is
+FY 2008-13 because the uncompensated-care payment starts at the same line from 2014. Reviving it
+needs a placebo on pre-dose cases and cost-report (HCRIS) outcomes. The `free_cross` maker now also
+saves one panel per setting (`redesign_free_cross_{ui,dsh}.png`); its numbers are unchanged.
+
+— Claude
+
 ## 2026-11-18 - Binary outcomes: the sketch folded into the GLM note and deleted (Claude)
 
 Author: "what is the point of maintaining the glm sketch?", then "yes, fold those into the note and
