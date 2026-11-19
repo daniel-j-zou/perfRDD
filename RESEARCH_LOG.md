@@ -9,6 +9,22 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-18 - Follow-up: any near-maximizer replaces the grid maximizer (Claude)
+
+Follow-up to "Review-6 change items applied" (2026-11-18). The author asked whether the
+paper needs a grid maximizer ("or can we leave that part vague about the actual maximizer
+choice?") and approved shortening it. Manuscript eee4608.
+- **Change.** Theorem 1 holds for any point within o_p(n^{-1/2}) of the maximizer.
+  Appendix 2 shows that a point whose criterion value is within o_p(n^{-1}) of the maximum
+  qualifies, by the same quadratic argument the grid proof used. The unimodality step stays:
+  with probability tending to one the estimated utility rises and then falls on Phi, so a
+  local search finds the maximizer.
+- **Removed.** The grid mesh, the tie rule and the optimizer-tolerance condition. §3.4
+  keeps one sentence on how the numbers are computed (a grid refined by a bounded scalar
+  optimizer); Appendix 7 states the 61-point grid.
+- **Check.** The paper compiles at 69 pages with no new warnings and no undefined
+  references.
+
 ## 2026-11-18 - Review-6 change items applied (Claude)
 
 Author: "render them as todo boxes on the actual latex file so I can check them off", then

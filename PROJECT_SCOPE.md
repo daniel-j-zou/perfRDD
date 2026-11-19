@@ -62,10 +62,13 @@ decision history at the end. How to change this file is described in "Updating t
   influence zeta_p, f_T -> g, bare S. "Threshold", never "cutoff" (author, 2026-11-04).
   Renames of 2026-11-18 (review-6 m20, author marked "x", manuscript 5a071bc): quantiles
   q_p and \hat q_p (not Q_p); the fold index q is gone (the four roles are written out);
-  grid mesh Delta_n (not h_n); boundary masses B_l, B_u, B_v (not b_l, b_u, b_v); the
+  boundary masses B_l, B_u, B_v (not b_l, b_u, b_v); the
   regression function m (not m_0) and the knot-rule count n_min; zeta_gamma (not
-  varphi_gamma). Known clashes the author accepted: Delta_n beside Delta = \hat S - S
-  (Appendix 4), and B_l, B_u, B_v beside B(Z), c_B and calB. s* is kept (m35 open).
+  varphi_gamma). Known clash the author accepted: B_l, B_u, B_v beside B(Z), c_B and
+  calB. s* is kept (m35 open). The grid maximizer and its mesh (h_n, briefly Delta_n) are
+  gone: the paper allows any point within o_p(n^{-1/2}) of the maximizer (author,
+  2026-11-18: "can we leave that part vague about the actual maximizer choice?";
+  manuscript eee4608), and §3.4 says in one sentence how the numbers are computed.
 - **Target:** the hard-trimmed utility maximizer phi*_eps. The trim level eps is fixed and
   chosen by the user. Present phi*_eps as the optimal cutoff for the population the data
   supports. Add a remark relating it to phi*, and show sensitivity to eps in the
