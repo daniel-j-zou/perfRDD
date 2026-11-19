@@ -9,6 +9,17 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - Treatment Intensities trimmed to a proof-of-concept draft (Claude)
+
+Author: cut what a proof-of-concept draft does not need, "Keep the budget neutral but shorten the
+rest." Manuscript 6bf6102 (CHANGELOG c4f852b): about 5,220 to 4,470 words, 10 to 9 pages, builds with
+no undefined references. The budget-neutral material is unchanged. Removed from the draft, and still
+recorded in the entries below and in the scripts: the modifier test and its 1984-dollar result
+(coefficient -0.074, r^2_abs 0.91), the single-state breakdown detail (sparsest cell 22 in LA and ID,
+8 in NM, 1 for Missouri's 1979-83 schedule), the per-state pooling-test slopes and per-state effects,
+the B-spline construction and knot counts, the strong-concavity bound in the regret proposition, and
+the "Where everything is" section (now a LaTeX comment). No numbers changed.
+
 ## 2026-11-19 - Treatment Intensities rewritten as a methods proposal (Claude)
 
 Author: "Make this the setting of this draft. However, focus the draft on the methodology. Assume
