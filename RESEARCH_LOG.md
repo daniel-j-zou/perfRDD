@@ -9,6 +9,24 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - Binary outcomes: the target stays on the probability scale; estimation laid out in order (Claude)
+
+Follow-up to "VLBW on the log-odds scale without the ridge" (2026-11-19).
+- **Decision.** Author: "yes, lets do probability scale for it for now". W stays
+  F(a1) - F(a0), and the log-odds target (route `logit_lo`) is set aside. The author's next focus:
+  "I am currently more interested in estimating the nonparametric components first", meaning b and
+  alpha. The scope file's binary side track records both.
+- **GLM note** (manuscript 82c76d8). Section 2 is now "Identification, estimation and consistency".
+  The new Section 2.2 goes through the estimated objects in the order the code computes them, as the
+  author asked ("explain the estimation of objects in order"): the score regression, the window,
+  the fit of b, alpha and beta, the weighted tails with the sum-of-products split, the criterion,
+  the threshold, then rotation and the bootstrap. The appendices are hidden behind one switch,
+  `\showappendixfalse` (manuscript d3f46ff).
+
+— Claude
+
+---
+
 ## 2026-11-19 - Follow-up: review-6 m29 proof closed; m39, m59; o13 and o14 removed (Claude)
 
 Follow-up to "Review-6 round 2" (2026-11-19). Author: "m39 please fix for me. m29 fix the

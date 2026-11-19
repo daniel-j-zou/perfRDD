@@ -286,7 +286,9 @@ only when the author asks; it does not change the sections above.
   logit effect crosses zero at about 1870 g, so c = 0 is interior there). The write-up of this setting with its method is
   `../manuscript/binary_outcome_vlbw.tex` (2026-11-11). Decision 2026-11-12: the method is the
   logit on both arms (spline tails or empirical tails, the latter the default); the linear probability
-  model is kept only as the contrast and the additive-effect route is dropped. Decision 2026-11-18: the GLM note is the
+  model is kept only as the contrast and the additive-effect route is dropped. Decision 2026-11-19: W stays the difference of survival
+  probabilities, F(a1) - F(a0); the log-odds target is set aside for now, and the author's next
+  focus is estimating the nonparametric components (b and alpha). Decision 2026-11-18: the GLM note is the
   only binary-outcome document. It proves identification and consistency, gives the root-n limit
   through a general strategy with a simulation check, and holds the split bound, the exact-split
   theorem and the single-crossing conditions (which fail on the VLBW data); other links are in its
