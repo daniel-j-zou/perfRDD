@@ -330,7 +330,9 @@ only when the author asks; it does not change the sections above.
   Before any run expected to use more than about 500 CPU-hours (about $7.50), state the
   cost in CPU-hours and dollars and wait for the author's yes; default to the cheaper
   settings (499 bootstrap draws, the smallest n that answers the question, the largest n
-  only where large-n behavior is the point); run small jobs on the Mac. Check the
+  only where large-n behavior is the point). Run simulations on the cluster, not the Mac
+  (author, 2026-11-19: anything that could reasonably run on the Mac is cheap enough on
+  the cluster). Check the
   author's monthly cost with `my_usage` before submitting. Context: in November 2026 the
   author was 4th of 49 users of stats_dept1/2 at $194 (9% of the department's spend),
   24th of 108 over the fiscal year.

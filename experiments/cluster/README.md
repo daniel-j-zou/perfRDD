@@ -116,7 +116,9 @@ the array script for the submit commands and the run log below for what was subm
 
 Author, 2026-11-19: "I dont want to stand out", "lets be a bit more careful". Before a run
 expected to use more than about 500 CPU-hours (about $7.50 at the standard rate), give
-the author the cost and wait for a yes; prefer 499 draws and fewer sample sizes; check
+the author the cost and wait for a yes; prefer 499 draws and fewer sample sizes. Run
+simulations here rather than on the Mac (author, 2026-11-19: anything that could
+reasonably run on the Mac is cheap enough on the cluster); check
 the month so far with `my_usage y=<year> m=<month> zoudj` (dollars) and, for the
 department, `sreport -n -P -T billing cluster AccountUtilizationByUser
 Accounts=stats_dept1,stats_dept2 Start=<date> End=<date> format=Account,Login,Used`
