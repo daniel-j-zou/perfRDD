@@ -501,7 +501,9 @@ def s5_limit(cfg: Cfg, n_mc=1_000_000, chunks=16, n_interior=(12, 20), seed=7) -
 
 # ------------------------------------------------------------ population: Appendix 7 family
 
-def het_population(cfg: Cfg) -> dict:
+def het_utility(cfg: Cfg):
+    """(U, info): the true utility of an Appendix 7 family design as a function of phi,
+    and its window and J."""
     xg = XGrid(cfg.A, cfg.B, cfg.k, m=40001, lim=9.0)
     xb = HET_BETA2[0] * xg.X1 + HET_BETA2[1] * xg.X2 - cfg.cost
     out = {"key": cfg.key, "family": cfg.family, "note": cfg.note, "J": list(cfg.J),
@@ -574,11 +576,24 @@ def het_population(cfg: Cfg) -> dict:
         U = make_U(l0, u0)
         out["window"] = [l0, u0]
         out["window_on"] = "eta"
+    return U, out
+
+
+def het_population(cfg: Cfg) -> dict:
+    U, out = het_utility(cfg)
     phi = _argmax_numeric(U, cfg.policy)
     out.update({"phi_star": phi, "interior": bool(cfg.policy[0] + 1e-6 < phi
                                                   < cfg.policy[1] - 1e-6),
                 "U_gain_over_phi0": U(phi) - U(cfg.phi0)})
     return out
+
+
+def gain_lost_share(key: str, phi: float) -> float:
+    """Share of the target's utility gain over phi0 that the threshold phi forgoes."""
+    cfg = CFGS[key]
+    U = s5_curves(cfg)[0] if cfg.family == "s5" else het_utility(cfg)[0]
+    star = population(key)["phi_star"]
+    return (U(star) - U(phi)) / (U(star) - U(cfg.phi0))
 
 
 def _argmax_numeric(U, policy, m=241) -> float:
