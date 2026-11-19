@@ -9,6 +9,42 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - Follow-up: VLBW on the log-odds scale without the ridge (Claude)
+
+Follow-up to "VLBW: the effect on the log-odds scale against the probability scale" (2026-11-12),
+whose numbers came from the ridge fit dropped on 2026-11-17. Author: "run the log odds on the birth
+weight data". Route `logit_lo`: the same logistic fit, W = a1 - a0, cost in log-odds units. No
+penalty, seed 1, four rotations, spline tails.
+- **Runs.**
+  - `experiments/runs/binary_outcome_routes_vlbw_wide_r0_logodds_c0` and `_c0.5`: pooled
+    1995-2002, candidate set 1200-2200 g, 97 s each.
+  - `binary_outcome_routes_vlbw_low_r0_logodds_c0` and `_c0.5`: 2002 alone, 1200-1800 g.
+  - Comparison: `python -m experiments.scripts.binary_vlbw_logodds_compare
+    experiments/runs/binary_vlbw_logodds_compare_r0 _r0`, which writes `optima.txt` and the figure.
+- **The log-odds effect at the threshold rises with weight** (c = 0). Pooled: 0.66 at 1200 g, 1.15
+  at 1500, 1.64 at 1800, 1.85 at 2000 and 2.11 at 2200 g. 2002: 0.59, 1.14 and 1.62. It rises at
+  every grid step. With the ridge it fell, from 0.89 to -0.47, because the ridge made the gestation
+  slope negative (beta2 = -0.49 per sd, against +0.78 without it).
+- **The probability effect on the same fit falls with weight:** 4.3, 3.2, 2.2 and 1.1 points at
+  1200, 1500, 1800 and 2200 g. Survival points per log-odds unit at the threshold fall from 0.064
+  at 1200 g to 0.0054 at 2200 g; that is the ceiling.
+- **Optima on the log-odds scale.** No interior maximum at any cost: tau - c changes sign from
+  negative to positive as the weight line rises, a minimum of U. The optimum is the top edge for
+  costs below 1.25-1.3 log-odds on the 1200-1800 g set (1.65-1.7 on the wide set), and 1200 g above
+  that; 2002 is the same.
+- **At costs matched at 1500 g.** 1, 2 and 3 survival points become 0.36, 0.73 and 1.09 log-odds,
+  and the log-odds optimum is the top edge each time. On the probability scale the optima are
+  1800, 1800 and 1546 g (1200-1800 g set; 2002 alone: 1798 g at 2 points, 1445 g at 3).
+- **Reading.** Without the ridge, the interior optimum on the probability scale comes only from the
+  ceiling of the link. The fitted log-odds effect grows with weight, through the positive
+  gestation slope carried to infants above 1500 g, where none is treated. The two scales now rank
+  the marginal infants in opposite orders.
+- **Code.** `binary_vlbw_logodds_compare.py` (7398c42) takes a run tag (empty for the ridge runs,
+  `_r0` for these). It counts runs labelled "logit_sp logit_emp" as empirical tails, since that label
+  runs the empirical-tails branch. With no tag it reproduces the 2026-11-12 output exactly.
+
+— Claude
+
 ## 2026-11-19 - Taxi §6: effect also linear in log distance does not fix the treated-arm misfit; validation written up (Claude)
 
 Follow-up to "Taxi §6: validation of the outcome model against the jump at $15 and
