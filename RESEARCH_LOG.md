@@ -9,6 +9,46 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - Review-6 round 2: the remaining items, as the author directed (Claude)
+
+Author, on the round-2 boxes: "m3, its fine right now. m8 fine for now, m9 fine. o2 add
+heterogenous treatment effect, f6 fix, o3 fine, o4 you fix it, M1 you fix, ... m19 add a
+todo in the simulations section to do it ... and all other minor appendix notes fix them.
+If youre not sure about a fix, send out a fable subagent on high". Manuscript e862b51;
+details in `../manuscript/CHANGELOG.md`. Judgment items were drafted by four Fable
+subagents and checked by Claude; drafts in `../work/session_context/differing_slopes.review-6.proposals/`.
+- **Decisions and statements.**
+  - Identification is Proposition 1, so later propositions renumber.
+  - The application is a demonstration with a stated range; see PROJECT_SCOPE.md, "Taxi
+    specification".
+  - (A1)(iii) and Proposition 2 are trimmed.
+  - Lemmas D3 and E3 drop the Lipschitz hypothesis; the subagent checked that only D3's
+    window step used it.
+  - Back matter uncommented.
+  - m19 is a todo box in §5 (a full-sample-reuse run).
+  - m3, m8, m9 and o3 are left as they are; m59 (bibliography questions) is still open.
+- **Verified facts used in the text.**
+  - No reported number uses a ridge penalty. The taxi estimator, the bootstrap scripts and
+    every simulation runner fit by least squares (`ridge_scale=0.0` where the argument
+    exists).
+  - For the taxi fit, vartheta_J = 1.5e-4 with the covariates scaled to identity
+    covariance, or 1.2e-4 with standardized columns. It is attained on the treated side
+    at the lower end of J, which holds 5.2% of rides.
+    `experiments/scripts/taxi_theta_J.py` computes it; the output is in
+    `experiments/runs/taxi_theta_J/`. The author is to confirm the scaling.
+  - The day-bootstrap remark rests on 31 clusters.
+  - The gain is under one cent per ride in the main specification only: the all-hours row
+    gives 1.10 cents.
+  - The Appendix 6 common-slope miss is 0.43-0.50 in the 2026-09-08 runs; the paper now
+    uses that range and says those runs are full-sample and cross-fit, not four-role.
+- **For the author to confirm.**
+  - The prose references for m39: Brascamp and Lieb (1976), Massart (1990), and Karlin
+    (1968) for the classical untrimmed argument.
+  - The o14 sentence: the record gives no reason for reporting the rotated average rather
+    than the pooled maximizer.
+  - The m29 proof still skips units with ||X~|| ||delta|| > r; one sentence would close
+    this.
+
 ## 2026-11-19 - Taxi §6: validation of the outcome model against the jump at $15 and hold-outs (Claude)
 
 Author: "Validation analyses", after a referee-style review of §6 by a Fable agent. Script:

@@ -65,10 +65,17 @@ decision history at the end. How to change this file is described in "Updating t
   boundary masses B_l, B_u, B_v (not b_l, b_u, b_v); the
   regression function m (not m_0) and the knot-rule count n_min; zeta_gamma (not
   varphi_gamma). Known clash the author accepted: B_l, B_u, B_v beside B(Z), c_B and
-  calB. s* is kept (m35 open). The grid maximizer and its mesh (h_n, briefly Delta_n) are
+  calB. s* became F' (review-6 m35, 2026-11-19). The grid maximizer and its mesh (h_n, briefly Delta_n) are
   gone: the paper allows any point within o_p(n^{-1/2}) of the maximizer (author,
   2026-11-18: "can we leave that part vague about the actual maximizer choice?";
   manuscript eee4608), and §3.4 says in one sentence how the numbers are computed.
+  Numbering and statements of 2026-11-19 (review-6 round 2, manuscript e862b51):
+  identification is Proposition 1 (prop:ds-ident), so the threshold-derivative
+  representation is Proposition 2 and consistency Proposition 3; Proposition 2 needs only
+  E(|W| I_0) < infinity; (A1)(iii) keeps one interior zero of tau_eps with tau_eps' > 0
+  there (its regularity clauses, given by Lemma C2, are gone); Lemmas D3 and E3 no longer
+  assume a Lipschitz constant for \hat F. "Small-sample design" replaces "nonlinear
+  design" for the second small-sample design of §5.4.
 - **Target:** the hard-trimmed utility maximizer phi*_eps. The trim level eps is fixed and
   chosen by the user. Present phi*_eps as the optimal cutoff for the population the data
   supports. Add a remark relating it to phi*, and show sensitivity to eps in the
@@ -187,7 +194,12 @@ decision history at the end. How to change this file is described in "Updating t
   all-hours trial), the score has distance and log distance plus
   the indicators, and the effect is linear in distance. It replaces the 2026-10-20 plan to
   report S1-E1 and S2-E1 (dollar scale) side by side. The theory for it is the taxi
-  extension under "Theory".
+  extension under "Theory". Framing (2026-11-19, review-6 M1, author: "M1 you fix"): the
+  application is a demonstration whose answer is a range. $12.87 in the main
+  specification (cell $12.90); every row of the robustness table below $15; $11.76 to
+  $13.15 across the rows where the effect varies with distance, $12.42 to $13.15 with the
+  square-root fare; the gain is under one cent per ride in the main specification only.
+  No ridge penalty is used for any reported number (stated in §6.3).
 - **Spline score R3-E1** (2026-11-04, revised the same day): a robustness row, not a
   second use case; R2-E1 stays the single use case. R3-E1 keeps the square-root fare and
   the effect linear in distance, with a spline in log distance plus the indicators in
@@ -328,7 +340,7 @@ only when the author asks; it does not change the sections above.
   Second pass (2026-11-11): "score regression" (not "first stage"; "score-regression
   fold" for I_gamma, "the error in gamma-hat"); "estimated residual / covariate" (not
   "generated residual / regressor"; "data generated under ..." stays); "units at the
-  threshold" (not "marginal units"; "marginal density" stays; Proposition 1 is the
+  threshold" (not "marginal units"; "marginal density" stays; Proposition 2 (Proposition 1 before 2026-11-19) is the
   "Threshold-derivative representation"); "set of candidate thresholds" for Phi (not
   "policy set") and "class of threshold rules" (not "policy class"). Section 1 cites
   the statistics literature on individualized treatment rules (Murphy 2003; Qian and
@@ -397,6 +409,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-19 | Review-6 round 2: the author decided the remaining items in chat; identification stated as Proposition 1; the application framed as a demonstration with a stated range; (A1)(iii) and Proposition 2 trimmed; Appendix 6 says its runs use full-sample and cross-fit fits; back matter uncommented; m3, m8, m9, o3 left as they are; m59 open | Log: "Review-6 round 2" (2026-11-19); manuscript e862b51 |
 | 2026-11-18 | Review-6 writing pass: the author marked the change items in check-off boxes; 34 applied, among them the §1 reorder (prior work before the gap, "purpose" sentence dropped), the price as three assumptions, i.i.d. observations stated in §2.1 and §4.1, and the renames above (q_p, Delta_n, B_l/B_u/B_v, m, n_min, zeta_gamma; role influence functions, derivative integrand, rotated average, pooled maximizer, fit of the linear predictor); m12 (contribution pointers) declined; Figure 1 redraw left as a todo box | Log: "Review-6 change items applied" (2026-11-18); manuscript 5a071bc |
 | 2026-11-17 | Simulations add designs like the application: first-stage R^2 0.1-0.9 and 11% treated (author's request), and a taxi-like design; the taxi intervals add a day-resampling bootstrap (author: free rein overnight to run what makes the paper better) | Log: "Coverage across the first-stage R^2 and the treated share; taxi bootstrap by day" (2026-11-17) |
 | 2026-11-16 | Weekly review: taxi use case R2-E1 is final ("for now" dropped); computing rule added under "How we work" (Great Lakes, stats_dept1, parallel arrays sized from a test job, no over-request, keep all raw data); dose-schedule candidates ranked by interpretability; §5 status updated (Table 2 and the non-Gaussian check in the nonlinear design; the 2026-10-20 to-do list done); coverage runs added (64k to 500 data sets, t5 and mixture designs; the quadratic design, also chosen, already has its coverage table); the unreviewed rows of 2026-11-09 to 2026-11-12 confirmed; every other section confirmed unchanged | Log: "Weekly scope review" (2026-11-16) |
