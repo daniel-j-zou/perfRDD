@@ -53,24 +53,26 @@ CFG = CFGS["base"]
 Z95 = 1.959963984540054
 
 
-def estimate_full(s) -> float:
-    """Every nuisance and the evaluation average on all observations."""
+def estimate_full(s, cfg=None) -> float:
+    """Every nuisance and the evaluation average on all observations (design ``cfg``,
+    by default the Section 5 design)."""
+    cfg = CFG if cfg is None else cfg
     n = len(s.Q)
     idx = np.arange(n)
     gamma_hat = ols_first_stage(s, idx)
     eta_hat = s.Q - _xt(s.X) @ gamma_hat
     T = _xt(s.X) @ gamma_hat
-    tails = fit_weighted_tails(T, s.X, CFG.T_support)
-    l_hat = CFG.phi0 - float(np.quantile(T, 1.0 - CFG.eps))
-    u_hat = CFG.phi0 - float(np.quantile(T, CFG.eps))
+    tails = fit_weighted_tails(T, s.X, cfg.T_support)
+    l_hat = cfg.phi0 - float(np.quantile(T, 1.0 - cfg.eps))
+    u_hat = cfg.phi0 - float(np.quantile(T, cfg.eps))
     l_hat = max(l_hat, float(np.quantile(eta_hat, WINDOW_TAIL)))
     u_hat = min(u_hat, float(np.quantile(eta_hat, 1.0 - WINDOW_TAIL)))
     e = eta_hat[(eta_hat >= l_hat) & (eta_hat <= u_hat)]
-    fit = outcome_fit(s, idx, eta_hat, CFG.J)
+    fit = outcome_fit(s, idx, eta_hat, cfg.J)
     pieces = SplineTailPieces(tails, e, n)
-    amc = fit.a(e) - CFG.cost
+    amc = fit.a(e) - cfg.cost
     b2 = np.asarray(fit.beta2)
-    grid = np.linspace(CFG.policy[0], CFG.policy[1], 61)
+    grid = np.linspace(cfg.policy[0], cfg.policy[1], 61)
     vals = np.array([pieces.value(x, amc, b2) for x in grid])
     return _refine(lambda x: pieces.value(x, amc, b2), grid, vals)
 

@@ -9,6 +9,39 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - Follow-up: X-eta dependence scaled from zero to 1.5 times the taxi strength; full-sample reuse in §5.2 (Claude)
+
+Author, 2026-11-19: "Lets definitely do 1, and mention what happens to full sample reuse
+somewhere in the main paper." Then: "I'd rather run on the cluster than on the Mac" (recorded
+under the computing rule in PROJECT_SCOPE.md; this run had already started on the Mac).
+
+- **Script** `experiments/scripts/ds_dependence_path.py`: design (c) of
+  `ds_review_ablations` with A -> f A and k -> f k (B fixed), f = 0, .25, ..., 1.5, plus
+  the mean part (k = 0) and the spread part (A = 0) alone at f = 1; effect and baseline of
+  zeta (c-a) or of eta (c-b); 200 data sets at n = 64,000, rotated average and full-sample
+  reuse (`ds_fullsample_reuse.estimate_full`, now taking a design), no bootstrap.
+  Results in `experiments/runs/ds_dependence_path/path_n64000.json` (run locally, 29 min).
+- **Results** (gain lost = share of the target's gain over phi0 forgone at the mean):
+
+  | f | R^2 eta / eta^2 (%) | spread | effect of eta: target, mean, lost | effect of zeta: target, mean, lost |
+  |---|---|---|---|---|
+  | 0 | 0 / 0 | 1.01 | .864, .864, 0% | .864, .864, 0% |
+  | .25 | .7 / .3 | 1.11 | .869, .863, .2% | .840, 1.000, 100% |
+  | .5 | 2.6 / 2.4 | 1.21 | .874, .862, 1.0% | .814, 1.165, 338% |
+  | .75 | 5.5 / 8.8 | 1.34 | .879, .861, 2.4% | .790, 1.345, 612% |
+  | 1 | 9.3 / 20.3 | 1.48 | .885, .859, 5.3% | .770, 1.510, 843% |
+  | 1.25 | 13.6 / 34.4 | 1.64 | .891, .857, 9.9% | .756, 1.644, 1017% |
+  | 1.5 | 18.0 / 47.6 | 1.81 | .896, .859, 13.9% | .750, 1.819, 1291% |
+  | 1, mean only | 9.6 / 20.8 | 1.18 | .882, .859, 4.3% | .819, 1.294, 614% |
+  | 1, spread only | 0 / 3.6 | 1.60 | .861, .869, .4% | .829, .889, 12.7% |
+
+  Full-sample reuse: within 0.03 of the rotated average's mean in every setting (largest
+  gap .028 at f = 1.5, effect of zeta), and about the same gain lost. The utility in these
+  designs is flat (gain over phi0 about 0.0004-0.0014), which is why a small error in the
+  effect moves the threshold far; the gain-lost share is the fair scale.
+- **Paper** (manuscript 3396717): §5.2 paragraph on full-sample reuse; Appendix 7 table
+  `tab:ds-dep-path` and paragraph; two sentences in §5.6.
+
 ## 2026-11-19 - Treatment Intensities trimmed to a proof-of-concept draft (Claude)
 
 Author: cut what a proof-of-concept draft does not need, "Keep the budget neutral but shorten the
