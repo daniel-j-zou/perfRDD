@@ -9,6 +9,68 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - Taxi §6: validation of the outcome model against the jump at $15 and hold-outs (Claude)
+
+Author: "Validation analyses", after a referee-style review of §6 by a Fable agent. Script:
+`experiments/scripts/taxi_validation.py` (main specification R2-E1, daytime sample; the
+paper's four-role folds and outcome-fit design, every coefficient kept; checked against
+`outcome_fit`, max coefficient gap 7.6e-13). Output (git-ignored):
+`runs/taxi_validation/` (summary.json, taxi_validation.png). Each ride gets one
+out-of-fold prediction.
+
+**Verified findings.**
+- **Untreated arm.** It fits well: cell residuals, observed minus out-of-fold
+  predicted, stay within about 3 cents from $5 to $15. Extrapolated upward, it holds:
+  holding out untreated $12.90-$14.90 gives a mean error of +$0.017 (se 0.004), and
+  holding out $10.50-$14.90 gives +$0.010.
+- **Treated arm.** It does not fit the shape in fare. The residuals form a wave: +$0.05
+  at $15.30, -$0.05 to -$0.14 between $16.90 and $21, and +$0.05 to +$0.34 above $22,
+  where cells hold about 400-800 rides. The weighted RMS of cell residuals over $6-$30 is
+  $0.040.
+- **Treated-arm extrapolation.**
+  - Holding out treated $15.30-$16.90 and predicting from fares of $17.30 and up gives
+    errors from +$0.067 at $15.30 to -$0.040 at $16.90 (mean +$0.021, se 0.008): the
+    extrapolated arm is too steep in fare.
+  - Holding out $15.30-$19.70 gives a mean error of -$0.146 (se 0.006), reaching
+    -$0.245 at $18.90.
+  - The estimate needs the treated arm extrapolated down by about $2.
+- **The jump at $15.** Local linear, uniform kernel, HC standard errors:
+
+  | Bandwidth | Jump | se | Slope difference per $ |
+  |---|---|---|---|
+  | $2 | 0.299 | 0.018 | 0.047 |
+  | $3 | 0.287 | 0.015 | 0.060 |
+  | $4.5 | 0.271 | 0.012 | 0.066 |
+  | $6 | 0.263 | 0.011 | 0.074 |
+  | $10 | 0.195 | 0.010 | 0.114 |
+
+  The model's mean effect of the rides at $15 is 0.242 (cells interpolated; the paper's
+  tau-hat(15) is 0.248), so it sits 2-6 cents below the local estimates at bandwidths
+  up to $6. Its effect rises 0.114-0.115 per fare dollar near $15, about twice the local
+  slope at bandwidths $2-$4.5, and equal to it only at $10. The model's mean effect turns
+  positive at the $12.90 cell.
+- **Simple local comparator** (Marinescu-style local linear fits on each side,
+  extrapolated, zero crossing of the fitted effect; tip in dollars): $8.63, $10.19,
+  $10.87, $11.44 and $13.29 at bandwidths $2, $3, $4.5, $6 and $10. This is strongly
+  bandwidth-dependent; Marinescu et al. report $11.11 at $4.54 with tip percentage.
+- Standard errors clustered by fare cell are also in summary.json. They rest on 10-50
+  clusters and are not used here.
+
+**Reading.**
+- The binding assumption is the effect specification on the treated side: linear in
+  distance, plus alpha(eta). The model's effect at $15 is somewhat low and its slope in
+  fare too steep relative to what the data near $15 show.
+- Both errors point the same way: a local-data-consistent effect would cross zero below
+  $12.90. The specification uncertainty exceeds the bootstrap interval's half-width of
+  31 cents.
+- Not verified here: how far a richer effect specification would move the estimate.
+  Distance and log distance are both score covariates, so an effect on both stays inside
+  the theory; but the scope's "no functions of distance in the D*X block" is an author
+  decision.
+- The paper is unchanged.
+
+---
+
 ## 2026-11-19 - Decision: UI is the dose-schedule application; DSH set aside (Claude)
 
 Author, after a side-by-side comparison: "ok remove the dsh from the draft, but keep the
