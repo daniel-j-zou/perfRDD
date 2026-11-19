@@ -113,6 +113,11 @@ SAMPLES = {
                  "out": M.ROOT / "runs" / "taxi_section6_allhours"},
     "daytime": {"frame": "full", "hours": "day", "effect": "distance",
                 "effect_cols": ["Trip_Distance"], "out": OUT},
+    # validation row (author, 2026-11-19, "Test and write up"): the daytime sample with the
+    # effect linear in both distance columns of the score (inside the restricted-block theory)
+    "daytime_logdist": {"frame": "full", "hours": "day", "effect": "distance+logdistance",
+                        "effect_cols": ["Trip_Distance", "log_distance"],
+                        "out": M.ROOT / "runs" / "taxi_section6_logdist"},
 }
 SAMPLE = "daytime"
 SPECS = {"R2-E1": (0.5, "distlog"), "S1-E1": (1.0, "linear"), "S2-E1": (1.0, "distlog"),

@@ -130,7 +130,8 @@ def load_frame(sample: str) -> pd.DataFrame:
     fare = df["meter_fare" if "meter_fare" in df else "Fare_Amt"].to_numpy(float)
     tip = df["Tip_Amt"].to_numpy(float)
     entry_error = (tip / fare > 1.0) & (tip >= 10.0)
-    df = df.loc[~entry_error & (df["Trip_Distance"].to_numpy(float) > 0)]
+    df = df.loc[~entry_error & (df["Trip_Distance"].to_numpy(float) > 0)].copy()
+    df["log_distance"] = np.log(df["Trip_Distance"].to_numpy(float))
     return df.reset_index(drop=True)
 
 
@@ -194,6 +195,8 @@ def effect_covariates(df: pd.DataFrame, kind: str = "distance") -> np.ndarray:
         return _standardize(d)
     if kind == "distance+daytime":          # main from 2026-11-12 (all-hours sample)
         return _standardize(np.column_stack((d, df["daytime"].to_numpy(float))))
+    if kind == "distance+logdistance":      # validation row (2026-11-19): both distance
+        return _standardize(np.column_stack((d, np.log(d))))   # columns of the score
     if kind == "none":                      # common slope: placeholder, not used
         return _standardize(d)
     if kind == "distance2":                 # robustness: curvature in distance

@@ -9,6 +9,53 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - Taxi §6: effect also linear in log distance does not fix the treated-arm misfit; validation written up (Claude)
+
+Follow-up to "Taxi §6: validation of the outcome model against the jump at $15 and
+hold-outs" below. Author: "Test and write up".
+
+**Test.** The daytime main specification with the effect linear in both distance columns
+of the score, distance and log distance, inside the restricted-block theory (code:
+`taxi_section6.py --sample daytime_logdist`, output `runs/taxi_section6_logdist/`;
+validation `taxi_validation.py --sample daytime_logdist`).
+- *Estimate.* \$13.30 (13.297, cell \$13.30); beta2 \$0.210 per mile and \$0.269 per
+  log mile.
+- *Design variations.* The rows give \$13.16-\$13.40, except eps = 0.10, which gives
+  \$10.17 (unstable).
+- *Fit.* The out-of-fold RMS of cell residuals over \$6-\$30 is 3.9 cents, against 4.0
+  for the main specification, so the treated-arm wave remains.
+- *Effect at \$15.* The cell-interpolated effect is 0.215 (tau-hat(15) 0.224), lower than
+  the main 0.242 and further below the local jumps. Its slope is 0.127 per fare dollar.
+- *Hold-outs.* The treated hold-out errors grow: \$15.30-\$16.90 gives +\$0.157 (+\$0.243
+  at \$15.30), and \$15.30-\$19.70 gives +\$0.256 (+\$0.532 at \$15.30). The untreated
+  hold-outs stay small (+\$0.014, +\$0.004).
+- *Reading.* The misfit is not about the shape in distance. The richer effect
+  extrapolates the treated arm worse and moves the estimate up, not down. No bootstrap
+  was run: the row is a validation check, with no interval in the table.
+
+**Correction to the entry below.** Recomputed from `runs/taxi_validation/summary.json`:
+- the treated residuals are -\$0.03 to -\$0.14 between \$16.90 and \$21 (not -\$0.05 to
+  -\$0.14);
+- they are +\$0.02 to +\$0.34 above \$22 (not +\$0.05), in cells of 367 to 1,148 rides
+  (not about 400-800);
+- below \$15 the largest absolute cell residual is \$0.033.
+
+**Paper (manuscript 18139be, changelog 477505f).**
+- §6.5 has one validation paragraph: the jump at \$15 against tau-hat(15); the effect's
+  slope in fare about twice the local one; hold-outs (untreated within 3 cents, treated
+  off by up to 7 cents over a \$2 extrapolation); the log-distance effect fits no better.
+  It concludes that the threshold is more uncertain than its interval, mainly toward
+  lower fares.
+- Appendix 5 has the details, Figure taxi-validation and a table row (\$13.30, no
+  interval).
+- Code changes:
+  - `taxi_four_role.load_frame` adds `log_distance`, and `effect_covariates` adds
+    `distance+logdistance`.
+  - `taxi_section6.SAMPLES` adds `daytime_logdist`.
+  - `taxi_validation.py` gets `--sample` and `redraw()`.
+
+---
+
 ## 2026-11-19 - Review-6 round 2: the remaining items, as the author directed (Claude)
 
 Author, on the round-2 boxes: "m3, its fine right now. m8 fine for now, m9 fine. o2 add

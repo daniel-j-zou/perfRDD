@@ -22,8 +22,9 @@ Referee-style checks (author, 2026-11-19: "Validation analyses"):
    several bandwidths; outcome in dollars (theirs is tip as a percentage of the fare).
 
 Run (from code/):
-    python -m experiments.scripts.taxi_validation
-Output (git-ignored): experiments/runs/taxi_validation/summary.json and figures.
+    python -m experiments.scripts.taxi_validation                      # main specification
+    python -m experiments.scripts.taxi_validation --sample daytime_logdist
+Output (git-ignored): experiments/runs/taxi_validation[_<sample>]/summary.json and figures.
 """
 from __future__ import annotations
 
@@ -135,10 +136,23 @@ def by_cell(frame, cols):
     return res
 
 
-def main():
+def redraw(sample="daytime"):
+    """Redraw the figure from a saved summary.json."""
+    global OUT
+    OUT = M.ROOT / "runs" / ("taxi_validation" if sample == "daytime" else f"taxi_validation_{sample}")
+    figures(json.loads((OUT / "summary.json").read_text()))
+
+
+def main(argv=None):
+    import argparse
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--sample", default="daytime", choices=["daytime", "daytime_logdist"])
+    a = ap.parse_args(argv)
+    global OUT
+    OUT = M.ROOT / "runs" / ("taxi_validation" if a.sample == "daytime" else f"taxi_validation_{a.sample}")
     OUT.mkdir(parents=True, exist_ok=True)
-    df = M.load_frame("full")
-    data, design = S.build(df, SPEC, sample="daytime")
+    df = M.load_frame(S.SAMPLES[a.sample]["frame"])
+    data, design = S.build(df, SPEC, sample=a.sample)
     fare, y, D = data.fare, data.Y, data.D
     sd_d = float(df["Trip_Distance"].std(ddof=0))
 
@@ -179,7 +193,7 @@ def main():
         w = (eff.index >= M.FARE0 - h) & (eff.index <= M.FARE0 + h)
         model_slope[str(h)] = float(np.polyfit(eff.index[w], eff.values[w], 1,
                                                w=np.sqrt(cells.n[w]))[0])
-    top = json.loads((S.OUT / "summary.json").read_text())
+    top = json.loads((S.SAMPLES[a.sample]["out"] / "summary.json").read_text())
     tau15 = float(np.interp(M.FARE0, top["fare_grid"], top["specs"][SPEC]["tau"]))
     # where the model's mean effect by cell crosses zero
     sgn = np.sign(eff.values)
@@ -206,7 +220,7 @@ def main():
               ", ".join(f"{c}: {v[0]:+.3f}" for c, v in hold[name]["by_cell"].items()), flush=True)
 
     # 4. outputs
-    res = {"spec": SPEC, "seed": SEED, "n": int(len(fr)), "n_inJ": int(fr.inJ.sum()),
+    res = {"spec": SPEC, "sample": a.sample, "seed": SEED, "n": int(len(fr)), "n_inJ": int(fr.inJ.sum()),
            "rms_cell_resid_6_30": rmse_cell,
            "cells": {f"{c:.2f}": {k: float(v) for k, v in row.items()} for c, row in cells.iterrows()},
            "rd": rd, "model_effect_at_15": model_at_15, "paper_tau_15": tau15,
@@ -235,7 +249,9 @@ def figures(res):
     for name, col in (("treated_15.30-16.90", "C3"), ("untreated_12.90-14.90", "C2")):
         h = res["holdouts"][name]["by_cell"]
         xs = np.array([float(k) for k in h]); ys = np.array([v[0] for v in h.values()])
-        ax[1].plot(xs, ys, "o-", color=col, ms=3, label=f"held out: {name}")
+        side, band = name.split("_")
+        lo, hi = band.split("-")
+        ax[1].plot(xs, ys, "o-", color=col, ms=3, label=f"{side} \\${lo}-\\${hi} held out")
     ax[1].axhline(0, color="k", lw=0.7); ax[1].axvline(M.FARE0, color="0.5", ls=":")
     ax[1].set_xlabel("fare cell ($)"); ax[1].set_ylabel("observed - predicted ($)")
     ax[1].set_title("Residuals by cell; hold-out errors", fontsize=10); ax[1].legend(fontsize=7)
@@ -244,7 +260,8 @@ def figures(res):
     for r, ls in zip([r for r in res["rd"] if r["h"] in (2.0, 4.5, 10.0)], ("-", "--", ":")):
         ax[2].plot(x, r["jump"] + r["slope_diff"] * (x - M.FARE0), color="k", ls=ls, lw=1,
                    label=f"local linear, h=\\${r['h']:g}: jump {r['jump']:.2f}")
-    ax[2].plot([M.FARE0], [res["paper_tau_15"]], "s", color="C3", label=f"paper $\\hat\\tau(15)$ = {res['paper_tau_15']:.2f}")
+    ax[2].plot([M.FARE0], [res["paper_tau_15"]], "s", color="C3",
+               label=f"model, $\\hat\\tau_\\epsilon(15)$ = {res['paper_tau_15']:.2f}")
     ax[2].axhline(0, color="k", lw=0.7); ax[2].axvline(M.FARE0, color="0.5", ls=":")
     ax[2].set_xlim(9, 21); ax[2].set_ylim(-0.6, 0.9)
     ax[2].set_xlabel("fare ($)"); ax[2].set_ylabel("effect of the percentage menu ($)")
