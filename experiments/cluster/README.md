@@ -112,6 +112,17 @@ September runs (Codex) used the older scripts in this folder; their results are 
 `ds_section5_coverage_array.sbatch` and `ds_section5_coverage_merge.sbatch`; see the header of
 the array script for the submit commands and the run log below for what was submitted.
 
+## Spending
+
+Author, 2026-11-19: "I dont want to stand out", "lets be a bit more careful". Before a run
+expected to use more than about 500 CPU-hours (about $7.50 at the standard rate), give
+the author the cost and wait for a yes; prefer 499 draws and fewer sample sizes; check
+the month so far with `my_usage y=<year> m=<month> zoudj` (dollars) and, for the
+department, `sreport -n -P -T billing cluster AccountUtilizationByUser
+Accounts=stats_dept1,stats_dept2 Start=<date> End=<date> format=Account,Login,Used`
+(billing units: 10^7 units = $1; slow, several minutes). `my_account_usage` over several
+months is slower still.
+
 ## Run log
 
 | Date | Job | What | Result |

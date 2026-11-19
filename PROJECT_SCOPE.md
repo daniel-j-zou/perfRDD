@@ -303,6 +303,15 @@ only when the author asks; it does not change the sections above.
   sized from a short test job, asking for no more time or memory than needed; all raw
   results are copied back to the Mac and kept. Procedure in
   `experiments/cluster/README.md`.
+- **Cluster spending** (author, 2026-11-19: "I dont want to stand out", "lets be a bit
+  more careful"): keep Great Lakes spending modest next to the rest of the department.
+  Before any run expected to use more than about 500 CPU-hours (about $7.50), state the
+  cost in CPU-hours and dollars and wait for the author's yes; default to the cheaper
+  settings (499 bootstrap draws, the smallest n that answers the question, the largest n
+  only where large-n behavior is the point); run small jobs on the Mac. Check the
+  author's monthly cost with `my_usage` before submitting. Context: in November 2026 the
+  author was 4th of 49 users of stats_dept1/2 at $194 (9% of the department's spend),
+  24th of 108 over the fiscal year.
 - **Statistics vocabulary** (2026-11-10): the author prefers terms from statistics to
   terms from econometrics, in every manuscript file outside `prelim/`. Approved
   mapping:
