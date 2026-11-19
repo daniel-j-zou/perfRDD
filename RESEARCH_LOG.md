@@ -74,6 +74,18 @@ under the computing rule in PROJECT_SCOPE.md; this run had already started on th
 - **Paper** (manuscript 3396717): §5.2 paragraph on full-sample reuse; Appendix 7 table
   `tab:ds-dep-path` and paragraph; two sentences in §5.6.
 
+## 2026-11-19 - UI rescaling leaves eta unchanged except in 6 cells; Treatment Intensities edits (Claude)
+
+Checked why measuring the UI score relative to each claim's own schedule is harmless. The rescaling
+subtracts log(earnings at the cap), a constant per schedule, from log best-quarter earnings. X contains
+state x quarter-of-benefit-year indicators (`ui_cwbh/adapter.py`, `design`), so when each cell holds
+one schedule the constant is a linear function of X, moves into T and leaves eta exactly unchanged. In
+the main sample (128,281 claims) 85 of the 91 state-quarter cells hold one schedule; 6 span a change of
+schedule (ID 1982Q2; LA 1979Q3, 1980Q3, 1981Q3, 1982Q3; MO 1979Q4), holding 8,884 claims (6.9%), where
+the within-cell part of the constant falls into eta. Recorded in Treatment Intensities 6.1 (manuscript
+81a5f52), which now also carries the former 2.4 on local schedules; Section 3 gained one sentence on
+why a tensor product of one-dimensional bases rather than a thin-plate spline.
+
 ## 2026-11-19 - Treatment Intensities trimmed to a proof-of-concept draft (Claude)
 
 Author: cut what a proof-of-concept draft does not need, "Keep the budget neutral but shorten the
