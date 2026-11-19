@@ -16,6 +16,7 @@ Figures go to experiments/datasets/simulations/dose_schedule/.
 from __future__ import annotations
 
 import argparse
+import json
 from pathlib import Path
 
 import matplotlib
@@ -155,69 +156,63 @@ def cwbh(outcome):
 
 
 def _cwbh(outcome):
-    """Paper figure (Treatment Intensities, Fig. 1), in plain words.
+    """Paper figure (Treatment Intensities, Fig. 1): the fitted nonparametric parts.
 
-    A: Table 2 as a picture: change in weeks paid against the full cap, one line per score bin, cells
-       shown under Table 2's rule (coverage >= 85%, rotation sd <= 2 weeks).
-    B: the same effect by latent ability, 60% and 75% of the cap; band = range over the three
-       rotations where the latent ability is supported, dashed mean where extrapolated.
-    C: every claimant's replacement rate scaled by theta with the cap fixed (no budget): change in
-       mean weeks paid, band = range over rotations; lower strip = share of claimants supported.
+    A: baseline b_hat(e) + mean(X)'beta1_hat, mean weeks paid at the cap by latent ability.
+    B: effect surface alpha_hat(e, a) + (a - 1) mean(Z'tau_hat) against e, at 60, 75, 90% of the cap.
+    C: the same surface against the benefit, at three latent abilities.
+    Lines average the three rotations, bands span them over the supported part; dashed where the pair
+    (e, a) lies outside the 2.5-97.5% eta range of claimants given a benefit near a.
     """
     args = argparse.Namespace(x="linear", outcome=outcome, seed=0)
     cfg = app.cwbh(args)
     prob = cfg["prob"]
     a_ref = prob.basis.a_ref
-    fig = plt.figure(figsize=(9.2, 3.6))
-    gs = fig.add_gridspec(4, 3, hspace=0.7, wspace=0.42)
-
-    # A. by score bin
-    ax = fig.add_subplot(gs[:, 0])
-    est = ds.estimate(prob, seed=0, a_grid=cfg["a_grid"], score_edges=cfg["edges"], n_bins=cfg["n_bins"] or 10,
-                      cluster=cfg["cluster"])
-    _, eta_all, _ = ds.first_stage(prob.Q, prob.X, np.ones(len(prob.Q), bool))
-    cov = ds.coverage(eta_all, prob.A, prob.Q, est["edges"], est["a_grid"], a_ref, levels=None, band=0.04)
-    j0 = int(np.argmin(np.abs(est["a_grid"] - a_ref)))
-    eff = est["psi"] - est["psi"][:, [j0]]
-    sd = (est["psi_rot"] - est["psi_rot"][:, :, [j0]]).std(0)
-    print("  A: change in weeks vs the cap by score bin (Table 2 cells)")
-    for c, i in zip(BLUES, range(1, 6)):
-        ok = (np.round(100 * cov[i]) >= 85) & (sd[i] <= 2.0)      # Table 2's rule, coverage rounded
-        ok[j0] = True
-        lo, hi = np.exp(est["edges"][i:i + 2])
-        ax.plot(est["a_grid"][ok], eff[i][ok], "o-", color=c, ms=4.5, lw=1.6, label=f"{lo:.2f}-{hi:.2f}")
-        print("    %.2f-%.2f: " % (lo, hi) + " ".join(f"{a:g}:{e:+.1f}" for a, e, o in zip(est["a_grid"], eff[i], ok) if o))
-    ax.axhline(0, color="#8a8984", lw=0.8)
-    ax.set_xlim(0.38, 1.03)
-    ax.set_xlabel("benefit as a share of the cap")
-    ax.set_ylabel("weeks paid vs. the full cap")
-    ax.legend(frameon=False, fontsize=8, title="earnings ratio", title_fontsize=8,
-              loc="upper left", handlelength=1.2)
-    _panel_title(ax, "A. By score bin")
-    ylim_a = ax.get_ylim()
-
-    # B. by latent ability
-    ax = fig.add_subplot(gs[:, 1])
     fits = rotation_fits(prob, cluster=cfg["cluster"])
+    _, eta_all, _ = ds.first_stage(prob.Q, prob.X, np.ones(len(prob.Q), bool))
     e_grid = np.linspace(*np.quantile(eta_all[prob.in_range], [0.025, 0.975]), 200)
     width = 0.05 * (prob.A.max() - prob.A.min())
-    print("  B: effect by latent ability (mean over rotations)")
-    lo_y, hi_y = ylim_a
-    for c, a, name in [(COLORS[1], 0.6, "60% of the cap"), (COLORS[2], 0.75, "75% of the cap")]:
+
+    def eta_range(a):
         near = np.abs(prob.A - a) <= width
-        e_lo, e_hi = np.quantile(eta_all[near], [0.025, 0.975])
-        inside = (e_grid >= e_lo) & (e_grid <= e_hi)
-        curves = []
+        return np.quantile(eta_all[near], [0.025, 0.975]) if near.sum() > 30 else (np.nan, np.nan)
+
+    def surface(e, a):
+        out = []
         for fit, eta, ev in fits:
             zbar = float(np.mean(prob.Z[ev] @ fit.tau)) if prob.Z.shape[1] else 0.0
-            curves.append(fit.f(e_grid, np.full(len(e_grid), a)) + (a - a_ref) * zbar)
-        curves = np.array(curves)
-        m = curves.mean(0)
-        ax.fill_between(e_grid[inside], curves.min(0)[inside], curves.max(0)[inside], color=c, alpha=0.18, lw=0)
-        ax.plot(e_grid[inside], m[inside], color=c, lw=1.8, label=name)
-        ax.plot(e_grid, np.where(inside, np.nan, m), color=c, ls="--", lw=1.2)
-        lo_y, hi_y = min(lo_y, curves.min(0)[inside].min()), max(hi_y, curves.max(0)[inside].max())
-        print(f"    {name}: supported eta {e_lo:.2f} to {e_hi:.2f}; " +
+            out.append(fit.f(e, a) + (a - a_ref) * zbar)
+        return np.array(out)
+
+    fig = plt.figure(figsize=(9.2, 3.4))
+    gs = fig.add_gridspec(1, 3, wspace=0.42)
+
+    # A. baseline
+    ax = fig.add_subplot(gs[0, 0])
+    base = np.array([fit.baseline(e_grid, prob.X[ev].mean(0)) for fit, eta, ev in fits])
+    ax.fill_between(e_grid, base.min(0), base.max(0), color=COLORS[0], alpha=0.18, lw=0)
+    ax.plot(e_grid, base.mean(0), color=COLORS[0], lw=1.8)
+    ax.set_xlabel("latent ability $\\eta$")
+    ax.set_ylabel("weeks paid at the cap")
+    ax.set_ylim(12.5, 21)
+    _panel_title(ax, "A. Baseline $\\hat b$")
+    print("  A: baseline weeks at the cap: " + " ".join(
+        f"eta={e:+.1f}:{np.interp(e, e_grid, base.mean(0)):.1f}" for e in (-0.7, -0.4, 0.0, 0.3, 0.6)))
+
+    # B. effect against latent ability
+    ax = fig.add_subplot(gs[0, 1])
+    lo_y, hi_y = 0.0, 0.0
+    print("  B: effect by latent ability")
+    for c, a in zip(COLORS, (0.6, 0.75, 0.9)):
+        e_lo, e_hi = eta_range(a)
+        inside = (e_grid >= e_lo) & (e_grid <= e_hi)
+        cur = surface(e_grid, np.full(len(e_grid), a))
+        m = cur.mean(0)
+        ax.fill_between(e_grid[inside], cur.min(0)[inside], cur.max(0)[inside], color=c, alpha=0.18, lw=0)
+        ax.plot(e_grid[inside], m[inside], color=c, lw=1.8, label=f"{a:.0%} of the cap")
+        ax.plot(e_grid, np.where(inside, np.nan, m), color=c, ls="--", lw=1.1)
+        lo_y, hi_y = min(lo_y, cur.min(0)[inside].min()), max(hi_y, cur.max(0)[inside].max())
+        print(f"    {a:.2f}: supported eta {e_lo:.2f} to {e_hi:.2f}; " +
               " ".join(f"eta={e:+.1f}:{np.interp(e, e_grid, m):+.1f}" for e in (-0.7, -0.4, 0.0, 0.2, 0.4)))
     ax.axhline(0, color="#8a8984", lw=0.8)
     pad = 0.08 * (hi_y - lo_y)
@@ -225,30 +220,104 @@ def _cwbh(outcome):
     ax.set_xlabel("latent ability $\\eta$")
     ax.set_ylabel("weeks paid vs. the full cap")
     ax.legend(frameon=False, fontsize=8, loc="lower left", title="benefit", title_fontsize=8)
-    _panel_title(ax, "B. By latent ability")
+    _panel_title(ax, "B. Effect $\\hat\\alpha$ by $\\eta$")
+    ylim_b = ax.get_ylim()
 
-    # C. a lower replacement rate for everyone, cap fixed
-    ax, ax2 = fig.add_subplot(gs[:3, 2]), fig.add_subplot(gs[3, 2])
-    floor = prob.a_lo
-
-    def family(th, Q, idx):
-        return np.clip(th * np.exp(Q), floor, 1.0)
-    thetas = np.linspace(0.6, 1.0, 9)
-    vals, sup = ds.family_value(prob, family, thetas, seed=0, cluster=cfg["cluster"])
-    vals = vals - vals[:, [len(thetas) - 1]]
-    ax.fill_between(thetas, vals.min(0), vals.max(0), color=COLORS[0], alpha=0.18, lw=0)
-    ax.plot(thetas, vals.mean(0), color=COLORS[0], lw=1.8)
+    # C. effect against the benefit
+    ax = fig.add_subplot(gs[0, 2])
+    a_grid = np.round(np.arange(0.3, 1.0001, 0.025), 3)
+    rng = np.array([eta_range(a) for a in a_grid])
+    print("  C: effect by benefit")
+    for c, e in zip(["#3d3c38", "#7a7873", "#b4b2ab"], (-0.4, 0.0, 0.3)):
+        cur = surface(np.full(len(a_grid), e), a_grid)
+        m = cur.mean(0)
+        inside = (rng[:, 0] <= e) & (e <= rng[:, 1])
+        inside[a_grid >= 1.0] = True
+        ax.fill_between(a_grid[inside], cur.min(0)[inside], cur.max(0)[inside], color=c, alpha=0.18, lw=0)
+        ax.plot(a_grid[inside], m[inside], color=c, lw=1.8, label=f"$\\eta$ = {e:+.1f}")
+        ax.plot(a_grid, np.where(inside, np.nan, m), color=c, ls="--", lw=1.1)
+        print(f"    eta={e:+.1f}: supported benefits {a_grid[inside].min():.3f}-{a_grid[inside].max():.3f}; " +
+              " ".join(f"{a:g}:{v:+.1f}" for a, v in zip(a_grid, m) if np.isclose(a % 0.15, 0) or a in (0.45, 0.6, 0.75, 0.9)))
     ax.axhline(0, color="#8a8984", lw=0.8)
-    ax.set_ylabel("weeks paid vs. today")
-    ax.tick_params(labelbottom=False)
-    _panel_title(ax, "C. A lower rate for all")
-    ax2.plot(thetas, sup.mean(0), color=MUTED, lw=1.5)
-    ax2.set_ylim(0, 1.05)
-    ax2.set_ylabel("supported", fontsize=8)
-    ax2.set_xlabel("rate as a share of today's")
-    print("  C: theta, mean, rotation min, max, supported share")
-    for t, m_, lo_, hi_, sh in zip(thetas, vals.mean(0), vals.min(0), vals.max(0), sup.mean(0)):
-        print(f"    {t:5.2f} {m_:7.2f} {lo_:7.2f} {hi_:7.2f} {sh:6.3f}", flush=True)
+    ax.set_ylim(*ylim_b)
+    ax.set_xlim(0.38, 1.02)
+    ax.set_xlabel("benefit as a share of the cap")
+    ax.set_ylabel("weeks paid vs. the full cap")
+    ax.legend(frameon=False, fontsize=8, loc="lower right", title="latent ability", title_fontsize=8)
+    _panel_title(ax, "C. Effect $\\hat\\alpha$ by benefit")
+    return fig
+
+
+def cwbh_schedules():
+    """Paper figure (Treatment Intensities, Fig. 2): utility curves and schedules, weeks paid as the goal.
+
+    A: no budget: every rate scaled by theta, cap fixed (change in mean weeks paid, band over rotations).
+    B: budget-neutral family, cap kappa with the rate set by the budget (redesign_cwbh_weeks.json).
+    C: schedules against the earnings ratio: today's, the best family member, and the budget-neutral
+       schedules chosen bin by bin, free and monotone (redesign_cwbh_free.json); grey = supported benefits.
+    """
+    with plt.rc_context({"font.size": 10}):
+        cfg = app.cwbh(argparse.Namespace(x="linear", outcome="weeks_paid", seed=0))
+        prob = cfg["prob"]
+        floor = prob.a_lo
+        fig = plt.figure(figsize=(9.2, 3.4))
+        gs = fig.add_gridspec(1, 3, wspace=0.45, width_ratios=[1, 1, 1.3])
+
+        ax = fig.add_subplot(gs[0, 0])
+        thetas = np.linspace(0.6, 1.0, 9)
+        vals, sup = ds.family_value(prob, lambda th, Q, idx: np.clip(th * np.exp(Q), floor, 1.0), thetas, seed=0,
+                                    cluster=cfg["cluster"])
+        vals = vals - vals[:, [len(thetas) - 1]]
+        ax.fill_between(thetas, vals.min(0), vals.max(0), color=COLORS[0], alpha=0.18, lw=0)
+        ax.plot(thetas, vals.mean(0), color=COLORS[0], lw=1.8)
+        ax.axhline(0, color="#8a8984", lw=0.8)
+        ax.set_xlabel("rate as a share of today's")
+        ax.set_ylabel("weeks paid vs. today")
+        _panel_title(ax, "A. No budget")
+        print("  A: theta, mean, rotation min, max, supported share")
+        for t, m_, lo_, hi_, sh in zip(thetas, vals.mean(0), vals.min(0), vals.max(0), sup.mean(0)):
+            print(f"    {t:5.2f} {m_:7.2f} {lo_:7.2f} {hi_:7.2f} {sh:6.3f}", flush=True)
+
+        ax = fig.add_subplot(gs[0, 1])
+        fam = json.load(open(FIG / "redesign_cwbh_weeks.json"))
+        rows = [r for r in fam["rows"] if r["s"] == r["s"]]
+        k = np.array([r["x"] for r in rows])
+        ax.fill_between(k, [r["lo"] for r in rows], [r["hi"] for r in rows], color=COLORS[1], alpha=0.18, lw=0)
+        ax.plot(k, [r["mean"] for r in rows], "o-", color=COLORS[1], lw=1.8, ms=4.5)
+        ax.axhline(0, color="#8a8984", lw=0.8)
+        ax.set_xlim(0.83, 1.02)
+        ax.set_xticks(k)
+        ax.set_xticklabels([f"{r['x']:.2f}\n\u00d7{r['s']:.2f}" for r in rows], fontsize=8.5)
+        ax.set_xlabel("cap / today's, with rate multiplier")
+        ax.set_ylabel("weeks paid vs. today")
+        _panel_title(ax, "B. Budget-neutral family")
+
+        ax = fig.add_subplot(gs[0, 2])
+        free = json.load(open(FIG / "redesign_cwbh_free.json"))
+        e = np.array(free["edges"])
+        xs = np.exp(0.5 * (e[:-1] + e[1:]))
+        lo = np.array([np.nan if v is None else v for v in free["allowed_lo"]])
+        hi = np.array([np.nan if v is None else v for v in free["allowed_hi"]])
+        ax.fill_between(xs, lo, hi, step="mid", color=GRID, alpha=0.8, lw=0, label="supported")
+        q = np.exp(np.linspace(e[0], e[-1], 300))
+        ax.plot(q, np.clip(q, floor, 1.0), color=MUTED, lw=1.5, label="today")
+        best = fam["best"]
+        ax.plot(q, np.clip(best["s"] * q, floor, best["x"]), color=COLORS[1], lw=1.5, ls="--",
+                label=f"family (cap {best['x']:.2f}, \u00d7{best['s']:.2f})")
+        ax.step(xs, np.mean([r["dose"] for r in free["free"]], 0), where="mid", color=COLORS[0], lw=1.8,
+                label="free")
+        ax.step(xs, np.mean([r["dose"] for r in free["monotone"]], 0), where="mid", color=COLORS[2], lw=1.5,
+                label="free, monotone")
+        ax.set_xscale("log")
+        ticks = [0.3, 0.5, 0.7, 1.0, 1.5, 2.0, 3.0]
+        ax.set_xticks(ticks)
+        ax.set_xticklabels([f"{t:g}" for t in ticks])
+        ax.minorticks_off()
+        ax.set_xlabel("earnings ratio (log scale)")
+        ax.set_ylabel("benefit as a share of the cap")
+        ax.set_ylim(0, 1.04)
+        ax.legend(frameon=False, fontsize=7.5, loc="lower right", handlelength=1.6)
+        _panel_title(ax, "C. Budget-neutral schedules")
     return fig
 
 
@@ -340,7 +409,7 @@ def lcff(subject):
 
 
 MAKERS = {"lcff": lambda: lcff("ela"), "lcff_math": lambda: lcff("math"), "ui": lambda: ui("weeks"), "ui_benefits": lambda: ui("benefits"),
-          "cwbh": lambda: cwbh("weeks_paid"), "cwbh_duration": lambda: cwbh("duration"), "taxi2": taxi2, "lending": lending,
+          "cwbh": lambda: cwbh("weeks_paid"), "cwbh_sched": cwbh_schedules, "cwbh_duration": lambda: cwbh("duration"), "taxi2": taxi2, "lending": lending,
           "dsh": lambda: dsh("log_cases"), "dsh_exit": lambda: dsh("exit")}
 
 

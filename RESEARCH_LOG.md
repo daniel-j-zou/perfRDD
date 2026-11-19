@@ -74,6 +74,28 @@ under the computing rule in PROJECT_SCOPE.md; this run had already started on th
 - **Paper** (manuscript 3396717): §5.2 paragraph on full-sample reuse; Appendix 7 table
   `tab:ds-dep-path` and paragraph; two sentences in §5.6.
 
+## 2026-11-19 - Treatment Intensities Section 6: fitted b and alpha, then utility and schedules (Claude)
+
+Author: show the fits of the nonparametric parts first, then the utility curves and schedules by
+approach, with the budget-neutral family made explicit. Code: `OutcomeFit` in
+`methods/dose_schedule.py` now keeps the baseline coefficients (`bcoef`, `beta1`, optional, default
+None) and has `baseline(eta, xbar)` = b-hat(eta) + xbar'beta1-hat; the dose-schedule unit tests pass.
+`dose_schedule_figures.py cwbh` draws the fits (seed 0, main specification, same rotation fits as
+before) and `cwbh_sched` draws the schedules from `redesign_cwbh_weeks.json` and
+`redesign_cwbh_free.json` plus a recomputed no-budget curve. Values read off the new Fig. 1, mean over
+rotations:
+- **Baseline at the cap** (average covariates): 16.5, 16.3, 15.9, 15.3, 14.8 weeks at eta = -0.7, -0.4,
+  0, 0.3, 0.6 (mean weeks under today's benefits 14.2). The rotation band is wide below eta = -0.6,
+  where few claimants reach the cap.
+- **Effect at 90% of the cap** (new): +0.1, -0.9, -1.3, -1.4 weeks at eta = -0.4, 0, 0.2, 0.4
+  (supported eta -0.57 to 0.58). 60% and 75% as in the previous entry.
+- **Effect against the benefit** at eta = -0.4 / 0 / 0.3: -2.1 / -4.3 / -6.0 weeks at 60% of the cap,
+  -0.8 / -2.5 / -3.2 at 75%, +0.1 / -0.9 / -1.4 at 90%; benefits supported down to 0.30 / 0.35 / 0.575.
+- **Schedules** (unchanged numbers, now in one figure): the free schedule gives the lowest supported
+  benefit below an earnings ratio of 0.47 in every rotation (the monotone one below 0.59), varies by
+  rotation at 0.47-0.65, and raises 0.65-0.99 to 0.95 of the cap, the top of the supported range there.
+Manuscript: see the CHANGELOG entry "Section 6 reorganized into fits, then utility and schedules".
+
 ## 2026-11-19 - Treatment Intensities: budget without c; UI Fig. 1 redrawn in plain words (Claude)
 
 Author: c is redundant once total cost is budgeted ("Fix it"), and 6.2 was hard to read. The

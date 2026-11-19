@@ -124,6 +124,12 @@ class OutcomeFit:
     tau: np.ndarray
     basis: DoseBasis
     extra: Dict
+    bcoef: np.ndarray = None                   # coefficients of the baseline spline b in eta
+    beta1: np.ndarray = None                   # coefficients of X
+
+    def baseline(self, eta, xbar):
+        """b_hat(eta) + xbar'beta1_hat: mean outcome at the reference dose at latent part eta."""
+        return bspline(eta, *self.ebox, self.K) @ self.bcoef + float(np.asarray(xbar) @ self.beta1)
 
     def W(self, eta):
         """Rows give f_hat(eta_i, .) in dose-basis coordinates."""
@@ -157,7 +163,7 @@ def outcome_fit(prob: DoseProblem, eta, idx, K, k, extra_cols=None, cluster=None
         cl = None if cluster is None else cluster[use]
         extra = {"coef": coef[j0:], "se": np.array([_hc1_se(D, resid, j, cl) for j in range(j0, D.shape[1])]),
                  "n_fit": int(use.sum())}
-    return OutcomeFit(ebox, K, k, Wf, tau, prob.basis, extra)
+    return OutcomeFit(ebox, K, k, Wf, tau, prob.basis, extra, bcoef=coef[:nP], beta1=coef[nP:nP + p])
 
 
 def bin_edges(Q, n_bins):
