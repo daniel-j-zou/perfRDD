@@ -5,10 +5,13 @@ seed 1, four rotations). The probability route (logit_emp) scores W = F(a1) - F(
 cost c in survival points; the log-odds route (logit_lo) scores W = a1 - a0 = c1(eta) - c0(eta)
 + X_e'beta2, affine in X, with the paper's estimator and a cost in log-odds units.
 
-Reads experiments/runs/binary_outcome_routes_vlbw_wide{,_logodds}_c*/summary.json and
-writes binary_vlbw_logodds_compare.png and a table of optima to the folder given:
+Reads experiments/runs/binary_outcome_routes_vlbw_wide{TAG}{,_logodds}_c*/summary.json (and the
+pooled 1200-1800 g runs with the same TAG) and writes binary_vlbw_logodds_compare.png and a table of
+optima to the folder given. TAG is empty for the runs with the earlier ridge (2026-11-12) and
+``_r0`` for the runs without a penalty (2026-11-19):
 
     python -m experiments.scripts.binary_vlbw_logodds_compare experiments/runs/binary_vlbw_logodds_compare
+    python -m experiments.scripts.binary_vlbw_logodds_compare experiments/runs/binary_vlbw_logodds_compare_r0 _r0
 """
 import glob
 import json
@@ -23,6 +26,7 @@ import matplotlib.pyplot as plt  # noqa: E402
 
 R = Path(__file__).resolve().parents[1] / "runs"
 OUT = Path(sys.argv[1] if len(sys.argv) > 1 else ".")
+TAG = sys.argv[2] if len(sys.argv) > 2 else ""
 OUT.mkdir(parents=True, exist_ok=True)
 BG = "#fcfcfb"
 COLS = ["#2a78d6", "#eb6834", "#2c9a5f", "#b03a48", "#7a5bb5", "#8a8a85"]
@@ -37,7 +41,9 @@ def runs(prefix, route):
     out = {}
     for f in glob.glob(str(R / f"{prefix}_c*" / "summary.json")):
         c = Path(f).parent.name.split("_c")[-1]
-        rows = [r for r in json.load(open(f)) if r["route"] == route]
+        # some runs were started with --routes "logit_sp logit_emp" as one argument; that label
+        # runs the empirical-tails branch, so it counts as logit_emp
+        rows = [r for r in json.load(open(f)) if r["route"].split()[-1] == route]
         if rows:
             out[float(c)] = rows[0]
     return dict(sorted(out.items()))
@@ -56,12 +62,12 @@ def crossings(w, tau, c):
     return out
 
 
-prob = runs("binary_outcome_routes_vlbw_wide", "logit_emp")
+prob = runs(f"binary_outcome_routes_vlbw_wide{TAG}", "logit_emp")
 # the main costs were run on the 1200-1800 g candidate set; same data, folds and fit
-for c, r in runs("binary_outcome_routes_vlbw_pooled", "logit_emp").items():
+for c, r in runs(f"binary_outcome_routes_vlbw_pooled{TAG}", "logit_emp").items():
     prob.setdefault(c, r)
 prob = dict(sorted(prob.items()))
-lo = runs("binary_outcome_routes_vlbw_wide_logodds", "logit_lo")
+lo = runs(f"binary_outcome_routes_vlbw_wide{TAG}_logodds", "logit_lo")
 p0, l0 = prob[0.0], lo[0.0]
 w = -np.array(p0["curves"])                       # threshold in grams, treated below
 tp, tl = np.array(p0["tau"]), np.array(l0["tau"])
