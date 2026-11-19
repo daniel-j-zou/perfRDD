@@ -9,6 +9,28 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - Follow-up: review-6 m29 proof closed; m39, m59; o13 and o14 removed (Claude)
+
+Follow-up to "Review-6 round 2" (2026-11-19). Author: "m39 please fix for me. m29 fix the
+proof. m59 please fix too. the others you asked me to check just remove for now".
+Manuscript 67795cb.
+- **m29.** The pseudo-target proof bounded two terms only for units with
+  ||X~|| ||delta|| <= K^{-1}. It now averages over those units and bounds the rest by
+  Cauchy-Schwarz with E||X~||^4. The statement adds:
+  - alpha-dagger and b-dagger extended to C^3 on J_r;
+  - 1(eta in J_r) in the first moment condition;
+  - the boundary supremum at D_e.
+
+  A Fable subagent drafted it; Claude checked it against the proof and compiled.
+- **m39.** Brascamp and Lieb (1976), Massart (1990) and Karlin (1968) are cited, with
+  entries checked against J. Funct. Anal. 22(4) 366-389, Ann. Probab. 18(3) 1269-1283 and
+  Stanford University Press.
+- **m59.** The checks on 2026-11-19 found no journal version for Wibisono et al., Yata,
+  Zhang, Ben-Michael and Imai, or Rokkanen. Porter (2003) is Jack R. Porter.
+- **Removed from the paper for now:** the taxi vartheta_J value (o13) and the
+  rotated-average sentence (o14). `experiments/scripts/taxi_theta_J.py` stays in the
+  repository.
+
 ## 2026-11-19 - Follow-up: VLBW on the log-odds scale without the ridge (Claude)
 
 Follow-up to "VLBW: the effect on the log-odds scale against the probability scale" (2026-11-12),
