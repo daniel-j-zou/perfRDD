@@ -74,6 +74,20 @@ under the computing rule in PROJECT_SCOPE.md; this run had already started on th
 - **Paper** (manuscript 3396717): §5.2 paragraph on full-sample reuse; Appendix 7 table
   `tab:ds-dep-path` and paragraph; two sentences in §5.6.
 
+## 2026-11-19 - Treatment Intensities: budget without c; UI Fig. 1 redrawn in plain words (Claude)
+
+Author: c is redundant once total cost is budgeted ("Fix it"), and 6.2 was hard to read. The
+budget-neutral solver already had no c (`free_redesign` minimizes weeks minus lambda times spending);
+the draft's 5.3 now matches it, with lambda read as the value of a unit of spending that the budget
+implies. `dose_schedule_figures.py cwbh` redraws Fig. 1 from the same fits (seed 0, main
+specification): (A) Table 2 as lines, reproducing every cell including the two at coverage 84.9%,
+which Table 2 rounds to 85%; (B) effect by latent ability with the rotation range as a band, now
+read only on the supported part: at 60% of the cap -0.5, -2.1, -4.3, -5.6 weeks at eta = -0.7, -0.4,
+0, 0.2 (supported to 0.35; the draft's earlier "-6 at eta = 0.4" was an extrapolated value); at 75%
++0.5, -0.8, -2.5, -2.9, -3.5 at eta = -0.7, -0.4, 0, 0.2, 0.4; (C) a common rate cut, cap fixed, no
+budget: -0.56, -1.45, -3.01, -5.58 weeks at 90, 80, 70, 60% of today's rate (rotation range at 60%:
+-10.1 to -2.8), supported share 0.95 falling to 0.85. Manuscript 16a9912.
+
 ## 2026-11-19 - UI rescaling leaves eta unchanged except in 6 cells; Treatment Intensities edits (Claude)
 
 Checked why measuring the UI score relative to each claim's own schedule is harmless. The rescaling

@@ -141,27 +141,114 @@ def ui(outcome):
     return fig
 
 
+BLUES = ["#86b6ef", "#5598e7", "#2a78d6", "#1c5cab", "#104281"]   # reference ordinal ramp, steps 250-650
+MUTED = "#5f5e5a"
+
+
+def _panel_title(ax, text):
+    ax.set_title(text, loc="left", fontsize=10.5, fontweight="bold")
+
+
 def cwbh(outcome):
+    with plt.rc_context({"font.size": 10}):
+        return _cwbh(outcome)
+
+
+def _cwbh(outcome):
+    """Paper figure (Treatment Intensities, Fig. 1), in plain words.
+
+    A: Table 2 as a picture: change in weeks paid against the full cap, one line per score bin, cells
+       shown under Table 2's rule (coverage >= 85%, rotation sd <= 2 weeks).
+    B: the same effect by latent ability, 60% and 75% of the cap; band = range over the three
+       rotations where the latent ability is supported, dashed mean where extrapolated.
+    C: every claimant's replacement rate scaled by theta with the cap fixed (no budget): change in
+       mean weeks paid, band = range over rotations; lower strip = share of claimants supported.
+    """
     args = argparse.Namespace(x="linear", outcome=outcome, seed=0)
     cfg = app.cwbh(args)
     prob = cfg["prob"]
+    a_ref = prob.basis.a_ref
+    fig = plt.figure(figsize=(9.2, 3.6))
+    gs = fig.add_gridspec(4, 3, hspace=0.7, wspace=0.42)
+
+    # A. by score bin
+    ax = fig.add_subplot(gs[:, 0])
+    est = ds.estimate(prob, seed=0, a_grid=cfg["a_grid"], score_edges=cfg["edges"], n_bins=cfg["n_bins"] or 10,
+                      cluster=cfg["cluster"])
+    _, eta_all, _ = ds.first_stage(prob.Q, prob.X, np.ones(len(prob.Q), bool))
+    cov = ds.coverage(eta_all, prob.A, prob.Q, est["edges"], est["a_grid"], a_ref, levels=None, band=0.04)
+    j0 = int(np.argmin(np.abs(est["a_grid"] - a_ref)))
+    eff = est["psi"] - est["psi"][:, [j0]]
+    sd = (est["psi_rot"] - est["psi_rot"][:, :, [j0]]).std(0)
+    print("  A: change in weeks vs the cap by score bin (Table 2 cells)")
+    for c, i in zip(BLUES, range(1, 6)):
+        ok = (np.round(100 * cov[i]) >= 85) & (sd[i] <= 2.0)      # Table 2's rule, coverage rounded
+        ok[j0] = True
+        lo, hi = np.exp(est["edges"][i:i + 2])
+        ax.plot(est["a_grid"][ok], eff[i][ok], "o-", color=c, ms=4.5, lw=1.6, label=f"{lo:.2f}-{hi:.2f}")
+        print("    %.2f-%.2f: " % (lo, hi) + " ".join(f"{a:g}:{e:+.1f}" for a, e, o in zip(est["a_grid"], eff[i], ok) if o))
+    ax.axhline(0, color="#8a8984", lw=0.8)
+    ax.set_xlim(0.38, 1.03)
+    ax.set_xlabel("benefit as a share of the cap")
+    ax.set_ylabel("weeks paid vs. the full cap")
+    ax.legend(frameon=False, fontsize=8, title="earnings ratio", title_fontsize=8,
+              loc="upper left", handlelength=1.2)
+    _panel_title(ax, "A. By score bin")
+    ylim_a = ax.get_ylim()
+
+    # B. by latent ability
+    ax = fig.add_subplot(gs[:, 1])
     fits = rotation_fits(prob, cluster=cfg["cluster"])
-    fig = plt.figure(figsize=(11, 3.6))
-    gs = fig.add_gridspec(4, 3, hspace=0.6, wspace=0.35)
-    alpha_panel(fig.add_subplot(gs[:, 0]), prob, fits, [0.45, 0.6, 0.75], "weeks", lambda a: f"benefit = {a:g} x cap")
-    edges = cfg["edges"]
-    bins = [(1, "s/kink %.2f-%.2f" % tuple(np.exp(edges[1:3]))), (4, "s/kink %.2f-%.2f" % tuple(np.exp(edges[4:6]))),
-            (6, "s/kink %.2f-%.2f" % tuple(np.exp(edges[6:8])))]
-    psi_panel(fig.add_subplot(gs[:, 1]), prob, cfg, bins, "weeks", "weekly benefit as a share of the cap")
+    e_grid = np.linspace(*np.quantile(eta_all[prob.in_range], [0.025, 0.975]), 200)
+    width = 0.05 * (prob.A.max() - prob.A.min())
+    print("  B: effect by latent ability (mean over rotations)")
+    lo_y, hi_y = ylim_a
+    for c, a, name in [(COLORS[1], 0.6, "60% of the cap"), (COLORS[2], 0.75, "75% of the cap")]:
+        near = np.abs(prob.A - a) <= width
+        e_lo, e_hi = np.quantile(eta_all[near], [0.025, 0.975])
+        inside = (e_grid >= e_lo) & (e_grid <= e_hi)
+        curves = []
+        for fit, eta, ev in fits:
+            zbar = float(np.mean(prob.Z[ev] @ fit.tau)) if prob.Z.shape[1] else 0.0
+            curves.append(fit.f(e_grid, np.full(len(e_grid), a)) + (a - a_ref) * zbar)
+        curves = np.array(curves)
+        m = curves.mean(0)
+        ax.fill_between(e_grid[inside], curves.min(0)[inside], curves.max(0)[inside], color=c, alpha=0.18, lw=0)
+        ax.plot(e_grid[inside], m[inside], color=c, lw=1.8, label=name)
+        ax.plot(e_grid, np.where(inside, np.nan, m), color=c, ls="--", lw=1.2)
+        lo_y, hi_y = min(lo_y, curves.min(0)[inside].min()), max(hi_y, curves.max(0)[inside].max())
+        print(f"    {name}: supported eta {e_lo:.2f} to {e_hi:.2f}; " +
+              " ".join(f"eta={e:+.1f}:{np.interp(e, e_grid, m):+.1f}" for e in (-0.7, -0.4, 0.0, 0.2, 0.4)))
+    ax.axhline(0, color="#8a8984", lw=0.8)
+    pad = 0.08 * (hi_y - lo_y)
+    ax.set_ylim(lo_y - pad, hi_y + pad)
+    ax.set_xlabel("latent ability $\\eta$")
+    ax.set_ylabel("weeks paid vs. the full cap")
+    ax.legend(frameon=False, fontsize=8, loc="lower left", title="benefit", title_fontsize=8)
+    _panel_title(ax, "B. By latent ability")
+
+    # C. a lower replacement rate for everyone, cap fixed
+    ax, ax2 = fig.add_subplot(gs[:3, 2]), fig.add_subplot(gs[3, 2])
     floor = prob.a_lo
 
     def family(th, Q, idx):
         return np.clip(th * np.exp(Q), floor, 1.0)
     thetas = np.linspace(0.6, 1.0, 9)
-    u_panels(fig.add_subplot(gs[:3, 2]), fig.add_subplot(gs[3, 2]), prob, cfg, family, thetas, 1.0, "weeks",
-             "replacement-rate multiplier theta")
-    lab = {"weeks_paid": "weeks of UI paid", "duration": "claimed duration (weeks)"}[outcome]
-    fig.suptitle(f"UI, CWBH (LA, ID, MO, NM 1976-83, 19 schedules): Y = {lab}", fontsize=10, x=0.01, ha="left")
+    vals, sup = ds.family_value(prob, family, thetas, seed=0, cluster=cfg["cluster"])
+    vals = vals - vals[:, [len(thetas) - 1]]
+    ax.fill_between(thetas, vals.min(0), vals.max(0), color=COLORS[0], alpha=0.18, lw=0)
+    ax.plot(thetas, vals.mean(0), color=COLORS[0], lw=1.8)
+    ax.axhline(0, color="#8a8984", lw=0.8)
+    ax.set_ylabel("weeks paid vs. today")
+    ax.tick_params(labelbottom=False)
+    _panel_title(ax, "C. A lower rate for all")
+    ax2.plot(thetas, sup.mean(0), color=MUTED, lw=1.5)
+    ax2.set_ylim(0, 1.05)
+    ax2.set_ylabel("supported", fontsize=8)
+    ax2.set_xlabel("rate as a share of today's")
+    print("  C: theta, mean, rotation min, max, supported share")
+    for t, m_, lo_, hi_, sh in zip(thetas, vals.mean(0), vals.min(0), vals.max(0), sup.mean(0)):
+        print(f"    {t:5.2f} {m_:7.2f} {lo_:7.2f} {hi_:7.2f} {sh:6.3f}", flush=True)
     return fig
 
 
