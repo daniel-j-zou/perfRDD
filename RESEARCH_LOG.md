@@ -9,6 +9,40 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - GLM note rewritten as a proposal for the extension; fitted b and alpha on VLBW (Claude)
+
+Author: the note should assume readers know `differing_slopes.tex` but doubt the GLM extension, and
+should read "as an extension ... a proposal of why this extension works". It should answer: why the
+approach continues when Y is binary, how alpha and b are estimated, why they are estimated
+consistently, the ways to define W, and how U is estimated under each, with "a potential dataset as a
+proof of concept". Manuscript 98d89d9; details in `../manuscript/CHANGELOG.md`.
+- **Structure.** One section per question, then the very-low-birth-weight proof of concept. The
+  root-n limit with its simulation and the earlier ridge-fit application are hidden behind
+  `\showdeferredfalse`, not deleted; the appendices stay hidden. 13 pages.
+- **New fit figure** (`experiments/scripts/binary_vlbw_components.py`, runs in
+  `experiments/runs/binary_vlbw_components/`). Pooled 1995-2002, no penalty, seed 1, the four
+  rotations, 12 spline functions per treatment state.
+  - Over the window (residuals -45 to 651.5 g), b-hat falls from 4.12 to 2.36, and alpha-hat stays
+    between 1.27 and 1.67.
+  - The rotations agree within 0.20 (b-hat) and 0.33 (alpha-hat). The gestation slope of the effect
+    is 0.64-0.78 per sd across rotations; the 0.78 reported before is rotation 1 alone.
+  - At average covariates, survival is 0.914-0.984 without the care and 0.974-0.996 with it, a gain
+    of 1.2-6.4 points.
+- **Proof-of-concept numbers** are the no-ridge runs (entries of 2026-11-17 and 2026-11-19).
+  - Probability effect at the threshold: 4.3, 3.2 and 2.2 points at 1200, 1500 and 1800 g pooled; 3.6,
+    2.8 and 2.0 in 2002.
+  - Log-odds effect: 0.66, 1.15 and 1.64 pooled; 0.59, 1.14 and 1.62 in 2002.
+  - Optimum on the probability scale: the edge for costs up to 2 points; 1546 g pooled and 1445 g in
+    2002 at 3 points. On the log-odds scale it is always an edge.
+  - The linear probability model (unaffected by the ridge): 24.1 points at 1800 g pooled, and the
+    edge at every cost.
+- **Wording change for Codex.** The note now writes W on two scales and states that the probability
+  scale is the target, as decided earlier on 2026-11-19.
+
+— Claude
+
+---
+
 ## 2026-11-18 - Simulations for the predicted referee concerns; Appendix 6 rerun with the four-role estimator (Claude)
 
 Author, 2026-11-18. First: "Delete the archives, and do the taxi simulation. I would prefer
