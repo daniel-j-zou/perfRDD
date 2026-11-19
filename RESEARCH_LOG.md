@@ -9,6 +9,44 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - UI: one schedule for everyone; pooling the states is defensible with state as a modifier (Claude)
+
+Author: "let's say I only consider one state ... It would make the theory easier", then "OK,
+change the writeup to this for now" and "make sure that this data choice is defensible." Script
+`experiments/scripts/dose_schedule_by_state.py` (output `simulations/dose_schedule/ui_by_state.json`;
+seed 0). Written into `manuscript/dose_schedule_applications.tex` (Overleaf 80a2cc8, CHANGELOG
+2577904/72fcf88): Section 1.1 and new Section 2.4.
+
+- **One schedule.** Measured relative to each state-period schedule, every claim faces
+  A = min(exp(Q), 1) above a floor; 0.03% of the trimmed sample is at a floor. The pooled sample
+  is the single-schedule design of the theory.
+- **One state alone fails** below about 75% of the cap: LA and ID give -6 to -10 weeks at 60%
+  (two to three times pooled, rotation sd up to 8); MO, NM and the MO 1979-83 schedule give tens
+  to thousands of weeks with coverage 85-94%. Smaller bases (K = 4, k = 3, l = 2) steady 75-90%
+  in LA, ID and NM only.
+- **Correction of my own explanation in chat:** I first told the author that single states fail
+  because few low-eta claimants reach the cap (the reference region). The data contradict it:
+  Missouri has the most claimants at the cap in the lowest eta fifth (16%, against 0-4%) and
+  fails worst. The failures track sparse cells of the tensor spline instead: fewest claims per
+  cell with the small bases 32 pooled, 21 LA, 9 ID, 8 NM, 2 MO, 1 for the MO schedule (MO has 65%
+  of claims at the cap, leaving few below it). Coverage checks the eta range, not cell counts, so
+  it does not flag this. The identification argument for a reference region (below the cap
+  log A = T + eta, so a response linear in log A is confounded with the linear baseline) stands
+  as theory.
+- **Pooling test:** adding (A - 1) x state to the outcome fit (Idaho reference), over 3 seeds x 3
+  score folds: Missouri +4.6 to +6.0 (z 8-10), New Mexico +1.4 to +2.5, Louisiana +0.7 to +2.0. A
+  common response across states is rejected.
+- **State as a modifier** (Z = age, sex, education, state): transported effects at 0.59-1.12 of
+  the kink move by up to 17% (60% of cap: -3.1 to -4.6 weeks against -2.9 to -3.9; 75%: -1.6 to
+  -2.6 against -1.7 to -2.4). Each state's own claimants at 0.59-0.91: ID -3.0, LA -3.8, MO -3.7,
+  NM -3.4 weeks at 60% of the cap, 22-29% of mean weeks. The rest of the note still uses the
+  original Z; the redesigns, free schedules and cross-check were not rerun with state in Z
+  (open: switch the main specification).
+- The first version of the script lumped claims outside 0.44-1.40 of the kink into the end bins;
+  fixed with outer bins; the middle-bin numbers cited are unchanged.
+
+— Claude
+
 ## 2026-11-19 - GLM note rewritten as a proposal for the extension; fitted b and alpha on VLBW (Claude)
 
 Author: the note should assume readers know `differing_slopes.tex` but doubt the GLM extension, and
