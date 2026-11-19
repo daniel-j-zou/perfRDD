@@ -373,38 +373,65 @@ def comparisons(seed, out, spec=MAIN, sample=SAMPLE):
 
 
 def paper_figure(result, out, spec):
-    """The Section 6 figure for one specification: tips relative to the $15 threshold
-    against the threshold (left) and alpha-hat against the latent ability (right), with
-    95% pointwise percentile bands from the bootstrap."""
+    """The Section 6 figure for one specification: (a) tips relative to the $15 threshold
+    against the threshold, with an inset on $11-$16 where the gain is; (b) alpha-hat
+    against the latent ability on the trim window; 95% pointwise percentile bands from the
+    bootstrap. Drawn at its printed size (the paper's text width, about 6 in), one colour
+    for both curves, line styles for the reference lines, panels labelled (a) and (b)
+    (review-6 items m42 and o16, 2026-11-19)."""
     r = result["specs"][spec]
     grid = np.array(result["fare_grid"])
-    fig, (a1, a2) = plt.subplots(1, 2, figsize=(10, 3.6))
-    U = 100 * np.array(r["U"])
-    if "boot" in r:
-        lo, hi = (100 * np.array(v) for v in r["boot"]["U_band95"])
-        a1.fill_between(grid, lo, hi, color="C0", alpha=0.25, lw=0)
-    a1.plot(grid, U, color="C0", lw=1.6)
-    a1.axhline(0, color="k", lw=0.7)
-    a1.axvline(r["phi"], color="C3", ls="--", lw=1)
-    a1.axvline(M.FARE0, color="0.5", ls=":", lw=1)
-    allhours = result.get("sample") == "allhours"
-    a1.set_xlabel("threshold on fare + surcharge (\\$)" if allhours else "fare threshold (\\$)")
-    a1.set_ylabel("tips vs the \\$15 threshold (cents per ride)")
-    scale = r.get("lambda") or 1.0      # paper writes Q = sqrt(fare): eta is lambda x code's eta
-    x, al = scale * np.array(r["eta_grid"]), np.array(r["alpha"])
-    if "boot" in r:
-        lo, hi = (np.array(v) for v in r["boot"]["alpha_band95"])
-        a2.fill_between(x, lo, hi, color="C2", alpha=0.25, lw=0)
-    a2.plot(x, al, color="C2", lw=1.6)
-    a2.axhline(0, color="k", lw=0.7)
-    unit = r"($\sqrt{\$}$)" if r.get("lambda", 1.0) == 0.5 else r"(\$)"
-    a2.set_xlabel(r"latent ability $\eta$ " + unit)
-    a2.set_ylabel(r"$\hat\alpha(\eta)$ (\$ per ride)")
-    fig.tight_layout()
-    fig.savefig(out / f"taxi_section6_{spec}.png", dpi=200, bbox_inches="tight")
-    if spec == MAIN:                     # the file the paper includes
-        fig.savefig(out / "taxi_section6.png", dpi=200, bbox_inches="tight")
-    plt.close(fig)
+    rc = {"font.size": 8, "axes.labelsize": 8, "xtick.labelsize": 7, "ytick.labelsize": 7,
+          "axes.linewidth": 0.6, "xtick.major.width": 0.6, "ytick.major.width": 0.6}
+    curve, band = "#1f5f9e", "#1f5f9e"
+    with plt.rc_context(rc):
+        fig, (a1, a2) = plt.subplots(1, 2, figsize=(6.3, 2.6))
+        U = 100 * np.array(r["U"])
+        has_boot = "boot" in r
+        if has_boot:
+            ulo, uhi = (100 * np.array(v) for v in r["boot"]["U_band95"])
+
+        def draw_U(ax, lw):
+            if has_boot:
+                ax.fill_between(grid, ulo, uhi, color=band, alpha=0.3, lw=0)
+            ax.plot(grid, U, color=curve, lw=lw)
+            ax.axhline(0, color="k", lw=0.5)
+            ax.axvline(r["phi"], color="k", ls="--", lw=0.9)
+            ax.axvline(M.FARE0, color="0.35", ls=":", lw=1.1)
+
+        draw_U(a1, 1.4)
+        allhours = result.get("sample") == "allhours"
+        a1.set_xlabel("threshold on fare + surcharge (\\$)" if allhours else "fare threshold (\\$)")
+        a1.set_ylabel("expected tip relative to \\$15\n(cents per ride)")
+        a1.set_title("(a)", loc="left", fontsize=9, fontweight="bold")
+        if not allhours:
+            a1.set_xticks([6, 9, 12, 15, 18, 21, 24])
+        ins = a1.inset_axes([0.56, 0.09, 0.42, 0.50])
+        draw_U(ins, 1.2)
+        ins.set_xlim(11, 16)
+        ins.set_ylim(-1.0, 1.2)
+        ins.set_xticks([11, 12, 13, 14, 15, 16])
+        ins.set_yticks([-1, -0.5, 0, 0.5, 1])
+        ins.tick_params(labelsize=6, length=2, pad=1)
+        ins.set_facecolor("white")
+        for side in ins.spines.values():
+            side.set_linewidth(0.6)
+        scale = r.get("lambda") or 1.0  # paper writes Q = sqrt(fare): eta is lambda x code's eta
+        x, al = scale * np.array(r["eta_grid"]), np.array(r["alpha"])
+        if has_boot:
+            lo, hi = (np.array(v) for v in r["boot"]["alpha_band95"])
+            a2.fill_between(x, lo, hi, color=band, alpha=0.3, lw=0)
+        a2.plot(x, al, color=curve, lw=1.4)
+        a2.axhline(0, color="k", lw=0.5)
+        unit = r"($\sqrt{\$}$)" if r.get("lambda", 1.0) == 0.5 else r"(\$)"
+        a2.set_xlabel(r"latent ability $\eta$ " + unit)
+        a2.set_ylabel(r"$\hat\alpha(\eta)$ (\$ per ride)")
+        a2.set_title("(b)", loc="left", fontsize=9, fontweight="bold")
+        fig.tight_layout(w_pad=1.5)
+        fig.savefig(out / f"taxi_section6_{spec}.png", dpi=300, bbox_inches="tight")
+        if spec == MAIN:                     # the file the paper includes
+            fig.savefig(out / "taxi_section6.png", dpi=300, bbox_inches="tight")
+        plt.close(fig)
 
 
 def figures(result, out, specs):
