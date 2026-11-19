@@ -87,35 +87,62 @@ def ui(args):
                      "bonus arms and schedule groups in X")
 
 
-def cwbh(args):
-    """CWBH claims (LA, ID, MO, NM 1976-83, Landais 2015): weekly benefit / cap on log(score / cap kink),
-    19 state-period schedules with the same shape; Y = weeks of UI paid (default)."""
-    from experiments.datasets.ui_cwbh import adapter as ad
-    s = ad.load_dose(outcome=args.outcome or "weeks_paid")
-    fn = s.feature_names
+def _cwbh_sample(s, spec):
+    """Rows kept and the dose for the CWBH loaders.
+
+    spec "main" (from 2026-11-19): the dose is the schedule itself, A = min(score / cap kink, 1),
+    without the rounding to whole dollars (on average $0.48 a week), so A is one function of the
+    score for every claim; the 34 claims at a state floor are dropped. spec "v1": the rounded
+    formula benefit / cap, floors kept (the numbers logged before 2026-11-19).
+    """
     lq = np.log(s.Q)
     keep = (lq > np.quantile(lq, 0.01)) & (lq < np.quantile(lq, 0.99))
+    if spec == "v1":
+        return keep, s.extras["A"]
+    at_floor = (s.extras["A"] <= s.extras["min_b"] / s.extras["max_b"] + 1e-9) & (s.Q < s.extras["min_b"] / s.extras["max_b"])
+    return keep & ~at_floor, np.minimum(s.Q, 1.0)
+
+
+def _cwbh_Z(s, spec):
+    """Modifiers: age, sex, education, and (spec "main") state indicators, Idaho the reference."""
+    fn = s.feature_names
     Z = s.X[:, [fn.index(c) for c in ("age", "male", "educ")]]
-    A = s.extras["A"]
+    if spec == "v1":
+        return Z
+    st = s.extras["state"]
+    return np.column_stack([Z] + [(st == g).astype(float) for g in ("LA", "MO", "NM")])
+
+
+def cwbh(args):
+    """CWBH claims (LA, ID, MO, NM 1976-83, Landais 2015): weekly benefit / cap on log(score / cap kink).
+    Measured relative to each state-period schedule, every claim faces one schedule, A = min(e^Q, 1);
+    Y = weeks of UI paid (default). Modifiers: age, sex, education and state (spec "main")."""
+    from experiments.datasets.ui_cwbh import adapter as ad
+    spec = getattr(args, "cwbh_spec", "main")
+    s = ad.load_dose(outcome=args.outcome or "weeks_paid")
+    keep, A = _cwbh_sample(s, spec)
+    Z = _cwbh_Z(s, spec)
+    lq = np.log(s.Q)
     a_lo = float(np.floor(100 * A[keep].min()) / 100)
     prob = ds.DoseProblem(lq[keep], s.X[keep], A[keep], s.Y[keep], Z[keep],
                           ds.DoseBasis(1.0, 1.0, l=3, a_lo=a_lo), a_lo=a_lo)
     return dict(prob=prob, cluster=s.extras["claim_id"][keep], levels=None,
                 edges=np.quantile(prob.Q, np.linspace(0, 1, 9)), n_bins=None,
                 a_grid=np.array([0.3, 0.45, 0.6, 0.75, 0.9, 1.0]),
-                note=f"CWBH: weekly benefit / cap on log(score / cap kink); Y = {args.outcome or 'weeks_paid'}; "
-                     "schedule x quarter cells in X")
+                note=f"CWBH ({spec}): benefit / cap = min(score / cap kink, 1) on log(score / cap kink); "
+                     f"Y = {args.outcome or 'weeks_paid'}; schedule x quarter cells in X")
 
 
 def cwbh_real(args):
     """CWBH claims with the score and the benefit in 1984 dollars: the 19 schedules then differ (real caps
-    $109-$219), so the score-direction modifier is not absorbed. Reference $150 a week."""
+    $109-$219), so the score-direction modifier is not absorbed. Reference $150 a week. A check on the
+    scale only: here the dose depends on the schedule as well as the score."""
     from experiments.datasets.ui_cwbh import adapter as ad
+    spec = getattr(args, "cwbh_spec", "main")
     s = ad.load_dose(outcome=args.outcome or "weeks_paid", dose="real")
-    fn = s.feature_names
     lq = np.log(s.Q)
     keep = (lq > np.quantile(lq, 0.01)) & (lq < np.quantile(lq, 0.99))
-    Z = s.X[:, [fn.index(c) for c in ("age", "male", "educ")]]
+    Z = _cwbh_Z(s, spec)
     A = s.extras["A"]
     a_lo, a_bar = float(np.quantile(A[keep], 0.005)), float(np.quantile(A[keep], 0.995))
     prob = ds.DoseProblem(lq[keep], s.X[keep], A[keep], s.Y[keep], Z[keep],
@@ -123,7 +150,7 @@ def cwbh_real(args):
     return dict(prob=prob, cluster=s.extras["claim_id"][keep], levels=None,
                 edges=np.quantile(prob.Q, np.linspace(0, 1, 9)), n_bins=None,
                 a_grid=np.array([60, 90, 120, 150, 180, 210.0]),
-                note=f"CWBH: weekly benefit (1984 $) on log real score; reference $150; "
+                note=f"CWBH ({spec}): weekly benefit (1984 $) on log real score; reference $150; "
                      f"Y = {args.outcome or 'weeks_paid'}")
 
 
@@ -256,6 +283,8 @@ def run(name, args):
     print("score-direction modifier test:", {k: round(v, 4) if isinstance(v, float) else v for k, v in mt.items()})
     OUT.mkdir(parents=True, exist_ok=True)
     tag = name + ("" if args.x == "linear" else f"_{args.x}") + (f"_{args.outcome}" if args.outcome else "")
+    if name.startswith("cwbh") and getattr(args, "cwbh_spec", "main") != "main":
+        tag += f"_{args.cwbh_spec}"
     json.dump({"readiness": rd, "edges": est["edges"].tolist(), "a_grid": est["a_grid"].tolist(),
                "effect": eff.tolist(), "rotation_sd": sd.tolist(), "coverage": cov.tolist(), "modifier_test": mt,
                "K": est["K"], "k": est["k"], "note": cfg["note"]}, open(OUT / f"{tag}.json", "w"), indent=1, default=float)
@@ -266,6 +295,8 @@ def main():
     p.add_argument("names", nargs="+", choices=sorted(DATASETS))
     p.add_argument("--seed", type=int, default=0)
     p.add_argument("--x", default="linear", choices=["linear", "cubic"], help="taxi: baseline in distance")
+    p.add_argument("--cwbh_spec", default="main", choices=["main", "v1"],
+                   help="cwbh: main (exact schedule, state in Z) or v1 (rounded dose, Z = age, sex, education)")
     p.add_argument("--outcome", default=None, help="ui: weeks, benefits, spell or earn_post; cwbh: weeks_paid, duration, weeks_claimed")
     args = p.parse_args()
     for name in args.names:

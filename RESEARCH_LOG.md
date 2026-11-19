@@ -9,6 +9,41 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - UI main specification: exact schedule, state among the modifiers; low doses not robust (Claude)
+
+Author: "yes, make state a modifier everywhere. However, dose should be only dependent on score",
+then "As long as you choose a setting where dose is only dependent on score, up to rounding, thats
+fine with me" and "push it when done." `dose_schedule_apply.cwbh` (spec "main", default; "v1" keeps
+the old configuration): the dose is the schedule A = min(score / cap kink, 1) instead of the benefit
+rounded to whole dollars (the rounding differs for 53.5% of claims, by 0.0036 of the cap on average,
+about $0.48, at most 0.011), the 34 claims at a state floor are dropped (n = 128,281), and Z = age,
+sex, education + state (Idaho reference). `cwbh_real` gets the same Z. All UI outputs regenerated
+(`cwbh.png`, `redesign_cwbh_weeks`, `redesign_cwbh_free` with a new `family_in_band` field,
+`redesign_free_cross*`, `ui_by_state.json`); written into `manuscript/dose_schedule_applications.tex`
+(Overleaf a8a0220, CHANGELOG 61263a2).
+
+- **60-90% of the cap is robust.** Same Z, rounded vs exact dose: within 0.13 weeks at 60, 75 and 90%
+  of the cap in the middle bins. Main specification: -2.2 to -4.5 weeks at 60% of the cap (bins
+  0.44-1.12 of the kink), -1.2 to -3.0 at 75%.
+- **Below 60% of the cap it is not.** At 45% of the cap: -5.6 (rounded) vs -11.5 (exact) at 0.59-0.74 of
+  the kink, -8.3 vs -29.7 at 0.91-1.12, with rotation sd 8 to 34 under the exact dose. Below the cap
+  log A = Q = T + eta, so that part of the tensor surface is nearly collinear with the baseline; the
+  rounding noise had made it look stable. This is the reference-region point of the theory showing
+  up in the data, and it means low-dose results were never well identified.
+- **Consequences.** U(theta) below 0.8 is unstable (theta = 0.6: -5.6, rotations -2.8 to -10.1). The
+  family redesign no longer gains: cap 0.95 x1.15 -0.08 (-0.19 to +0.02), 0.90 x1.31 -0.06 (-0.11 to
+  -0.02), 0.85 x1.62 -0.02 (-0.18 to +0.25); band support 45/68/74% (today 93%). The earlier -0.32 at
+  cap 0.85 (2026-11-02 entry) came from the low-dose surface. Free schedules: -0.52 own fit, -0.38
+  cross-evaluated (-1.45 to +0.17, two of six raise weeks); monotone -0.27 and -0.41 (all six lower).
+  The 2026-11-12 conclusion that the free UI gain "holds up" does not survive the new specification.
+- **Unchanged in substance.** Elasticity about 0.3-0.6; alpha grows in size with eta (about -0.5 at
+  eta -0.7 to -6 at eta 0.4 at 60% of the cap); state effects at 0.59-0.91: ID -2.9, LA -3.7, MO -3.6,
+  NM -3.3 weeks at 60% of the cap; common response rejected (MO +5.0 to +5.9, NM +1.3 to +2.6, LA +1.0
+  to +2.0); real-dollar modifier test -0.074 (se 0.008).
+- `DOSE_SCHEDULE_DATASETS_20261028.md`: the ui_cwbh row marked as superseded.
+
+— Claude
+
 ## 2026-11-19 - UI: one schedule for everyone; pooling the states is defensible with state as a modifier (Claude)
 
 Author: "let's say I only consider one state ... It would make the theory easier", then "OK,

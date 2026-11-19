@@ -32,10 +32,15 @@ EDGES = np.log(np.array([0.2, 0.44, 0.59, 0.74, 0.91, 1.12, 1.40, 4.0]))
 
 
 def main():
+    from experiments.scripts.dose_schedule_apply import _cwbh_sample
     s = ad.load_dose()
     fn = s.feature_names
     lq = np.log(s.Q)
-    keep = (lq > np.quantile(lq, 0.01)) & (lq < np.quantile(lq, 0.99))
+    keep_v1 = (lq > np.quantile(lq, 0.01)) & (lq < np.quantile(lq, 0.99))
+    keep, A_main = _cwbh_sample(s, "main")          # exact schedule A = min(e^Q, 1); floor claims dropped
+    rounding = np.abs(s.extras["A"][keep] - A_main[keep])
+    floor_dropped = int(keep_v1.sum() - keep.sum())
+    s.extras["A"] = A_main
     state, sched = s.extras["state"], s.extras["schedule"]
     zc = [fn.index(c) for c in ("age", "male", "educ")]
     _, eta_pooled, _ = ds.first_stage(lq[keep], s.X[keep], np.ones(keep.sum(), bool))
@@ -72,8 +77,12 @@ def main():
                     f"{eff[i, j]:9.2f} ({sd[i, j]:7.2f},{100 * cov[i, j]:3.0f}%)" for j in range(4)), flush=True)
     out["pooling_test"] = pooling_test(s, lq, keep, zc)
     out["state_modifier"] = state_modifier(s, lq, keep, zc)
-    out["share_at_floor"] = float(np.mean(s.extras["A"][keep] <= (s.extras["min_b"] / s.extras["max_b"])[keep] + 1e-9))
-    print("\nshare of the trimmed sample at its floor: %.4f" % out["share_at_floor"])
+    out["floor_claims_dropped"] = floor_dropped
+    out["rounding"] = dict(share_differing=float(np.mean(rounding > 1e-9)), max=float(rounding.max()),
+                           mean_among_differing=float(rounding[rounding > 1e-9].mean()))
+    print(f"\nclaims at a state floor dropped: {floor_dropped}; rounded dose differs from the schedule for "
+          f"{out['rounding']['share_differing']:.3f} of claims, by {out['rounding']['mean_among_differing']:.4f} of the cap "
+          f"on average (max {out['rounding']['max']:.4f})")
     json.dump(out, open(FIG / "ui_by_state.json", "w"), indent=1)
 
 

@@ -406,6 +406,19 @@ def cwbh_free():
     out = _free_run(p, fits, edges, grid, unit_dose=lambda a, idx: np.full(len(idx), a),
                     today=lambda idx: a_today[idx], loss=loss, cost=lambda idx, a, weeks: weeks * a,
                     pop=np.ones(len(p.Q), bool))
+    # how much of each family design stays inside the bin-level supported doses (the grey band)
+    fam_rows = json.load(open(FIG / "redesign_cwbh_weeks.json"))["rows"]
+    lo = np.array([np.nan if v is None else v for v in out["allowed_lo"]])
+    hi = np.array([np.nan if v is None else v for v in out["allowed_hi"]])
+    b_all = np.clip(np.searchsorted(edges, p.Q, side="right") - 1, 0, len(edges) - 2)
+    half = 0.5 * (grid[1] - grid[0])
+    out["family_in_band"] = {}
+    for r in fam_rows:
+        if r["s"] != r["s"]:
+            continue
+        a = np.clip(r["s"] * x, floor, r["x"])
+        out["family_in_band"][f"{r['x']:.2f}"] = float(np.nanmean((a >= lo[b_all] - half) & (a <= hi[b_all] + half)))
+    print("  share of claimants inside their bin's supported doses, family by cap:", out["family_in_band"], flush=True)
     json.dump(out, open(FIG / "redesign_cwbh_free.json", "w"), indent=1)
     xs = np.exp(0.5 * (edges[:-1] + edges[1:]))
     q = np.exp(np.linspace(p.Q.min(), p.Q.max(), 300))
