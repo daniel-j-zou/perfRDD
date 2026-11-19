@@ -9,6 +9,97 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-18 - Simulations for the predicted referee concerns; Appendix 6 rerun with the four-role estimator (Claude)
+
+Author, 2026-11-18. First: "Delete the archives, and do the taxi simulation. I would prefer
+other types of ablation sims, like coming up wiht simulation settings with lower or higher
+first stage R^2". Then: "The simulation doesnt need to be about taxis. It can just be a
+normal simulation setting, just change the amount of noise via eta" and "In fact, its
+better if the simulations are not from taxi". The plasmode (taxi-based) simulation was
+dropped before any cluster run. Changing the noise of eta with the covariate part fixed is
+the R^2 grid of §5.5 in other units of the score, which the author was told. After a list
+of predicted referee concerns: "Any sims that can fix those?", then "do all five".
+
+- **Cost.** The author asked "why is it so expensive?" (about 5,200 CPU-hours) and chose the
+  cheaper option: n = 256k only for the seven large-n designs, with 499 draws ("yes, do
+  that"). The Great Lakes login had dropped before the cancel reached the cluster, so the
+  original run finished as submitted: all eleven designs at 16k, 64k and 256k, 999 draws,
+  about 5,200 CPU-hours (about $78). One 256k task (cluster_g31, data sets 416-423) timed out
+  after 7 of 8 data sets; rerun 66413741, merge 66413742.
+- **Taxi facts used for calibration** (R2-E1 data, computed this session; not new results
+  for the paper): the share of Var(eta-hat) between calendar days is 0.023 (ride-weighted;
+  the s.d. of the 31 day means is 0.089, against 0.003 for independent rides); the same
+  share for the tip residual is 0.0002; sd(eta-hat) varies 1.52-fold across hours; eta-hat
+  has skewness 2.03 and kurtosis 17.5; the $0.40 fare step is 0.27 sd(eta-hat) near $13;
+  the independence diagnostics of `runs/taxi_section6/summary.json` are R^2 0.093 (eta-hat on
+  rich covariate functions), 0.203 (eta-hat^2) and spread factor 1.48. The dependence is
+  mostly in the mean, not the spread: a linear regression of eta-hat^2 on the score
+  covariates gives 0.031, and 20 distance groups by hour 0.012.
+- **Script** `experiments/scripts/ds_review_ablations.py` (commits dd7bbcd, 6529929): the
+  estimator of `ds_r2_balance_coverage.estimate` without the oracle arm (four-role split,
+  OLS, spline outcome fit on J, spline g and rho_X, rotated average, trim window capped at
+  the central 99% of eta-hat). Section 5 family (Table 2's seeds; the base design reproduces
+  Table 2's data exactly and its estimates exactly on one machine, to 1e-8 across machines):
+  `cluster_g31` (31 groups; eta = sqrt(0.975) eta0 + sqrt(0.025) u_g; effect group shift
+  w_g ~ N(0, 0.0615^2), which alone doubles Var(phi-hat) at 64k since d phi*/dw = -1.905;
+  unit and group bootstraps on every data set), `interact_k10`/`k20` (effect + kappa T eta),
+  `grid_h27` (Q rounded to multiples of 0.27, D = 1{Q >= 0}), `flat_l50`/`l25` (alpha - c
+  and beta2 times lambda), `skew` (standardized Johnson SU, a = -0.659853, b = 1.271042:
+  skewness 2.03, kurtosis 17.5). Appendix 7 family (`location_scale/hetero.py` design,
+  phi0 = 1, eps = 0.05, Phi = [-0.2, 2.2], J = central 99.5% of eta): `hetero_a148`,
+  `hetero_b148` (k = 0.2791, the Appendix 7 designs (a) and (b)), and `hetero_ca`,
+  `hetero_cb`: eta = m(X1) + s(X) zeta with m(X1) = A (e^{-B X1} - e^{B^2/2}) +
+  A B e^{B^2/2} X1 (orthogonal to 1, X1, X2), A = 1.056159, B = 0.588515, k = 0.335396,
+  matched to all three taxi diagnostics (first-stage R^2 0.48); effect of zeta (ca) or of
+  eta (cb). Targets by quadrature; they reproduce the saved Appendix 7 targets (0.834604;
+  0.861394 against 0.861391) and, for ca, a brute-force simulation (4e7 draws) to four digits.
+- **Results** (rotated average; percentile / normal coverage; 500 data sets, 999 draws):
+
+  | design | n = 16k | 64k | 256k | note |
+  |---|---|---|---|---|
+  | cluster_g31, units | .880/.894 | .738/.742 | .512/.508 | boot/MC var .66, .34, .13 |
+  | cluster_g31, groups | .936/.934 | .930/.942 | .958/.954 | boot/MC var .94, .98, 1.07 |
+  | interact_k10 | .930/.940 | .904/.918 | .820/.828 | target .5216, limit .5303 (MC mean .5313), gain lost .03% |
+  | interact_k20 | .926/.938 | .908/.918 | .814/.822 | target .5693, limit .5772 (.5781), .02% |
+  | grid_h27 | .940/.936 | .938/.950 | .932/.938 | interval holds the best cell always; picks it 91% / 99.8% / 100% |
+  | flat_l50 | .940/.948 | .952/.958 | .958/.958 | bias <= .19 sd |
+  | flat_l25 | .946/.932 | .944/.970 | .948/.958 | bias <= .35 sd; 3% of rotations at the edge at 16k |
+  | skew | .940/.942 | .956/.958 | .944/.946 | target .8212 |
+  | hetero_a148 | .898/.946 | .674/.744 | .086/.092 | mean .885 vs target .835; gain lost 9.4% |
+  | hetero_b148 | .976/.982 | .956/.966 | .946/.946 | mean .865 vs .861; .06% |
+  | hetero_ca | .038/.024 | 0/0 | 0/0 | mean 1.507 vs .770; 837% (worse than phi0) |
+  | hetero_cb | .914/.922 | .812/.830 | .446/.456 | mean .859 vs .885; 5.2% |
+
+- **Finding: the Appendix 7 limits are for a different implementation.** `tab:ds-hetero`
+  was computed with `location_scale/common.py`, which fits each arm on its own central
+  99.5% of eta-hat, uses the empirical distribution of T-hat and does not cap the window.
+  With the paper's estimator design (a) converges to about 0.885 (limit there 0.918), and
+  forgoes 9% of the gain instead of 26%.
+- **Finding: the mean dependence is what matters.** With taxi-strength dependence, if the
+  effect depends on the residual of the correct (nonlinear) score, the linear-score estimate
+  is far off. Exploratory remedy (`experiments/scripts/ds_review_spline_score_check.py`, 24
+  data sets at 64k, no bootstrap): adding a spline in X1 to the covariates moves the mean
+  from 1.500 to 0.841 (target 0.770; gain lost 825% -> 10%); the rest is the spread
+  dependence of design (a).
+- **Appendix 6 rerun** (`experiments/scripts/ds_appendix6_rerun.py`, commit dc77694, run
+  locally): baseline and quadratic designs with the four-role spline estimator, D X fit and
+  common-slope fit on the same data, n = 1k-64k, 500 data sets. Baseline: D X fit centered
+  (sd .035, .017, .009 at 4k, 16k, 64k); common slope converges to -0.724 (target -0.120),
+  worse than phi0. Quadratic: D X fit converges to 0.467 (target 0.484, gain lost 0.13%);
+  common slope at the edge phi = 3 in every data set from 4k on. Limits by population
+  projection with K = 20 knots.
+- **Paper** (manuscript 1aabdca): Appendix 6 rewritten; new §5.6 "Departures from the
+  design"; new Appendix 7 part "Departures suggested by the application" (tables
+  `tab:ds-departures`, `tab:ds-departures-bias`); the X-eta part gains the paper-estimator
+  coverage and design (c) (`tab:ds-hetero-cov`); designs table rows; one §6.4 paragraph.
+  §6.3 gains one sentence on the group design (after "we read it as a rough check"). The
+  Appendix 6 text that another session applied for review items m50 and f4 earlier the same
+  day (old runs, Monte Carlo errors) is replaced by the rerun.
+- **Open for the author:** (1) the taxi score's mean dependence: whether to fit a more
+  flexible score (the R3-E1 spline row) together with the location-scale fit; (2) whether
+  the day-resampling interval becomes the headline interval (the group design supports it:
+  at 256k resampling units covers .51, resampling the 31 groups .96).
+
 ## 2026-11-19 - Binary outcomes: the target stays on the probability scale; estimation laid out in order (Claude)
 
 Follow-up to "VLBW on the log-odds scale without the ridge" (2026-11-19).

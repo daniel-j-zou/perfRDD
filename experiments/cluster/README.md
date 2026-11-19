@@ -170,6 +170,11 @@ months is slower still.
 | 2026-11-18 | 66381844 | review ablations, `SET=long` (11 designs at 256k), 693 tasks x 8 CPUs, 2 GB/CPU, `--time=03:00:00`, commit dd7bbcd, out `experiments/runs/ds_review_ablations_999` | submitted |
 | 2026-11-18 | 66381846 | the same, `SET=short` (16k, 64k), 869 tasks x 4 CPUs, 90 min limit | submitted |
 | 2026-11-18 | 66381847 | merge, afterok:66381844:66381846 | submitted; about 5,200 CPU-hours expected in all |
+| 2026-11-18 | 66381844, 66381846, 66381847 | (result) | the author chose the cheaper plan (256k only for seven designs, 499 draws), but the login screen ended before the cancel reached the cluster, so both arrays ran as submitted: 692 of 693 long tasks and all 869 short tasks completed; task 66381844_52 (cluster_g31, 256k, data sets 416-423) timed out at 3:00 after 7 of 8 data sets, so the merge was cancelled by its dependency; about 5,200 CPU-hours |
+| 2026-11-18 | 66413741 | rerun of task 52 (`--array=52`, SET=long, BOOT=999, 4 h, commit 6529929, whose shard list starts with the same cluster_g31 shards) | 1 h 20 min; resumed from the 7 saved data sets |
+| 2026-11-18 | 66413762 | interim merge, debug, LONG_DESIGNS without cluster_g31 | 2.5 min; all other cells complete |
+| 2026-11-19 | 66413742 | final merge, afterok:66413741, LONG_DESIGNS = all eleven | done 00:45; 33 cells x 500 data sets x 999 draws; overview in `overview.md`; results in the 2026-11-18 research-log entry |
+| 2026-11-19 | none | department billing check for the author (`my_usage`, `sreport -T billing`) | November: $194, 4th of 49 users of stats_dept1/2 (9% of about $2,120); fiscal year: 24th of 108 (1.2%); spending rule added above |
 
 Lesson (2026-11-15): seconds per replication at n = 64k ranged from 796 to 1637 across
 standard nodes, a factor of two, so a time limit of 1.7 times the median was too tight for
