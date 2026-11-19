@@ -175,6 +175,9 @@ months is slower still.
 | 2026-11-18 | 66413762 | interim merge, debug, LONG_DESIGNS without cluster_g31 | 2.5 min; all other cells complete |
 | 2026-11-19 | 66413742 | final merge, afterok:66413741, LONG_DESIGNS = all eleven | done 00:45; 33 cells x 500 data sets x 999 draws; overview in `overview.md`; results in the 2026-11-18 research-log entry |
 | 2026-11-19 | none | department billing check for the author (`my_usage`, `sreport -T billing`) | November: $194, 4th of 49 users of stats_dept1/2 (9% of about $2,120); fiscal year: 24th of 108 (1.2%); spending rule added above |
+| 2026-11-19 | 66418729 | packing the review-ablation results (merged rows, summaries, logs, shard provenance; shard rows left on the cluster), debug, 2 CPUs | 1.5 min; 464,114,852-byte archive, 204 parts; copied back through the tab (about 8 s per part), sha256 matched; unpacked into local `experiments/runs/ds_review_ablations_999/` (archive kept in its `transfer/`); all 33 summaries recomputed locally agree to 2e-8. Cluster copies in `~/xfer_rev/` (about 1 GB) left for the author to delete |
+| 2026-11-19 | 66418944 | full-sample reuse against the four-role estimator (review item m19; `ds_fullsample_reuse.py`), 88 tasks x 4 CPUs, Table 2's data sets at 4k/16k/64k, 999 draws, commit 7a3fe15, out `experiments/runs/ds_fullsample_reuse_999` | all 88 completed, 104.6 CPU-hours; copied back (13,013,487-byte archive, 6 parts, sha256 matched); results in the research log (2026-11-19 follow-up) |
+| 2026-11-19 | 66418945 | merge, afterok:66418944 | done; 500 distinct data sets at each n |
 
 Lesson (2026-11-15): seconds per replication at n = 64k ranged from 796 to 1637 across
 standard nodes, a factor of two, so a time limit of 1.7 times the median was too tight for

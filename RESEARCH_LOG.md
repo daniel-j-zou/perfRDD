@@ -9,6 +9,44 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - Follow-up: full-sample reuse against the rotated average; taxi figure redrawn; review-ablation results copied back (Claude)
+
+Author, 2026-11-19: "Check the new todos in the simulation section", then "Do both, with as many
+draws as you think would be good for the paper" and "send to cluster if necessary". The two
+todo boxes for the simulation session were review-6 items m19 and m42/o16.
+
+- **Full-sample reuse (m19).** `experiments/scripts/ds_fullsample_reuse.py` (commit 7a3fe15):
+  the Section 3 estimator with every role on all n (score regression, g and rho_X, trim
+  endpoints with the 99% cap, outcome fit on J with the knot rule at n, evaluation over all
+  n), on Table 2's data sets (base design of `ds_review_ablations`, seeds checked against
+  the r2_50_bal rows), 500 per n, 999 draws resampling Table 2's indices (stream [seed, 2]),
+  no split. Great Lakes array 66418944 + merge 66418945, 104.6 CPU-hours. Results (rotated
+  average from r2_50_bal on the same data sets):
+
+  | n | estimator | sqrt(n) bias (se) | n Var | boot/MC var | coverage pct/normal |
+  |---|---|---|---|---|---|
+  | 4,000 | rotated | +1.40 (.24) | 29.3 | 1.15 | .966/.958 |
+  | 4,000 | full sample | -0.10 (.23) | 26.6 | 1.08 | .950/.946 |
+  | 16,000 | rotated | +0.53 (.24) | 29.2 | .96 | .938/.936 |
+  | 16,000 | full sample | +0.18 (.24) | 28.6 | .95 | .936/.934 |
+  | 64,000 | rotated | +0.56 (.24) | 28.3 | .95 | .952/.956 |
+  | 64,000 | full sample | +0.44 (.24) | 27.9 | .96 | .952/.956 |
+
+  Per data set the two estimates correlate .957, .990 and .997; the sd of their
+  difference is .29, .14 and .08 of the rotated average's sd. In this design full-sample
+  reuse loses nothing; the theory still does not cover it. Copied back (13 MB archive,
+  sha256 matched; summaries recomputed locally agree to 1e-15). Paper: Appendix 7 part
+  "Full-sample reuse", Table `tab:ds-fullsample`, §3.4 pointer (manuscript 0fd7066).
+- **Taxi figure (m42, o16).** `paper_figure` in `taxi_section6.py` (code e61a5a7) redraws
+  `fig:taxi` from the saved results: inset on $11-$16, printed size, one colour with line
+  styles, panels (a)/(b); caption rewritten (manuscript 2f8252e). The flat upper edge of
+  the band in (b) at the window's lower end (eta = -0.38 in the paper's units) is a
+  boundary effect: 572 of the 67,271 treated rides in the window lie below eta = -0.34, and
+  62 of 999 bootstrap curves rise toward the end (64% of the draws in the top 5% there).
+- **Review-ablation results copied back:** 464 MB archive (pack job 66418729), sha256
+  matched; all 33 summaries recomputed locally agree to 2e-8 with the cluster's. Cluster
+  transfer copies `~/xfer_rev` and `~/xfer_fs` left for the author to delete.
+
 ## 2026-11-19 - UI main specification: exact schedule, state among the modifiers; low doses not robust (Claude)
 
 Author: "yes, make state a modifier everywhere. However, dose should be only dependent on score",
