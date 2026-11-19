@@ -177,6 +177,14 @@ decision history at the end. How to change this file is described in "Updating t
   window cap; 500 data sets x 999 draws per cell. In the paper as §5.5 and an Appendix 7
   part (manuscript 0aeca55). The taxi application also reports a bootstrap that resamples
   days and day-hours (manuscript 19365d7).
+- **Departures suggested by predicted referee concerns** (author, 2026-11-18: "do all
+  five", after "its better if the simulations are not from taxi"): synthetic designs
+  that change one feature of the Section 5 or Appendix 7 design (31 groups with unit and
+  group bootstraps, an effect term outside the model, a score on a grid, flat
+  utilities, a skewed residual, X-eta dependence at taxi strength), 500 data sets x 999
+  draws at n = 16k-256k; Appendix 6 rerun on the four-role estimator. In the paper as
+  §5.6, Appendix 6 and Appendix 7 parts (manuscript 1aabdca). The taxi-based (plasmode)
+  simulation was dropped at the author's request.
 
 ## Application
 
@@ -367,7 +375,14 @@ only when the author asks; it does not change the sections above.
 
 ## Open questions for the author
 
-- None open (2026-11-16 review).
+- **Taxi score and X-eta dependence** (from the 2026-11-18 simulations): with the taxi's
+  dependence of eta on the covariates in mean as well as spread, an effect that depends
+  on the residual of a correctly specified score sends the linear-score estimate far
+  off. Should the application add a more flexible score (the R3-E1 spline row) together
+  with the location-scale fit? An exploratory check says a spline score repairs most of
+  it.
+- **Headline taxi interval:** day resampling or ride resampling? In the 31-group
+  simulation, resampling units covers 0.51 at n = 256k and resampling groups 0.96.
 
 ## Updating this file
 
@@ -411,6 +426,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-18 | Simulations for predicted referee concerns, not built from the taxi data (the plasmode design dropped); all five run; the author chose the cheaper plan, but the full run went through when the login dropped (about 5,200 CPU-hours); a spending rule added under How we work (2026-11-19) | Author: "do all five"; "its better if the simulations are not from taxi"; "lets be a bit more careful"; log "Simulations for the predicted referee concerns; Appendix 6 rerun with the four-role estimator" (2026-11-18); manuscript 1aabdca |
 | 2026-11-19 | Review-6 round 2: the author decided the remaining items in chat; identification stated as Proposition 1; the application framed as a demonstration with a stated range; (A1)(iii) and Proposition 2 trimmed; Appendix 6 says its runs use full-sample and cross-fit fits; back matter uncommented; m3, m8, m9, o3 left as they are; m59 open | Log: "Review-6 round 2" (2026-11-19); manuscript e862b51 |
 | 2026-11-18 | Review-6 writing pass: the author marked the change items in check-off boxes; 34 applied, among them the §1 reorder (prior work before the gap, "purpose" sentence dropped), the price as three assumptions, i.i.d. observations stated in §2.1 and §4.1, and the renames above (q_p, Delta_n, B_l/B_u/B_v, m, n_min, zeta_gamma; role influence functions, derivative integrand, rotated average, pooled maximizer, fit of the linear predictor); m12 (contribution pointers) declined; Figure 1 redraw left as a todo box | Log: "Review-6 change items applied" (2026-11-18); manuscript 5a071bc |
 | 2026-11-17 | Simulations add designs like the application: first-stage R^2 0.1-0.9 and 11% treated (author's request), and a taxi-like design; the taxi intervals add a day-resampling bootstrap (author: free rein overnight to run what makes the paper better) | Log: "Coverage across the first-stage R^2 and the treated share; taxi bootstrap by day" (2026-11-17) |
