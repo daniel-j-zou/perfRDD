@@ -74,6 +74,17 @@ under the computing rule in PROJECT_SCOPE.md; this run had already started on th
 - **Paper** (manuscript 3396717): §5.2 paragraph on full-sample reuse; Appendix 7 table
   `tab:ds-dep-path` and paragraph; two sentences in §5.6.
 
+## 2026-11-19 - UI goal kept for now: fewer weeks paid at today's spending (Claude)
+
+The author asked what the goal of the UI schedules is. It had been a working choice made when the
+redesign code was set up, never decided: fewer weeks paid, and in the budget-neutral problems fewer
+weeks paid at today's benefit spending (same money paid over fewer weeks). It is the cost side of the
+standard UI trade-off (Baily 1978, Chetty 2006) without the insurance value, which is why the free
+schedule cuts low earners' benefits. Options given: keep it as a stylized goal; a welfare goal with an
+assumed insurance value (interior optimum, no budget needed); or both. Author: "Keep it as is for now."
+Recorded in PROJECT_SCOPE.md decision history. The open question on Fig. 2 panels A and B (relabel,
+add schedule sketches, or drop A) is unanswered; nothing changed.
+
 ## 2026-11-19 - Treatment Intensities Section 6: fitted b and alpha, then utility and schedules (Claude)
 
 Author: show the fits of the nonparametric parts first, then the utility curves and schedules by
