@@ -9,6 +9,25 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-19 - Treatment Intensities rewritten as a methods proposal (Claude)
+
+Author: "Make this the setting of this draft. However, focus the draft on the methodology. Assume
+readers know about the original differing_slopes.tex setting, and think of this as a proof of concept
+of an extension of that paper into a setting where treatment has intensity ... For any proofs, just do
+a sketch instead", pointing to binary_outcome_vlbw.tex as an imperfect example.
+`manuscript/dose_schedule_applications.tex` (Overleaf d32feb9, CHANGELOG fbdf5c9) is now organized
+around the extension: the model E{Y(a) | X, eta} = b(eta) + X'beta_1 + alpha(eta, a) + (a - a_ref)
+X_e'beta_2, with the paper as the step schedule; identification (Proposition 1, conditions (I1)-(I3):
+reference units with spread covariates at each eta, doses with a density at each eta, effect
+covariates varying at fixed dose); the non-identification direction without a reference region
+(alpha + lambda{s^-1(a) - q_ref} is absorbed by b and beta_1), which is the reason the UI estimates
+below 60% of the cap are fragile; estimation with three roles (no density fold, since the utility of a
+schedule averages over the units' own scores); consistency, regret and root-n for smooth families as
+sketches taken from `dose_schedule_sketch.tex`; budget-neutral schedules; a condensed UI proof of
+concept with the main-specification numbers of the previous entry. No new computations.
+
+— Claude
+
 ## 2026-11-19 - Follow-up: full-sample reuse against the rotated average; taxi figure redrawn; review-ablation results copied back (Claude)
 
 Author, 2026-11-19: "Check the new todos in the simulation section", then "Do both, with as many
