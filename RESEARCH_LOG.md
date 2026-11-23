@@ -9,6 +9,32 @@ Never edit or delete another agent's entry; add a follow-up when a conclusion ch
 
 ---
 
+## 2026-11-23 - Target journal JRSS-B for now; paper reformatted and the supplement split off (Claude)
+
+Author decision (2026-11-23): "I want to change the format to JSRRB" (read as JRSS-B,
+which the author confirmed); "jrssb is the goal for now, but its not final. please
+reformat". Template: article.cls. Length: "Split only".
+
+- **JRSS-B instructions to authors** (academic.oup.com/jrsssb/pages/general-instructions,
+  read 2026-11-23):
+  - under 30 pages in the submission format (A4, 12 pt, double-spaced, 28 lines per
+    page), "including all appendices, references, tables, and figures"; online
+    supplementary material does not count;
+  - an abstract of at most 200 words, without citations;
+  - five or six key words, in alphabetical order;
+  - LaTeX: article.cls recommended, an optional RSS template;
+  - equations and theorems numbered consecutively by type;
+  - a Data Availability Statement before the Acknowledgements;
+  - code public with a DOI before acceptance;
+  - generative-AI use disclosed;
+  - tables at the end and figures as separate files at submission.
+- **Measured in that format** (before the split): main text about 27 pages, references
+  about 5, Appendices 1-7 about 95.
+- **Done** (manuscript 291b46a): the main paper is 32 pages; the Supplementary Material
+  (Appendices 1-7) is 101 pages. Cross-references between them use xr-hyper and a
+  latexmkrc (Overleaf's recipe). Both build with 0 undefined references and 0 overfull
+  boxes. Key words sorted; the author has four and JRSS-B asks for five or six.
+
 ## 2026-11-19 - Bootstrap of the VLBW probability-scale optimum without the penalty (Claude)
 
 Author, 2026-11-19: "rerun the bootstrap for the no-ridge fit".

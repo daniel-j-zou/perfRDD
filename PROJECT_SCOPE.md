@@ -13,10 +13,18 @@ decision history at the end. How to change this file is described in "Updating t
 
 ## Goal
 
-- **Deliverable:** a journal submission. Write it in *Biometrika* style; the venue is not
-  final and there is no date.
-- **Paper of record:** `../manuscript/differing_slopes.tex`. The main text carries the
-  argument; complete proofs go in the supplement.
+- **Deliverable:** a journal submission, formatted for *JRSS-B* (Journal of the Royal
+  Statistical Society, Series B) since 2026-11-23; the venue is the goal for now, not
+  final, and there is no date. (Before 2026-11-23: *Biometrika* style; last
+  Biometrika-format version manuscript 03b749e.)
+- **Paper of record:** `../manuscript/differing_slopes.tex`, the main paper (article class,
+  12 pt, A4, double-spaced); Appendices 1-7 are the Supplementary Material,
+  `../manuscript/differing_slopes_supplement.tex`. Shared preamble `ds_preamble.tex`;
+  `latexmkrc` builds each document's cross-references to the other. The main text
+  carries the argument; complete proofs go in the supplement. JRSS-B asks for under 30
+  pages in its format (the main paper with references is 32; author: no trim for now),
+  an abstract of at most 200 words without citations, and five or six key words in
+  alphabetical order.
 - **Frozen:** `prelim/prelim.tex` and `prelim/slides.tex` are the prelim record. Do not edit
   them unless the author asks.
 - **Name:** "Performative RDD" is a legacy name. The paper does not model units reacting to
@@ -428,6 +436,7 @@ asks whether to update the file first.
 
 | Date | Decision | Source |
 | --- | --- | --- |
+| 2026-11-23 | Target journal JRSS-B for now (not final), replacing Biometrika style; reformatted with article.cls (12 pt, A4, double-spaced); Appendices 1-7 split into a Supplementary Material document; main text not trimmed (32 pages with references against the 30-page guidance) | Author: "I want to change the format to JSRRB"; "jrssb is the goal for now, but its not final. please reformat"; article.cls; "Split only" (2026-11-23); manuscript 291b46a |
 | 2026-11-19 | Treatment Intensities (dose schedules, UI): the goal stays "fewer weeks paid at today's benefit spending" for now, a stylized proof-of-concept goal (cost side only); the open alternative is a welfare goal, insurance value of benefits minus their cost, which needs one assumed parameter | Author: "Keep it as is for now" (2026-11-19), after the options were laid out; log "UI goal kept for now" |
 | 2026-11-18 | Simulations for predicted referee concerns, not built from the taxi data (the plasmode design dropped); all five run; the author chose the cheaper plan, but the full run went through when the login dropped (about 5,200 CPU-hours); a spending rule added under How we work (2026-11-19) | Author: "do all five"; "its better if the simulations are not from taxi"; "lets be a bit more careful"; log "Simulations for the predicted referee concerns; Appendix 6 rerun with the four-role estimator" (2026-11-18); manuscript 1aabdca |
 | 2026-11-19 | Review-6 round 2: the author decided the remaining items in chat; identification stated as Proposition 1; the application framed as a demonstration with a stated range; (A1)(iii) and Proposition 2 trimmed; Appendix 6 says its runs use full-sample and cross-fit fits; back matter uncommented; m3, m8, m9, o3 left as they are; m59 open | Log: "Review-6 round 2" (2026-11-19); manuscript e862b51 |
